@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  frontend:
+    container_name: frontend
+    networks:
+      - transcendence
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+  backend:
+    container_name: backend
+    networks:
+      - transcendence
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "8000:8000"
+    restart: on-failure
+
+networks:
+  transcendence:
+    driver: bridge

@@ -1,0 +1,10 @@
+from django.contrib import admin
+from django.urls import path
+from django.conf.urls import include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('user/', include("api.router.user_router")),
+    path('game/', include("api.router.game_router")),
+    path('auth/', include("api.router.auth_router"))
+]
