@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserInfo } from "../types/types";
 import axios from "axios";
+import Header from "../components/Header";
 
 const Login: React.FC = () => {
   const [formState, setFormState] = useState<UserInfo>({
@@ -36,9 +37,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="">
-      <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
-        <Link to="/">Home</Link>
-      </div>
+      <Header />
       <div className="d-flex justify-content-center">
         <form>
           <h3 className="text-center">Login</h3>
