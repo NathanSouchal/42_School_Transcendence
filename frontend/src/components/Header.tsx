@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
   return (
-    <div className="">
+    <div className="mt-4 d-flex flex-row">
       <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
         <Link to="/login">login</Link>
       </div>
