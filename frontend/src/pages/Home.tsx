@@ -3,8 +3,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { UserInfo, LastDeleted } from "../types/types";
 import axios from "axios";
+import Header from "../components/Header";
 
-const App: React.FC = () => {
+const Home: React.FC = () => {
   const [data, setData] = useState<UserInfo[]>([]);
   const [lastDeleted, setLastDeleted] = useState<LastDeleted>({ id: 0 });
 
@@ -42,12 +43,7 @@ const App: React.FC = () => {
 
   return (
     <div>
-      <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
-        <Link to="/login">login</Link>
-      </div>
-      <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
-        <Link to="/register">Register</Link>
-      </div>
+      <Header />
       <div>
         {data && data.length > 0
           ? data.map((res, id) => (
@@ -66,4 +62,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default Home;
