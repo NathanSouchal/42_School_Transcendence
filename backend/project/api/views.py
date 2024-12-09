@@ -103,13 +103,6 @@ class GameView(APIView):
         game = get_object_or_404(Game, id=id)
         return Response({'game': GameSerializer(game).data}, status=status.HTTP_200_OK)
     
-    def post(self, request):
-        serializer = GameSerializer(data=request.data)
-        if serializer.is_valid():
-            game = serializer.save()
-            return Response({'game': GameSerializer(game).data, 'message': 'Game created successfully.'}, status=status.HTTP_201_CREATED)
-        return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
     def put(self, request, id=None):
         game = get_object_or_404(Game, id=id)
         serializer = GameSerializer(game, data=request.data, partial=True)  # partial=True permet de ne mettre à jour que certains champs
@@ -130,6 +123,13 @@ class GameListView(APIView):
 		try:
 			games = Game.objects.all()
 			serialized_games = GameSerializer(games, many=True)
-			return Response({'users': serialized_games.data}, status=status.HTTP_200_OK)
+			return Response({'games': serialized_games.data}, status=status.HTTP_200_OK)
 		except Exception as e:
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+	def post(self, request):
+		serializer = GameSerializer(data=request.data)
+		if serializer.is_valid():
+			game = serializer.save()
+			return Response({'game': GameSerializer(game).data, 'message': 'Game created successfully.'}, status=status.HTTP_201_CREATED)
+		return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
