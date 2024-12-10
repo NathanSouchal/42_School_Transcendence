@@ -1,6 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
+"""
+models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
+(tables de la base de données) dans Django
+
+AbstractBaseUser -> Une classe Django permettant de personnaliser le modèle utilisateur
+tout en conservant les fonctionnalités de base comme la gestion des mots de passe
+
+BaseUserManager -> Une classe utilisée pour personnaliser le gestionnaire (Manager) des
+utilisateurs (inclut la création d utilisateurs normaux et de super-utilisateurs)
+
+PermissionsMixin -> Ajoute des champs et des méthodes pour gérer les permissions et groupes
+des utilisateurs, tels que is_superuser, groups, et user_permissions
+"""
+
 class UserManager(BaseUserManager):
 	def create_user(self, username, password=None, **extra_fields):
 		if not username:
@@ -36,3 +50,26 @@ class Game(models.Model):
 
 	def __str__(self):
 		return f"{self.player1} vs {self.player2} - {self.score_player1}:{self.score_player2}"
+
+"""
+def create_user(self, username, password=None, **extra_fields):
+
+password=None : Le mot de passe est facultatif (il sera haché s'il est fourni)
+**extra_fields : Capture tous les champs supplémentaires passés à la méthode
+self.model : Référence le modèle User. Cela permet de créer une instance utilisateur en passant
+les champs username et extra_fields
+La méthode set_password hache le mot de passe avant de le sauvegarder
+using=self._db garantit que l utilisateur est sauvegardé dans la base de données principale
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+
+bstractBaseUser : Fournit les fonctionnalités de base pour un utilisateur (authentification,
+gestion des mots de passe, etc.)
+PermissionsMixin : Ajoute des fonctionnalités pour la gestion des permissions
+objects = UserManager() : emplace le gestionnaire par défaut par votre gestionnaire personnalisé
+USERNAME_FIELD = 'username' : Indique que username est utilisé comme identifiant principal pour
+l authentification (au lieu de l email, par exemple)
+def __str__(self):
+    return self.username : Définit comment l'utilisateur sera affiché lorsqu'il sera converti en chaîne de caractères.
+"""

@@ -1,8 +1,7 @@
-import React from "react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
 import { UserInfo } from "../types/types";
 import axios from "axios";
+import Header from "../components/Header";
 
 const Login: React.FC = () => {
   const [formState, setFormState] = useState<UserInfo>({
@@ -13,18 +12,22 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!formState.username.length || !formState.password.length) {
-      return console.error("Veuillez saisir tous les champs");
+      return console.error("Please enter all fields");
     }
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/login/",
+        "http://localhost:8000/user/login/",
         formState
       );
-      const { access } = response.data;
+      const { access, refresh } = response.data;
+      const { id } = response.data.user;
+      console.log(response.data);
       localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+      localStorage.setItem("id", id);
       console.log("User logged in and token stored:", access);
     } catch (error) {
-      console.error("Error while trying to login");
+      console.error(`Error while trying to login : ${error}`);
     } finally {
       setFormState({ username: "", password: "" });
     }
@@ -36,9 +39,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="">
-      <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
-        <Link to="/">Home</Link>
-      </div>
+      <Header />
       <div className="d-flex justify-content-center">
         <form>
           <h3 className="text-center">Login</h3>

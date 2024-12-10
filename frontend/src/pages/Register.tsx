@@ -1,8 +1,8 @@
 import React from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { UserInfo } from "../types/types";
 import axios from "axios";
+import Header from "../components/Header";
 
 const Login: React.FC = () => {
   const [formState, setFormState] = useState<UserInfo>({
@@ -17,16 +17,11 @@ const Login: React.FC = () => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/register/",
+        "http://localhost:8000/user/register/",
         formState
       );
-      const { access, refresh } = response.data;
-
-      console.log("Access Token:", access);
-      console.log("Refresh Token:", refresh);
-      localStorage.setItem("accessToken", access);
     } catch (error) {
-      console.error("Error while trying to post data");
+      console.error(`Error while trying to post data : ${error}`);
     } finally {
       setFormState({ username: "", password: "" });
     }
@@ -38,9 +33,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="">
-      <div className="text-capitalize h3 mb-4 w-100 text-center text-primary">
-        <Link to="/">Home</Link>
-      </div>
+      <Header />
       <div className="d-flex justify-content-center">
         <form>
           <h3 className="text-center">Register</h3>

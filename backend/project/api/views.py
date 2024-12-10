@@ -79,7 +79,6 @@ class UserView(APIView):
 		try:
 			user = get_object_or_404(User, id=id)
 			user.username = request.data.get('username')
-			#user.password = request.data.get('password')
 			user.save()
 			refresh = RefreshToken.for_user(user)
 			return Response({'user': UserSerializer(user).data, 'refresh': str(refresh), 'access': str(refresh.access_token), 'message': 'User modified'}, status=status.HTTP_200_OK)

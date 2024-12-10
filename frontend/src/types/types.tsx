@@ -11,6 +11,15 @@ export interface UserInfo {
   password: string;
 }
 
+export interface AccountInfo {
+  access: string;
+  refresh: string;
+  user: {
+    id: number;
+    username: string;
+  };
+}
+
 export interface LastDeleted {
   id: number;
 }
