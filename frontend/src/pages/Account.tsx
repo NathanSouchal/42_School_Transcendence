@@ -57,12 +57,15 @@ const Account: React.FC = () => {
                 <h2 className="text-capitalize mb-4 w-100 text-center">
                   {data.user.username}
                 </h2>
-                <button onClick={(e) => deleteUser(data.user.id, e)}>
-                  {"Delete"}
+                <button
+                  onClick={(e) => deleteUser(data.user.id, e)}
+                  className="btn btn-danger"
+                >
+                  {"Delete Account"}
                 </button>
               </div>
             ) : (
-              <h1>coucou</h1>
+              <h1>No info, please log in</h1>
             )}
           </div>
         </div>

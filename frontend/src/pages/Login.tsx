@@ -12,7 +12,7 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!formState.username.length || !formState.password.length) {
-      return console.error("Please enter qll fields");
+      return console.error("Please enter all fields");
     }
     try {
       const response = await axios.post(
