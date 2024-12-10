@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   frontend:
     container_name: frontend
@@ -11,6 +10,7 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+
   backend:
     container_name: backend
     networks:
@@ -22,7 +22,33 @@ services:
     ports:
       - "8000:8000"
     restart: on-failure
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    networks:
+      - transcendence
+    env_file: .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    command: >
+      sh -c "
+      python manage.py makemigrations &&
+      python manage.py migrate"
+
 
 networks:
   transcendence:
     driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: "${GOINFRE_PATH}/"
