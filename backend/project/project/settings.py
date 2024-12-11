@@ -85,6 +85,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Database pour le deploiement en utilisant docker
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -95,6 +96,14 @@ DATABASES = {
         'PORT': config('POSTGRES_PORT', default=5432, cast=int),
     }
 }
+
+# Database pour le developpement (sans passer par docker)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 

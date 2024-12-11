@@ -8,3 +8,4 @@ python-decouple==3.8
 pytz==2024.2
 sqlparse==0.5.2
 typing_extensions==4.12.2
+psycopg2==2.9.7
