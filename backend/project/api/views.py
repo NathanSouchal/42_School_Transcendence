@@ -3,12 +3,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
-from api.models import User
-from api.models import Game
+from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken
+from api.models import Game, User, RefreshToken
 from api.serializers import UserSerializer
 from api.serializers import GameSerializer
 from api.permissions import IsAuthenticated
@@ -17,7 +21,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.db.models import ProtectedError
-
 
 
 class RegisterView(APIView):
@@ -34,7 +37,6 @@ class RegisterView(APIView):
 			return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@method_decorator(csrf_exempt, name='dispatch')
 class LoginView(APIView):
 	serializer_class = UserSerializer
 	permission_classes = [AllowAny]
@@ -47,13 +49,38 @@ class LoginView(APIView):
 		print(f"Authenticating password: {password}")
 		user = authenticate(username=username, password=password)
 		if user:
-			refresh = RefreshToken.for_user(user)
-			refresh_token, created = RefreshToken.objects.get_or_create(user=user)
+			refresh = SimpleJWTRefreshToken.for_user(user)
+			refresh_token, created = RefreshToken.objects.get_or_create(user=user, defaults={'token': str(refresh)})
 			refresh_token.token = str(refresh)
 			refresh_token.save()
-			return Response({'user': UserSerializer(user).data, 'access': str(refresh.access_token), 'message': 'Authentification complete'}, status=status.HTTP_200_OK)
+			response = Response({
+                'user': UserSerializer(user).data,
+                'access': str(refresh.access_token),
+                'message': 'Authentification complete'
+            }, status=status.HTTP_200_OK)
+
+			response.set_cookie(
+				key='access_token',
+				value=str(refresh.access_token),  # Le refresh token
+				httponly=True,  # Empêche l'accès via JavaScript
+				secure=True,  # Assure le transport uniquement via HTTPS
+				samesite='Strict',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
+				max_age=15 * 60  # Durée de validité en secondes
+			)
+			return response
 		return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
+class RefreshTokenView(APIView):
+	def post(self, request):
+		refresh_token = request.COOKIES.get('refresh_token')
+		if not refresh_token:
+			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			token = RefreshToken(refresh_token)
+			new_access_token = str(token.access_token)
+			return Response({'access': new_access_token}, status=status.HTTP_200_OK)
+		except Exception as e:
+			return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserView(APIView):
 	serializer_class = UserSerializer
