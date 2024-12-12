@@ -72,14 +72,26 @@ class LoginView(APIView):
 		return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class RefreshTokenView(APIView):
+	serializer_class = UserSerializer
 	def post(self, request):
-		refresh_token = request.COOKIES.get('refresh_token')
+		refresh_token = SimpleJWTRefreshToken.for_user(request.user)
 		if not refresh_token:
 			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
 			token = RefreshToken(refresh_token)
 			new_access_token = str(token.access_token)
-			return Response({'access': new_access_token}, status=status.HTTP_200_OK)
+			response = Response({
+                'access': str(token.access_token),
+            }, status=status.HTTP_200_OK)
+			response.set_cookie(
+				key='access_token',
+				value=str(token.access_token),  # Le refresh token
+				httponly=True,  # Empêche l'accès via JavaScript
+				secure=True,  # Assure le transport uniquement via HTTPS
+				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
+				max_age=15 * 60  # Durée de validité en secondes
+			)
+			return response
 		except Exception as e:
 			return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
 
