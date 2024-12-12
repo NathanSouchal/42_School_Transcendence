@@ -17,15 +17,18 @@ const Login: React.FC = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/user/login/",
-        formState
+          formState,
+        {
+          withCredentials: true,
+        }
       );
-      const { access, refresh } = response.data;
+      //const { access, refresh } = response.data;
       const { id } = response.data.user;
       console.log(response.data);
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);
+      //localStorage.setItem("accessToken", access);
+      //localStorage.setItem("refreshToken", refresh);
       localStorage.setItem("id", id);
-      console.log("User logged in and token stored:", access);
+      //console.log("User logged in and token stored:", access);
     } catch (error) {
       console.error(`Error while trying to login : ${error}`);
     } finally {

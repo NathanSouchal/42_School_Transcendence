@@ -11,8 +11,11 @@ const Account: React.FC = () => {
     const accessToken = localStorage.getItem("accessToken");
     console.log(accessToken);
     try {
+      //   const response = await axios.get(`http://localhost:8000/user/${id}/`, {
+      //     headers: { Authorization: `Bearer ${accessToken}` },
+      //   });
       const response = await axios.get(`http://localhost:8000/user/${id}/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        withCredentials: true,
       });
       const data = response.data;
       console.log(data);
@@ -32,8 +35,11 @@ const Account: React.FC = () => {
     e.preventDefault();
     const accessToken = localStorage.getItem("accessToken");
     try {
+      //   await axios.delete(`http://localhost:8000/user/${id}/`, {
+      //     headers: { Authorization: `Bearer ${accessToken}` },
+      //   });
       await axios.delete(`http://localhost:8000/user/${id}/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+        withCredentials: true,
       });
       setLastDeleted({ id: id });
     } catch (error) {

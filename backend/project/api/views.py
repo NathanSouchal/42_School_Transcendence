@@ -21,6 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.db.models import ProtectedError
+from api.authentication import CookieJWTAuthentication
 
 
 class RegisterView(APIView):
@@ -64,7 +65,7 @@ class LoginView(APIView):
 				value=str(refresh.access_token),  # Le refresh token
 				httponly=True,  # Empêche l'accès via JavaScript
 				secure=True,  # Assure le transport uniquement via HTTPS
-				samesite='Strict',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
+				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
 				max_age=15 * 60  # Durée de validité en secondes
 			)
 			return response
@@ -85,9 +86,10 @@ class RefreshTokenView(APIView):
 class UserView(APIView):
 	serializer_class = UserSerializer
 	permission_classes = [IsAuthenticated]
-	authentication_classes = [JWTAuthentication]
+	authentication_classes = [CookieJWTAuthentication]
 
 	def get(self, request, id=None):
+		print("Cookies reçus :", request.COOKIES)
 		try:
 			user = get_object_or_404(User, id=id)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
