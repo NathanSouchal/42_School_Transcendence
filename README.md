@@ -12,12 +12,6 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-#### Run server
-
-```sh
-python3 manage.py runserver
-```
-
 #### Update migrations
 
 ```sh
@@ -25,7 +19,13 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### DELETE AND RECREATE DATABASE
+#### Run server
+
+```sh
+python3 manage.py runserver
+```
+
+#### DELETE AND RECREATE DATABASE
 
 ```sh
 rm db.sqlite3
@@ -37,7 +37,19 @@ python manage.py migrate
 
 ## FRONTEND
 
-Create a self-signed ssl certificate :
+#### Install node modules
+
+```sh
+npm i
+```
+
+#### Run server
+
+```sh
+npm start
+```
+
+#### Create a self-signed ssl certificate :
 
 ```sh
 mkdir -p ./ssl
