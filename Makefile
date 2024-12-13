@@ -19,3 +19,6 @@ clean :
 	@docker-compose -f docker-compose.yml down
 	@docker system prune -a -f
 	@docker buildx prune -af
+
+re : clean up
+
