@@ -107,7 +107,15 @@ const Account: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <h1>No info, please log in</h1>
+              <div>
+                <h1>No info, please log in</h1>
+                <button
+                  onClick={(e) => getNewAccessToken(e)}
+                  className="btn btn-danger"
+                >
+                  {"Get New Access Token"}
+                </button>
+              </div>
             )}
           </div>
         </div>
