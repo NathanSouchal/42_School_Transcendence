@@ -25,6 +25,12 @@ python manage.py migrate
 python3 manage.py runserver
 ```
 
+#### Run server as https
+
+```sh
+python manage.py runsslserver
+```
+
 #### DELETE AND RECREATE DATABASE
 
 ```sh

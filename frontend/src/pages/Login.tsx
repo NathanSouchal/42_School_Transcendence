@@ -16,8 +16,8 @@ const Login: React.FC = () => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:8000/user/login/",
-          formState,
+        "https://localhost:8000/user/login/",
+        formState,
         {
           withCredentials: true,
         }

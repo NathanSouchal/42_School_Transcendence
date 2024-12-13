@@ -12,16 +12,18 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken
-from api.models import Game, User, RefreshToken
+from api.models import Game, User
+from api.models import RefreshToken as UserRefreshToken
 from api.serializers import UserSerializer
 from api.serializers import GameSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
-from django.views.decorators.csrf import csrf_exempt
+from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.db.models import ProtectedError
 from api.authentication import CookieJWTAuthentication
+from .models import RefreshToken as UserRefreshToken
 
 
 class RegisterView(APIView):
@@ -50,15 +52,24 @@ class LoginView(APIView):
 		print(f"Authenticating password: {password}")
 		user = authenticate(username=username, password=password)
 		if user:
+			try:
+				old_refresh_token = user.refresh_token
+				if old_refresh_token:
+					# Mettre l'ancien refresh token en blacklist
+					refresh_token = SimpleJWTRefreshToken(old_refresh_token.token)
+					refresh_token.blacklist()  # Si vous avez activé le blacklisting des tokens
+					print("Old refresh token blacklisted.")
+			except UserRefreshToken.DoesNotExist:
+				# Aucun ancien refresh token à mettre en blacklist
+				pass
 			refresh = SimpleJWTRefreshToken.for_user(user)
-			refresh_token, created = RefreshToken.objects.get_or_create(user=user, defaults={'token': str(refresh)})
+			refresh_token, created = UserRefreshToken.objects.get_or_create(user=user, defaults={'token': str(refresh)})
 			refresh_token.token = str(refresh)
 			refresh_token.save()
 			response = Response({
-                'user': UserSerializer(user).data,
-                'access': str(refresh.access_token),
-                'message': 'Authentification complete'
-            }, status=status.HTTP_200_OK)
+				'user': UserSerializer(user).data,
+				'message': 'Authentification complete'
+			}, status=status.HTTP_200_OK)
 
 			response.set_cookie(
 				key='access_token',
@@ -68,32 +79,95 @@ class LoginView(APIView):
 				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
 				max_age=15 * 60  # Durée de validité en secondes
 			)
+			response.set_cookie(
+				key='refresh_token',
+				value=str(refresh),  # Le refresh token
+				httponly=True,  # Empêche l'accès via JavaScript
+				secure=True,  # Assure le transport uniquement via HTTPS
+				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
+				max_age=7 * 24 * 60 * 60  # Durée de validité en secondes
+			)
 			return response
 		return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class RefreshTokenView(APIView):
-	serializer_class = UserSerializer
+	permission_classes = [IsAuthenticated]
+	authentication_classes = [CookieJWTAuthentication]
+
 	def post(self, request):
-		refresh_token = SimpleJWTRefreshToken.for_user(request.user)
-		if not refresh_token:
+		print(f"Cookies reçus : {request.COOKIES}")
+		user = request.user
+
+		# Récupérer l'ancien refresh token du cookie (ou depuis une autre méthode d'authentification)
+		old_refresh_token = request.COOKIES.get('refresh_token')
+		if not old_refresh_token:
 			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
-			token = RefreshToken(refresh_token)
-			new_access_token = str(token.access_token)
+			stored_refresh_token = user.refresh_token.token
+            # Comparer les deux tokens
+			if old_refresh_token != stored_refresh_token:
+				return Response({'detail': 'Invalid refresh token (mismatch)'}, status=status.HTTP_401_UNAUTHORIZED)
+			# Valider et révoquer l'ancien token
+			refresh_token_instance = SimpleJWTRefreshToken(old_refresh_token)
+			refresh_token_instance.blacklist()  # Ajoute l'ancien token à une liste noire si la blacklisting est activée
+
+			# Générer un nouveau token
+			new_refresh_token = SimpleJWTRefreshToken.for_user(user)
+
+			# Remplacer le nouveau token en base
+			with transaction.atomic():
+				user.refresh_token.token = str(new_refresh_token)
+				user.refresh_token.save()
+
+			# Construire la réponse
 			response = Response({
-                'access': str(token.access_token),
-            }, status=status.HTTP_200_OK)
+				'user': UserSerializer(user).data,
+				'message': 'New refresh token generated'
+			}, status=status.HTTP_200_OK)
+
+			# Mettre à jour les cookies
 			response.set_cookie(
-				key='access_token',
-				value=str(token.access_token),  # Le refresh token
-				httponly=True,  # Empêche l'accès via JavaScript
-				secure=True,  # Assure le transport uniquement via HTTPS
-				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
-				max_age=15 * 60  # Durée de validité en secondes
+				key='refresh_token',
+				value=str(new_refresh_token),
+				httponly=True,
+				secure=True,
+				samesite='None',
+				max_age=7 * 24 * 60 * 60
 			)
 			return response
 		except Exception as e:
 			return Response({'detail': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+
+class AccessTokenView(APIView):
+	serializer_class = UserSerializer
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		cookie_refresh_token = request.COOKIES.get('refresh_token')
+		if not cookie_refresh_token:
+			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
+		try:
+			db_refresh_token = UserRefreshToken.objects.get(token=cookie_refresh_token)
+			user = db_refresh_token.user
+			if cookie_refresh_token != str(db_refresh_token.token):
+				return Response({'detail': 'Invalid refresh token (mismatch)'}, status=status.HTTP_401_UNAUTHORIZED)
+			refresh_token_instance = SimpleJWTRefreshToken.for_user(user)
+			new_access_token = str(refresh_token_instance.access_token)
+			response = Response({
+				'user': UserSerializer(user).data,
+				'message': 'Access token successfully refreshed.'
+			}, status=status.HTTP_200_OK)
+			response.set_cookie(
+				key='access_token',
+				value=new_access_token,
+				httponly=True,
+				secure=True,
+				samesite='None',
+				max_age=15 * 60
+			)
+			return response
+		except Exception as e:
+			return Response({'detail': 'Invalid refresh token', 'error': str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
 class UserView(APIView):
 	serializer_class = UserSerializer

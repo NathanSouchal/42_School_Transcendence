@@ -17,7 +17,7 @@ const Login: React.FC = () => {
     }
     try {
       const response = await axios.post(
-        "http://localhost:8000/user/register/",
+        "https://localhost:8000/user/register/",
         formState
       );
     } catch (error) {

@@ -30,6 +30,8 @@ INSTALLED_APPS = [
 	'corsheaders',
 	'rest_framework',
 	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
+	'sslserver',
 ]
 
 REST_FRAMEWORK = {
@@ -43,10 +45,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 MIDDLEWARE = [
