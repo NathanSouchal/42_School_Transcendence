@@ -56,9 +56,13 @@ const Account: React.FC = () => {
   const getNewRefreshToken = async (e: any) => {
     e.preventDefault();
     try {
-      await axios.post(`https://localhost:8000/auth/custom-token/refresh/`, {
-        withCredentials: true,
-      });
+      await axios.post(
+        `https://localhost:8000/auth/custom-token/refresh/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
     }

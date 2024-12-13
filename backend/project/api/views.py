@@ -1,16 +1,9 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
-from django.core.exceptions import PermissionDenied
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken
 from api.models import Game, User
 from api.models import RefreshToken as UserRefreshToken
@@ -19,7 +12,6 @@ from api.serializers import GameSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.db import transaction
-from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.db.models import ProtectedError
 from api.authentication import CookieJWTAuthentication
@@ -98,18 +90,18 @@ class RefreshTokenView(APIView):
 		print(f"Cookies reçus : {request.COOKIES}")
 		user = request.user
 
-		# Récupérer l'ancien refresh token du cookie (ou depuis une autre méthode d'authentification)
 		old_refresh_token = request.COOKIES.get('refresh_token')
 		if not old_refresh_token:
 			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
 			stored_refresh_token = user.refresh_token.token
-            # Comparer les deux tokens
+
 			if old_refresh_token != stored_refresh_token:
 				return Response({'detail': 'Invalid refresh token (mismatch)'}, status=status.HTTP_401_UNAUTHORIZED)
 			# Valider et révoquer l'ancien token
 			refresh_token_instance = SimpleJWTRefreshToken(old_refresh_token)
-			refresh_token_instance.blacklist()  # Ajoute l'ancien token à une liste noire si la blacklisting est activée
+			refresh_token_instance.blacklist()
+			print("Old refresh token blacklisted.")
 
 			# Générer un nouveau token
 			new_refresh_token = SimpleJWTRefreshToken.for_user(user)
