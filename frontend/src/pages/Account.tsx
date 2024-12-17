@@ -8,11 +8,9 @@ const Account: React.FC = () => {
   const [lastDeleted, setLastDeleted] = useState<LastDeleted>({ id: 0 });
 
   const fetchData = async (id: number) => {
-    const accessToken = localStorage.getItem("accessToken");
-    console.log(accessToken);
     try {
-      const response = await axios.get(`http://localhost:8000/user/${id}/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      const response = await axios.get(`https://localhost:8000/user/${id}/`, {
+        withCredentials: true,
       });
       const data = response.data;
       console.log(data);
@@ -30,16 +28,46 @@ const Account: React.FC = () => {
 
   const deleteUser = async (id: number, e: any) => {
     e.preventDefault();
-    const accessToken = localStorage.getItem("accessToken");
     try {
-      await axios.delete(`http://localhost:8000/user/${id}/`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
+      await axios.delete(`https://localhost:8000/user/${id}/`, {
+        withCredentials: true,
       });
       setLastDeleted({ id: id });
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
     }
   };
+
+  const getNewAccessToken = async (e: any) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        `https://localhost:8000/auth/custom-token/access/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      console.error(`Error while trying to get new access token : ${error}`);
+    }
+  };
+
+  const getNewRefreshToken = async (e: any) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        `https://localhost:8000/auth/custom-token/refresh/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      console.error(`Error while trying to get new refresh token : ${error}`);
+    }
+  };
+
   return (
     <div className="">
       <Header />
@@ -57,15 +85,37 @@ const Account: React.FC = () => {
                 <h2 className="text-capitalize mb-4 w-100 text-center">
                   {data.user.username}
                 </h2>
-                <button
-                  onClick={(e) => deleteUser(data.user.id, e)}
-                  className="btn btn-danger"
-                >
-                  {"Delete Account"}
-                </button>
+                <div className="d-flex flex-column">
+                  <button
+                    onClick={(e) => deleteUser(data.user.id, e)}
+                    className="btn btn-danger"
+                  >
+                    {"Delete Account"}
+                  </button>
+                  <button
+                    onClick={(e) => getNewAccessToken(e)}
+                    className="btn btn-danger"
+                  >
+                    {"Get New Access Token"}
+                  </button>
+                  <button
+                    onClick={(e) => getNewRefreshToken(e)}
+                    className="btn btn-danger"
+                  >
+                    {"Get New Refresh Token"}
+                  </button>
+                </div>
               </div>
             ) : (
-              <h1>No info, please log in</h1>
+              <div>
+                <h1>No info, please log in</h1>
+                <button
+                  onClick={(e) => getNewAccessToken(e)}
+                  className="btn btn-danger"
+                >
+                  {"Get New Access Token"}
+                </button>
+              </div>
             )}
           </div>
         </div>

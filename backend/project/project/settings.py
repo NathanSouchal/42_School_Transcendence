@@ -31,6 +31,8 @@ INSTALLED_APPS = [
 	'corsheaders',
 	'rest_framework',
 	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
+	'sslserver',
 ]
 
 REST_FRAMEWORK = {
@@ -38,16 +40,14 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.CookieJWTAuthentication',
     ),
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 MIDDLEWARE = [
@@ -150,6 +150,17 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-	"http://frontend:3000",
-	"http://localhost:3000",
+	# "http://frontend:3000",
+	# "http://localhost:3000",
+	"https://frontend:3000",
+	"https://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
+
+CSRF_COOKIE_SECURE = True  # Envoie le cookie CSRF uniquement via HTTPS
+SESSION_COOKIE_SECURE = True  # Envoie le cookie de session uniquement via HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:3000',  # Frontend sécurisé
+    'https://frontend:3000',
 ]
