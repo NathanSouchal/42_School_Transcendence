@@ -3,14 +3,17 @@ from api.models import User;
 from api.models import Game
 
 class UserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ['id', 'username', 'password']
-		extra_kwargs = {'password': {'write_only': True}}
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'is_superuser', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'is_superuser': {'read_only': True}  # Empêche la modification via l'API
+        }
 
-	def create(self, validated_data):
-		user = User.objects.create_user(**validated_data)
-		return user
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
 
 """
 	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre
