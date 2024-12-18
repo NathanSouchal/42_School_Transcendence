@@ -69,7 +69,7 @@ class LoginView(APIView):
 				httponly=True,  # Empêche l'accès via JavaScript
 				secure=True,  # Assure le transport uniquement via HTTPS
 				samesite='None',  # Bloque les cookies cross-site (modifiez à `Strict` selon vos besoins)
-				max_age=1 * 60  # Durée de validité en secondes
+				max_age=10 * 60  # Durée de validité en secondes
 			)
 			response.set_cookie(
 				key='refresh_token',
