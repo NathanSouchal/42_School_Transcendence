@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+import math
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -68,6 +69,7 @@ class Game(models.Model):
 	def __str__(self):
 		return f"{self.player1} vs {self.player2} - {self.score_player1}:{self.score_player2}"
 
+	
 """
 def create_user(self, username, password=None, **extra_fields):
 
@@ -90,3 +92,83 @@ l authentification (au lieu de l email, par exemple)
 def __str__(self):
     return self.username : Définit comment l'utilisateur sera affiché lorsqu'il sera converti en chaîne de caractères.
 """
+
+class Tournament(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    # participants = models.ManyToManyField(User, related_name='tournaments')
+    participants = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=20, default='not_started')
+    number_of_players = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    rounds_tree = []
+
+    def __str__(self):
+        return self.name
+
+    def generate_match_by_round(self, nb_rounds, current_round_nb):
+        nb_matches = 2 ** (nb_rounds - current_round_nb)
+        i = 1
+        current_round_lst = []
+        while i <= nb_matches:
+            if current_round_nb == 1:
+                match = Match.objects.create(
+                    tournament = self,
+                    round_number = current_round_nb,
+                    player1 = self.participants[i * 2 - 1],
+                    player2 = self.participants[i * 2],
+                )
+            else:
+                match = Match.objects.create(
+                    tournament = self,
+                    round_number = current_round_nb,
+                )
+            current_round_lst.append(match)
+            match.save()
+        self.rounds_tree.append(current_round_lst)             
+
+    def start_tournament(self):
+        nb_rounds = math.log2(self.number_of_players)
+        i = 1
+        # On genere ici tous les matchs avec les players et le round et on remplit l'arbre round par round
+        while i <= nb_rounds:
+             self.generate_match_by_round(nb_rounds, i)
+        self.status = 'in progress'
+
+    def advance_tournament(self):
+        # Méthode à implémenter :
+        # Chercher les matchs terminés sans vainqueur enregistré, 
+        # vérifier les vainqueurs, mettre à jour le match suivant etc.
+        pass
+
+    def is_finished(self):
+        # Vérifier si la finale a un vainqueur
+        # Un moyen : trouver le match final (celui sans next_match) et voir si winner est défini
+        return self.status == 'finished'
+
+
+class Match(models.Model):
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE, related_name='matches')
+    round_number = models.PositiveIntegerField(default=1)
+    # player1 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='match_as_player1')
+    # player2 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='match_as_player2')
+    player1 = models.CharField(max_length=50, blank=True, null=True)
+    player2 = models.CharField(max_length=50, blank=True, null=True)
+    # winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='match_winner', blank=True)
+    winner = models.CharField(max_length=50, blank=True, null=True)
+    next_match = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='previous_matches')
+    score_player1 = models.PositiveIntegerField(default=0)
+    score_player2 = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Match {self.id} - Tournée {self.round_number} - {self.tournament.name}"
+
+    def set_winner(self, winner_user):
+        self.winner = winner_user
+        self.save()
+        if self.next_match:
+            if self.next_match.player1 is None:
+                self.next_match.player1 = winner_user
+            else:
+                self.next_match.player2 = winner_user
+            self.next_match.save()
