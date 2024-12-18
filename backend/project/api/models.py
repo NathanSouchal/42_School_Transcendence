@@ -132,6 +132,7 @@ class Tournament(models.Model):
         # On genere ici tous les matchs avec les players et le round et on remplit l'arbre round par round
         while i <= nb_rounds:
              self.generate_match_by_round(nb_rounds, i)
+        # Ici se fait l'attribution des next_match en se basant sur l'arbre
         self.status = 'in progress'
 
     def advance_tournament(self):
