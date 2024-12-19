@@ -114,38 +114,33 @@ export default class Account {
     const hasUsername =
       this.userData.username && this.userData.username.length > 0;
     console.log("hasUsername:", hasUsername, "this.userData:", this.userData);
-    return `<div class="container">
-        <div
-          class="d-flex justify-content-center flex-column align-items-center"
-          style={{ height: "90vh" }}
-        >
-          <div class="title-div">
+    return `<div class="d-flex flex-column justify-content-center align-items-center h-100">
+          <div class="title-div mb-4">
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
-          <div class="bg-secondary text-white text-center d-flex flex-column justify-content-center align-items-center p-3 col-12 col-md-8 custom-min-height custom-max-height rounded">
             ${
               hasUsername
                 ? `
-              <div class="text-center">
-                <h2 class="text-capitalize mb-4 w-100 text-center">
+              <div class="text-center mb-4">
+                <h2 class="text-capitalize">
                   ${this.userData.username}
                 </h2>
-                <div class="d-flex flex-column">
+                <div class="d-flex flex-column align-items-center">
                   <button
                     onclick="deleteUser(${this.userData.id})"
-                    class="btn btn-danger"
+                    class="btn btn-danger mb-2"
                   >
                     Delete Account
                   </button>
                   <button
                     onclick="getNewAccessToken(${this.userData.id})"
-                    class="btn btn-danger"
+                    class="btn btn-danger mb-2"
                   >
                     Get New Access Token
                   </button>
                   <button
                     onclick="getNewRefreshToken(${this.userData.id})"
-                    class="btn btn-danger"
+                    class="btn btn-danger mb-2"
                   >
                     Get New Refresh Token
                   </button>
@@ -153,19 +148,17 @@ export default class Account {
               </div>
             `
                 : `
-              <div>
+              <div class="text-center">
                 <h1>No info, please log in</h1>
                 <button
                   onclick="getNewRefreshToken(${this.userData.id})"
-                  class="btn btn-danger"
+                  class="btn btn-danger mb-2"
                 >
                   Get New Access Token
                 </button>
               </div>
             `
             }
-          </div>
-        </div>
       </div>`;
   }
 }

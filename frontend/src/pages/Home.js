@@ -21,6 +21,6 @@ export default class Home {
     const userData = this.state.data.username;
     const test = "Accueil";
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `<div class="container mt-5"><h1>${test}</h1></div>`;
+    return `<div class="d-flex justify-content-center align-items-center h-100"><h1>${test}</h1></div>`;
   }
 }

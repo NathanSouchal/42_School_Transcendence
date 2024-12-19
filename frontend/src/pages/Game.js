@@ -20,6 +20,6 @@ export default class Game {
   render() {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `<div class="container mt-5"><h1>Game</h1></div>`;
+    return `<div class="d-flex justify-content-center align-items-center h-100"><h1>Game</h1></div>`;
   }
 }
