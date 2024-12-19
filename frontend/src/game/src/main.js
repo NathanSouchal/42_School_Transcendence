@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { State } from "/src/services/state.js";
 import { init_light } from "./scene/lights.js";
 import { init_camera } from "./scene/camera.js";
 import Ball from "./game/ball.js";
@@ -10,6 +11,8 @@ import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
 import Boid from "./terrain/boids.js";
 import Renderer from "./scene/rendering.js";
+
+const state = new State();
 
 class Game {
   constructor() {
@@ -27,6 +30,20 @@ class Game {
 
     this.stat = new Stats();
     document.body.appendChild(this.stat.dom);
+
+    // Abonnement aux changements de l'état global
+    state.subscribe((newState) => {
+      // if (newState.isGamePage && !this.isGameInitialized) {
+      //   this.init(); // Initialise le jeu si on est sur la page du jeu
+      //   this.isGameInitialized = true;
+      // } else if (!newState.isGamePage && this.isGameInitialized) {
+      //   console.log("Quitter la page du jeu"); // Logique éventuelle pour quitter le jeu
+      //   this.cleanup(); // Nettoie les ressources si nécessaire
+      //   this.isGameInitialized = false;
+      // }
+      const isGamePage = state.getState().isGamePage; // Récupère l'état actuel
+      console.log("Game status: ", isGamePage);
+    });
   }
 
   async makeArena() {
@@ -80,13 +97,6 @@ class Game {
       this.arena.obj,
       this.config.getCameraConfig()
     );
-
-    // const geometry = new THREE.BoxGeometry(10, 10, 10);
-    // const material = new THREE.MeshBasicMaterial({ color: 0x20ff00 });
-    // const cube = new THREE.Mesh(geometry, material);
-    // this.scene.add(cube);
-    // console.log("Camera position:", this.camera.position);
-    // console.log("Cube position:", cube.position);
 
     window.addEventListener("resize", () => {
       this.renderer.setSize(window.innerWidth, window.innerHeight);

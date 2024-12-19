@@ -1,3 +1,7 @@
+import { State } from "/src/services/state.js";
+
+const state = new State();
+
 export class Router {
   constructor(routes) {
     this.routes = routes;
@@ -27,11 +31,15 @@ export class Router {
   handleRoute() {
     const path = window.location.pathname;
     const view = this.routes[path] || this.routes["/404"];
-    document.getElementById("app").innerHTML = view.render();
+    const app = document.getElementById("app");
+    if (app) {
+      app.innerHTML = view.render(); // Remplace uniquement le contenu principal
+    }
     // Attache les écouteurs d'événements après que la vue a été rendue
     if (typeof view.attachEventListeners === "function") {
       view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
     }
+    state.setIsGamePage(path === "/game");
   }
 
   navigate(path) {
