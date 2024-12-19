@@ -69,8 +69,8 @@ class Renderer {
     this.game.sea.update(deltaTime);
     this.game.arena.update(deltaTime, this.game.ball.speedRatio);
 
-    for (let fish of this.game.boid.fishs) {
-      fish.update(deltaTime);
+    for (let creature of this.game.boid.creatures) {
+      creature.update(deltaTime);
     }
   }
 

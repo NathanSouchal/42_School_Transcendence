@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 class Robot {
-  constructor(paddle, size, difficulty = 5) {
+  constructor(paddle, size, difficulty = 1) {
     this.paddle = paddle;
     this.size = size;
     this.difficulty = difficulty;
@@ -11,13 +11,6 @@ class Robot {
       right: false,
       left: false,
     };
-    this.last_turn = 0;
-    this.turn_cooldown = 100;
-    this.aiming = false;
-    this.last_ball_update = 0;
-    this.ball_cooldown = 300;
-    this.margin = 0.3;
-    this.last_ball_x = 0;
     this.target_x = 0;
     this.last_target_x = 0;
   }
@@ -43,7 +36,6 @@ class Robot {
   }
 
   moveTowardsTarget(deltaTime) {
-    const currentTime = Date.now();
     const currentX = this.paddle.obj.position.x;
 
     if (this.target_x !== this.last_target_x) {
@@ -52,20 +44,12 @@ class Robot {
       this.last_target_x = this.target_x;
     }
 
-    if (
-      currentX + this.half_width <
-      this.target_x - this.margin - this.offset
-    ) {
+    if (currentX + this.half_width < this.target_x - this.offset) {
       this.state.right = true;
       this.state.left = false;
-      this.last_turn = currentTime;
-    } else if (
-      currentX - this.half_width >
-      this.target_x + this.margin + this.offset
-    ) {
+    } else if (currentX - this.half_width > this.target_x + this.offset) {
       this.state.right = false;
       this.state.left = true;
-      this.last_turn = currentTime;
     } else {
       this.state.right = false;
       this.state.left = false;

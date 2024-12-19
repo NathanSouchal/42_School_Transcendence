@@ -33,7 +33,7 @@ class Paddle {
     });
     let boxsize = new THREE.Vector3();
     this.box.getSize(boxsize);
-    this.controls.half_width = boxsize.x * 0.4;
+    this.controls.half_width = boxsize.x * 0.5;
   }
 
   async init() {

@@ -7,36 +7,19 @@ import {
   acceleratedRaycast,
 } from "three-mesh-bvh";
 
-class Boid {
-  constructor(terrain_geometry, terrain_obj, size = 20) {
-    this.fishs = [];
-    for (let i = 0; i < size; i++) {
-      let fish = new Fish(terrain_geometry, terrain_obj);
-      this.fishs.push(fish);
-    }
-  }
-}
-
-export default Boid;
-
-class Fish {
+export default class Creature {
   constructor(terrain_geometry, terrain_obj) {
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
-
     this.terrain_geometry = terrain_geometry;
     this.terrain_obj = terrain_obj;
-
     this.turnSpeed = 0.05;
     this.currentTurnTarget = null;
     this.isTurning = false;
-
     this.width = 180;
     this.height = 100;
     this.depth = 180;
-    this.max_speed = 0.3;
-    this.min_speed = -0.3;
     this.directions = [
       new THREE.Vector3(-1, 0, 0),
       new THREE.Vector3(1, 0, 0),
@@ -47,7 +30,6 @@ class Fish {
     ];
     this.dir = null;
     this.center = this.getTerrainCenter();
-    this.makeSomeFishs();
   }
 
   getTerrainCenter() {
@@ -59,24 +41,24 @@ class Fish {
     return center;
   }
 
-  makeSomeFishs() {
+  makeSomeCreatures() {
     this.obj = new THREE.Object3D();
-    this.loadFishs();
-    this.obj.position.set(0, -5, 0);
+    this.loadObjects();
+    this.obj.position.set(0, this.spawn_y, 0);
     this.velocity = this.random_initial_velocity();
     this.obj.rotateY(Math.PI);
     this.updateOrientation();
   }
 
-  async loadFishs() {
-    await this.loadModel("src/game/assets/guppy_fish/scene.gltf");
+  async loadObjects() {
+    await this.loadModel();
   }
 
-  loadModel(path) {
+  loadModel() {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
       loader.load(
-        path,
+        this.path,
         (gltf) => {
           this.asset = gltf.scene;
           this.animations = gltf.animations;
@@ -85,8 +67,7 @@ class Fish {
           if (this.animations.length > 0) {
             this.animationAction = this.mixer.clipAction(this.animations[0]);
           }
-
-          gltf.scene.scale.set(0.5, 0.5, 0.5);
+          gltf.scene.scale.set(this.scale.x, this.scale.y, this.scale.z);
           this.obj.add(gltf.scene);
           resolve();
         },
@@ -94,12 +75,13 @@ class Fish {
         (error) => {
           console.error(error);
           reject(error);
-        }
+        },
       );
     });
   }
 
   updateOrientation() {
+    if (!this.looks_target) return;
     const targetPosition = this.obj.position.clone().add(this.velocity);
     this.obj.lookAt(targetPosition);
     this.obj.rotateY(Math.PI);
@@ -109,7 +91,7 @@ class Fish {
     return new THREE.Vector3(
       Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
       Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
-      Math.random() * (this.max_speed - this.min_speed) + this.min_speed
+      Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
     );
   }
 
@@ -143,7 +125,7 @@ class Fish {
 
   directionChange() {
     const newDirectionIndex = Math.floor(
-      Math.random() * this.directions.length
+      Math.random() * this.directions.length,
     );
     const newDirection = this.directions[newDirectionIndex].clone();
     const rotationAngle = (Math.random() - 0.5) * Math.PI;
@@ -152,9 +134,9 @@ class Fish {
       new THREE.Vector3(
         Math.random() - 0.5,
         Math.random() - 0.5,
-        Math.random() - 0.5
+        Math.random() - 0.5,
       ).normalize(),
-      rotationAngle
+      rotationAngle,
     );
 
     this.currentTurnTarget = newDirection.multiplyScalar(0.1);
@@ -194,8 +176,8 @@ class Fish {
       this.obj.position.y = this.center.y - this.height / 2;
       res = true;
     }
-    if (futurePosition.y > -1) {
-      this.obj.position.y = -1;
+    if (futurePosition.y > this.max_y) {
+      this.obj.position.y = this.max_y;
       res = true;
     }
     if (futurePosition.z < this.center.z - this.depth / 2) {
@@ -218,7 +200,7 @@ class Fish {
       position,
       direction.normalize(),
       0,
-      3
+      3,
     );
     raycaster.firstHitOnly = true;
     const intersects = raycaster.intersectObjects(this.terrain_obj.children);
