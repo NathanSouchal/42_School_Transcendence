@@ -1,6 +1,7 @@
 from rest_framework import serializers;
 from api.models import User;
-from api.models import Game
+from api.models import Game;
+from api.models import Match;
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -51,4 +52,8 @@ class GameSerializer(serializers.ModelSerializer):
         return representation
 
 
+class MatchSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Match
+        fields = '__all__'

@@ -100,51 +100,61 @@ class Tournament(models.Model):
     status = models.CharField(max_length=20, default='not_started')
     number_of_players = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    rounds_tree = []
+    rounds_tree = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return self.name
 
     def generate_match_by_round(self, nb_rounds, current_round_nb):
         nb_matches = 2 ** (nb_rounds - current_round_nb)
-        i = 1
         current_round_lst = []
-        while i <= nb_matches:
+        for i in range(1, nb_matches + 1):
             if current_round_nb == 1:
                 match = Match.objects.create(
                     tournament = self,
                     round_number = current_round_nb,
-                    player1 = self.participants[i * 2 - 1],
-                    player2 = self.participants[i * 2],
+                    player1 = self.participants[(i * 2) - 2],
+                    player2 = self.participants[(i * 2) - 1],
                 )
             else:
                 match = Match.objects.create(
                     tournament = self,
                     round_number = current_round_nb,
                 )
-            current_round_lst.append(match)
-            match.save()
-        self.rounds_tree.append(current_round_lst)             
+            current_round_lst.append(match.id)
+        self.rounds_tree.append(current_round_lst)
+        self.save()             
 
+    def assign_next_matches(self):
+        for round_index in range(len(self.rounds_tree) - 1):
+            i_next_round = 0
+            for i_current_round in range(len(self.rounds_tree[round_index])):
+                match = Match.objects.get(id = self.rounds_tree[round_index][i_current_round])
+                match.next_match = Match.objects.get(id = self.rounds_tree[round_index + 1][i_next_round])
+                match.save()
+                if i_current_round % 2 == 1:
+                    i_next_round += 1
+    
     def start_tournament(self):
-        nb_rounds = math.log2(self.number_of_players)
-        i = 1
+        nb_rounds = int(math.log2(self.number_of_players))
         # On genere ici tous les matchs avec les players et le round et on remplit l'arbre round par round
-        while i <= nb_rounds:
+        for i in range(1, nb_rounds + 1):
              self.generate_match_by_round(nb_rounds, i)
         # Ici se fait l'attribution des next_match en se basant sur l'arbre
+        self.assign_next_matches()
         self.status = 'in progress'
+        self.save()
 
-    def advance_tournament(self):
-        # Méthode à implémenter :
-        # Chercher les matchs terminés sans vainqueur enregistré, 
-        # vérifier les vainqueurs, mettre à jour le match suivant etc.
-        pass
+    # def advance_tournament(self):
+    #     # Méthode à implémenter :
+    #     # Chercher les matchs terminés sans vainqueur enregistré, 
+    #     # vérifier les vainqueurs, mettre à jour le match suivant etc.
+    #     pass
 
-    def is_finished(self):
-        # Vérifier si la finale a un vainqueur
-        # Un moyen : trouver le match final (celui sans next_match) et voir si winner est défini
-        return self.status == 'finished'
+    # def is_finished(self):
+    #     # Vérifier si la finale a un vainqueur
+    #     # Un moyen : trouver le match final (celui sans next_match) et voir si winner est défini
+    #     return self.status == 'finished'
 
 
 class Match(models.Model):
