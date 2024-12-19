@@ -1,0 +1,44 @@
+body,
+html {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Positionner le canvas en arrière-plan */
+canvas#c {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Place le canvas derrière les autres éléments */
+}
+
+/* Appliquer un positionnement relatif pour le contenu */
+main#app {
+  position: absolute;
+  top: 50%; /* Positionner l'élément 50% du haut de l'écran */
+  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
+  transform: translate(
+    -50%,
+    -45%
+  ); /* Centre l'élément par rapport à son point de départ */
+  height: 60vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
+  width: 60%; /* Définir une largeur (ou un max-width) pour #app */
+  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
+  background: rgba(
+    61,
+    55,
+    55,
+    0.8
+  ); /* Fond semi-transparent (si vous le souhaitez) */
+  padding: 20px;
+  color: white; /* Choisir une couleur de texte adaptée */
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Optionnel : pour donner un effet d'ombre */
+}
+
+header {
+  height: 60px; /* Définir la hauteur du header si nécessaire */
+}

@@ -107,7 +107,7 @@ export default class Register {
   render() {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
-    return `<div class="d-flex justify-content-center">
+    return `<div class="d-flex justify-content-center align-items-center h-100">
         <form id="register-form">
           <h3 class="text-center">Register</h3>
           <div class="mb-3">
