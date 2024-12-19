@@ -20,6 +20,8 @@ class Game {
       canvas: this.canvas,
     });
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
 
@@ -53,11 +55,11 @@ class Game {
 
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals"),
+      this.config.getGenerationConfig("corrals")
     );
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea"),
+      this.config.getGenerationConfig("sea")
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
@@ -76,8 +78,22 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig(),
+      this.config.getCameraConfig()
     );
+
+    // const geometry = new THREE.BoxGeometry(10, 10, 10);
+    // const material = new THREE.MeshBasicMaterial({ color: 0x20ff00 });
+    // const cube = new THREE.Mesh(geometry, material);
+    // this.scene.add(cube);
+    // console.log("Camera position:", this.camera.position);
+    // console.log("Cube position:", cube.position);
+
+    window.addEventListener("resize", () => {
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+    });
+
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -98,7 +114,7 @@ class Game {
       this.scene,
       this.camera,
       game,
-      this.stat,
+      this.stat
     );
     this.rendererInstance.animate();
   }

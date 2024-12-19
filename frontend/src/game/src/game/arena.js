@@ -19,13 +19,13 @@ class Arena {
 
   async init() {
     const raftModel = await this.loadModels(
-      "assets/raft/scene.gltf",
-      new THREE.Vector3(8, 8, 7),
+      "src/game/assets/raft/scene.gltf",
+      new THREE.Vector3(8, 8, 7)
     );
     this.raft.add(raftModel);
     const barrel = await this.loadModels(
-      "assets/barril/scene.gltf",
-      new THREE.Vector3(3, 3, 3),
+      "src/game/assets/barril/scene.gltf",
+      new THREE.Vector3(3, 3, 3)
     );
     this.addBarrelsToBorder(this.borderLeft, barrel, "left");
     this.addBarrelsToBorder(this.borderRight, barrel, "right");
@@ -76,7 +76,7 @@ class Arena {
         (error) => {
           console.error(error);
           reject(error);
-        },
+        }
       );
     });
   }

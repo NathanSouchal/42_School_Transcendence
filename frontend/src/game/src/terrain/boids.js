@@ -69,7 +69,7 @@ class Fish {
   }
 
   async loadFishs() {
-    await this.loadModel("assets/guppy_fish/scene.gltf");
+    await this.loadModel("src/game/assets/guppy_fish/scene.gltf");
   }
 
   loadModel(path) {
@@ -94,7 +94,7 @@ class Fish {
         (error) => {
           console.error(error);
           reject(error);
-        },
+        }
       );
     });
   }
@@ -109,7 +109,7 @@ class Fish {
     return new THREE.Vector3(
       Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
       Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
-      Math.random() * (this.max_speed - this.min_speed) + this.min_speed,
+      Math.random() * (this.max_speed - this.min_speed) + this.min_speed
     );
   }
 
@@ -143,7 +143,7 @@ class Fish {
 
   directionChange() {
     const newDirectionIndex = Math.floor(
-      Math.random() * this.directions.length,
+      Math.random() * this.directions.length
     );
     const newDirection = this.directions[newDirectionIndex].clone();
     const rotationAngle = (Math.random() - 0.5) * Math.PI;
@@ -152,9 +152,9 @@ class Fish {
       new THREE.Vector3(
         Math.random() - 0.5,
         Math.random() - 0.5,
-        Math.random() - 0.5,
+        Math.random() - 0.5
       ).normalize(),
-      rotationAngle,
+      rotationAngle
     );
 
     this.currentTurnTarget = newDirection.multiplyScalar(0.1);
@@ -218,7 +218,7 @@ class Fish {
       position,
       direction.normalize(),
       0,
-      3,
+      3
     );
     raycaster.firstHitOnly = true;
     const intersects = raycaster.intersectObjects(this.terrain_obj.children);
