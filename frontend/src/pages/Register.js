@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Register {
   constructor(state) {
@@ -13,6 +14,7 @@ export default class Register {
   }
 
   async initialize() {
+    resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 

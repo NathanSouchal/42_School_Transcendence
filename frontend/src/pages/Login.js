@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Login {
   constructor(state) {
@@ -11,6 +12,7 @@ export default class Login {
   }
 
   async initialize() {
+    resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 

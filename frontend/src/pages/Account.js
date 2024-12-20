@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Account {
   constructor(state) {
@@ -14,6 +15,7 @@ export default class Account {
   }
 
   async initialize() {
+    resetZIndex();
     const container = document.getElementById("app");
 
     // Vérifiez si le conteneur existe avant de continuer

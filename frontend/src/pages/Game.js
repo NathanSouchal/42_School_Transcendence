@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import { resetZIndex } from "/src/utils.js";
 
 export default class GamePage {
   constructor(state) {
@@ -39,6 +40,22 @@ export default class GamePage {
       });
     }
   }
+
+  updateZIndex() {
+    const canvas = document.querySelector("#c");
+    const app = document.querySelector("main#app");
+
+    if (this.state.state.gameStarted) {
+      // Canvas au-dessus, app en dessous
+      if (canvas) canvas.style.zIndex = "1";
+      if (app) app.style.zIndex = "0";
+    } else {
+      // Canvas en dessous, app au-dessus
+      if (canvas) canvas.style.zIndex = "-1";
+      if (app) app.style.zIndex = "1";
+    }
+  }
+
   handleStateChange(newState) {
     // Cette méthode sera appelée à chaque fois que l'état est mis à jour
     // Vous pouvez traiter ici ce que vous souhaitez faire lorsque isGamePage change
@@ -49,6 +66,7 @@ export default class GamePage {
       container.innerHTML = content; // Remplacer le contenu du conteneur
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
+    this.updateZIndex();
   }
 
   destroy() {
@@ -56,6 +74,8 @@ export default class GamePage {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
       this.isSubscribed = false;
     }
+    resetZIndex();
+    this.state.setGameStarted(false);
   }
 
   render() {

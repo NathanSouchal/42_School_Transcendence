@@ -1,3 +1,5 @@
+import { resetZIndex } from "/src/utils.js";
+
 export class Router {
   constructor(routes) {
     this.routes = routes;
@@ -27,26 +29,18 @@ export class Router {
     this.handleRoute();
   }
 
-  updateZIndex() {
-    const canvas = document.querySelector("#c"); // Récupère le canvas par son id
-    const app = document.querySelector("main#app"); // Récupère le main par son id
-
-    if (canvas && app) {
-      if (window.location.pathname === "/game") {
-        // Si on est sur la page /game, mettre le canvas au-dessus
-        canvas.style.zIndex = "1"; // Canvas au-dessus de main
-        app.style.zIndex = "0"; // Main en dessous
-      } else {
-        // Sinon, mettre main au-dessus du canvas
-        canvas.style.zIndex = "0"; // Canvas en dessous
-        app.style.zIndex = "1"; // Main au-dessus du canvas
-      }
-    }
-  }
-
   handleRoute() {
     const path = window.location.pathname;
     const view = this.routes[path] || this.routes["/404"];
+
+    if (
+      this.currentPath === "/game" &&
+      path !== "/game" &&
+      this.currentPage?.state?.state?.gameStarted
+    ) {
+      gamePage.state.setGameStarted(false);
+      resetZIndex(); // Réinitialiser les z-index si nécessaire
+    }
 
     if (this.currentPage && typeof this.currentPage.destroy === "function") {
       this.currentPage.destroy(); // Nettoyage de la page précédente

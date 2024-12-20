@@ -1,10 +1,12 @@
 import DOMPurify from "dompurify";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Home {
   constructor(state) {
     this.state = state;
   }
   async initialize() {
+    resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 
@@ -16,6 +18,7 @@ export default class Home {
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
   }
+
   attachEventListeners() {}
   render() {
     const userData = this.state.data.username;
