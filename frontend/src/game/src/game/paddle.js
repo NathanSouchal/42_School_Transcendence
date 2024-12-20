@@ -9,21 +9,33 @@ class Paddle {
     this.side = side;
     this.size = config.getSize();
     this.player_type = player_type;
+    this.needsRemoving = false;
+    this.controls = config.getPaddleConfig(side);
     this.obj = new THREE.Object3D();
-    const controls = config.getPaddleConfig(side);
-    if (player_type === "player")
-      this.controls = new PaddleControls(this, controls, this.size);
-    else this.controls = new Robot(this, this.size);
+    this.choosePlayer(player_type);
+  }
+
+  choosePlayer(player_type) {
+    if (player_type === "player") {
+      this.player_type = player_type;
+      this.player = new PaddleControls(this, this.controls, this.size);
+    } else {
+      if (this.needsRemoving === true) {
+        this.player.dispose();
+        this.needsRemoving = false;
+      }
+      this.player = new Robot(this, this.size);
+    }
   }
 
   computeBoundingBoxes() {
     const zMax = this.size.arena_depth;
     const z =
-      this.side === "bottom"
+      this.side === "top"
         ? -(zMax / 2) + this.size.paddle_depth / 2
         : zMax / 2 - this.size.paddle_depth / 2;
     this.obj.position.set(0, 2.5, z);
-    if (this.side === "top") {
+    if (this.side === "bottom") {
       this.obj.rotateY(Math.PI);
     }
     this.box = new THREE.Box3().setFromObject(this.obj, true);
@@ -33,7 +45,7 @@ class Paddle {
     });
     let boxsize = new THREE.Vector3();
     this.box.getSize(boxsize);
-    this.controls.half_width = boxsize.x * 0.4;
+    this.paddle_half_width = boxsize.x * 0.5;
   }
 
   async init() {
@@ -79,7 +91,7 @@ class Paddle {
   }
 
   update(deltaTime, position, velocity) {
-    this.controls.update(deltaTime, position, velocity);
+    this.player.update(deltaTime, position, velocity);
 
     const newBox = new THREE.Box3().setFromObject(this.obj, true);
     const paddleBoxIndex = this.arena.BBoxes.findIndex(
@@ -93,19 +105,19 @@ class Paddle {
     }
     this.mixer.update(deltaTime);
 
-    if (this.controls.state.left) {
+    if (this.player.state.left) {
       if (!this.gauche.isRunning()) {
         this.gauche.play();
       }
-    } else if (!this.controls.state.left) {
+    } else if (!this.player.state.left) {
       if (this.gauche.isRunning()) this.gauche.setEffectiveTimeScale(0.5);
     }
 
-    if (this.controls.state.right) {
+    if (this.player.state.right) {
       if (!this.droite.isRunning()) {
         this.droite.play();
       }
-    } else if (!this.controls.state.right) {
+    } else if (!this.player.state.right) {
       if (this.droite.isRunning()) this.droite.setEffectiveTimeScale(0.5);
     }
 

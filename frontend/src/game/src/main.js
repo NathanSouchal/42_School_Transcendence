@@ -8,8 +8,9 @@ import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
 import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
-import Boid from "./terrain/boids.js";
+import Boid from "./terrain/creatures/boids.js";
 import Renderer from "./scene/rendering.js";
+import EventHandler from "./events/event_handler.js";
 
 class Game {
   constructor() {
@@ -24,15 +25,29 @@ class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
-
-    this.stat = new Stats();
-    document.body.appendChild(this.stat.dom);
+    this.player_types = {
+      top: "robot",
+      bottom: "robot",
+    };
+    //this.stat = new Stats();
+    //document.body.appendChild(this.stat.dom);
+    this.event_handler = new EventHandler(this);
   }
 
   async makeArena() {
     this.arena = new Arena(this.config.getSize());
-    this.paddleTop = new Paddle(this.arena, "top", "robot", this.config);
-    this.paddleBottom = new Paddle(this.arena, "bottom", "robot", this.config);
+    this.paddleTop = new Paddle(
+      this.arena,
+      "top",
+      this.player_types.top,
+      this.config,
+    );
+    this.paddleBottom = new Paddle(
+      this.arena,
+      "bottom",
+      this.player_types.bottom,
+      this.config,
+    );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
     await this.arena.init();
@@ -55,16 +70,16 @@ class Game {
 
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals")
+      this.config.getGenerationConfig("corrals"),
     );
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea")
+      this.config.getGenerationConfig("sea"),
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
-    for (let fish of this.boid.fishs) {
-      this.scene.add(fish.obj);
+    for (let creature of this.boid.creatures) {
+      this.scene.add(creature.obj);
     }
     this.scene.add(this.sky.sky);
     this.scene.add(this.terrain.obj);
@@ -78,15 +93,8 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig()
+      this.config.getCameraConfig(),
     );
-
-    // const geometry = new THREE.BoxGeometry(10, 10, 10);
-    // const material = new THREE.MeshBasicMaterial({ color: 0x20ff00 });
-    // const cube = new THREE.Mesh(geometry, material);
-    // this.scene.add(cube);
-    // console.log("Camera position:", this.camera.position);
-    // console.log("Cube position:", cube.position);
 
     window.addEventListener("resize", () => {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -108,13 +116,14 @@ class Game {
       sea: this.sea,
       boid: this.boid,
     };
+    this.event_handler.setupControls();
 
     this.rendererInstance = new Renderer(
       this.renderer,
       this.scene,
       this.camera,
       game,
-      this.stat
+      //this.stat,
     );
     this.rendererInstance.animate();
   }
