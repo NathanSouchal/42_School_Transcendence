@@ -1,7 +1,5 @@
 from rest_framework import serializers;
-from api.models import User;
-from api.models import Game;
-from api.models import Match;
+from api.models import User, Game, Match, Tournament;
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -42,7 +40,8 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ['id', 'player1', 'player2', 'score_player1', 'score_player2', 'created_at']
+        fields = '__all__'
+        read_only_fields = ['created_at', 'id']
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
@@ -57,3 +56,11 @@ class MatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Match
         fields = '__all__'
+        read_only_fields = ['created_at', 'id']
+
+class TournamentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tournament
+        fields = '__all__'
+        read_only_fields = ['created_at', 'id']

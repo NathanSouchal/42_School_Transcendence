@@ -172,7 +172,7 @@ class Match(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Match {self.id} - Tournée {self.round_number} - {self.tournament.name}"
+        return f"Match {self.id} - Round {self.round_number} - {self.tournament.name}"
 
     def set_winner(self, winner_user):
         self.winner = winner_user
