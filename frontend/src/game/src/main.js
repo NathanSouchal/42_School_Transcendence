@@ -11,8 +11,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
 import Boid from "./terrain/boids.js";
 import Renderer from "./scene/rendering.js";
-
-const state = new State();
+import state from "../../app.js";
 
 class Game {
   constructor() {

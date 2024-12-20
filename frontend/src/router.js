@@ -1,10 +1,7 @@
-import { State } from "/src/services/state.js";
-
-const state = new State();
-
 export class Router {
   constructor(routes) {
     this.routes = routes;
+    this.currentPage = null; // Garde une référence de la page actuelle
 
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
     this.navigate = this.navigate.bind(this);
@@ -31,18 +28,31 @@ export class Router {
   handleRoute() {
     const path = window.location.pathname;
     const view = this.routes[path] || this.routes["/404"];
-    const app = document.getElementById("app");
-    if (app) {
-      app.innerHTML = view.render(); // Remplace uniquement le contenu principal
+
+    if (this.currentPage && typeof this.currentPage.destroy === "function") {
+      this.currentPage.destroy(); // Nettoyage de la page précédente
     }
+    console.log("Appel à initialize pour :", path);
+    this.currentPage = view; // Mettez à jour la page actuelle
+
+    if (typeof view.initialize === "function" && !view.isInitialized) {
+      view.initialize(); // L'initialisation inclut généralement le rendu
+    } else if (typeof view.render === "function") {
+      const app = document.getElementById("app");
+      if (app) {
+        app.innerHTML = view.render();
+      }
+    }
+
     // Attache les écouteurs d'événements après que la vue a été rendue
     if (typeof view.attachEventListeners === "function") {
       view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
     }
-    state.setIsGamePage(path === "/game");
   }
 
   navigate(path) {
+    if (this.currentPath === path) return; // Éviter de naviguer vers la même route
+    this.currentPath = path;
     window.history.pushState({}, "", path);
     this.handleRoute();
   }

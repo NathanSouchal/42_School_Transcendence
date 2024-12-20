@@ -1,13 +1,21 @@
 import DOMPurify from "dompurify";
-import { State } from "../services/state";
 
-export default class Game {
+export default class GamePage {
   constructor(state) {
     this.state = state;
-    this.state.setIsGamePage({ isGamePage: true });
-    this.state.subscribe(this.handleStateChange.bind(this));
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isInitialized = false;
   }
   async initialize() {
+    if (this.isInitialized) return;
+
+    this.isInitialized = true; // Marquer l'initialisation
+
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+    }
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 
@@ -16,6 +24,8 @@ export default class Game {
     if (container) {
       container.innerHTML = content;
     }
+    console.log("Appel à setIsGamePage depuis GamePage.initialize");
+    this.state.setIsGamePage({ isGamePage: true });
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
     console.log("Initialisation du jeu...");
@@ -25,6 +35,13 @@ export default class Game {
     // Cette méthode sera appelée à chaque fois que l'état est mis à jour
     // Vous pouvez traiter ici ce que vous souhaitez faire lorsque isGamePage change
     console.log("État mis à jour:", newState);
+  }
+
+  destroy() {
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.isSubscribed = false;
+    }
   }
 
   render() {
