@@ -145,6 +145,27 @@ class Tournament(models.Model):
         self.status = 'in progress'
         self.save()
 
+    def find_next_match_to_play(self, id_last_match):
+        last_match = Match.objects.get(id=id_last_match)
+        next_match = None
+        current_round_index = last_match.round_number - 1
+        if current_round_index >= len(self.rounds_tree):
+            return None
+        current_round = self.rounds_tree[current_round_index]
+        if id_last_match in current_round:
+            i = current_round.index(id_last_match)
+            if i + 1 < len(current_round):
+                next_match = Match.objects.get(id=current_round[i + 1])
+            else:
+                next_round_index = current_round_index + 1
+                if next_round_index < len(self.rounds_tree):
+                    next_round = self.rounds_tree[next_round_index]
+                    if next_round:
+                        next_match = Match.objects.get(id=next_round[0])
+        return next_match
+
+         
+
     # def advance_tournament(self):
     #     # Méthode à implémenter :
     #     # Chercher les matchs terminés sans vainqueur enregistré, 
@@ -174,12 +195,10 @@ class Match(models.Model):
     def __str__(self):
         return f"Match {self.id} - Round {self.round_number} - {self.tournament.name}"
 
-    def set_winner(self, winner_user):
-        self.winner = winner_user
-        self.save()
-        if self.next_match:
+    def put_winner_on_next_match(self):
+        if self.next_match and self.winner:
             if self.next_match.player1 is None:
-                self.next_match.player1 = winner_user
+                self.next_match.player1 = self.winner
             else:
-                self.next_match.player2 = winner_user
+                self.next_match.player2 = self.winner
             self.next_match.save()
