@@ -11,6 +11,7 @@ class PaddleControls {
     };
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.paddle.needsRemoving = true;
     this.setupEventListeners();
   }
 

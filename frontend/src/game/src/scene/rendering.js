@@ -65,7 +65,7 @@ class Renderer {
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
-    this.stat.update();
+    //this.stat.update();
     this.game.sea.update(deltaTime);
     this.game.arena.update(deltaTime, this.game.ball.speedRatio);
 

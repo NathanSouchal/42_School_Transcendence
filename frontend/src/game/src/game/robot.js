@@ -1,12 +1,13 @@
 import * as THREE from "three";
 
 class Robot {
-  constructor(paddle, size, difficulty = 1) {
+  constructor(paddle, size, difficulty = 4) {
     this.paddle = paddle;
     this.size = size;
     this.difficulty = difficulty;
     this.inverseDifficulty = 6 - this.difficulty;
     this.speed = 0.4;
+    this.half_width = this.paddle.paddle_half_width;
     this.state = {
       right: false,
       left: false,
