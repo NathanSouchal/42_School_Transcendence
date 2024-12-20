@@ -46,7 +46,7 @@ class Ball {
 
       const currentSpeed = this.velocity.length();
       const newAngle = normalizedRelativePosition * this.maxAngle;
-      const yDirection = bbox.side === "bottom" ? 1 : -1;
+      const yDirection = bbox.side === "top" ? 1 : -1;
       this.velocity.x = currentSpeed * Math.sin(newAngle);
       this.velocity.z =
         yDirection * Math.abs(currentSpeed * Math.cos(newAngle));

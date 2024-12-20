@@ -8,7 +8,7 @@ html {
 /* Positionner le canvas en arrière-plan */
 canvas#c {
   position: absolute;
-  top: 0;
+  top: 120px;
   left: 0;
   width: 100%;
   height: 100%;
@@ -37,8 +37,10 @@ main#app {
   color: white; /* Choisir une couleur de texte adaptée */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Optionnel : pour donner un effet d'ombre */
+  z-index: 0;
 }
 
 header {
   height: 60px; /* Définir la hauteur du header si nécessaire */
+  z-index: 0;
 }

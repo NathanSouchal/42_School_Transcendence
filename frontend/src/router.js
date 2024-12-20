@@ -7,7 +7,9 @@ export class Router {
     this.navigate = this.navigate.bind(this);
 
     // Attache les gestionnaires d'événements
-    window.addEventListener("popstate", this.handleRoute.bind(this));
+    window.addEventListener("popstate", () => {
+      this.handleRoute.bind(this);
+    });
 
     // Gère les clics sur les liens
     document.addEventListener("click", (e) => {
@@ -23,6 +25,23 @@ export class Router {
 
     // Charge la route initiale
     this.handleRoute();
+  }
+
+  updateZIndex() {
+    const canvas = document.querySelector("#c"); // Récupère le canvas par son id
+    const app = document.querySelector("main#app"); // Récupère le main par son id
+
+    if (canvas && app) {
+      if (window.location.pathname === "/game") {
+        // Si on est sur la page /game, mettre le canvas au-dessus
+        canvas.style.zIndex = "1"; // Canvas au-dessus de main
+        app.style.zIndex = "0"; // Main en dessous
+      } else {
+        // Sinon, mettre main au-dessus du canvas
+        canvas.style.zIndex = "0"; // Canvas en dessous
+        app.style.zIndex = "1"; // Main au-dessus du canvas
+      }
+    }
   }
 
   handleRoute() {

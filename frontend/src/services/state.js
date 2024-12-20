@@ -3,7 +3,7 @@ export class State {
     if (State.instance) {
       return State.instance; // Retourner l'instance existante si elle existe déjà
     }
-    this.state = { isGamePage: false };
+    this.state = { isGamePage: false, gameStarted: false };
     this.data = {};
     this.listeners = [];
     State.instance = this;
@@ -25,6 +25,11 @@ export class State {
     }
   }
 
+  setGameStarted(value) {
+    this.state.gameStarted = value;
+    this.notifyListeners();
+  }
+
   getState() {
     return this.state;
   }
@@ -40,6 +45,6 @@ export class State {
   }
 
   notifyListeners() {
-    this.listeners.forEach((listener) => listener(this.data));
+    this.listeners.forEach((listener) => listener(this.state));
   }
 }

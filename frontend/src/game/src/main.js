@@ -9,9 +9,10 @@ import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
 import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
-import Boid from "./terrain/boids.js";
+import Boid from "./terrain/creatures/boids.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";
+import EventHandler from "./events/event_handler.js";
 
 class Game {
   constructor() {
@@ -43,12 +44,29 @@ class Game {
       const isGamePage = state.getState().isGamePage; // Récupère l'état actuel
       console.log("Game status: ", isGamePage);
     });
+    this.player_types = {
+      top: "robot",
+      bottom: "robot",
+    };
+    //this.stat = new Stats();
+    //document.body.appendChild(this.stat.dom);
+    this.event_handler = new EventHandler(this);
   }
 
   async makeArena() {
     this.arena = new Arena(this.config.getSize());
-    this.paddleTop = new Paddle(this.arena, "top", "robot", this.config);
-    this.paddleBottom = new Paddle(this.arena, "bottom", "robot", this.config);
+    this.paddleTop = new Paddle(
+      this.arena,
+      "top",
+      this.player_types.top,
+      this.config
+    );
+    this.paddleBottom = new Paddle(
+      this.arena,
+      "bottom",
+      this.player_types.bottom,
+      this.config
+    );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
     await this.arena.init();
@@ -79,8 +97,8 @@ class Game {
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
-    for (let fish of this.boid.fishs) {
-      this.scene.add(fish.obj);
+    for (let creature of this.boid.creatures) {
+      this.scene.add(creature.obj);
     }
     this.scene.add(this.sky.sky);
     this.scene.add(this.terrain.obj);
@@ -117,13 +135,14 @@ class Game {
       sea: this.sea,
       boid: this.boid,
     };
+    this.event_handler.setupControls();
 
     this.rendererInstance = new Renderer(
       this.renderer,
       this.scene,
       this.camera,
-      game,
-      this.stat
+      game
+      //this.stat,
     );
     this.rendererInstance.animate();
   }

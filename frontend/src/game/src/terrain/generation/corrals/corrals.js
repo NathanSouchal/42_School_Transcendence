@@ -29,7 +29,7 @@ class Corrals extends BasicTerrain {
     );
 
     this.makeCells();
-    this.makeGUI();
+    //this.makeGUI();
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
