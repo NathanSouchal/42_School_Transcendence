@@ -16,8 +16,8 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        left: "j",
-        right: "k",
+        left: ",",
+        right: ".",
       },
     },
   },
