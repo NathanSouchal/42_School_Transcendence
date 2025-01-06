@@ -6,8 +6,8 @@ class Ball {
     this.conf = conf;
     this.size = size;
     this.geometry = new THREE.CylinderGeometry(
-      size.ball_radius_top,
-      size.ball_radius_bottom,
+      size.ball_radius_left,
+      size.ball_radius_right,
       size.ball_height,
     );
     this.elapsedTime = 0;
@@ -25,10 +25,10 @@ class Ball {
 
     this.maxAngle = Math.PI / 4;
     this.reflectionNormals = {
-      left: new THREE.Vector3(1, 0, 0),
-      right: new THREE.Vector3(-1, 0, 0),
-      bottom: new THREE.Vector3(0, 0, 1),
-      top: new THREE.Vector3(0, 0, -1),
+      bottom: new THREE.Vector3(1, 0, 0),
+      top: new THREE.Vector3(-1, 0, 0),
+      right: new THREE.Vector3(0, 0, 1),
+      left: new THREE.Vector3(0, 0, -1),
     };
     this.velocity = this.random_initial_velocity();
     this.make_sparks();
@@ -37,7 +37,7 @@ class Ball {
   bounce(bbox) {
     const normal = this.reflectionNormals[bbox.side];
 
-    if (bbox.side === "bottom" || bbox.side === "top") {
+    if (bbox.side === "right" || bbox.side === "left") {
       const ballCenter = this.obj.position.clone();
       const paddleCenter = bbox.box.getCenter(new THREE.Vector3());
       const relativePosition = ballCenter.x - paddleCenter.x;
@@ -46,7 +46,7 @@ class Ball {
 
       const currentSpeed = this.velocity.length();
       const newAngle = normalizedRelativePosition * this.maxAngle;
-      const yDirection = bbox.side === "top" ? 1 : -1;
+      const yDirection = bbox.side === "left" ? 1 : -1;
       this.velocity.x = currentSpeed * Math.sin(newAngle);
       this.velocity.z =
         yDirection * Math.abs(currentSpeed * Math.cos(newAngle));
