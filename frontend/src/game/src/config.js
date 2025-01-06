@@ -3,7 +3,7 @@ import { deepMerge } from "./utils.js";
 export const DEFAULT_CONFIG = {
   paddle: {
     top: {
-      movementSpeed: 0.7,
+      movementSpeed: 0.5,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
@@ -12,12 +12,12 @@ export const DEFAULT_CONFIG = {
       },
     },
     bottom: {
-      movementSpeed: 0.7,
+      movementSpeed: 0.5,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        left: "h",
-        right: "/",
+        left: ",",
+        right: ".",
       },
     },
   },
@@ -27,14 +27,14 @@ export const DEFAULT_CONFIG = {
     near: 0.1,
     far: 500,
     position: {
-      x: 0,
-      y: 13,
-      z: 23,
+      x: -18,
+      y: 18,
+      z: 0,
     },
     target: {
-      x: 0,
+      x: -5,
       y: 0,
-      z: 5,
+      z: 0,
     },
   },
 
@@ -47,8 +47,8 @@ export const DEFAULT_CONFIG = {
     speed: {
       initialMin: 0.2,
       initialMax: 0.4,
-      max: 1.4,
-      incrementFactor: 1.04,
+      max: 1.2,
+      incrementFactor: 1.03,
     },
     color: 0x938a8f,
     color_specular: 0xae4242,
@@ -56,16 +56,16 @@ export const DEFAULT_CONFIG = {
 
   size: {
     unit: 1,
-    arena_width: 20,
+    arena_width: 26,
     arena_height: 1,
-    arena_depth: 30,
+    arena_depth: 40,
     border_width: 2,
     border_height: 1,
     border_depth: 30,
     paddle_width: 5,
     paddle_height: 1,
     paddle_depth: 1,
-    ball_ratio: 0.04,
+    ball_ratio: 0.03,
     terrain_width: 500,
     terrain_depth: 500,
   },
@@ -73,7 +73,7 @@ export const DEFAULT_CONFIG = {
   sky: {
     scalar: 450000,
     phi_deg: 89,
-    theta_deg: 200,
+    theta_deg: 100,
     rayleigh: 3,
     turbidity: 10,
     exposure: 1,
@@ -109,7 +109,7 @@ export const DEFAULT_CONFIG = {
       size: {
         terrain_depth: 200,
         terrain_width: 200,
-        terrain_height: 300,
+        terrain_height: 150,
       },
     },
   },
