@@ -1,0 +1,11 @@
+Model Information:
+* title:	Barril Viejo
+* source:	https://sketchfab.com/3d-models/barril-viejo-f11413f39ae34684ac6ecbbbed58621c
+* author:	pablosanco (https://sketchfab.com/pablosanco)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Barril Viejo" (https://sketchfab.com/3d-models/barril-viejo-f11413f39ae34684ac6ecbbbed58621c) by pablosanco (https://sketchfab.com/pablosanco) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
