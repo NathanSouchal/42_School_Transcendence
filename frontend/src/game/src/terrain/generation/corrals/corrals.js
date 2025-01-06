@@ -45,7 +45,9 @@ class Corrals extends BasicTerrain {
     this.geometry.computeBoundsTree();
 
     this.obj.add(this.mesh);
-    this.obj.position.set(0, -100, 0);
+
+    let y = -50;
+    this.obj.position.set(0, y, 0);
     return this.obj;
   }
 
