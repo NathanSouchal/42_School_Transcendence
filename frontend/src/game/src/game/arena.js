@@ -20,12 +20,12 @@ class Arena {
   async init() {
     const raftModel = await this.loadModels(
       "src/game/assets/raft/scene.gltf",
-      new THREE.Vector3(8, 8, 7)
+      new THREE.Vector3(11, 10, 10),
     );
     this.raft.add(raftModel);
     const barrel = await this.loadModels(
       "src/game/assets/barril/scene.gltf",
-      new THREE.Vector3(3, 3, 3)
+      new THREE.Vector3(3, 3, 3),
     );
     this.addBarrelsToBorder(this.borderLeft, barrel, "left");
     this.addBarrelsToBorder(this.borderRight, barrel, "right");
@@ -45,13 +45,13 @@ class Arena {
   }
 
   addBarrelsToBorder(border, barrel, side) {
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       const barrelClone = barrel.clone();
       let y = i % 2 == 0 ? 0 : 0.8;
       if (side === "left")
-        barrelClone.position.set(-this.size.arena_width / 2 - 1, y, 10 - i * 7);
+        barrelClone.position.set(-this.size.arena_width / 2 - 1, y, 14 - i * 7);
       else {
-        barrelClone.position.set(this.size.arena_width / 2 + 1, y, 10 - i * 7);
+        barrelClone.position.set(this.size.arena_width / 2 + 1, y, 14 - i * 7);
       }
       barrelClone.rotateX(Math.PI / 2);
       border.add(barrelClone);
@@ -76,7 +76,7 @@ class Arena {
         (error) => {
           console.error(error);
           reject(error);
-        }
+        },
       );
     });
   }
@@ -87,6 +87,17 @@ class Arena {
 
     const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
     this.obj.rotation.z = rockingAngle;
+    //const ballPosition = new THREE.Vector3(
+    //  this.ball.position.x,
+    //  this.ball.position.y,
+    //  this.ball.position.z,
+    //);
+    //ballPosition.applyAxisAngle(
+    //  new THREE.Vector3(0, 0, 1),
+    //  rockingAngle - this.ball.rotation.z,
+    //);
+    //this.ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
+    //this.ball.rotation.z = rockingAngle;
   }
 }
 

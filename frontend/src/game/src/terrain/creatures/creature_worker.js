@@ -1,20 +1,5 @@
-import Creature from "./creature.js";
-
-class Boid {
-  constructor(terrain_geometry, terrain_obj) {
-    this.creatures = [];
-    for (let i = 0; i < 2; i++) {
-      let fish = new Fish(terrain_geometry, terrain_obj);
-      this.creatures.push(fish);
-    }
-    for (let i = 0; i < 1; i++) {
-      let jellyfish = new JellyFish(terrain_geometry, terrain_obj);
-      this.creatures.push(jellyfish);
-    }
-  }
-}
-
-export default Boid;
+importScripts("./creature.js");
+//import Creature from "./creature.js";
 
 class JellyFish extends Creature {
   constructor(terrain_geometry, terrain_obj) {
@@ -43,3 +28,14 @@ class Fish extends Creature {
     this.makeSomeCreatures();
   }
 }
+
+onmessage = function (e) {
+  const { type, terrain_geometry, terrain_obj } = e.data;
+  let creature;
+  if (type === "fish") {
+    creature = new Fish(terrain_geometry, terrain_obj);
+  } else if (type === "jellyfish") {
+    creature = new JellyFish(terrain_geometry, terrain_obj);
+  }
+  postMessage(creature);
+};
