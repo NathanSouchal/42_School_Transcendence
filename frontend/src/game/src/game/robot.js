@@ -14,7 +14,7 @@ class Robot {
     };
     this.target_x = 0;
     this.last_target_x = 0;
-    this.half_width = 3.42;
+    this.half_width = 3.42; // BAD
   }
 
   predictBallPosition(position, velocity) {
