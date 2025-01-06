@@ -6,8 +6,8 @@ class PaddleControls {
     this.size = size;
     this.controls = controls;
     this.state = {
-      left: false,
-      right: false,
+      bottom: false,
+      top: false,
     };
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -25,31 +25,31 @@ class PaddleControls {
   handleKeyDown(event) {
     if (!this.controls.keyboardControl) return;
 
-    if (event.key === this.controls.keyboardKeys.left) {
-      this.state.left = true;
+    if (event.key === this.controls.keyboardKeys.bottom) {
+      this.state.bottom = true;
     }
-    if (event.key === this.controls.keyboardKeys.right) {
-      this.state.right = true;
+    if (event.key === this.controls.keyboardKeys.top) {
+      this.state.top = true;
     }
   }
 
   handleKeyUp(event) {
     if (!this.controls.keyboardControl) return;
 
-    if (event.key === this.controls.keyboardKeys.left) {
-      this.state.left = false;
+    if (event.key === this.controls.keyboardKeys.bottom) {
+      this.state.bottom = false;
     }
-    if (event.key === this.controls.keyboardKeys.right) {
-      this.state.right = false;
+    if (event.key === this.controls.keyboardKeys.top) {
+      this.state.top = false;
     }
   }
 
   update(deltaTime, ballX) {
     if (this.controls.keyboardControl) {
-      if (this.state.left) {
+      if (this.state.bottom) {
         this.paddle.obj.position.x -= this.controls.movementSpeed;
       }
-      if (this.state.right) {
+      if (this.state.top) {
         this.paddle.obj.position.x += this.controls.movementSpeed;
       }
       this.constrainPaddlePosition();

@@ -9,8 +9,8 @@ class Robot {
     this.speed = 0.4;
     this.half_width = this.paddle.paddle_half_width;
     this.state = {
-      right: false,
-      left: false,
+      top: false,
+      bottom: false,
     };
     this.target_x = 0;
     this.last_target_x = 0;
@@ -47,22 +47,22 @@ class Robot {
     }
 
     if (currentX + this.half_width < this.target_x - this.offset) {
-      this.state.right = true;
-      this.state.left = false;
+      this.state.top = true;
+      this.state.bottom = false;
     } else if (currentX - this.half_width > this.target_x + this.offset) {
-      this.state.right = false;
-      this.state.left = true;
+      this.state.top = false;
+      this.state.bottom = true;
     } else {
-      this.state.right = false;
-      this.state.left = false;
+      this.state.top = false;
+      this.state.bottom = false;
     }
   }
 
   updatePaddlePosition() {
-    if (this.state.left) {
+    if (this.state.bottom) {
       this.paddle.obj.position.x -= this.speed;
     }
-    if (this.state.right) {
+    if (this.state.top) {
       this.paddle.obj.position.x += this.speed;
     }
   }

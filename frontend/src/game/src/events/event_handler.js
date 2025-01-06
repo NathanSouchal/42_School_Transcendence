@@ -4,45 +4,45 @@ export default class EventHandler {
   }
 
   setPlayerType(paddle, type) {
-    if (paddle === "top") {
-      this.game.paddleTop.choosePlayer(type);
-      this.game.player_types.top = type;
+    if (paddle === "left") {
+      this.game.paddleLeft.choosePlayer(type);
+      this.game.player_types.left = type;
     } else {
-      this.game.paddleBottom.choosePlayer(type);
-      this.game.player_types.bottom = type;
+      this.game.paddleRight.choosePlayer(type);
+      this.game.player_types.right = type;
     }
     this.updateControlButtons();
   }
 
   updateControlButtons() {
     document
-      .getElementById("top-player")
-      .classList.toggle("active", this.game.player_types.top === "player");
+      .getElementById("left-player")
+      .classList.toggle("active", this.game.player_types.left === "player");
     document
-      .getElementById("top-robot")
-      .classList.toggle("active", this.game.player_types.top === "robot");
+      .getElementById("left-robot")
+      .classList.toggle("active", this.game.player_types.left === "robot");
 
     document
-      .getElementById("bottom-player")
-      .classList.toggle("active", this.game.player_types.bottom === "player");
+      .getElementById("right-player")
+      .classList.toggle("active", this.game.player_types.right === "player");
     document
-      .getElementById("bottom-robot")
-      .classList.toggle("active", this.game.player_types.bottom === "robot");
+      .getElementById("right-robot")
+      .classList.toggle("active", this.game.player_types.right === "robot");
   }
 
   setupControls() {
     document
-      .getElementById("top-player")
-      .addEventListener("click", () => this.setPlayerType("top", "player"));
+      .getElementById("left-player")
+      .addEventListener("click", () => this.setPlayerType("left", "player"));
     document
-      .getElementById("top-robot")
-      .addEventListener("click", () => this.setPlayerType("top", "robot"));
+      .getElementById("left-robot")
+      .addEventListener("click", () => this.setPlayerType("left", "robot"));
     document
-      .getElementById("bottom-player")
-      .addEventListener("click", () => this.setPlayerType("bottom", "player"));
+      .getElementById("right-player")
+      .addEventListener("click", () => this.setPlayerType("right", "player"));
     document
-      .getElementById("bottom-robot")
-      .addEventListener("click", () => this.setPlayerType("bottom", "robot"));
+      .getElementById("right-robot")
+      .addEventListener("click", () => this.setPlayerType("right", "robot"));
 
     this.updateControlButtons();
   }
