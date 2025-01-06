@@ -27,7 +27,7 @@ class Game {
     init_light(this.scene);
     this.player_types = {
       top: "robot",
-      bottom: "robot",
+      bottom: "player",
     };
     //this.stat = new Stats();
     //document.body.appendChild(this.stat.dom);
@@ -57,7 +57,7 @@ class Game {
     this.paddleTop.computeBoundingBoxes(this.scene);
     this.paddleBottom.computeBoundingBoxes(this.scene);
     this.arena.ball = this.ball.obj;
-    this.arena.obj.add(this.ball.obj);
+    //this.arena.obj.add(this.ball.obj);
     this.scene.add(this.arena.obj);
     this.scene.add(this.paddleBottom.obj);
     this.scene.add(this.paddleTop.obj);
