@@ -3,11 +3,11 @@ import Creature from "./creature.js";
 class Boid {
   constructor(terrain_geometry, terrain_obj) {
     this.creatures = [];
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 2; i++) {
       let fish = new Fish(terrain_geometry, terrain_obj);
       this.creatures.push(fish);
     }
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 1; i++) {
       let jellyfish = new JellyFish(terrain_geometry, terrain_obj);
       this.creatures.push(jellyfish);
     }
