@@ -18,7 +18,6 @@ export class State {
     console.log("setIsGamePage appelé avec :", isGamePage);
     if (this.state.isGamePage !== isGamePage) {
       this.state.isGamePage = isGamePage;
-      console.log(this.state.isGamePage);
       this.notifyListeners();
     } else {
       console.log("setIsGamePage appelé sans changement.");
@@ -35,12 +34,12 @@ export class State {
   }
 
   subscribe(listener) {
-    console.log("Abonnement ajouté :", listener.name || listener);
+    //console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 
   unsubscribe(listener) {
-    console.log("Abonnement retiré :", listener.name || listener);
+    //console.log("Abonnement retiré :", listener.name || listener);
     this.listeners = this.listeners.filter((l) => l !== listener);
   }
 

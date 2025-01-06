@@ -21,23 +21,6 @@ const routes = {
 
 const router = new Router(routes);
 
-router.navigate = async function (path) {
-  const page = this.routes[path] || this.routes["/404"];
-
-  if (typeof page.initialize === "function") {
-    await page.initialize();
-  } else if (typeof page.render === "function") {
-    page.render();
-  }
-
-  window.history.pushState({}, "", path);
-
-  window.onpopstate = () => {
-    const currentPath = window.location.pathname;
-    this.navigate(currentPath);
-  };
-};
-
 // Gestion des clics sur les liens
 document.addEventListener("click", (event) => {
   const target = event.target.closest("a");

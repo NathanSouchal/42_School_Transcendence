@@ -5,6 +5,9 @@ import { resetZIndex } from "/src/utils.js";
 export default class Account {
   constructor(state) {
     this.state = state;
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
     this.userData = {
       id: 0,
       is_superuser: false,
@@ -15,14 +18,23 @@ export default class Account {
   }
 
   async initialize() {
-    resetZIndex();
-    const container = document.getElementById("app");
-
-    // Vérifiez si le conteneur existe avant de continuer
-    if (!container) {
-      console.error("Le conteneur principal #app est introuvable.");
-      return;
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Account page subscribed to state");
     }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
+    resetZIndex();
+
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content;
+    }
+    // Ajouter les écouteurs d'événements après le rendu
+    this.attachEventListeners();
 
     // Récupérer l'ID utilisateur depuis le stockage local
     const userId = Number(localStorage.getItem("id"));
@@ -34,13 +46,6 @@ export default class Account {
       // Si aucun ID utilisateur n'est trouvé
       this.isLoading = false;
     }
-
-    // Rendre le contenu final dans le conteneur
-    const content = this.render();
-    container.innerHTML = content;
-
-    // Ajouter les écouteurs d'événements après le rendu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {}
@@ -103,6 +108,24 @@ export default class Account {
       );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
+    }
+  }
+
+  destroy() {
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.isSubscribed = false;
+      console.log("Account page unsubscribed from state");
+    }
+    resetZIndex();
+  }
+
+  handleStateChange(newState) {
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content; // Remplacer le contenu du conteneur
+      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
   }
 

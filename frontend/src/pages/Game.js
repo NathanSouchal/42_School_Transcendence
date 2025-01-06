@@ -9,27 +9,24 @@ export default class GamePage {
     this.isInitialized = false;
   }
   async initialize() {
-    if (this.isInitialized) return;
-
-    this.isInitialized = true; // Marquer l'initialisation
-
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
+      console.log("Game page subscribed to state");
     }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
-
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content;
     }
-    console.log("Appel à setIsGamePage depuis GamePage.initialize");
     this.state.setIsGamePage(true);
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
-    console.log("Initialisation du jeu...");
   }
   attachEventListeners() {
     const startGameButton = document.getElementById("start-game");
@@ -37,6 +34,7 @@ export default class GamePage {
       startGameButton.addEventListener("click", () => {
         console.log("start game");
         this.state.setGameStarted(true);
+        this.updateZIndex();
       });
     }
   }
@@ -73,6 +71,7 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
       this.isSubscribed = false;
+      console.log("Game page unsubscribed from state");
     }
     resetZIndex();
     this.state.setGameStarted(false);

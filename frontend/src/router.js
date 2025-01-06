@@ -3,7 +3,7 @@ import { resetZIndex } from "/src/utils.js";
 export class Router {
   constructor(routes) {
     this.routes = routes;
-    this.currentPage = null; // Garde une référence de la page actuelle
+    this.currentPage = window.location.pathname; // Garde une référence de la page actuelle
 
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
     this.navigate = this.navigate.bind(this);
@@ -27,11 +27,26 @@ export class Router {
 
     // Charge la route initiale
     this.handleRoute();
+
+    window.onpopstate = () => {
+      const currentPath = window.location.pathname;
+      this.navigate(currentPath);
+    };
   }
 
   handleRoute() {
     const path = window.location.pathname;
     const view = this.routes[path] || this.routes["/404"];
+    console.log("ROUTER.js path : " + path);
+
+    if (this.currentPage === view) {
+      console.log("Reste sur la même page, aucune action requise.");
+      return;
+    }
+
+    if (this.currentPage && typeof this.currentPage.destroy === "function") {
+      this.currentPage.destroy(); // Nettoyage de la page précédente
+    }
 
     if (
       this.currentPath === "/game" &&
@@ -42,9 +57,6 @@ export class Router {
       resetZIndex(); // Réinitialiser les z-index si nécessaire
     }
 
-    if (this.currentPage && typeof this.currentPage.destroy === "function") {
-      this.currentPage.destroy(); // Nettoyage de la page précédente
-    }
     console.log("Appel à initialize pour :", path);
     this.currentPage = view; // Mettez à jour la page actuelle
 
@@ -63,10 +75,42 @@ export class Router {
     }
   }
 
-  navigate(path) {
+  async navigate(path) {
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
     this.currentPath = path;
+    if (this.currentPage && typeof this.currentPage.destroy === "function") {
+      this.currentPage.destroy();
+    }
+
+    const page = this.routes[path] || this.routes["/404"];
+    this.currentPage = page;
+
+    if (typeof page.initialize === "function") {
+      await page.initialize();
+    } else if (typeof page.render === "function") {
+      const app = document.getElementById("app");
+      if (app) {
+        app.innerHTML = page.render();
+      }
+    }
     window.history.pushState({}, "", path);
-    this.handleRoute();
   }
 }
+
+// router.navigate = async function (path) {
+//   const page = this.routes[path] || this.routes["/404"];
+
+//   if (typeof page.initialize === "function") {
+//     await page.initialize();
+//   } else if (typeof page.render === "function") {
+//     page.render();
+//   }
+//   this.handleRoute();
+//   console.log("APP.js path : " + path);
+//   window.history.pushState({}, "", path);
+
+//   window.onpopstate = () => {
+//     const currentPath = window.location.pathname;
+//     this.navigate(currentPath);
+//   };
+// };
