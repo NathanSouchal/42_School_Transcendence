@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 import math
+import random
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -136,6 +137,7 @@ class Tournament(models.Model):
                     i_next_round += 1
     
     def start_tournament(self):
+        random.shuffle(self.participants)
         nb_rounds = int(math.log2(self.number_of_players))
         # On genere ici tous les matchs avec les players et le round et on remplit l'arbre round par round
         for i in range(1, nb_rounds + 1):
