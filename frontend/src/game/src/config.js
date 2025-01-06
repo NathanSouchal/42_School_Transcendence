@@ -109,7 +109,7 @@ export const DEFAULT_CONFIG = {
       size: {
         terrain_depth: 200,
         terrain_width: 200,
-        terrain_height: 300,
+        terrain_height: 150,
       },
     },
   },
