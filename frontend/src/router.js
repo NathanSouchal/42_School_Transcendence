@@ -34,7 +34,7 @@ export class Router {
     };
   }
 
-  handleRoute() {
+  async handleRoute() {
     const path = window.location.pathname;
     const view = this.routes[path] || this.routes["/404"];
     console.log("ROUTER.js path : " + path);
@@ -57,18 +57,19 @@ export class Router {
       resetZIndex(); // Réinitialiser les z-index si nécessaire
     }
 
-    console.log("Appel à initialize pour :", path);
     this.currentPage = view; // Mettez à jour la page actuelle
 
+    console.log("INITIALISED ? " + view.isInitialized);
     if (typeof view.initialize === "function" && !view.isInitialized) {
-      view.initialize(); // L'initialisation inclut généralement le rendu
+      await view.initialize(); // L'initialisation inclut généralement le rendu
+      console.log("Appel à initialize pour :", path);
     } else if (typeof view.render === "function") {
       const app = document.getElementById("app");
+      console.log("Appel à render pour :", path);
       if (app) {
         app.innerHTML = view.render();
       }
     }
-
     // Attache les écouteurs d'événements après que la vue a été rendue
     if (typeof view.attachEventListeners === "function") {
       view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
@@ -85,32 +86,20 @@ export class Router {
     const page = this.routes[path] || this.routes["/404"];
     this.currentPage = page;
 
-    if (typeof page.initialize === "function") {
+    console.log("INITIALISED ? " + page.isInitialized);
+    if (typeof page.initialize === "function" && !page.isInitialized) {
+      console.log("Appel à initialize pour :", path);
       await page.initialize();
     } else if (typeof page.render === "function") {
       const app = document.getElementById("app");
       if (app) {
         app.innerHTML = page.render();
+        console.log("Appel à render pour :", path);
       }
+    }
+    if (typeof page.attachEventListeners === "function") {
+      page.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
     }
     window.history.pushState({}, "", path);
   }
 }
-
-// router.navigate = async function (path) {
-//   const page = this.routes[path] || this.routes["/404"];
-
-//   if (typeof page.initialize === "function") {
-//     await page.initialize();
-//   } else if (typeof page.render === "function") {
-//     page.render();
-//   }
-//   this.handleRoute();
-//   console.log("APP.js path : " + path);
-//   window.history.pushState({}, "", path);
-
-//   window.onpopstate = () => {
-//     const currentPath = window.location.pathname;
-//     this.navigate(currentPath);
-//   };
-// };
