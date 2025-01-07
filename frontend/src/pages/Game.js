@@ -28,12 +28,19 @@ export default class GamePage {
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
   }
+
   attachEventListeners() {
-    const startGameButton = document.getElementById("start-game");
-    if (startGameButton) {
-      startGameButton.addEventListener("click", () => {
-        console.log("start game");
-        this.state.setGameStarted(true);
+    const startPVPGameButton = document.getElementById("start-pvp-game");
+    const startPVRGameButton = document.getElementById("start-pvr-game");
+    if (startPVPGameButton) {
+      startPVPGameButton.addEventListener("click", () => {
+        this.state.setPVPGameStarted(true);
+        this.updateZIndex();
+      });
+    }
+    if (startPVRGameButton) {
+      startPVRGameButton.addEventListener("click", () => {
+        this.state.setPVRGameStarted(true);
         this.updateZIndex();
       });
     }
@@ -85,8 +92,11 @@ export default class GamePage {
         ? ``
         : `<div class="d-flex flex-column justify-content-center align-items-center h-100">
 				<h1>Game</h1>
-				<button class="btn btn-danger mt-2 mb-2" id="start-game">
-						Start Game
+				<button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
+						Start PVP Game
+				</button>  
+				<button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
+						Start PVR Game
 				</button>
 			</div>`
     }`;

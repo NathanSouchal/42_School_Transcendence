@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { State } from "/src/services/state.js";
 import { init_light } from "./scene/lights.js";
 import { init_camera } from "./scene/camera.js";
 import Ball from "./game/ball.js";
@@ -28,11 +27,9 @@ class Game {
     this.scene = new THREE.Scene();
     init_light(this.scene);
 
-    this.stat = new Stats();
-    document.body.appendChild(this.stat.dom);
+    this.state = state;
 
-    // Abonnement aux changements de l'état global
-    state.subscribe((newState) => {
+    this.state.subscribe((newState) => {
       // if (newState.isGamePage && !this.isGameInitialized) {
       //   this.init(); // Initialise le jeu si on est sur la page du jeu
       //   this.isGameInitialized = true;
@@ -40,17 +37,9 @@ class Game {
       //   console.log("Quitter la page du jeu"); // Logique éventuelle pour quitter le jeu
       //   this.cleanup(); // Nettoie les ressources si nécessaire
       //   this.isGameInitialized = false;
-      // }
-      const isGamePage = state.getState().isGamePage; // Récupère l'état actuel
-      console.log("Game status: ", isGamePage);
+      //
     });
-    this.player_types = {
-      top: "robot",
-      bottom: "player",
-    };
-    //this.stat = new Stats();
-    //document.body.appendChild(this.stat.dom);
-    this.event_handler = new EventHandler(this);
+    this.players = state.players;
   }
 
   async makeArena() {
@@ -58,14 +47,14 @@ class Game {
     this.paddleTop = new Paddle(
       this.arena,
       "top",
-      this.player_types.top,
-      this.config
+      this.players.left,
+      this.config,
     );
     this.paddleBottom = new Paddle(
       this.arena,
       "bottom",
-      this.player_types.bottom,
-      this.config
+      this.players.right,
+      this.config,
     );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
@@ -76,7 +65,6 @@ class Game {
     this.paddleTop.computeBoundingBoxes(this.scene);
     this.paddleBottom.computeBoundingBoxes(this.scene);
     this.arena.ball = this.ball.obj;
-    //this.arena.obj.add(this.ball.obj);
     this.scene.add(this.arena.obj);
     this.scene.add(this.paddleBottom.obj);
     this.scene.add(this.paddleTop.obj);
@@ -89,11 +77,11 @@ class Game {
 
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals")
+      this.config.getGenerationConfig("corrals"),
     );
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea")
+      this.config.getGenerationConfig("sea"),
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
@@ -112,7 +100,7 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig()
+      this.config.getCameraConfig(),
     );
 
     window.addEventListener("resize", () => {
@@ -134,15 +122,15 @@ class Game {
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,
+      player_types: this.player_types,
     };
-    this.event_handler.setupControls();
+    // this.event_handler.setupControls();
 
     this.rendererInstance = new Renderer(
       this.renderer,
       this.scene,
       this.camera,
-      game
-      //this.stat,
+      game,
     );
     this.rendererInstance.animate();
   }

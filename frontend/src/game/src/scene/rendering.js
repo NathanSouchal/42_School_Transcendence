@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import state from "../../../app.js";
 
 class Renderer {
   constructor(renderer, scene, camera, game, stat) {
@@ -40,6 +41,13 @@ class Renderer {
         this.game.ball.reset();
       }
 
+      if (state.state.gameModeHasChanged) {
+        this.game.ball.reset();
+        this.game.paddleTop.choosePlayer(state.players.left);
+        this.game.paddleBottom.choosePlayer(state.players.right);
+        state.state.gameModeHasChanged = false;
+      }
+
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -49,7 +57,6 @@ class Renderer {
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(render);
     };
-
     requestAnimationFrame(render);
   }
 
@@ -65,7 +72,6 @@ class Renderer {
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
-    //this.stat.update();
     this.game.sea.update(deltaTime);
     this.game.arena.update(deltaTime, this.game.ball.speedRatio);
 

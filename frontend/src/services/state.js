@@ -1,9 +1,33 @@
-export class State {
+export default class State {
   constructor() {
     if (State.instance) {
       return State.instance; // Retourner l'instance existante si elle existe déjà
     }
-    this.state = { isGamePage: false, gameStarted: false };
+    this.state = {
+      isGamePage: false,
+      PVPgameStarted: false,
+      PVRgameStarted: false,
+      gameStarted: false,
+      gameModeHasChanged: false,
+    };
+
+    this.player_types = {
+      default: {
+        left: "robot",
+        right: "robot",
+      },
+      PVP: {
+        left: "player",
+        right: "player",
+      },
+      PVR: {
+        left: "robot",
+        right: "player",
+      },
+    };
+
+    this.players = this.player_types.default;
+
     this.data = {};
     this.listeners = [];
     State.instance = this;
@@ -22,6 +46,22 @@ export class State {
     } else {
       console.log("setIsGamePage appelé sans changement.");
     }
+  }
+
+  setPVPGameStarted(value) {
+    this.state.PVPgameStarted = value;
+    this.state.PVRgameStarted = !value;
+    this.notifyListeners();
+    this.state.gameModeHasChanged = true;
+    this.players = this.player_types.PVP;
+  }
+
+  setPVRGameStarted(value) {
+    this.state.PVRgameStarted = value;
+    this.state.PVPgameStarted = !value;
+    this.state.gameModeHasChanged = true;
+    this.notifyListeners();
+    this.players = this.player_types.PVR;
   }
 
   setGameStarted(value) {
