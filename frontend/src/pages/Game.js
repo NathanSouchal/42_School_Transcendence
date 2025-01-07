@@ -7,6 +7,7 @@ export default class GamePage {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
+    this.startGameButton = null;
   }
   async initialize() {
     if (!this.isSubscribed) {
@@ -29,9 +30,9 @@ export default class GamePage {
     this.attachEventListeners();
   }
   attachEventListeners() {
-    const startGameButton = document.getElementById("start-game");
-    if (startGameButton) {
-      startGameButton.addEventListener("click", () => {
+    this.startGameButton = document.getElementById("start-game");
+    if (this.startGameButton) {
+      this.startGameButton.addEventListener("click", () => {
         console.log("start game");
         this.state.setGameStarted(true);
         this.updateZIndex();
@@ -75,6 +76,9 @@ export default class GamePage {
     }
     resetZIndex();
     this.state.setGameStarted(false);
+    if (this.startGameButton) {
+      this.startGameButton.removeEventListener("click", () => {});
+    }
   }
 
   render() {
