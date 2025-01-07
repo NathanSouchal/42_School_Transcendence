@@ -96,6 +96,7 @@ def __str__(self):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # participants = models.ManyToManyField(User, related_name='tournaments')
     participants = models.JSONField(default=list, blank=True)
     status = models.CharField(max_length=20, default='not_started')

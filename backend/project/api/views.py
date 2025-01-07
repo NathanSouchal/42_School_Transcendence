@@ -174,6 +174,8 @@ class UserView(APIView):
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -183,6 +185,8 @@ class UserView(APIView):
 	def delete(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			user.delete()
 			return Response({'user': UserSerializer(user).data, 'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
@@ -193,6 +197,8 @@ class UserView(APIView):
 	def put(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			serializer = UserSerializer(user, data=request.data, partial=True)
 			if serializer.is_valid():
 				user = serializer.save()
@@ -207,6 +213,8 @@ class UserListView(APIView):
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			users = User.objects.all()
 			serialized_users = UserSerializer(users, many=True)
 			return Response({'users': serialized_users.data}, status=status.HTTP_200_OK)
@@ -222,6 +230,8 @@ class GameView(APIView):
 	def get(self, request, id=None):
 		try:
 			game = get_object_or_404(Game, id=id)
+			if request.user != game.player1 and request.user != game.player2 and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'game': GameSerializer(game).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Game not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -232,6 +242,8 @@ class GameView(APIView):
 
 	def put(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			game = get_object_or_404(Game, id=id)
 			serializer = GameSerializer(game, data=request.data, partial=True)
 			if serializer.is_valid():
@@ -247,6 +259,8 @@ class GameView(APIView):
 
 	def delete(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			game = get_object_or_404(Game, id=id)
 			game.delete()
 			return Response({'message': f'Game with id {id} has been deleted.'}, status=status.HTTP_200_OK)
@@ -265,6 +279,8 @@ class GameListView(APIView):
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			games = Game.objects.all()
 			serialized_games = GameSerializer(games, many=True)
 			return Response({'games': serialized_games.data}, status=status.HTTP_200_OK)
@@ -292,6 +308,8 @@ class TournamentView(APIView):
 	def get(self, request, id=None):
 		try:
 			tournament = get_object_or_404(Tournament, id=id)
+			if request.user != tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'tournament': TournamentSerializer(tournament).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -302,6 +320,8 @@ class TournamentView(APIView):
 
 	def put(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournament = get_object_or_404(Tournament, id=id)
 			serializer = TournamentSerializer(tournament, data=request.data, partial=True)
 			if serializer.is_valid():
@@ -317,6 +337,8 @@ class TournamentView(APIView):
 
 	def delete(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournament = get_object_or_404(Tournament, id=id)
 			tournament.delete()
 			return Response({'message': f'Tournament with id {id} has been deleted.'}, status=status.HTTP_200_OK)
@@ -334,6 +356,8 @@ class TournamentListView(APIView):
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournaments = Tournament.objects.all()
 			serialized_tournaments = TournamentSerializer(tournaments, many=True)
 			return Response({'tournaments': serialized_tournaments.data}, status=status.HTTP_200_OK)
@@ -365,6 +389,8 @@ class MatchView(APIView):
 	def get(self, request, id=None):
 		try:
 			match = get_object_or_404(Match, id=id)
+			if request.user != match.tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'match': MatchSerializer(match).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Match not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -376,6 +402,8 @@ class MatchView(APIView):
 	def put(self, request, id=None):
 		try:
 			match = get_object_or_404(Match, id=id)
+			if request.user != match.tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			serializer = MatchSerializer(match, data=request.data, partial=True)
 			if serializer.is_valid():
 				match = serializer.save()
@@ -415,6 +443,8 @@ class MatchListView(APIView):
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			matches = Match.objects.all()
 			serialized_matches = MatchSerializer(matches, many=True)
 			return Response({'matches': serialized_matches.data}, status=status.HTTP_200_OK)
