@@ -28,6 +28,7 @@ export default class State {
 
     this.players = this.player_types.default;
 
+    this.score = { left: 0, right: 0 };
     this.data = {};
     this.listeners = [];
     State.instance = this;
@@ -51,17 +52,24 @@ export default class State {
   setPVPGameStarted(value) {
     this.state.PVPgameStarted = value;
     this.state.PVRgameStarted = !value;
-    this.notifyListeners();
     this.state.gameModeHasChanged = true;
     this.players = this.player_types.PVP;
+    this.resetScore();
+    this.notifyListeners();
   }
 
   setPVRGameStarted(value) {
     this.state.PVRgameStarted = value;
     this.state.PVPgameStarted = !value;
     this.state.gameModeHasChanged = true;
-    this.notifyListeners();
     this.players = this.player_types.PVR;
+    this.resetScore();
+    this.notifyListeners();
+  }
+
+  resetScore() {
+    this.score = { left: 0, right: 0 };
+    console.log(this.score);
   }
 
   setGameStarted(value) {

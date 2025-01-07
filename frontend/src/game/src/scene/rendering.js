@@ -25,6 +25,23 @@ class Renderer {
     return needResize;
   }
 
+  markPoints() {
+    if (
+      this.game.players.left === "robot" &&
+      this.game.players.right === "robot"
+    )
+      return;
+    if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
+      let scorer = "left";
+    } else if (
+      this.game.ball.obj.position.z >
+      this.zMax / 2 - this.depth / 2 + 3
+    ) {
+      let scorer = "right";
+    }
+    state.score;
+  }
+
   animate() {
     const render = () => {
       const currentTime = performance.now();
@@ -38,6 +55,7 @@ class Renderer {
         this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3 ||
         this.game.ball.obj.position.z > this.zMax / 2 - this.depth / 2 + 3
       ) {
+        markPoints();
         this.game.ball.reset();
       }
 

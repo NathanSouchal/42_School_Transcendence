@@ -122,7 +122,7 @@ class Game {
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,
-      player_types: this.player_types,
+      players: this.players,
     };
 
     this.rendererInstance = new Renderer(
