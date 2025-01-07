@@ -43,8 +43,8 @@ class Renderer {
 
       if (state.state.gameModeHasChanged) {
         this.game.ball.reset();
-        this.game.paddleTop.choosePlayer(state.players.left);
-        this.game.paddleBottom.choosePlayer(state.players.right);
+        this.game.paddleLeft.choosePlayer(state.players.left);
+        this.game.paddleRight.choosePlayer(state.players.right);
         state.state.gameModeHasChanged = false;
       }
 

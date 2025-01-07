@@ -87,10 +87,7 @@ export default class GamePage {
   render() {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `${
-      this.state.state.gameStarted
-        ? ``
-        : `<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    return `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
 				<h1>Game</h1>
 				<button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
 						Start PVP Game
@@ -98,7 +95,6 @@ export default class GamePage {
 				<button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
 						Start PVR Game
 				</button>
-			</div>`
-    }`;
+			</div>`}`;
   }
 }

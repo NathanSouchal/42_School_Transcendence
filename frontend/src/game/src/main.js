@@ -124,7 +124,6 @@ class Game {
       boid: this.boid,
       player_types: this.player_types,
     };
-    // this.event_handler.setupControls();
 
     this.rendererInstance = new Renderer(
       this.renderer,
