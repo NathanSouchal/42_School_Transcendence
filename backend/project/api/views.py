@@ -178,7 +178,7 @@ class UserView(APIView):
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def delete(self, request, id=None):
 		try:
@@ -188,18 +188,19 @@ class UserView(APIView):
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def put(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			user.username = request.data.get('username')
-			user.save()
+			serializer = UserSerializer(user, data=request.data, partial=True)
+			if serializer.is_valid():
+				user = serializer.save()
 			return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserListView(APIView):
 	permission_classes = [IsAuthenticated]
@@ -381,6 +382,8 @@ class MatchView(APIView):
 				if match.winner:
 					match.put_winner_on_next_match()
 					nextMatchToPlay = match.tournament.find_next_match_to_play(id)
+					if nextMatchToPlay is None:
+						match.tournament.is_finished
 					return Response({'match': MatchSerializer(match).data, 'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data,
 					   'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
 				return Response({'match': MatchSerializer(match).data, 'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
