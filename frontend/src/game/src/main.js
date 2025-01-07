@@ -59,13 +59,13 @@ class Game {
       this.arena,
       "top",
       this.player_types.top,
-      this.config
+      this.config,
     );
     this.paddleBottom = new Paddle(
       this.arena,
       "bottom",
       this.player_types.bottom,
-      this.config
+      this.config,
     );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
@@ -89,11 +89,11 @@ class Game {
 
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals")
+      this.config.getGenerationConfig("corrals"),
     );
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea")
+      this.config.getGenerationConfig("sea"),
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
@@ -112,7 +112,7 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig()
+      this.config.getCameraConfig(),
     );
 
     window.addEventListener("resize", () => {
@@ -134,6 +134,7 @@ class Game {
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,
+      player_types: this.player_types,
     };
     this.event_handler.setupControls();
 
@@ -141,7 +142,7 @@ class Game {
       this.renderer,
       this.scene,
       this.camera,
-      game
+      game,
       //this.stat,
     );
     this.rendererInstance.animate();
