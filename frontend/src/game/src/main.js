@@ -44,30 +44,30 @@ class Game {
 
   async makeArena() {
     this.arena = new Arena(this.config.getSize());
-    this.paddleTop = new Paddle(
+    this.paddleLeft = new Paddle(
       this.arena,
-      "top",
+      "left",
       this.players.left,
       this.config,
     );
-    this.paddleBottom = new Paddle(
+    this.paddleRight = new Paddle(
       this.arena,
-      "bottom",
+      "right",
       this.players.right,
       this.config,
     );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
     await this.arena.init();
-    await this.paddleTop.init();
-    await this.paddleBottom.init();
+    await this.paddleLeft.init();
+    await this.paddleRight.init();
     this.arena.computeBoundingBoxes(this.scene);
-    this.paddleTop.computeBoundingBoxes(this.scene);
-    this.paddleBottom.computeBoundingBoxes(this.scene);
+    this.paddleLeft.computeBoundingBoxes(this.scene);
+    this.paddleRight.computeBoundingBoxes(this.scene);
     this.arena.ball = this.ball.obj;
     this.scene.add(this.arena.obj);
-    this.scene.add(this.paddleBottom.obj);
-    this.scene.add(this.paddleTop.obj);
+    this.scene.add(this.paddleRight.obj);
+    this.scene.add(this.paddleLeft.obj);
     this.scene.add(this.ball.obj);
     this.scene.add(this.ball.sparks.group);
   }
@@ -117,8 +117,8 @@ class Game {
     const game = {
       ball: this.ball,
       arena: this.arena,
-      paddleTop: this.paddleTop,
-      paddleBottom: this.paddleBottom,
+      paddleLeft: this.paddleLeft,
+      paddleRight: this.paddleRight,
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,

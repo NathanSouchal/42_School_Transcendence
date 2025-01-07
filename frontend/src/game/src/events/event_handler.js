@@ -4,12 +4,12 @@ export default class EventHandler {
   }
 
   setPlayerType(paddle, type) {
-    if (paddle === "top") {
-      this.game.paddleTop.choosePlayer(type);
-      this.game.player_types.top = type;
+    if (paddle === "left") {
+      this.game.paddleLeft.choosePlayer(type);
+      this.game.player_types.left = type;
     } else {
-      this.game.paddleBottom.choosePlayer(type);
-      this.game.player_types.bottom = type;
+      this.game.paddleRight.choosePlayer(type);
+      this.game.player_types.right = type;
     }
     this.updateControlButtons();
   }

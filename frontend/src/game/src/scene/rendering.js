@@ -9,8 +9,8 @@ class Renderer {
     this.game = game;
     this.stat = stat;
     this.previousTime = performance.now();
-    this.zMax = game.paddleTop.size.arena_depth;
-    this.depth = game.paddleTop.size.paddle_depth;
+    this.zMax = game.paddleLeft.size.arena_depth;
+    this.depth = game.paddleLeft.size.paddle_depth;
   }
 
   resizeRendererToDisplaySize() {
@@ -62,12 +62,12 @@ class Renderer {
 
   gameElementsUpdate(deltaTime) {
     this.game.ball.update(deltaTime);
-    this.game.paddleBottom.update(
+    this.game.paddleRight.update(
       deltaTime,
       this.game.ball.obj.position,
       this.game.ball.velocity,
     ),
-      this.game.paddleTop.update(
+      this.game.paddleLeft.update(
         deltaTime,
         this.game.ball.obj.position,
         this.game.ball.velocity,
@@ -85,14 +85,14 @@ class Renderer {
       if (this.game.ball.box.intersectsBox(bbox.box)) {
         this.game.ball.bounce(bbox);
         this.game.ball.update(deltaTime);
-        if (bbox.side === "bottom") {
-          this.game.paddleTop.controls.other_has_hit = true;
-          this.game.paddleBottom.controls.other_has_hit = false;
-          this.game.paddleBottom.tap_animation(deltaTime);
-        } else if (bbox.side === "top") {
-          this.game.paddleTop.controls.other_has_hit = false;
-          this.game.paddleBottom.controls.other_has_hit = true;
-          this.game.paddleTop.tap_animation(deltaTime);
+        if (bbox.side === "right") {
+          this.game.paddleLeft.controls.other_has_hit = true;
+          this.game.paddleRight.controls.other_has_hit = false;
+          this.game.paddleRight.tap_animation(deltaTime);
+        } else if (bbox.side === "left") {
+          this.game.paddleLeft.controls.other_has_hit = false;
+          this.game.paddleRight.controls.other_has_hit = true;
+          this.game.paddleLeft.tap_animation(deltaTime);
         }
         const collisionPoint = new THREE.Vector3(
           this.game.ball.obj.position.x,

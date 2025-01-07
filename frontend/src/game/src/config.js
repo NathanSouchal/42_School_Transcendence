@@ -2,22 +2,22 @@ import { deepMerge } from "./utils.js";
 
 export const DEFAULT_CONFIG = {
   paddle: {
-    top: {
+    left: {
       movementSpeed: 0.5,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        left: "x",
-        right: "c",
+        bottom: "x",
+        top: "c",
       },
     },
-    bottom: {
+    right: {
       movementSpeed: 0.5,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        left: ",",
-        right: ".",
+        bottom: ",",
+        top: ".",
       },
     },
   },
@@ -121,9 +121,9 @@ export class GameConfig {
     this.calculateRelativeSizes();
   }
   calculateRelativeSizes() {
-    this.config.size.ball_radius_top =
+    this.config.size.ball_radius_left =
       this.config.size.ball_ratio * this.config.size.arena_width;
-    this.config.size.ball_radius_bottom =
+    this.config.size.ball_radius_right =
       this.config.size.ball_ratio * this.config.size.arena_width * 1.25;
     this.config.size.ball_height =
       this.config.size.ball_ratio * this.config.size.arena_width * 0.7;

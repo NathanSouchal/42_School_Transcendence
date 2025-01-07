@@ -18,10 +18,10 @@ export function init_light(scene) {
 
   light1.castShadow = true;
   light1.shadow.bias = 0.0000001;
-  light1.shadow.camera.right = 100;
+  light1.shadow.camera.top = 100;
   light1.shadow.camera.top = 40;
-  light1.shadow.camera.left = -100;
-  light1.shadow.camera.bottom = -40;
+  light1.shadow.camera.bottom = -100;
+  light1.shadow.camera.right = -40;
 
   light1.shadow.mapSize.width = 4024;
   light1.shadow.mapSize.height = 4024;
