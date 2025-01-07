@@ -166,7 +166,7 @@ class Tournament(models.Model):
                         next_match = Match.objects.get(id=next_round[0])
         return next_match
 
-    def is_finished(self)
+    def is_finished(self):
       self.status = 'finished'
 
 
