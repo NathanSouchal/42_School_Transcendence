@@ -24,6 +24,14 @@ class Renderer {
     return needResize;
   }
 
+  updateScore() {
+    if (
+      this.game.player_types.left === "robot" &&
+      this.game.player_types.right === "robot"
+    )
+      return;
+  }
+
   animate() {
     const render = () => {
       const currentTime = performance.now();
@@ -37,6 +45,7 @@ class Renderer {
         this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3 ||
         this.game.ball.obj.position.z > this.zMax / 2 - this.depth / 2 + 3
       ) {
+        this.updateScore();
         this.game.ball.reset();
       }
 
