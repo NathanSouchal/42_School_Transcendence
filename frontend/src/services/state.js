@@ -52,6 +52,7 @@ export default class State {
   setPVPGameStarted(value) {
     this.state.PVPgameStarted = value;
     this.state.PVRgameStarted = !value;
+    this.state.gameStarted = true;
     this.state.gameModeHasChanged = true;
     this.players = this.player_types.PVP;
     this.resetScore();
@@ -61,6 +62,7 @@ export default class State {
   setPVRGameStarted(value) {
     this.state.PVRgameStarted = value;
     this.state.PVPgameStarted = !value;
+    this.state.gameStarted = true;
     this.state.gameModeHasChanged = true;
     this.players = this.player_types.PVR;
     this.resetScore();

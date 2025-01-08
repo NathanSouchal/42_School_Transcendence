@@ -49,13 +49,13 @@ export default class GamePage {
     if (startPVPGameButton) {
       startPVPGameButton.addEventListener("click", () => {
         this.state.setPVPGameStarted(true);
-        this.updateZIndex();
+        // this.updateZIndex();
       });
     }
     if (startPVRGameButton) {
       startPVRGameButton.addEventListener("click", () => {
         this.state.setPVRGameStarted(true);
-        this.updateZIndex();
+        // this.updateZIndex();
       });
     }
   }
@@ -85,7 +85,7 @@ export default class GamePage {
       container.innerHTML = content; // Remplacer le contenu du conteneur
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
-    this.updateZIndex();
+    // this.updateZIndex();
   }
 
   destroy() {
@@ -104,15 +104,23 @@ export default class GamePage {
   render() {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
-				<h1>Game</h1>
-        <h2>Score: ${this.state.score.left} - ${this.state.score.right}</h2>
-				<button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
-						Start PVP Game
-				</button>  
-				<button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
-						Start PVR Game
-				</button>
-			</div>`}`;
+    let res;
+
+    if (!this.state.state.PVRgameStarted && !this.state.state.PVPgameStarted) {
+      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    <h1>Game</h1>
+    <button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
+      Start PVP Game
+    </button>  
+    <button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
+      Start PVR Game
+    </button>
+  </div>`}`;
+    } else {
+      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100 >
+    <h1>${this.state.score.left} - ${this.state.score.right}</h1>
+  </div>`}`;
+    }
+    return res;
   }
 }
