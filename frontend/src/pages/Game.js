@@ -8,6 +8,7 @@ export default class GamePage {
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
     this.state.subscribe(this.handleStateUpdate.bind(this));
+    this.startGameButton = null;
   }
 
   async initialize() {
@@ -95,6 +96,9 @@ export default class GamePage {
     }
     resetZIndex();
     this.state.setGameStarted(false);
+    if (this.startGameButton) {
+      this.startGameButton.removeEventListener("click", () => {});
+    }
   }
 
   render() {

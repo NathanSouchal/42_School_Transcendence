@@ -96,6 +96,7 @@ def __str__(self):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # participants = models.ManyToManyField(User, related_name='tournaments')
     participants = models.JSONField(default=list, blank=True)
     status = models.CharField(max_length=20, default='not_started')
@@ -166,18 +167,8 @@ class Tournament(models.Model):
                         next_match = Match.objects.get(id=next_round[0])
         return next_match
 
-         
-
-    # def advance_tournament(self):
-    #     # Méthode à implémenter :
-    #     # Chercher les matchs terminés sans vainqueur enregistré, 
-    #     # vérifier les vainqueurs, mettre à jour le match suivant etc.
-    #     pass
-
-    # def is_finished(self):
-    #     # Vérifier si la finale a un vainqueur
-    #     # Un moyen : trouver le match final (celui sans next_match) et voir si winner est défini
-    #     return self.status == 'finished'
+    def is_finished(self):
+      self.status = 'finished'
 
 
 class Match(models.Model):

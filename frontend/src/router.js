@@ -1,5 +1,3 @@
-import { resetZIndex } from "/src/utils.js";
-
 export class Router {
   constructor(routes) {
     this.routes = routes;
@@ -8,11 +6,10 @@ export class Router {
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
     this.navigate = this.navigate.bind(this);
 
-    // Attache les gestionnaires d'événements
-    window.addEventListener("popstate", () => {
-      this.handleRoute.bind(this);
-    });
-
+    window.onpopstate = () => {
+      const currentPath = window.location.pathname;
+      this.navigate(currentPath);
+    };
     // Gère les clics sur les liens
     document.addEventListener("click", (e) => {
       if (
@@ -26,91 +23,37 @@ export class Router {
     });
 
     // Charge la route initiale
-    this.handleRoute();
-
-    window.onpopstate = () => {
-      const currentPath = window.location.pathname;
-      this.navigate(currentPath);
-    };
+    this.navigate(this.currentPath, false);
   }
 
-  handleRoute() {
-    const path = window.location.pathname;
-    const view = this.routes[path] || this.routes["/404"];
-    console.log("ROUTER.js path : " + path);
-
-    if (this.currentPage === view) {
-      console.log("Reste sur la même page, aucune action requise.");
-      return;
-    }
-
-    if (this.currentPage && typeof this.currentPage.destroy === "function") {
-      this.currentPage.destroy(); // Nettoyage de la page précédente
-    }
-
-    if (
-      this.currentPath === "/game" &&
-      path !== "/game" &&
-      this.currentPage?.state?.state?.gameStarted
-    ) {
-      gamePage.state.setGameStarted(false);
-      resetZIndex(); // Réinitialiser les z-index si nécessaire
-    }
-
-    console.log("Appel à initialize pour :", path);
-    this.currentPage = view; // Mettez à jour la page actuelle
-
-    if (typeof view.initialize === "function" && !view.isInitialized) {
-      view.initialize(); // L'initialisation inclut généralement le rendu
-    } else if (typeof view.render === "function") {
-      const app = document.getElementById("app");
-      if (app) {
-        app.innerHTML = view.render();
-      }
-    }
-
-    // Attache les écouteurs d'événements après que la vue a été rendue
-    if (typeof view.attachEventListeners === "function") {
-      view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
-    }
-  }
-
-  async navigate(path) {
+  async navigate(path, shouldPushState = true) {
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
-    this.currentPath = path;
+
+    const view = this.routes[path] || this.routes["/404"];
+
     if (this.currentPage && typeof this.currentPage.destroy === "function") {
       this.currentPage.destroy();
     }
 
-    const page = this.routes[path] || this.routes["/404"];
-    this.currentPage = page;
+    this.currentPage = view;
+    this.currentPath = path;
 
-    if (typeof page.initialize === "function") {
-      await page.initialize();
-    } else if (typeof page.render === "function") {
+    console.log("INITIALISED ? " + view.isInitialized);
+    if (typeof view.initialize === "function" && !view.isInitialized) {
+      console.log("Appel à initialize pour :", path);
+      await view.initialize();
+    } else if (typeof view.render === "function") {
       const app = document.getElementById("app");
       if (app) {
-        app.innerHTML = page.render();
+        app.innerHTML = view.render();
+        console.log("Appel à render pour :", path);
       }
     }
-    window.history.pushState({}, "", path);
+    if (typeof view.attachEventListeners === "function") {
+      view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
+    }
+    if (shouldPushState) {
+      window.history.pushState({}, "", path);
+    }
   }
 }
-
-// router.navigate = async function (path) {
-//   const page = this.routes[path] || this.routes["/404"];
-
-//   if (typeof page.initialize === "function") {
-//     await page.initialize();
-//   } else if (typeof page.render === "function") {
-//     page.render();
-//   }
-//   this.handleRoute();
-//   console.log("APP.js path : " + path);
-//   window.history.pushState({}, "", path);
-
-//   window.onpopstate = () => {
-//     const currentPath = window.location.pathname;
-//     this.navigate(currentPath);
-//   };
-// };

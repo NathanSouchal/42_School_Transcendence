@@ -26,7 +26,6 @@ class Renderer {
   }
 
   markPoints() {
-    console.log(state.players.left, state.players.right);
     if (state.players.left === "robot" && state.players.right === "robot")
       return;
     if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
