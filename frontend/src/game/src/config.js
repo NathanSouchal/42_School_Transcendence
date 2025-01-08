@@ -7,8 +7,8 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        bottom: "z",
-        top: "d",
+        bottom: "x",
+        top: "c",
       },
     },
     right: {
