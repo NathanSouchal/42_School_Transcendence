@@ -42,16 +42,20 @@ export default class GamePage {
 
   updateZIndex() {
     const canvas = document.querySelector("#c");
-    const app = document.querySelector("main#app");
+    const app = document.querySelector("#app");
 
     if (this.state.state.gameStarted) {
       // Canvas au-dessus, app en dessous
-      if (canvas) canvas.style.zIndex = "1";
-      if (app) app.style.zIndex = "0";
+      //   if (canvas) canvas.style.zIndex = "1";
+      //   if (app) app.style.zIndex = "0";
+      app.classList.remove("view1");
+      app.classList.add("view2");
     } else {
       // Canvas en dessous, app au-dessus
-      if (canvas) canvas.style.zIndex = "-1";
-      if (app) app.style.zIndex = "1";
+      //   if (canvas) canvas.style.zIndex = "-1";
+      //   if (app) app.style.zIndex = "1";
+      app.classList.remove("view2");
+      app.classList.add("view1");
     }
   }
 
