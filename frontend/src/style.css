@@ -16,7 +16,7 @@ canvas#c {
 }
 
 /* Appliquer un positionnement relatif pour le contenu */
-main#app {
+.view1 {
   position: absolute;
   top: 50%; /* Positionner l'élément 50% du haut de l'écran */
   left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
@@ -40,7 +40,35 @@ main#app {
   z-index: 0;
 }
 
+.view2 {
+  position: absolute;
+  top: 12%; /* Positionner l'élément 50% du haut de l'écran */
+  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
+  transform: translate(
+    -50%,
+    -50%
+  ); /* Centre l'élément par rapport à son point de départ */
+  height: 10vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
+  width: 40%; /* Définir une largeur (ou un max-width) pour #app */
+  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
+  background: rgba(
+    175,
+    60,
+    60,
+    0
+  ); /* Fond semi-transparent (si vous le souhaitez) */
+  padding: 20px;
+  color: white; /* Choisir une couleur de texte adaptée */
+  border-radius: 10px;
+  z-index: 0;
+}
+
 header {
   height: 60px; /* Définir la hauteur du header si nécessaire */
   z-index: 0;
+}
+
+h1 {
+  font-size: large;
+  color: brown;
 }

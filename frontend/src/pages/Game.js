@@ -49,29 +49,35 @@ export default class GamePage {
     if (startPVPGameButton) {
       startPVPGameButton.addEventListener("click", () => {
         this.state.setPVPGameStarted(true);
-        // this.updateZIndex();
+        this.updateZIndex();
       });
     }
     if (startPVRGameButton) {
       startPVRGameButton.addEventListener("click", () => {
         this.state.setPVRGameStarted(true);
-        // this.updateZIndex();
+        this.updateZIndex();
       });
     }
   }
 
   updateZIndex() {
     const canvas = document.querySelector("#c");
-    const app = document.querySelector("main#app");
+    const app = document.querySelector("#app");
 
     if (this.state.state.gameStarted) {
       // Canvas au-dessus, app en dessous
-      if (canvas) canvas.style.zIndex = "1";
-      if (app) app.style.zIndex = "0";
+      //   if (canvas) canvas.style.zIndex = "1";
+      //   if (app) app.style.zIndex = "0";
+      app.classList.remove("view1");
+      app.classList.add("view2");
+      if (canvas) canvas.style.zIndex = "0";
     } else {
       // Canvas en dessous, app au-dessus
+      //   if (canvas) canvas.style.zIndex = "-1";
+      //   if (app) app.style.zIndex = "1";
+      app.classList.remove("view2");
+      app.classList.add("view1");
       if (canvas) canvas.style.zIndex = "-1";
-      if (app) app.style.zIndex = "1";
     }
   }
 
@@ -85,7 +91,7 @@ export default class GamePage {
       container.innerHTML = content; // Remplacer le contenu du conteneur
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
-    // this.updateZIndex();
+    this.updateZIndex();
   }
 
   destroy() {
@@ -94,6 +100,8 @@ export default class GamePage {
       this.isSubscribed = false;
       console.log("Game page unsubscribed from state");
     }
+    this.state.state.PVRgameStarted = false;
+    this.state.state.PVPgameStarted = false;
     resetZIndex();
     this.state.setGameStarted(false);
     if (this.startGameButton) {
@@ -111,13 +119,13 @@ export default class GamePage {
     <h1>Game</h1>
     <button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
       Start PVP Game
-    </button>  
+    </button>
     <button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
       Start PVR Game
     </button>
   </div>`}`;
     } else {
-      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100 >
+      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
     <h1>${this.state.score.left} - ${this.state.score.right}</h1>
   </div>`}`;
     }
