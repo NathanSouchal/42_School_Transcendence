@@ -1,13 +1,15 @@
 export class Router {
   constructor(routes) {
     this.routes = routes;
+    this.currentPage = window.location.pathname; // Garde une référence de la page actuelle
 
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
     this.navigate = this.navigate.bind(this);
 
-    // Attache les gestionnaires d'événements
-    window.addEventListener("popstate", this.handleRoute.bind(this));
-
+    window.onpopstate = () => {
+      const currentPath = window.location.pathname;
+      this.navigate(currentPath);
+    };
     // Gère les clics sur les liens
     document.addEventListener("click", (e) => {
       if (
@@ -21,21 +23,37 @@ export class Router {
     });
 
     // Charge la route initiale
-    this.handleRoute();
+    this.navigate(this.currentPath, false);
   }
 
-  handleRoute() {
-    const path = window.location.pathname;
+  async navigate(path, shouldPushState = true) {
+    if (this.currentPath === path) return; // Éviter de naviguer vers la même route
+
     const view = this.routes[path] || this.routes["/404"];
-    document.getElementById("app").innerHTML = view.render();
-    // Attache les écouteurs d'événements après que la vue a été rendue
+
+    if (this.currentPage && typeof this.currentPage.destroy === "function") {
+      this.currentPage.destroy();
+    }
+
+    this.currentPage = view;
+    this.currentPath = path;
+
+    console.log("INITIALISED ? " + view.isInitialized);
+    if (typeof view.initialize === "function" && !view.isInitialized) {
+      console.log("Appel à initialize pour :", path);
+      await view.initialize();
+    } else if (typeof view.render === "function") {
+      const app = document.getElementById("app");
+      if (app) {
+        app.innerHTML = view.render();
+        console.log("Appel à render pour :", path);
+      }
+    }
     if (typeof view.attachEventListeners === "function") {
       view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
     }
-  }
-
-  navigate(path) {
-    window.history.pushState({}, "", path);
-    this.handleRoute();
+    if (shouldPushState) {
+      window.history.pushState({}, "", path);
+    }
   }
 }

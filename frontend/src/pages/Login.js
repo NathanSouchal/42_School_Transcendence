@@ -1,19 +1,32 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Login {
   constructor(state) {
     this.state = state;
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.formState = {
       username: "",
       password: "",
     };
+    this.isSubscribed = false;
+    this.isInitialized = false;
+    this.eventListeners = { loginForm: null, inputs: [] };
   }
 
   async initialize() {
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Login page subscribed to state");
+    }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
+    resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
-
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
@@ -24,17 +37,24 @@ export default class Login {
   }
 
   attachEventListeners() {
-    const registerForm = document.getElementById("register-form");
-    if (registerForm) {
-      registerForm.addEventListener("submit", (e) => {
-        this.handleSubmit(e);
-      });
+    this.eventListeners.loginForm = document.getElementById("login-form");
+    if (this.eventListeners.loginForm) {
+      this.handleSubmitBound = this.handleSubmit.bind(this);
+      this.eventListeners.loginForm.addEventListener(
+        "submit",
+        this.handleSubmitBound
+      );
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      input.addEventListener("input", (e) => {
+      const handleChangeBound = (e) => {
         this.handleChange(e.target.name, e.target.value, e.target);
+      };
+      input.addEventListener("input", handleChangeBound);
+      this.eventListeners.inputs.push({
+        element: input,
+        listener: handleChangeBound,
       });
     });
   }
@@ -42,6 +62,9 @@ export default class Login {
   handleChange(key, value, inputElement) {
     this.formState[key] = value;
   }
+
+  handleSubmitBound() {}
+
   async handleSubmit(e) {
     e.preventDefault();
     if (!this.formState.username.length || !this.formState.password.length) {
@@ -67,11 +90,40 @@ export default class Login {
     }
   }
 
+  handleStateChange(newState) {
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content; // Remplacer le contenu du conteneur
+      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    }
+  }
+
+  destroy() {
+    if (this.eventListeners.loginForm) {
+      this.eventListeners.loginForm.removeEventListener(
+        "submit",
+        this.handleSubmitBound
+      );
+      this.eventListeners.loginForm = null;
+    }
+    this.eventListeners.inputs.forEach(({ element, listener }) => {
+      element.removeEventListener("input", listener);
+    });
+    this.eventListeners.inputs = [];
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.isSubscribed = false;
+      console.log("Login page unsubscribed from state");
+    }
+    resetZIndex();
+  }
+
   render() {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     return `<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="register-form">
+        <form id="login-form">
           <h3 class="text-center">Login</h3>
           <div class="mb-3">
             <label>Username</label>

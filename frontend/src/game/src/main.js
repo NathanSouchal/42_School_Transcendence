@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { State } from "/src/services/state.js";
 import { init_light } from "./scene/lights.js";
 import { init_camera } from "./scene/camera.js";
 import Ball from "./game/ball.js";
@@ -10,6 +11,7 @@ import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
 import Boid from "./terrain/creatures/boids.js";
 import Renderer from "./scene/rendering.js";
+import state from "../../app.js";
 import EventHandler from "./events/event_handler.js";
 
 class Game {
@@ -25,6 +27,23 @@ class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
+
+    this.stat = new Stats();
+    document.body.appendChild(this.stat.dom);
+
+    // Abonnement aux changements de l'état global
+    state.subscribe((newState) => {
+      // if (newState.isGamePage && !this.isGameInitialized) {
+      //   this.init(); // Initialise le jeu si on est sur la page du jeu
+      //   this.isGameInitialized = true;
+      // } else if (!newState.isGamePage && this.isGameInitialized) {
+      //   console.log("Quitter la page du jeu"); // Logique éventuelle pour quitter le jeu
+      //   this.cleanup(); // Nettoie les ressources si nécessaire
+      //   this.isGameInitialized = false;
+      // }
+      const isGamePage = state.getState().isGamePage; // Récupère l'état actuel
+      console.log("Game status: ", isGamePage);
+    });
     this.player_types = {
       left: "robot",
       right: "player",
@@ -115,6 +134,7 @@ class Game {
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,
+      player_types: this.player_types,
     };
     this.event_handler.setupControls();
 

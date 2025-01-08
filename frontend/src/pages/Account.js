@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Account {
   constructor(state) {
@@ -11,15 +12,23 @@ export default class Account {
     };
     this.lastDeleted = 0;
     this.isLoading = true;
+    this.isInitialized = false;
   }
 
   async initialize() {
-    const container = document.getElementById("app");
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Account page subscribed to state");
+    }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+    resetZIndex();
 
-    // Vérifiez si le conteneur existe avant de continuer
-    if (!container) {
-      console.error("Le conteneur principal #app est introuvable.");
-      return;
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content;
     }
 
     // Récupérer l'ID utilisateur depuis le stockage local
@@ -32,10 +41,6 @@ export default class Account {
       // Si aucun ID utilisateur n'est trouvé
       this.isLoading = false;
     }
-
-    // Rendre le contenu final dans le conteneur
-    const content = this.render();
-    container.innerHTML = content;
 
     // Ajouter les écouteurs d'événements après le rendu
     this.attachEventListeners();

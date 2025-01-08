@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Pong Game</title>
-    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/style.css" />
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -36,23 +36,23 @@
             <a class="nav-link" href="/game">Game</a>
           </li>
         </ul>
+        <div id="game-controls">
+          <div class="game-controls-header">Game Controls</div>
+
+          <div class="paddle-controls">
+            <div class="paddle-label">Left Paddle:</div>
+            <button id="top-player" class="control-btn">Player</button>
+            <button id="top-robot" class="control-btn">Robot</button>
+          </div>
+
+          <div class="paddle-controls">
+            <div class="paddle-label">Right Paddle:</div>
+            <button id="bottom-player" class="control-btn">Player</button>
+            <button id="bottom-robot" class="control-btn">Robot</button>
+          </div>
+        </div>
       </nav>
     </header>
-    <div id="game-controls">
-      <div class="game-controls-header">Game Controls</div>
-
-      <div class="paddle-controls">
-        <div class="paddle-label">Right Paddle:</div>
-        <button id="right-player" class="control-btn">Player</button>
-        <button id="right-robot" class="control-btn">Robot</button>
-      </div>
-
-      <div class="paddle-controls">
-        <div class="paddle-label">Left Paddle:</div>
-        <button id="left-player" class="control-btn">Player</button>
-        <button id="left-robot" class="control-btn">Robot</button>
-      </div>
-    </div>
     <canvas id="c"></canvas>
     <main id="app"></main>
     <footer></footer>

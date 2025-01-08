@@ -1,18 +1,31 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
+import { resetZIndex } from "/src/utils.js";
 
 export default class Register {
   constructor(state) {
     this.state = state;
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
 
     this.formState = {
       username: "",
       password: "",
       passwordConfirmation: "",
     };
+    this.eventListeners = { registerForm: null, inputs: [] };
   }
 
   async initialize() {
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Register page subscribed to state");
+    }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+    resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 
@@ -26,23 +39,29 @@ export default class Register {
   }
 
   attachEventListeners() {
-    const registerForm = document.getElementById("register-form");
-    if (registerForm) {
-      registerForm.addEventListener("submit", (e) => {
-        this.handleSubmit(e);
-      });
+    this.eventListeners.registerForm = document.getElementById("register-form");
+    if (this.eventListeners.registerForm) {
+      this.handleSubmitBound = this.handleSubmit.bind(this);
+      this.eventListeners.registerForm.addEventListener(
+        "submit",
+        this.handleSubmitBound
+      );
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      input.addEventListener("input", (e) => {
-        // console.log(
-        //   `Input name: ${e.target.name}, Input value: ${e.target.value}`
-        // );
+      const handleChangeBound = (e) => {
         this.handleChange(e.target.name, e.target.value, e.target);
+      };
+      input.addEventListener("input", handleChangeBound);
+      this.eventListeners.inputs.push({
+        element: input,
+        listener: handleChangeBound,
       });
     });
   }
+
+  handleSubmitBound() {}
 
   handleChange(key, value, inputElement) {
     if (key === "username") {
@@ -102,6 +121,37 @@ export default class Register {
       this.formState.password = "";
       this.formState.passwordConfirmation = "";
     }
+  }
+
+  handleStateChange(newState) {
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content; // Remplacer le contenu du conteneur
+      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    }
+  }
+
+  destroy() {
+    if (this.eventListeners.registerForm) {
+      this.eventListeners.registerForm.removeEventListener(
+        "submit",
+        this.handleSubmitBound
+      );
+      this.eventListeners.registerForm = null;
+      console.log("Removed eventListener fron submit");
+    }
+    this.eventListeners.inputs.forEach(({ element, listener }) => {
+      element.removeEventListener("input", listener);
+      console.log("Removed eventListener fron input");
+    });
+    this.eventListeners.inputs = [];
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.isSubscribed = false;
+      console.log("Register page unsubscribed from state");
+    }
+    resetZIndex();
   }
 
   render() {
