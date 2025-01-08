@@ -1,5 +1,5 @@
 from rest_framework import serializers;
-from api.models import User, Game, Match, Tournament;
+from api.models import Game, User, Tournament, Match
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
