@@ -67,9 +67,13 @@ export default class State {
     this.notifyListeners();
   }
 
+  updateScore(side, points) {
+    this.score[side] += points;
+    this.notifyListeners();
+  }
+
   resetScore() {
     this.score = { left: 0, right: 0 };
-    console.log(this.score);
   }
 
   setGameStarted(value) {

@@ -7,7 +7,9 @@ export default class GamePage {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
+    this.state.subscribe(this.handleStateUpdate.bind(this));
   }
+
   async initialize() {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
@@ -27,6 +29,17 @@ export default class GamePage {
     this.state.setIsGamePage(true);
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
+  }
+
+  handleStateUpdate(state) {
+    // Re-render the component when state changes
+    this.updateDisplay();
+  }
+
+  updateDisplay() {
+    if (this.container) {
+      this.container.innerHTML = this.render();
+    }
   }
 
   attachEventListeners() {
@@ -89,6 +102,7 @@ export default class GamePage {
     const sanitizedData = DOMPurify.sanitize(userData);
     return `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
 				<h1>Game</h1>
+        <h2>Score: ${this.state.score.left} - ${this.state.score.right}</h2>
 				<button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
 						Start PVP Game
 				</button>  
