@@ -5,10 +5,9 @@ from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken
-from api.models import Game, User
+from api.models import Game, User, Tournament, Match
 from api.models import RefreshToken as UserRefreshToken
-from api.serializers import UserSerializer
-from api.serializers import GameSerializer
+from api.serializers import UserSerializer, TournamentSerializer, GameSerializer, MatchSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.db import transaction
@@ -16,6 +15,7 @@ from django.http import Http404
 from django.db.models import ProtectedError
 from api.authentication import CookieJWTAuthentication
 from .models import RefreshToken as UserRefreshToken
+from django.db import IntegrityError
 
 
 class RegisterView(APIView):
@@ -28,8 +28,14 @@ class RegisterView(APIView):
 		password = request.data.get('password')
 		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
-			serializer.save()
-			return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
+			try:
+				serializer.save()
+				return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
+			except IntegrityError:
+				return Response(
+                    {'error': 'Username is already taken.'},
+                    status=status.HTTP_409_CONFLICT
+                )
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
@@ -168,38 +174,47 @@ class UserView(APIView):
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def delete(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			user.delete()
 			return Response({'user': UserSerializer(user).data, 'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def put(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			user.username = request.data.get('username')
-			user.save()
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			serializer = UserSerializer(user, data=request.data, partial=True)
+			if serializer.is_valid():
+				user = serializer.save()
 			return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			return Response({'user': UserSerializer(user).data, 'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class UserListView(APIView):
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			users = User.objects.all()
 			serialized_users = UserSerializer(users, many=True)
 			return Response({'users': serialized_users.data}, status=status.HTTP_200_OK)
@@ -215,6 +230,8 @@ class GameView(APIView):
 	def get(self, request, id=None):
 		try:
 			game = get_object_or_404(Game, id=id)
+			if request.user != game.player1 and request.user != game.player2 and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'game': GameSerializer(game).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Game not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -225,6 +242,8 @@ class GameView(APIView):
 
 	def put(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			game = get_object_or_404(Game, id=id)
 			serializer = GameSerializer(game, data=request.data, partial=True)
 			if serializer.is_valid():
@@ -240,6 +259,8 @@ class GameView(APIView):
 
 	def delete(self, request, id=None):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			game = get_object_or_404(Game, id=id)
 			game.delete()
 			return Response({'message': f'Game with id {id} has been deleted.'}, status=status.HTTP_200_OK)
@@ -258,6 +279,8 @@ class GameListView(APIView):
 
 	def get(self, request):
 		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			games = Game.objects.all()
 			serialized_games = GameSerializer(games, many=True)
 			return Response({'games': serialized_games.data}, status=status.HTTP_200_OK)
@@ -277,3 +300,171 @@ class GameListView(APIView):
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class TournamentView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request, id=None):
+		try:
+			tournament = get_object_or_404(Tournament, id=id)
+			if request.user != tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'tournament': TournamentSerializer(tournament).data}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	def put(self, request, id=None):
+		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			tournament = get_object_or_404(Tournament, id=id)
+			serializer = TournamentSerializer(tournament, data=request.data, partial=True)
+			if serializer.is_valid():
+				tournament = serializer.save()
+				return Response({'tournament': TournamentSerializer(tournament).data, 'message': f'Tournament with id {id} has been modified.'}, status=status.HTTP_200_OK)
+			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+		except Http404:
+			return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	def delete(self, request, id=None):
+		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			tournament = get_object_or_404(Tournament, id=id)
+			tournament.delete()
+			return Response({'message': f'Tournament with id {id} has been deleted.'}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except ProtectedError as protected_error:
+			return Response({'error': f'Deletion failed due to related objects: {str(protected_error)}'}, status=status.HTTP_400_BAD_REQUEST)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+class TournamentListView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request):
+		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			tournaments = Tournament.objects.all()
+			serialized_tournaments = TournamentSerializer(tournaments, many=True)
+			return Response({'tournaments': serialized_tournaments.data}, status=status.HTTP_200_OK)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+	def post(self, request):
+		try:
+			serializer = TournamentSerializer(data=request.data)
+			if serializer.is_valid():
+				tournament = serializer.save()
+				tournament.start_tournament()
+				firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
+				return Response(
+                    {'message': 'Tournament created successfully', 'tournament': TournamentSerializer(tournament).data,
+					 'FirstMatch': MatchSerializer(firstMatch).data},
+                    status=status.HTTP_201_CREATED)
+			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class MatchView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request, id=None):
+		try:
+			match = get_object_or_404(Match, id=id)
+			if request.user != match.tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'match': MatchSerializer(match).data}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'Match not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	def put(self, request, id=None):
+		try:
+			match = get_object_or_404(Match, id=id)
+			if request.user != match.tournament.creator and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			serializer = MatchSerializer(match, data=request.data, partial=True)
+			if serializer.is_valid():
+				match = serializer.save()
+				if match.winner:
+					match.put_winner_on_next_match()
+					nextMatchToPlay = match.tournament.find_next_match_to_play(id)
+					if nextMatchToPlay is None:
+						match.tournament.is_finished
+					return Response({'match': MatchSerializer(match).data, 'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data,
+					   'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
+				return Response({'match': MatchSerializer(match).data, 'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
+			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+		except Http404:
+			return Response({'error': 'Match not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+	# Pas de delete, car un match sera delete seulement si son tournoi l'est, sinon il peut y avoir des problemes si un match est supprime au milieu d'un tournoi en cours
+	# def delete(self, request, id=None):
+	# 	try:
+	# 		match = get_object_or_404(Match, id=id)
+	# 		match.delete()
+	# 		return Response({'message': f'Match with id {id} has been deleted.'}, status=status.HTTP_200_OK)
+	# 	except Http404:
+	# 		return Response({'error': 'Match not found.'}, status=status.HTTP_404_NOT_FOUND)
+	# 	except AuthenticationFailed as auth_error:
+	# 		return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+	# 	except ProtectedError as protected_error:
+	# 		return Response({'error': f'Deletion failed due to related objects: {str(protected_error)}'}, status=status.HTTP_400_BAD_REQUEST)
+	# 	except Exception as e:
+	# 		return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+class MatchListView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request):
+		try:
+			if not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			matches = Match.objects.all()
+			serialized_matches = MatchSerializer(matches, many=True)
+			return Response({'matches': serialized_matches.data}, status=status.HTTP_200_OK)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+	# Pas de post car un match peut etre creer seulement dans le cadre d'un tournoi
+
+	# def post(self, request):
+	# 	try:
+	# 		serializer = MatchSerializer(data=request.data)
+	# 		if serializer.is_valid():
+	# 			match = serializer.save()
+	# 			return Response(
+    #                 {'message': 'Match created successfully', 'match': MatchSerializer(match).data},
+    #                 status=status.HTTP_201_CREATED)
+	# 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+	# 	except AuthenticationFailed as auth_error:
+	# 		return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+	# 	except Exception as e:
+	# 		return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

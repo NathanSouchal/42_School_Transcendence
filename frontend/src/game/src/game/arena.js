@@ -6,12 +6,12 @@ class Arena {
     this.size = size;
     this.obj = new THREE.Object3D();
     this.raft = new THREE.Object3D();
-    this.borderLeft = new THREE.Object3D();
-    this.borderRight = new THREE.Object3D();
+    this.borderBottom = new THREE.Object3D();
+    this.borderTop = new THREE.Object3D();
     this.BBoxes = [];
     this.elapsedTime = 0;
     this.init();
-    this.obj.add(this.raft, this.borderRight, this.borderLeft);
+    this.obj.add(this.raft, this.borderTop, this.borderBottom);
     this.obj.position.set(0, 2, 0);
     this.lerpFactor = 0.1;
     this.prevSpeedRatio = 1;
@@ -27,20 +27,20 @@ class Arena {
       "src/game/assets/barril/scene.gltf",
       new THREE.Vector3(3, 3, 3),
     );
-    this.addBarrelsToBorder(this.borderLeft, barrel, "left");
-    this.addBarrelsToBorder(this.borderRight, barrel, "right");
+    this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");
+    this.addBarrelsToBorder(this.borderTop, barrel, "top");
   }
 
   computeBoundingBoxes() {
-    const leftBBox = new THREE.Box3().setFromObject(this.borderLeft);
+    const bottomBBox = new THREE.Box3().setFromObject(this.borderBottom);
     this.BBoxes.push({
-      box: leftBBox,
-      side: "left",
+      box: bottomBBox,
+      side: "bottom",
     });
-    const rightBBox = new THREE.Box3().setFromObject(this.borderRight);
+    const topBBox = new THREE.Box3().setFromObject(this.borderTop);
     this.BBoxes.push({
-      box: rightBBox,
-      side: "right",
+      box: topBBox,
+      side: "top",
     });
   }
 
@@ -48,7 +48,7 @@ class Arena {
     for (let i = 0; i < 5; i++) {
       const barrelClone = barrel.clone();
       let y = i % 2 == 0 ? 0 : 0.8;
-      if (side === "left")
+      if (side === "bottom")
         barrelClone.position.set(-this.size.arena_width / 2 - 1, y, 14 - i * 7);
       else {
         barrelClone.position.set(this.size.arena_width / 2 + 1, y, 14 - i * 7);

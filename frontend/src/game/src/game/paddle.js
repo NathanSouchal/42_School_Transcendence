@@ -31,11 +31,11 @@ class Paddle {
   computeBoundingBoxes() {
     const zMax = this.size.arena_depth;
     const z =
-      this.side === "top"
+      this.side === "left"
         ? -(zMax / 2) + this.size.paddle_depth / 2
         : zMax / 2 - this.size.paddle_depth / 2;
     this.obj.position.set(0, 2.5, z);
-    if (this.side === "bottom") {
+    if (this.side === "right") {
       this.obj.rotateY(Math.PI);
     }
     this.box = new THREE.Box3().setFromObject(this.obj, true);
@@ -105,19 +105,19 @@ class Paddle {
     }
     this.mixer.update(deltaTime);
 
-    if (this.player.state.left) {
+    if (this.player.state.bottom) {
       if (!this.gauche.isRunning()) {
         this.gauche.play();
       }
-    } else if (!this.player.state.left) {
+    } else if (!this.player.state.bottom) {
       if (this.gauche.isRunning()) this.gauche.setEffectiveTimeScale(0.5);
     }
 
-    if (this.player.state.right) {
+    if (this.player.state.top) {
       if (!this.droite.isRunning()) {
         this.droite.play();
       }
-    } else if (!this.player.state.right) {
+    } else if (!this.player.state.top) {
       if (this.droite.isRunning()) this.droite.setEffectiveTimeScale(0.5);
     }
 
