@@ -30,6 +30,7 @@ class UserManager(BaseUserManager):
 		return self.create_user(username, password, **extra_fields)
 
 class User(AbstractBaseUser, PermissionsMixin):
+	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)

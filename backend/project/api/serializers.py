@@ -1,5 +1,5 @@
 from rest_framework import serializers;
-from api.models import Game, User, Tournament, Match
+from api.models import Game, User, Tournament, Match, Stats
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -64,3 +64,9 @@ class TournamentSerializer(serializers.ModelSerializer):
         model = Tournament
         fields = '__all__'
         read_only_fields = ['created_at', 'id']
+
+class StatsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Stats
+        fields = '__all__'

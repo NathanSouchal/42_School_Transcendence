@@ -8,5 +8,6 @@ urlpatterns = [
     path('game/', include("api.router.game_router")),
     path('auth/', include("api.router.auth_router")),
     path('tournament/', include("api.router.tournament_router")),
-    path('match/', include("api.router.match_router"))
+    path('match/', include("api.router.match_router")),
+    path('stats/', include("api.router.stats_router"))
 ]

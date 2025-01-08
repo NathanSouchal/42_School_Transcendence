@@ -2,7 +2,7 @@ from django.db import models
 from api.models import Game, User
 
 class Stats(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='stats')
     wins = models.PositiveIntegerField(default=0)
     losses = models.PositiveIntegerField(default=0)
     last_game = models.ForeignKey(Game, on_delete=models.SET_NULL, null=True)
