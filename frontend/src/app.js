@@ -5,7 +5,7 @@ import Account from "./pages/Account.js";
 import GamePage from "./pages/Game.js";
 import Register from "./pages/Register.js";
 import page404 from "./pages/page404.js";
-import { State } from "./services/state.js";
+import State from "./services/state.js";
 
 const state = new State();
 export default state;

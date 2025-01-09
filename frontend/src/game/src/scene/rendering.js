@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import state from "../../../app.js";
 
 class Renderer {
   constructor(renderer, scene, camera, game, stat) {
@@ -24,12 +25,17 @@ class Renderer {
     return needResize;
   }
 
-  updateScore() {
-    if (
-      this.game.player_types.left === "robot" &&
-      this.game.player_types.right === "robot"
-    )
+  markPoints() {
+    if (state.players.left === "robot" && state.players.right === "robot")
       return;
+    if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
+      state.updateScore("left", 1);
+    } else if (
+      this.game.ball.obj.position.z >
+      this.zMax / 2 - this.depth / 2 + 3
+    ) {
+      state.updateScore("right", 1);
+    }
   }
 
   animate() {
@@ -45,8 +51,16 @@ class Renderer {
         this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3 ||
         this.game.ball.obj.position.z > this.zMax / 2 - this.depth / 2 + 3
       ) {
-        this.updateScore();
+        this.markPoints();
         this.game.ball.reset();
+      }
+
+      if (state.state.gameModeHasChanged) {
+        this.game.ball.reset();
+
+        this.game.paddleLeft.choosePlayer(state.players.left);
+        this.game.paddleRight.choosePlayer(state.players.right);
+        state.state.gameModeHasChanged = false;
       }
 
       if (this.resizeRendererToDisplaySize()) {
@@ -58,7 +72,6 @@ class Renderer {
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(render);
     };
-
     requestAnimationFrame(render);
   }
 
@@ -74,7 +87,6 @@ class Renderer {
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
-    //this.stat.update();
     this.game.sea.update(deltaTime);
     this.game.arena.update(deltaTime, this.game.ball.speedRatio);
 

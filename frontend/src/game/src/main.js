@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { State } from "/src/services/state.js";
 import { init_light } from "./scene/lights.js";
 import { init_camera } from "./scene/camera.js";
 import Ball from "./game/ball.js";
@@ -28,11 +27,9 @@ class Game {
     this.scene = new THREE.Scene();
     init_light(this.scene);
 
-    this.stat = new Stats();
-    document.body.appendChild(this.stat.dom);
+    this.state = state;
 
-    // Abonnement aux changements de l'état global
-    state.subscribe((newState) => {
+    this.state.subscribe((newState) => {
       // if (newState.isGamePage && !this.isGameInitialized) {
       //   this.init(); // Initialise le jeu si on est sur la page du jeu
       //   this.isGameInitialized = true;
@@ -40,17 +37,9 @@ class Game {
       //   console.log("Quitter la page du jeu"); // Logique éventuelle pour quitter le jeu
       //   this.cleanup(); // Nettoie les ressources si nécessaire
       //   this.isGameInitialized = false;
-      // }
-      const isGamePage = state.getState().isGamePage; // Récupère l'état actuel
-      console.log("Game status: ", isGamePage);
+      //
     });
-    this.player_types = {
-      left: "robot",
-      right: "player",
-    };
-    //this.stat = new Stats();
-    //document.body.appendChild(this.stat.dom);
-    this.event_handler = new EventHandler(this);
+    this.players = state.players;
   }
 
   async makeArena() {
@@ -58,13 +47,13 @@ class Game {
     this.paddleLeft = new Paddle(
       this.arena,
       "left",
-      this.player_types.left,
+      this.players.left,
       this.config,
     );
     this.paddleRight = new Paddle(
       this.arena,
       "right",
-      this.player_types.right,
+      this.players.right,
       this.config,
     );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
@@ -76,7 +65,6 @@ class Game {
     this.paddleLeft.computeBoundingBoxes(this.scene);
     this.paddleRight.computeBoundingBoxes(this.scene);
     this.arena.ball = this.ball.obj;
-    //this.arena.obj.add(this.ball.obj);
     this.scene.add(this.arena.obj);
     this.scene.add(this.paddleRight.obj);
     this.scene.add(this.paddleLeft.obj);
@@ -134,16 +122,14 @@ class Game {
       terrain: this.terrain,
       sea: this.sea,
       boid: this.boid,
-      player_types: this.player_types,
+      players: this.players,
     };
-    this.event_handler.setupControls();
 
     this.rendererInstance = new Renderer(
       this.renderer,
       this.scene,
       this.camera,
       game,
-      //this.stat,
     );
     this.rendererInstance.animate();
   }

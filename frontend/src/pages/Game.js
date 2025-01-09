@@ -7,8 +7,10 @@ export default class GamePage {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
+    this.state.subscribe(this.handleStateUpdate.bind(this));
     this.startGameButton = null;
   }
+
   async initialize() {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
@@ -29,12 +31,30 @@ export default class GamePage {
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
   }
+
+  handleStateUpdate(state) {
+    // Re-render the component when state changes
+    this.updateDisplay();
+  }
+
+  updateDisplay() {
+    if (this.container) {
+      this.container.innerHTML = this.render();
+    }
+  }
+
   attachEventListeners() {
-    this.startGameButton = document.getElementById("start-game");
-    if (this.startGameButton) {
-      this.startGameButton.addEventListener("click", () => {
-        console.log("start game");
-        this.state.setGameStarted(true);
+    const startPVPGameButton = document.getElementById("start-pvp-game");
+    const startPVRGameButton = document.getElementById("start-pvr-game");
+    if (startPVPGameButton) {
+      startPVPGameButton.addEventListener("click", () => {
+        this.state.setPVPGameStarted(true);
+        this.updateZIndex();
+      });
+    }
+    if (startPVRGameButton) {
+      startPVRGameButton.addEventListener("click", () => {
+        this.state.setPVRGameStarted(true);
         this.updateZIndex();
       });
     }
@@ -42,16 +62,22 @@ export default class GamePage {
 
   updateZIndex() {
     const canvas = document.querySelector("#c");
-    const app = document.querySelector("main#app");
+    const app = document.querySelector("#app");
 
     if (this.state.state.gameStarted) {
       // Canvas au-dessus, app en dessous
-      if (canvas) canvas.style.zIndex = "1";
-      if (app) app.style.zIndex = "0";
+      //   if (canvas) canvas.style.zIndex = "1";
+      //   if (app) app.style.zIndex = "0";
+      app.classList.remove("view1");
+      app.classList.add("view2");
+      if (canvas) canvas.style.zIndex = "0";
     } else {
       // Canvas en dessous, app au-dessus
+      //   if (canvas) canvas.style.zIndex = "-1";
+      //   if (app) app.style.zIndex = "1";
+      app.classList.remove("view2");
+      app.classList.add("view1");
       if (canvas) canvas.style.zIndex = "-1";
-      if (app) app.style.zIndex = "1";
     }
   }
 
@@ -74,6 +100,8 @@ export default class GamePage {
       this.isSubscribed = false;
       console.log("Game page unsubscribed from state");
     }
+    this.state.state.PVRgameStarted = false;
+    this.state.state.PVPgameStarted = false;
     resetZIndex();
     this.state.setGameStarted(false);
     if (this.startGameButton) {
@@ -84,15 +112,23 @@ export default class GamePage {
   render() {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `${
-      this.state.state.gameStarted
-        ? ``
-        : `<div class="d-flex flex-column justify-content-center align-items-center h-100">
-				<h1>Game</h1>
-				<button class="btn btn-danger mt-2 mb-2" id="start-game">
-						Start Game
-				</button>
-			</div>`
-    }`;
+    let res;
+
+    if (!this.state.state.PVRgameStarted && !this.state.state.PVPgameStarted) {
+      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    <h1>Game</h1>
+    <button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
+      Start PVP Game
+    </button>
+    <button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
+      Start PVR Game
+    </button>
+  </div>`}`;
+    } else {
+      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    <h1>${this.state.score.left} - ${this.state.score.right}</h1>
+  </div>`}`;
+    }
+    return res;
   }
 }
