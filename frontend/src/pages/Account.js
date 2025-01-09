@@ -5,6 +5,7 @@ import { resetZIndex } from "/src/utils.js";
 export default class Account {
   constructor(state) {
     this.state = state;
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.userData = {
       id: 0,
       is_superuser: false,
@@ -47,6 +48,17 @@ export default class Account {
   }
 
   attachEventListeners() {}
+
+  handleStateChange(newState) {
+    console.log("État mis à jour:", newState);
+    const content = this.render();
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = content; // Remplacer le contenu du conteneur
+      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    }
+    this.updateZIndex();
+  }
 
   async fetchData(id) {
     try {
@@ -108,6 +120,8 @@ export default class Account {
       console.error(`Error while trying to get new refresh token : ${error}`);
     }
   }
+
+  destroy() {}
 
   render() {
     if (this.isLoading) {
