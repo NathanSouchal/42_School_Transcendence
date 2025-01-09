@@ -5,6 +5,7 @@ import Account from "./pages/Account.js";
 import GamePage from "./pages/Game.js";
 import Register from "./pages/Register.js";
 import page404 from "./pages/page404.js";
+import Stats from "./pages/Stats.js";
 import State from "./services/state.js";
 
 const state = new State();
@@ -17,6 +18,7 @@ const routes = {
   "/register": new Register(state),
   "/game": new GamePage(state),
   "/404": new page404(state),
+  "/stats": new Stats(state),
 };
 
 const router = new Router(routes);

@@ -14,6 +14,7 @@ export default class Account {
     this.lastDeleted = 0;
     this.isLoading = true;
     this.isInitialized = false;
+	this.isSubscribed = false;
   }
 
   async initialize() {
