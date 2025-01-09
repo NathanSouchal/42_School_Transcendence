@@ -88,6 +88,9 @@ export default class State {
   }
 
   subscribe(listener) {
+    if (typeof listener !== "function") {
+      throw new TypeError("Le listener doit être une fonction.");
+    }
     //console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }

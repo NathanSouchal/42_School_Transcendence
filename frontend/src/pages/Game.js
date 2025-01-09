@@ -7,7 +7,6 @@ export default class GamePage {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
-    this.state.subscribe(this.handleStateUpdate.bind(this));
     this.startGameButton = null;
   }
 

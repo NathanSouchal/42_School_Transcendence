@@ -28,33 +28,29 @@ class Game {
     init_light(this.scene);
 
     this.state = state;
+    this.handleStateChange = this.handleStateChange.bind(this);
 
-    this.state.subscribe((newState) => {
-      // if (newState.isGamePage && !this.isGameInitialized) {
-      //   this.init(); // Initialise le jeu si on est sur la page du jeu
-      //   this.isGameInitialized = true;
-      // } else if (!newState.isGamePage && this.isGameInitialized) {
-      //   console.log("Quitter la page du jeu"); // Logique éventuelle pour quitter le jeu
-      //   this.cleanup(); // Nettoie les ressources si nécessaire
-      //   this.isGameInitialized = false;
-      //
-    });
     this.players = state.players;
   }
 
+  handleStateChange(newState) {
+    console.log("État mis à jour:", newState);
+  }
+
   async makeArena() {
+    this.state.subscribe(this.handleStateChange);
     this.arena = new Arena(this.config.getSize());
     this.paddleLeft = new Paddle(
       this.arena,
       "left",
       this.players.left,
-      this.config,
+      this.config
     );
     this.paddleRight = new Paddle(
       this.arena,
       "right",
       this.players.right,
-      this.config,
+      this.config
     );
     this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
@@ -77,11 +73,11 @@ class Game {
 
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals"),
+      this.config.getGenerationConfig("corrals")
     );
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea"),
+      this.config.getGenerationConfig("sea")
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
@@ -100,7 +96,7 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig(),
+      this.config.getCameraConfig()
     );
 
     window.addEventListener("resize", () => {
@@ -129,7 +125,7 @@ class Game {
       this.renderer,
       this.scene,
       this.camera,
-      game,
+      game
     );
     this.rendererInstance.animate();
   }
