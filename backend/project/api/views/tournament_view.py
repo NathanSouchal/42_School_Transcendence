@@ -16,8 +16,8 @@ class TournamentView(APIView):
 	def get(self, request, id=None):
 		try:
 			tournament = get_object_or_404(Tournament, id=id)
-			if request.user != tournament.creator and not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if request.user != tournament.creator and not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'tournament': TournamentSerializer(tournament).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Tournament not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -28,8 +28,8 @@ class TournamentView(APIView):
 
 	def put(self, request, id=None):
 		try:
-			if not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournament = get_object_or_404(Tournament, id=id)
 			serializer = TournamentSerializer(tournament, data=request.data, partial=True)
 			if serializer.is_valid():
@@ -45,8 +45,8 @@ class TournamentView(APIView):
 
 	def delete(self, request, id=None):
 		try:
-			if not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournament = get_object_or_404(Tournament, id=id)
 			tournament.delete()
 			return Response({'message': f'Tournament with id {id} has been deleted.'}, status=status.HTTP_200_OK)
@@ -64,8 +64,8 @@ class TournamentListView(APIView):
 
 	def get(self, request):
 		try:
-			if not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			tournaments = Tournament.objects.all()
 			serialized_tournaments = TournamentSerializer(tournaments, many=True)
 			return Response({'tournaments': serialized_tournaments.data}, status=status.HTTP_200_OK)
