@@ -4,11 +4,17 @@ export default class Stats {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
     this.stats = {};
   }
 
   async initialize() {
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Stats page subscribed to state");
+    }
     if (this.isInitialized) return;
     this.isInitialized = true;
     const userId = Number(localStorage.getItem("id"));

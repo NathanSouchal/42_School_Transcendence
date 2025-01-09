@@ -83,6 +83,8 @@ class GameListView(APIView):
 			serializer = GameSerializer(data=request.data)
 			if serializer.is_valid():
 				game = serializer.save()
+				game.player1.match_history.add(game)
+				game.player2.match_history.add(game)
 				return Response({'game': GameSerializer(game).data, 'message': 'Game created successfully.'}, status=status.HTTP_201_CREATED)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:

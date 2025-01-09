@@ -9,5 +9,6 @@ urlpatterns = [
     path('auth/', include("api.router.auth_router")),
     path('tournament/', include("api.router.tournament_router")),
     path('match/', include("api.router.match_router")),
-    path('stats/', include("api.router.stats_router"))
+    path('stats/', include("api.router.stats_router")),
+    path('match-history/', include("api.router.match_history_router"))
 ]

@@ -1,10 +1,29 @@
 from rest_framework import serializers;
 from api.models import Game, User, Tournament, Match, Stats
 
+class GameSerializer(serializers.ModelSerializer):
+    # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
+    player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+
+    class Meta:
+        model = Game
+        fields = '__all__'
+        read_only_fields = ['created_at', 'id']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Modifier la représentation pour inclure les usernames au lieu des IDs
+        representation['player1'] = instance.player1.username if instance.player1 else None
+        representation['player2'] = instance.player2.username if instance.player2 else None
+        return representation
+
+
 class UserSerializer(serializers.ModelSerializer):
+    match_history = GameSerializer(many=True, read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_superuser', 'password']
+        fields = ['id', 'username', 'is_superuser', 'password', 'match_history']
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True}  # Empêche la modification via l'API
@@ -33,22 +52,6 @@ class UserSerializer(serializers.ModelSerializer):
 	En remplaçant cette méthode, on personnalise la manière dont un utilisateur est créé.
 """
 
-class GameSerializer(serializers.ModelSerializer):
-    # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
-    player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-
-    class Meta:
-        model = Game
-        fields = '__all__'
-        read_only_fields = ['created_at', 'id']
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        # Modifier la représentation pour inclure les usernames au lieu des IDs
-        representation['player1'] = instance.player1.username if instance.player1 else None
-        representation['player2'] = instance.player2.username if instance.player2 else None
-        return representation
 
 
 class MatchSerializer(serializers.ModelSerializer):
