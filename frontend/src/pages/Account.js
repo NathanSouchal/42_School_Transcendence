@@ -59,7 +59,8 @@ export default class Account {
         handleChangeBound("avatar", file, avatarInput);
       });
       this.eventListeners.push({
-        element: "avatar",
+        name: "avatar",
+        element: avatarInput,
         listener: handleChangeBound,
       });
     }
@@ -152,15 +153,16 @@ export default class Account {
     }
   }
 
-  removeEventListerners() {
-    this.eventListeners.forEach(({ element, event, listener }) =>
-      element.removeEventListener(event, listener)
-    );
+  removeEventListeners() {
+    this.eventListeners.forEach(({ name, element, listener }) => {
+      element.removeEventListener(element, listener);
+      console.log("Removed eventListener fron input");
+    });
     this.eventListeners = [];
   }
 
   destroy() {
-    removeEventListerners();
+    this.removeEventListeners();
   }
 
   render() {

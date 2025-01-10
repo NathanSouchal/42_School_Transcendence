@@ -14,8 +14,7 @@ export default class Register {
       password: "",
       passwordConfirmation: "",
     };
-    this.eventListeners = { registerForm: null, inputs: [] };
-	//change this as array of objects ?
+    this.eventListeners = [];
   }
 
   async initialize() {
@@ -40,13 +39,15 @@ export default class Register {
   }
 
   attachEventListeners() {
-    this.eventListeners.registerForm = document.getElementById("register-form");
-    if (this.eventListeners.registerForm) {
-      this.handleSubmitBound = this.handleSubmit.bind(this);
-      this.eventListeners.registerForm.addEventListener(
-        "submit",
-        this.handleSubmitBound
-      );
+    const registerForm = document.getElementById("register-form");
+    if (registerForm) {
+      const handleSubmitBound = this.handleSubmit.bind(this);
+      registerForm.addEventListener("submit", handleSubmitBound);
+      this.eventListeners.push({
+        name: "register-form",
+        element: registerForm,
+        listener: handleSubmitBound,
+      });
     }
 
     const inputs = document.querySelectorAll("input");
@@ -55,15 +56,13 @@ export default class Register {
         this.handleChange(e.target.name, e.target.value, e.target);
       };
       input.addEventListener("input", handleChangeBound);
-	  //here input must be name of the input
-      this.eventListeners.inputs.push({
+      this.eventListeners.push({
+        name: input.name,
         element: input,
         listener: handleChangeBound,
       });
     });
   }
-
-  handleSubmitBound() {}
 
   handleChange(key, value, inputElement) {
     if (key === "username") {
@@ -134,20 +133,16 @@ export default class Register {
     }
   }
 
-  destroy() {
-    if (this.eventListeners.registerForm) {
-      this.eventListeners.registerForm.removeEventListener(
-        "submit",
-        this.handleSubmitBound
-      );
-      this.eventListeners.registerForm = null;
-      console.log("Removed eventListener fron submit");
-    }
-    this.eventListeners.inputs.forEach(({ element, listener }) => {
-      element.removeEventListener("input", listener);
+  removeEventListeners() {
+    this.eventListeners.forEach(({ name, element, listener }) => {
+      element.removeEventListener(element, listener);
       console.log("Removed eventListener fron input");
     });
-    this.eventListeners.inputs = [];
+    this.eventListeners = [];
+  }
+
+  destroy() {
+    this.removeEventListeners();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
       this.isSubscribed = false;
