@@ -28,12 +28,12 @@ class StatsView(APIView):
         except Exception as e:
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    def post(self, request):
+    def post(self, request, id=None):
         try:
             serializer = StatsSerializer(data=request.data)
             if serializer.is_valid():
                 stats = serializer.save()
-                return Response({'game': StatsSerializer(stats).data, 'message': 'Stats created successfully.'}, status=status.HTTP_201_CREATED)
+                return Response({'stats': StatsSerializer(stats).data, 'message': 'Stats created successfully.'}, status=status.HTTP_201_CREATED)
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)

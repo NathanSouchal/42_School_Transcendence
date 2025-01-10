@@ -14,10 +14,14 @@ class Stats(models.Model):
         if self.losses == 0:
             return float(self.wins)  # Évite la division par zéro
         return self.wins / self.losses
+    
+    def calculate_nb_games(self):
+        return self.wins + self.losses
 
     def save(self, *args, **kwargs):
         # Recalcul du ratio avant de sauvegarder
         self.win_ratio = self.calculate_ratio()
+        self.nb_games = self.calculate_nb_games()
         super().save(*args, **kwargs)
     
     """
