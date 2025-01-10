@@ -64,6 +64,21 @@ export default class Account {
         listener: handleChangeBound,
       });
     }
+
+    const updateButton = document.querySelector(
+      "button[onclick^='updateUserInfo']"
+    );
+    if (updateButton) {
+      updateButton.addEventListener("click", async () => {
+        console.log("Updating user info...");
+        await this.updateUserInfo(this.userData.id);
+      });
+      this.eventListeners.push({
+        name: "updateUserInfo",
+        element: updateButton,
+        listener: this.updateUserInfo.bind(this, this.userData.id),
+      });
+    }
   }
 
   handleStateChange(newState) {
@@ -112,11 +127,30 @@ export default class Account {
     }
   }
 
+  async updateUserInfo(id) {
+    try {
+      const res = await axios.put(
+        `https://localhost:8000/user/${id}/`,
+        { avatar: this.userData.avatar },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res);
+    } catch (error) {
+      console.error(`Error while trying to update user data : ${error}`);
+    }
+  }
+
   async deleteUser(id) {
     try {
-      await axios.delete(`https://localhost:8000/user/${id}/`, {
-        withCredentials: true,
-      });
+      await axios.delete(
+        `https://localhost:8000/user/${id}/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
       this.lastDeleted = id;
       this.render();
     } catch (error) {
@@ -141,13 +175,9 @@ export default class Account {
 
   async getNewRefreshToken() {
     try {
-      await axios.post(
-        `https://localhost:8000/auth/custom-token/refresh/`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await axios.post(`https://localhost:8000/auth/custom-token/refresh/`, {
+        withCredentials: true,
+      });
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
     }
@@ -196,6 +226,9 @@ export default class Account {
 					id="avatar"
 					/>
 				</div>
+				<button onclick="updateUserInfo(${this.userData.id})">
+					Update my info
+				</button>
                 <div class="d-flex flex-column align-items-center">
                   <button
                     onclick="deleteUser(${this.userData.id})"
