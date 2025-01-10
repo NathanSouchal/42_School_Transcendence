@@ -1,5 +1,5 @@
 from rest_framework import serializers;
-from api.models import Game, User, Tournament, Match, Stats
+from api.models import Game, User, Tournament, Match, Stats, Friendship
 
 class GameSerializer(serializers.ModelSerializer):
     # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
@@ -72,4 +72,10 @@ class StatsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stats
+        fields = '__all__'
+
+class FriendshipSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Friendship
         fields = '__all__'
