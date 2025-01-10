@@ -15,6 +15,7 @@ export default class Register {
       passwordConfirmation: "",
     };
     this.eventListeners = { registerForm: null, inputs: [] };
+	//change this as array of objects ?
   }
 
   async initialize() {
@@ -54,6 +55,7 @@ export default class Register {
         this.handleChange(e.target.name, e.target.value, e.target);
       };
       input.addEventListener("input", handleChangeBound);
+	  //here input must be name of the input
       this.eventListeners.inputs.push({
         element: input,
         listener: handleChangeBound,

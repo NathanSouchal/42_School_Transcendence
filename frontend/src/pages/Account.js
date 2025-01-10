@@ -10,11 +10,13 @@ export default class Account {
       id: 0,
       is_superuser: false,
       username: "",
+      avatar: "",
     };
     this.lastDeleted = 0;
     this.isLoading = true;
     this.isInitialized = false;
-	this.isSubscribed = false;
+    this.isSubscribed = false;
+    this.eventListeners = [];
   }
 
   async initialize() {
@@ -48,7 +50,20 @@ export default class Account {
     this.attachEventListeners();
   }
 
-  attachEventListeners() {}
+  attachEventListeners() {
+    const avatarInput = document.getElementById("avatar");
+    if (avatarInput) {
+      const handleChangeBound = this.handleChange.bind(this);
+      avatarInput.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        handleChangeBound("avatar", file, avatarInput);
+      });
+      this.eventListeners.push({
+        element: "avatar",
+        listener: handleChangeBound,
+      });
+    }
+  }
 
   handleStateChange(newState) {
     console.log("État mis à jour:", newState);
@@ -58,7 +73,22 @@ export default class Account {
       container.innerHTML = content; // Remplacer le contenu du conteneur
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
-    this.updateZIndex();
+  }
+
+  handleChange(key, value, inputElement) {
+    console.log("handlechange");
+    if (key == "avatar") {
+      const fileInput = value;
+      if (fileInput) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const base64String = e.target.result;
+          console.log(base64String);
+          this.userData.avatar = base64String;
+        };
+        reader.readAsDataURL(fileInput);
+      }
+    }
   }
 
   async fetchData(id) {
@@ -122,7 +152,16 @@ export default class Account {
     }
   }
 
-  destroy() {}
+  removeEventListerners() {
+    this.eventListeners.forEach(({ element, event, listener }) =>
+      element.removeEventListener(event, listener)
+    );
+    this.eventListeners = [];
+  }
+
+  destroy() {
+    removeEventListerners();
+  }
 
   render() {
     if (this.isLoading) {
@@ -145,6 +184,16 @@ export default class Account {
                 <h2 class="text-capitalize">
                   ${this.userData.username}
                 </h2>
+				<div>
+					<input
+					type="file"
+					class="avatar-control"
+					placeholder="Enter username"
+					value="${this.userData.avatar}"
+					name="avatar"
+					id="avatar"
+					/>
+				</div>
                 <div class="d-flex flex-column align-items-center">
                   <button
                     onclick="deleteUser(${this.userData.id})"
