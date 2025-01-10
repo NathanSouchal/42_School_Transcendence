@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.apps import apps
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -19,8 +20,16 @@ class UserManager(BaseUserManager):
 	def create_user(self, username, password=None, **extra_fields):
 		if not username:
 			raise ValueError('No username')
+		
 		user = self.model(username=username, **extra_fields)
 		user.set_password(password)
+		user.save(using=self._db)
+
+		# Récupérer le modèle Stats dynamiquement pour éviter l'importation circulaire
+		Stats = apps.get_model('api', 'Stats')
+		stats = Stats.objects.create(user=user)
+
+		user.user_stats = stats
 		user.save(using=self._db)
 		return user
 
