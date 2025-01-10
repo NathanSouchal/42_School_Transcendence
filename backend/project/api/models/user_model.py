@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
 	match_history = models.ManyToManyField('api.Game', blank=True, related_name='match_history')
+	friends = models.ManyToManyField('self', blank=True, symmetrical=True) #symmetrical permet que si un user1 est ajoute aux friends de user2, user2 sera ajoute a ceux de user1
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
 
