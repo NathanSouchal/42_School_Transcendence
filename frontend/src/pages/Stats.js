@@ -66,7 +66,9 @@ export default class Stats {
 				</div>
 			</div>`;
     } else {
-      template = `<h1>No data</h1>`;
+      template = `<div class="d-flex flex-column m-5">
+          <h1>No data</h1>
+      </div>`;
     }
     const tmpContainer = document.createElement("div");
     tmpContainer.innerHTML = template;

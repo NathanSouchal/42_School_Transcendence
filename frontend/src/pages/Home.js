@@ -65,7 +65,7 @@ export default class Home {
       { href: "/register", text: "Register" },
       { href: "/account", text: "Account" },
       { href: "/stats", text: "Stats" },
-      { href: "/game", text: "Game" },
+      { href: "/game", text: "Play" },
       { href: "/match-history", text: "MatchHistory" },
     ];
 

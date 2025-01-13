@@ -111,30 +111,32 @@ export default class GamePage {
   }
 
   gameNotStartedMenu() {
-    const container = document.createElement("div");
-    container.className =
-      "d-flex flex-column justify-content-center align-items-center h-100";
+    const container1 = document.createElement("div");
+    container1.className =
+      "d-flex justify-content-center align-items-center h-100";
 
     const backArrow = createBackArrow();
-    container.appendChild(backArrow);
+    container1.appendChild(backArrow);
 
-    const gameTitle = document.createElement("h1");
-    gameTitle.textContent = "Game";
-    container.appendChild(gameTitle);
+    const container2 = document.createElement("ul");
+    container2.className =
+      "h3 navbar-nav d-flex align-items-center justify-content-center h-100 modak-regular";
 
-    const startPvpButton = document.createElement("button");
-    startPvpButton.className = "btn btn-danger mt-2 mb-2";
-    startPvpButton.id = "start-pvp-game";
-    startPvpButton.textContent = "Start PVP Game";
-    container.appendChild(startPvpButton);
+    const startPvpText = document.createElement("li");
+    startPvpText.className = "nav-item my-5";
+    startPvpText.id = "start-pvp-game";
+    startPvpText.textContent = "Start PVP Game";
+    container2.appendChild(startPvpText);
 
-    const startPvrButton = document.createElement("button");
-    startPvrButton.className = "btn btn-danger mt-2 mb-2";
-    startPvrButton.id = "start-pvr-game";
-    startPvrButton.textContent = "Start PVR Game";
-    container.appendChild(startPvrButton);
+    const startPvrText = document.createElement("li");
+    startPvrText.className = "nav-item my-5";
+    startPvrText.id = "start-pvr-game";
+    startPvrText.textContent = "Start PVR Game";
+    container2.appendChild(startPvrText);
 
-    return container.innerHTML;
+    container1.appendChild(container2);
+
+    return container1.innerHTML;
   }
 
   gameStartedMenu() {
