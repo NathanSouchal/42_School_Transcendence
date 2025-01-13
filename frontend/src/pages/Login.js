@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
+import { createBackArrow } from "../components/backArrow.js";
 
 export default class Login {
   constructor(state) {
@@ -31,6 +32,7 @@ export default class Login {
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content;
+      // container.appendChild(createBackArrow());
     }
     // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
@@ -42,7 +44,7 @@ export default class Login {
       this.handleSubmitBound = this.handleSubmit.bind(this);
       this.eventListeners.loginForm.addEventListener(
         "submit",
-        this.handleSubmitBound
+        this.handleSubmitBound,
       );
     }
 
@@ -76,7 +78,7 @@ export default class Login {
         this.formState,
         {
           withCredentials: true,
-        }
+        },
       );
       const { id } = response.data.user;
       console.log(response.data);
@@ -95,6 +97,7 @@ export default class Login {
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content; // Remplacer le contenu du conteneur
+      // container.appendChild(createBackArrow());
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
   }
@@ -103,7 +106,7 @@ export default class Login {
     if (this.eventListeners.loginForm) {
       this.eventListeners.loginForm.removeEventListener(
         "submit",
-        this.handleSubmitBound
+        this.handleSubmitBound,
       );
       this.eventListeners.loginForm = null;
     }
@@ -122,7 +125,7 @@ export default class Login {
   render() {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `<div class="d-flex justify-content-center align-items-center h-100">
+    const template = `<div class="d-flex justify-content-center align-items-center h-100">
         <form id="login-form">
           <h3 class="text-center">Login</h3>
           <div class="mb-3">
@@ -159,5 +162,11 @@ export default class Login {
           </div>
         </form>
       </div>`;
+
+    const tmpContainer = document.createElement("div");
+    tmpContainer.innerHTML = template;
+    const backArrow = createBackArrow();
+    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
+    return tmpContainer.innerHTML;
   }
 }

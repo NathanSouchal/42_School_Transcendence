@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
+import { createBackArrow } from "../components/backArrow.js";
 
 export default class GamePage {
   constructor(state) {
@@ -24,6 +25,7 @@ export default class GamePage {
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
+      // container.innerHTML = "";
       container.innerHTML = content;
     }
     this.state.setIsGamePage(true);
@@ -108,26 +110,55 @@ export default class GamePage {
     }
   }
 
+  gameNotStartedMenu() {
+    const container = document.createElement("div");
+    container.className =
+      "d-flex flex-column justify-content-center align-items-center h-100";
+
+    const backArrow = createBackArrow();
+    container.appendChild(backArrow);
+
+    const gameTitle = document.createElement("h1");
+    gameTitle.textContent = "Game";
+    container.appendChild(gameTitle);
+
+    const startPvpButton = document.createElement("button");
+    startPvpButton.className = "btn btn-danger mt-2 mb-2";
+    startPvpButton.id = "start-pvp-game";
+    startPvpButton.textContent = "Start PVP Game";
+    container.appendChild(startPvpButton);
+
+    const startPvrButton = document.createElement("button");
+    startPvrButton.className = "btn btn-danger mt-2 mb-2";
+    startPvrButton.id = "start-pvr-game";
+    startPvrButton.textContent = "Start PVR Game";
+    container.appendChild(startPvrButton);
+
+    return container.innerHTML;
+  }
+
+  gameStartedMenu() {
+    const container = document.createElement("div");
+    container.className =
+      "d-flex flex-column justify-content-center align-items-center h-100";
+
+    const scoreDisplay = document.createElement("h1");
+    scoreDisplay.textContent = `${this.state.score.left} - ${this.state.score.right}`;
+    container.appendChild(scoreDisplay);
+
+    return container.innerHTML;
+  }
+
   render() {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
-    let res;
 
+    let template;
     if (!this.state.state.PVRgameStarted && !this.state.state.PVPgameStarted) {
-      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
-    <h1>Game</h1>
-    <button class="btn btn-danger mt-2 mb-2" id="start-pvp-game">
-      Start PVP Game
-    </button>
-    <button class="btn btn-danger mt-2 mb-2" id="start-pvr-game">
-      Start PVR Game
-    </button>
-  </div>`}`;
+      template = this.gameNotStartedMenu();
     } else {
-      res = `${`<div class="d-flex flex-column justify-content-center align-items-center h-100">
-    <h1>${this.state.score.left} - ${this.state.score.right}</h1>
-  </div>`}`;
+      template = this.gameStartedMenu();
     }
-    return res;
+    return template;
   }
 }

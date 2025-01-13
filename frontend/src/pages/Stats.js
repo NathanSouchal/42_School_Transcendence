@@ -1,4 +1,5 @@
 import axios from "axios";
+import { createBackArrow } from "../components/backArrow.js";
 
 export default class Stats {
   constructor(state) {
@@ -47,10 +48,11 @@ export default class Stats {
   render() {
     console.log(
       "STATS: " +
-        Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
+        Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`),
     );
+    let template;
     if (this.stats && Object.keys(this.stats).length > 0) {
-      return `<div class="d-flex flex-column m-5">
+      template = `<div class="d-flex flex-column m-5">
 				<div class="d-flex justify-content-center" >
 	  				<h1 class="m-3 mb-5">User Statistics</h1>
 	  			</div>
@@ -64,7 +66,12 @@ export default class Stats {
 				</div>
 			</div>`;
     } else {
-      return `<h1>No data</h1>`;
+      template = `<h1>No data</h1>`;
     }
+    const tmpContainer = document.createElement("div");
+    tmpContainer.innerHTML = template;
+    const backArrow = createBackArrow();
+    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
+    return tmpContainer.innerHTML;
   }
 }
