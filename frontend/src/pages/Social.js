@@ -6,7 +6,8 @@ export default class Social {
         this.handleStateChange = this.handleStateChange.bind(this);
         this.isSubscribed = false; // Eviter plusieurs abonnements
         this.isInitialized = false;
-        // this.matchHistory = {};
+        this.friends = {};
+        this.invitations = {};
     }
 
     async initialize() {
@@ -20,7 +21,7 @@ export default class Social {
     
         const userId = Number(localStorage.getItem("id"));
         if (userId) {
-            await this.getMatchHistory(userId);
+            await this.getFriends(userId);
         }
         // Appeler render pour obtenir le contenu HTML
         const content = this.render();
@@ -37,13 +38,13 @@ export default class Social {
 
       handleStateChange() {}
     
-      async getMatchHistory(id) {
+      async getFriends(id) {
         try {
-          const res = await axios.get(`https://localhost:8000/match-history/${id}/`);
-          const data = res.data.match_history;
-          this.matchHistory = data;
+          const res = await axios.get(`https://localhost:8000/friends/${id}/`);
+          const data = res.data.friends;
+          this.friends = data;
           console.log(
-            "MatchHistory: " +
+            "Friends: " +
               Object.entries(this.matchHistory).map(([key, value]) => `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`)
           );
         } catch (error) {
@@ -54,21 +55,19 @@ export default class Social {
       destroy() {}
     
       render() {
-        if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
-          return `${Object.values(this.matchHistory).map((value) => 
-            `<div class="d-flex flex-column m-3"><h3>Game n°${value.id}</h3>
-                <div class="d-flex gap-3 align-items-center">
-                    <h5>${value.created_at.split('T')[0]}</h5>
-                    <h4>${value.player1}</h4>
-                    <h5>${value.score_player1}</h5>
-                    <span>-</span>
-                    <h5>${value.score_player2}</h5>
-                    <h4>${value.player2}</h4>
-                </div>
-
-            </div>`).join("")}`;
+        if (this.friends && Object.keys(this.friends).length > 0) {
+            return `<div class="d-flex flex-column m-3">
+                      <h3>FRIENDS</h3>
+                      ${Object.values(this.friends)
+                         .map((value) => 
+                            `<div class="d-flex gap-3 align-items-center">
+                                <h3>${value.username}</h3>
+                                <h4>Id: ${value.id}</h4>
+                             </div>`)
+                         .join("")}
+                    </div>`;
         } else {
-          return `<h1>No data</h1>`;
+            return `<h1>No data</h1>`;
         }
-      }
-}
+    }
+  }  

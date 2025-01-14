@@ -18,9 +18,15 @@ class GameSerializer(serializers.ModelSerializer):
         representation['player2'] = instance.player2.username if instance.player2 else None
         return representation
 
+class SimpleUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
 
 class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
+    friends = SimpleUserSerializer(many=True, read_only=True)
+    
     class Meta:
         model = User
         fields = ['id', 'username', 'is_superuser', 'password', 'match_history', 'friends']

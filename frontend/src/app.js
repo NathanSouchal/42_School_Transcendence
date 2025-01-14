@@ -8,6 +8,7 @@ import page404 from "./pages/page404.js";
 import Stats from "./pages/Stats.js";
 import State from "./services/state.js";
 import MatchHistory from "./pages/MatchHistory.js";
+import Social from "./pages/Social.js";
 
 const state = new State();
 export default state;
@@ -21,6 +22,7 @@ const routes = {
   "/404": new page404(state),
   "/stats": new Stats(state),
   "/match-history": new MatchHistory(state),
+  "/social": new Social(state)
 };
 
 const router = new Router(routes);
