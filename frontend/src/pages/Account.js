@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
+import state from "../app.js";
 
 export default class Account {
   constructor(state) {
@@ -70,12 +71,14 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
+      state.isUserLoggedIn = true;
       console.log(`coucou ${data.user.username}`);
       console.log(`coucou ${this.userData.username}`);
       this.render();
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = { id: 0, username: "" };
+      state.isUserLoggedIn = false;
     } finally {
       this.isLoading = false;
       this.render();

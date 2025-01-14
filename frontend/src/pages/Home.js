@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
+import state from "../app.js";
 
 export default class Home {
   constructor(state) {
@@ -60,14 +61,21 @@ export default class Home {
     const list = document.createElement("ul");
     list.className = "h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4";
 
-    const links = [
-      { href: "/login", text: "Login" },
-      { href: "/register", text: "Register" },
-      { href: "/account", text: "Account" },
-      { href: "/stats", text: "Stats" },
-      { href: "/game", text: "Play" },
-      { href: "/match-history", text: "MatchHistory" },
-    ];
+    let links;
+    if (state.isUserLoggedIn) {
+      links = [
+        { href: "/game", text: "Play" },
+        { href: "/account", text: "Account" },
+        { href: "/stats", text: "Stats" },
+        { href: "/match-history", text: "MatchHistory" },
+      ];
+    } else {
+      links = [
+        { href: "/game", text: "Play" },
+        { href: "/login", text: "Login" },
+        { href: "/register", text: "Register" },
+      ];
+    }
 
     links.forEach((link) => {
       const listItem = document.createElement("li");
