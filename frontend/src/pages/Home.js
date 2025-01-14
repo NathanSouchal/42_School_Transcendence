@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
+import state from "../app.js";
 
 export default class Home {
   constructor(state) {
@@ -51,8 +52,45 @@ export default class Home {
 
   render() {
     const userData = this.state.data.username || "";
-    const test = "Accueil";
     const sanitizedData = DOMPurify.sanitize(userData);
-    return `<div class="d-flex justify-content-center align-items-center h-100"><h1>${test}</h1></div>`;
+
+    const container = document.createElement("div");
+    container.className =
+      "d-flex justify-content-center align-items-center h-100";
+
+    const list = document.createElement("ul");
+    list.className = "h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4";
+
+    let links;
+    if (state.isUserLoggedIn) {
+      links = [
+        { href: "/game", text: "Play" },
+        { href: "/account", text: "Account" },
+        { href: "/stats", text: "Stats" },
+        { href: "/match-history", text: "MatchHistory" },
+      ];
+    } else {
+      links = [
+        { href: "/game", text: "Play" },
+        { href: "/login", text: "Login" },
+        { href: "/register", text: "Register" },
+      ];
+    }
+
+    links.forEach((link) => {
+      const listItem = document.createElement("li");
+      listItem.className = "nav-item my-2";
+
+      const anchor = document.createElement("a");
+      anchor.className = "nav-link";
+      anchor.href = link.href;
+      anchor.textContent = link.text;
+
+      listItem.appendChild(anchor);
+      list.appendChild(listItem);
+    });
+
+    container.appendChild(list);
+    return container.outerHTML;
   }
 }

@@ -1,6 +1,8 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
+import { createBackArrow } from "../components/backArrow.js";
+import state from "../app.js";
 
 export default class Account {
   constructor(state) {
@@ -14,7 +16,7 @@ export default class Account {
     this.lastDeleted = 0;
     this.isLoading = true;
     this.isInitialized = false;
-	this.isSubscribed = false;
+    this.isSubscribed = false;
   }
 
   async initialize() {
@@ -69,12 +71,14 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
+      state.isUserLoggedIn = true;
       console.log(`coucou ${data.user.username}`);
       console.log(`coucou ${this.userData.username}`);
       this.render();
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = { id: 0, username: "" };
+      state.isUserLoggedIn = false;
     } finally {
       this.isLoading = false;
       this.render();
@@ -101,7 +105,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
     } catch (error) {
       console.error(`Error while trying to get new access token : ${error}`);
@@ -115,7 +119,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
@@ -134,7 +138,7 @@ export default class Account {
     const hasUsername =
       this.userData.username && this.userData.username.length > 0;
     console.log("hasUsername:", hasUsername, "this.userData:", this.userData);
-    return `<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    const template = `<div class="d-flex flex-column justify-content-center align-items-center h-100">
           <div class="title-div mb-4">
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
@@ -180,5 +184,10 @@ export default class Account {
             `
             }
       </div>`;
+    const tmpContainer = document.createElement("div");
+    tmpContainer.innerHTML = template;
+    const backArrow = createBackArrow();
+    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
+    return tmpContainer.innerHTML;
   }
 }
