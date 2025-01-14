@@ -67,13 +67,23 @@ export default class Account {
       });
     }
 
-    const updateButton = document.querySelector(
-      "button[onclick^='updateUserInfo']"
-    );
+    const updateButton = document.getElementById("update-user-info");
     if (updateButton) {
       updateButton.addEventListener("click", async () => {
         console.log("Updating user info...");
-        await this.updateUserInfo(this.userData.id);
+        try {
+          await this.updateUserInfo(this.userData.id);
+          await this.fetchData(this.userData.id);
+          this.removeEventListeners();
+          const content = this.render();
+          const container = document.getElementById("avatar-main-div");
+          if (container) {
+            container.innerHTML = content;
+            this.attachEventListeners();
+          }
+        } catch (error) {
+          console.error(error);
+        }
       });
       this.eventListeners.push({
         name: "updateUserInfo",
@@ -241,19 +251,22 @@ export default class Account {
                 <h2 class="text-capitalize">
                   ${this.userData.username}
                 </h2>
-				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}">` : ``}
-				<div>
+				<div id="avatar-main-div">
+				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+				</div>
+				<div class="custom-file m-2">
+					<label class="form-label" for="avatar">Avatar</label>
 					<input
 					type="file"
-					class="avatar-control"
+					class="form-control"
 					placeholder="Enter username"
 					name="avatar"
 					id="avatar"
 					/>
-				</div>
-				<button onclick="updateUserInfo(${this.userData.id})">
+				<button class="btn btn-success m-3" id="update-user-info">
 					Update my info
 				</button>
+				</div>
                 <div class="d-flex flex-column align-items-center">
                   <button
                     onclick="deleteUser(${this.userData.id})"
