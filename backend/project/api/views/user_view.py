@@ -40,10 +40,13 @@ class UserView(APIView):
 			user = get_object_or_404(User, id=id)
 			if request.user != user and not request.user.is_superuser:
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# print(f"Data: {request.data}")
 			serializer = UserSerializer(user, data=request.data, partial=True)
+			print(f"Avatar value: {request.data.get('avatar')}")
 			if serializer.is_valid():
 				user = serializer.save()
-			return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
+				return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
+			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

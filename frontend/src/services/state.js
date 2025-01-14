@@ -32,6 +32,7 @@ export default class State {
     this.data = {};
     this.listeners = [];
     State.instance = this;
+    this.isUserLoggedIn = false;
   }
 
   updateData(newData) {
