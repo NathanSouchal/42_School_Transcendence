@@ -131,7 +131,7 @@ export default class Account {
     try {
       const res = await axios.put(
         `https://localhost:8000/user/${id}/`,
-        { avatar: this.userData.avatar },
+        { avatar: `${this.userData.avatar}` },
         {
           withCredentials: true,
         }
@@ -216,6 +216,7 @@ export default class Account {
                 <h2 class="text-capitalize">
                   ${this.userData.username}
                 </h2>
+				<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}">
 				<div>
 					<input
 					type="file"
