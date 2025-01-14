@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
+import { createBackArrow } from "../components/backArrow.js";
 
 export default class Register {
   constructor(state) {
@@ -112,7 +113,7 @@ export default class Register {
     try {
       const response = await axios.post(
         "https://localhost:8000/user/register/",
-        this.formState
+        this.formState,
       );
       window.app.router.navigate("/login");
     } catch (error) {
@@ -154,7 +155,7 @@ export default class Register {
   render() {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
-    return `<div class="d-flex justify-content-center align-items-center h-100">
+    const template = `<div class="d-flex justify-content-center align-items-center h-100">
         <form id="register-form">
           <h3 class="text-center">Register</h3>
           <div class="mb-3">
@@ -202,5 +203,11 @@ export default class Register {
           </div>
         </form>
       </div>`;
+
+    const tmpContainer = document.createElement("div");
+    tmpContainer.innerHTML = template;
+    const backArrow = createBackArrow();
+    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
+    return tmpContainer.innerHTML;
   }
 }

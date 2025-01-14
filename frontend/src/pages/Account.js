@@ -1,6 +1,8 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
+import { createBackArrow } from "../components/backArrow.js";
+import state from "../app.js";
 
 export default class Account {
   constructor(state) {
@@ -29,25 +31,25 @@ export default class Account {
     this.isInitialized = true;
     resetZIndex();
 
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-    }
-
     // Récupérer l'ID utilisateur depuis le stockage local
     const userId = Number(localStorage.getItem("id"));
 
-    if (userId) {
-      // Charger les données utilisateur si un ID existe
+    // Charger les données utilisateur si un ID existe
+    try {
       await this.fetchData(userId);
-    } else {
-      // Si aucun ID utilisateur n'est trouvé
       this.isLoading = false;
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      //   this.render();
+      // Ajouter les écouteurs d'événements après le rendu
+      this.attachEventListeners();
     }
-
-    // Ajouter les écouteurs d'événements après le rendu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {
@@ -77,6 +79,30 @@ export default class Account {
         name: "updateUserInfo",
         element: updateButton,
         listener: this.updateUserInfo.bind(this, this.userData.id),
+      });
+
+      const refreshButton = document.getElementById("refresh-token-button");
+      if (refreshButton) {
+        refreshButton.addEventListener("click", async () => {
+          await this.getNewRefreshToken(this.userData.id);
+        });
+        this.eventListeners.push({
+          name: "refreshButton",
+          element: refreshButton,
+          listener: this.getNewRefreshToken.bind(this, this.userData.id),
+        });
+      }
+    }
+
+    const accessButton = document.getElementById("access-token-button");
+    if (accessButton) {
+      accessButton.addEventListener("click", async () => {
+        await this.getNewAccessToken(this.userData.id);
+      });
+      this.eventListeners.push({
+        name: "accessButton",
+        element: accessButton,
+        listener: this.getNewAccessToken.bind(this, this.userData.id),
       });
     }
   }
@@ -115,15 +141,11 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
-      console.log(`coucou ${data.user.username}`);
-      console.log(`coucou ${this.userData.username}`);
-      this.render();
+      this.state.isUserLoggedIn = true;
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = { id: 0, username: "" };
-    } finally {
-      this.isLoading = false;
-      this.render();
+      this.state.isUserLoggedIn = false;
     }
   }
 
@@ -173,11 +195,15 @@ export default class Account {
     }
   }
 
-  async getNewRefreshToken() {
+  async getNewRefreshToken(id) {
     try {
-      await axios.post(`https://localhost:8000/auth/custom-token/refresh/`, {
-        withCredentials: true,
-      });
+      await axios.post(
+        `https://localhost:8000/auth/custom-token/refresh/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
     }
@@ -186,7 +212,7 @@ export default class Account {
   removeEventListeners() {
     this.eventListeners.forEach(({ name, element, listener }) => {
       element.removeEventListener(element, listener);
-      console.log("Removed eventListener fron input");
+      console.log("Removed eventListener from input");
     });
     this.eventListeners = [];
   }
@@ -196,16 +222,15 @@ export default class Account {
   }
 
   render() {
-    if (this.isLoading) {
-      document.getElementById("app").innerHTML = "<p>Loading...</p>";
-      return;
-    }
+    // if (this.isLoading) {
+    //   return "<p>Loading...</p>";
+    // }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
     const hasUsername =
       this.userData.username && this.userData.username.length > 0;
     console.log("hasUsername:", hasUsername, "this.userData:", this.userData);
-    return `<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    const template = `<div class="d-flex flex-column justify-content-center align-items-center h-100">
           <div class="title-div mb-4">
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
@@ -216,13 +241,12 @@ export default class Account {
                 <h2 class="text-capitalize">
                   ${this.userData.username}
                 </h2>
-				<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}">
+				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}">` : ``}
 				<div>
 					<input
 					type="file"
 					class="avatar-control"
 					placeholder="Enter username"
-					value="${this.userData.avatar}"
 					name="avatar"
 					id="avatar"
 					/>
@@ -238,14 +262,14 @@ export default class Account {
                     Delete Account
                   </button>
                   <button
-                    onclick="getNewAccessToken(${this.userData.id})"
                     class="btn btn-danger mb-2"
+					id="access-token-button"
                   >
                     Get New Access Token
                   </button>
                   <button
-                    onclick="getNewRefreshToken(${this.userData.id})"
                     class="btn btn-danger mb-2"
+					id="refresh-token-button"
                   >
                     Get New Refresh Token
                   </button>
@@ -256,14 +280,19 @@ export default class Account {
               <div class="text-center">
                 <h1>No info, please log in</h1>
                 <button
-                  onclick="getNewRefreshToken(${this.userData.id})"
                   class="btn btn-danger mb-2"
+				  id="refresh-token-button"
                 >
-                  Get New Access Token
+                  Get New Refresh Token
                 </button>
               </div>
             `
             }
       </div>`;
+    const tmpContainer = document.createElement("div");
+    tmpContainer.innerHTML = template;
+    const backArrow = createBackArrow();
+    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
+    return tmpContainer.innerHTML;
   }
 }
