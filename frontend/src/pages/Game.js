@@ -120,7 +120,7 @@ export default class GamePage {
 
     const container2 = document.createElement("ul");
     container2.className =
-      "h3 navbar-nav d-flex align-items-center justify-content-center h-100 modak-regular";
+      "h3 navbar-nav d-flex align-items-center justify-content-center h-100 ";
 
     const startPvpText = document.createElement("li");
     startPvpText.className = "nav-item my-5";

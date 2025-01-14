@@ -3,7 +3,6 @@ html {
   height: 100%;
   margin: 0;
   overflow: hidden;
-  font-family: "modak-regular";
 }
 
 /* Positionner le canvas en arrière-plan */
@@ -13,12 +12,6 @@ canvas#c {
   width: 100%;
   height: 100%;
   z-index: -1; /* Place le canvas derrière les autres éléments */
-}
-
-.modak-regular {
-  font-family: "Modak", serif;
-  font-weight: 400;
-  font-style: normal;
 }
 
 /* Appliquer un positionnement relatif pour le contenu */
