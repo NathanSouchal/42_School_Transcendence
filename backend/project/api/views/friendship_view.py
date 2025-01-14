@@ -32,9 +32,9 @@ class FriendshipView(APIView):
 			# if not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             friendship = get_object_or_404(Friendship, id=id)
-            serialized = FriendshipSerializer(friendship)
+            serialized = FriendshipSerializer(friendship, data=request.data, partial=True)
             if serialized.is_valid():
-                if serialized.data['accepted'] == True :
+                if serialized.validated_data['accepted'] is True:
                     friendship.accept()
                     return Response({'friendship': FriendshipSerializer(friendship).data, 'message': f'friendship with id {id} has been accepted.'}, status=status.HTTP_200_OK)
                 else :

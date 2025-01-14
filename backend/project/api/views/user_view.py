@@ -6,17 +6,18 @@ from django.shortcuts import get_object_or_404
 from api.models import User
 from api.serializers import UserSerializer
 from api.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 
 class UserView(APIView):
 	serializer_class = UserSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [AllowAny]
 
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			if request.user != user and not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if request.user != user and not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
