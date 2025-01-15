@@ -62,7 +62,7 @@ export default class Account {
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", (e) => {
+        avatarInput.addEventListener("change", async (e) => {
           const file = e.target.files[0];
           handleChangeBound("avatar", file);
         });
@@ -77,12 +77,14 @@ export default class Account {
 
     const updateButton = document.getElementById("update-user-info");
     if (updateButton) {
+      const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
         updateButton.addEventListener("click", async () => {
           console.log("Updating user info...");
           try {
             await this.updateUserInfo(this.userData.id);
             await this.fetchData(this.userData.id);
+            handleChangeBound("update-user-info", "");
             this.removeEventListener("updateUserInfo");
             const content = `${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}`;
             const container = document.getElementById("avatar-main-div");
@@ -97,54 +99,58 @@ export default class Account {
           name: "updateUserInfo",
           type: "click",
           element: updateButton,
-          listener: this.updateUserInfo.bind(this, this.userData.id),
+          listener: handleChangeBound,
         });
+      }
+    }
 
-        const refreshButton = document.getElementById("refresh-token-button");
-        if (refreshButton) {
-          if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
-            refreshButton.addEventListener("click", async () => {
-              await this.getNewRefreshToken(this.userData.id);
-            });
-            this.eventListeners.push({
-              name: "refreshButton",
-              type: "click",
-              element: refreshButton,
-              listener: this.getNewRefreshToken.bind(this, this.userData.id),
-            });
-          }
-        }
+    const refreshButton = document.getElementById("refresh-token-button");
+    if (refreshButton) {
+      const handleChangeBound = this.handleChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
+        refreshButton.addEventListener("click", async () => {
+          await this.getNewRefreshToken(this.userData.id);
+          handleChangeBound("refresh-token-button", "");
+        });
+        this.eventListeners.push({
+          name: "refreshButton",
+          type: "click",
+          element: refreshButton,
+          listener: handleChangeBound,
+        });
       }
     }
 
     const accessButton = document.getElementById("access-token-button");
     if (accessButton) {
+      const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "accessButton")) {
         accessButton.addEventListener("click", async () => {
           await this.getNewAccessToken(this.userData.id);
+          handleChangeBound("access-token-button", "");
         });
         this.eventListeners.push({
           name: "accessButton",
           type: "click",
           element: accessButton,
-          listener: this.getNewAccessToken.bind(this, this.userData.id),
+          listener: handleChangeBound,
         });
       }
     }
 
     const formButton = document.getElementById("form-button");
     if (formButton) {
+      const handleChangeBound = this.handleChange.bind(this);
       // Vérifie si le gestionnaire d'événements a déjà été ajouté
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
         formButton.addEventListener("click", async () => {
-          this.isForm = !this.isForm;
-          this.updateView();
+          handleChangeBound("form-button", "");
         });
         this.eventListeners.push({
           name: "formButton",
           type: "click",
           element: formButton,
-          listener: this.isForm,
+          listener: handleChangeBound,
         });
       }
     }
@@ -173,6 +179,9 @@ export default class Account {
         };
         reader.readAsDataURL(fileInput);
       }
+    } else if (key == "form-button") {
+      this.isForm = !this.isForm;
+      this.updateView();
     }
   }
 
@@ -365,8 +374,8 @@ export default class Account {
               </div>`
         }
 			  <div class="d-flex flex-column align-items-center">
-				<button class="btn btn-success m-3" id="form-button">
-					Change my info
+				<button class="btn btn-dark m-3" id="form-button">
+					${this.isForm ? `Cancel` : `Change my info`}
 				</button>
 				<button
 					onclick="deleteUser(${this.userData.id})"
