@@ -58,10 +58,11 @@ export default class Account {
       const handleChangeBound = this.handleChange.bind(this);
       avatarInput.addEventListener("change", (e) => {
         const file = e.target.files[0];
-        handleChangeBound("avatar", file, avatarInput);
+        handleChangeBound("avatar", file);
       });
       this.eventListeners.push({
         name: "avatar",
+        type: "change",
         element: avatarInput,
         listener: handleChangeBound,
       });
@@ -74,12 +75,11 @@ export default class Account {
         try {
           await this.updateUserInfo(this.userData.id);
           await this.fetchData(this.userData.id);
-          this.removeEventListeners();
-          const content = this.render();
+          this.removeEventListener("updateUserInfo");
+          const content = `${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}`;
           const container = document.getElementById("avatar-main-div");
           if (container) {
             container.innerHTML = content;
-            this.attachEventListeners();
           }
         } catch (error) {
           console.error(error);
@@ -87,6 +87,7 @@ export default class Account {
       });
       this.eventListeners.push({
         name: "updateUserInfo",
+        type: "click",
         element: updateButton,
         listener: this.updateUserInfo.bind(this, this.userData.id),
       });
@@ -98,6 +99,7 @@ export default class Account {
         });
         this.eventListeners.push({
           name: "refreshButton",
+          type: "click",
           element: refreshButton,
           listener: this.getNewRefreshToken.bind(this, this.userData.id),
         });
@@ -111,6 +113,7 @@ export default class Account {
       });
       this.eventListeners.push({
         name: "accessButton",
+        type: "click",
         element: accessButton,
         listener: this.getNewAccessToken.bind(this, this.userData.id),
       });
@@ -127,7 +130,7 @@ export default class Account {
     }
   }
 
-  handleChange(key, value, inputElement) {
+  handleChange(key, value) {
     console.log("handlechange");
     if (key == "avatar") {
       const fileInput = value;
@@ -220,11 +223,25 @@ export default class Account {
   }
 
   removeEventListeners() {
-    this.eventListeners.forEach(({ name, element, listener }) => {
-      element.removeEventListener(element, listener);
-      console.log("Removed eventListener from input");
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log("Removed ${type} eventListener from input");
+      }
     });
     this.eventListeners = [];
+  }
+
+  removeEventListener(name) {
+    const event = this.eventListeners.find((el) => el.name === name);
+    if (event) {
+      event.element.removeEventListener(event.type, event.listener);
+      console.log("Removed unique eventListener from input");
+      // Supprimez l'événement de la liste
+      this.eventListeners = this.eventListeners.filter(
+        (el) => el.name !== name
+      );
+    }
   }
 
   destroy() {
@@ -249,7 +266,10 @@ export default class Account {
                 ? `
               <div class="text-center mb-4">
                 <h2 class="text-capitalize">
-                  ${this.userData.username}
+                  Username : ${this.userData.username}
+                </h2>
+				<h2 class="text-capitalize">
+                  Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
                 </h2>
 				<div id="avatar-main-div">
 				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
