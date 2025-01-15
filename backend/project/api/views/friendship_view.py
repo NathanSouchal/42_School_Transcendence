@@ -62,3 +62,19 @@ class FriendshipListView(APIView):
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class FriendshipByUserView(APIView):
+    permission_classes = [AllowAny]
+	
+    def get(self, request, id=None):
+        try:
+            user = get_object_or_404(User, id=id)
+            sent_friendships = Friendship.objects.filter(from_user=user, accepted=False)
+            received_friendships = Friendship.objects.filter(to_user=user, accepted=False)
+            pending_friendships = sent_friendships | received_friendships.order_by('-created_at')
+            serialized = FriendshipSerializer(pending_friendships, many=True)
+            return Response({'pending_friendships': serialized.data}, status=status.HTTP_200_OK)
+        except Http404:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

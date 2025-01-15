@@ -81,7 +81,8 @@ class StatsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class FriendshipSerializer(serializers.ModelSerializer):
-
+    from_user = SimpleUserSerializer(read_only = True)
+    to_user = SimpleUserSerializer(read_only = True)
     class Meta:
         model = Friendship
         fields = '__all__'

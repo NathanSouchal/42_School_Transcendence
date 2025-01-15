@@ -5,5 +5,5 @@ from .tournament_view import TournamentView, TournamentListView
 from .user_view import UserView, UserListView
 from .stats_view import StatsView
 from .match_history_view import MatchHistoryView
-from .friendship_view import FriendshipView, FriendshipListView
+from .friendship_view import FriendshipView, FriendshipListView, FriendshipByUserView
 from .friends_view import FriendsView
