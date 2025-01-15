@@ -8,13 +8,9 @@ export default class Account {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.userData = {
-      id: 0,
-      is_superuser: false,
-      username: "",
-      avatar: "",
-    };
+    this.userData = {};
     this.lastDeleted = 0;
+    this.isForm = false;
     this.isLoading = true;
     this.isInitialized = false;
     this.isSubscribed = false;
@@ -52,71 +48,105 @@ export default class Account {
     }
   }
 
+  updateView() {
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = this.render();
+    }
+  }
+
   attachEventListeners() {
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
-      avatarInput.addEventListener("change", (e) => {
-        const file = e.target.files[0];
-        handleChangeBound("avatar", file);
-      });
-      this.eventListeners.push({
-        name: "avatar",
-        type: "change",
-        element: avatarInput,
-        listener: handleChangeBound,
-      });
+      if (!this.eventListeners.some((e) => e.name === "avatar")) {
+        avatarInput.addEventListener("change", (e) => {
+          const file = e.target.files[0];
+          handleChangeBound("avatar", file);
+        });
+        this.eventListeners.push({
+          name: "avatar",
+          type: "change",
+          element: avatarInput,
+          listener: handleChangeBound,
+        });
+      }
     }
 
     const updateButton = document.getElementById("update-user-info");
     if (updateButton) {
-      updateButton.addEventListener("click", async () => {
-        console.log("Updating user info...");
-        try {
-          await this.updateUserInfo(this.userData.id);
-          await this.fetchData(this.userData.id);
-          this.removeEventListener("updateUserInfo");
-          const content = `${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}`;
-          const container = document.getElementById("avatar-main-div");
-          if (container) {
-            container.innerHTML = content;
+      if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
+        updateButton.addEventListener("click", async () => {
+          console.log("Updating user info...");
+          try {
+            await this.updateUserInfo(this.userData.id);
+            await this.fetchData(this.userData.id);
+            this.removeEventListener("updateUserInfo");
+            const content = `${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}`;
+            const container = document.getElementById("avatar-main-div");
+            if (container) {
+              container.innerHTML = content;
+            }
+          } catch (error) {
+            console.error(error);
           }
-        } catch (error) {
-          console.error(error);
-        }
-      });
-      this.eventListeners.push({
-        name: "updateUserInfo",
-        type: "click",
-        element: updateButton,
-        listener: this.updateUserInfo.bind(this, this.userData.id),
-      });
-
-      const refreshButton = document.getElementById("refresh-token-button");
-      if (refreshButton) {
-        refreshButton.addEventListener("click", async () => {
-          await this.getNewRefreshToken(this.userData.id);
         });
         this.eventListeners.push({
-          name: "refreshButton",
+          name: "updateUserInfo",
           type: "click",
-          element: refreshButton,
-          listener: this.getNewRefreshToken.bind(this, this.userData.id),
+          element: updateButton,
+          listener: this.updateUserInfo.bind(this, this.userData.id),
         });
+
+        const refreshButton = document.getElementById("refresh-token-button");
+        if (refreshButton) {
+          if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
+            refreshButton.addEventListener("click", async () => {
+              await this.getNewRefreshToken(this.userData.id);
+            });
+            this.eventListeners.push({
+              name: "refreshButton",
+              type: "click",
+              element: refreshButton,
+              listener: this.getNewRefreshToken.bind(this, this.userData.id),
+            });
+          }
+        }
       }
     }
 
     const accessButton = document.getElementById("access-token-button");
     if (accessButton) {
-      accessButton.addEventListener("click", async () => {
-        await this.getNewAccessToken(this.userData.id);
-      });
-      this.eventListeners.push({
-        name: "accessButton",
-        type: "click",
-        element: accessButton,
-        listener: this.getNewAccessToken.bind(this, this.userData.id),
-      });
+      if (!this.eventListeners.some((e) => e.name === "accessButton")) {
+        accessButton.addEventListener("click", async () => {
+          await this.getNewAccessToken(this.userData.id);
+        });
+        this.eventListeners.push({
+          name: "accessButton",
+          type: "click",
+          element: accessButton,
+          listener: this.getNewAccessToken.bind(this, this.userData.id),
+        });
+      }
+    }
+
+    const formButton = document.getElementById("form-button");
+    if (formButton) {
+      // Vérifie si le gestionnaire d'événements a déjà été ajouté
+      if (!this.eventListeners.some((e) => e.name === "formButton")) {
+        formButton.addEventListener("click", async () => {
+          this.isForm = !this.isForm;
+        });
+        this.updateView();
+        this.removeEventListeners();
+        this.attachEventListeners();
+        this.eventListeners.push({
+          name: "formButton",
+          type: "click",
+          element: formButton,
+          listener: this.isForm,
+        });
+      }
     }
   }
 
@@ -262,52 +292,101 @@ export default class Account {
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
             ${
-              hasUsername
+              this.state.isUserLoggedIn
                 ? `
-              <div class="text-center mb-4">
-                <h2 class="text-capitalize">
-                  Username : ${this.userData.username}
-                </h2>
-				<h2 class="text-capitalize">
-                  Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
-                </h2>
-				<div id="avatar-main-div">
-				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+              <div class="text-center mb-4" id="user-info-div">
+			  ${
+          this.isForm
+            ? `<div id="username-main-div">
+				<form id="user-form">
+			 	<div id="avatar-main-div">
+					${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+					<div class="custom-file m-2">
+						<label class="form-label" for="avatar">Avatar</label>
+						<input
+						type="file"
+						class="form-control"
+						name="avatar"
+						id="avatar"
+						/>
+					</div>
 				</div>
-				<div class="custom-file m-2">
-					<label class="form-label" for="avatar">Avatar</label>
+				<div id="username-main-div">
+					<label class="text-capitalize">
+						Username : ${this.userData.username ? `${this.userData.username}` : ""}
+					</label>
 					<input
-					type="file"
+					type="text"
 					class="form-control"
-					placeholder="Enter username"
-					name="avatar"
-					id="avatar"
+					placeholder="Change username"
+					minLength="4"
+					maxLength="10"
+					value="${this.userData.username}"
+					name="username"
+					required
 					/>
+				</div>
+				<div id="alias-main-div">
+					<label class="text-capitalize">
+						Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+					</label>
+					<input
+					type="text"
+					class="form-control"
+					placeholder="Change alias"
+					minLength="4"
+					maxLength="10"
+					value="${this.userData.alias}"
+					name="alias"
+					required
+					/>
+				</div>
 				<button class="btn btn-success m-3" id="update-user-info">
 					Update my info
 				</button>
+				</form>
+              </div>`
+            : `
+			  <div id="user-main-div">
+			 	<div id="avatar-main-div">
+				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
 				</div>
-                <div class="d-flex flex-column align-items-center">
-                  <button
-                    onclick="deleteUser(${this.userData.id})"
-                    class="btn btn-danger mb-2"
-                  >
-                    Delete Account
-                  </button>
-                  <button
-                    class="btn btn-danger mb-2"
+				<div id="username-main-div">
+					<h2 class="text-capitalize">
+					Username : ${this.userData.username ? `${this.userData.username}` : ""}
+					</h2>
+				</div>
+				</div>
+				<div id="alias-main-div">
+					<h2 class="text-capitalize">
+					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+					</h2>
+				</div>
+              </div>`
+        }
+			  <div class="d-flex flex-column align-items-center">
+				<button class="btn btn-success m-3" id="form-button">
+					Change my info
+				</button>
+				<button
+					onclick="deleteUser(${this.userData.id})"
+					class="btn btn-danger mb-2"
+				>
+					Delete Account
+				</button>
+				<button
+					class="btn btn-danger mb-2"
 					id="access-token-button"
-                  >
-                    Get New Access Token
-                  </button>
-                  <button
-                    class="btn btn-danger mb-2"
+				>
+					Get New Access Token
+				</button>
+				<button
+					class="btn btn-danger mb-2"
 					id="refresh-token-button"
-                  >
-                    Get New Refresh Token
-                  </button>
+				>
+					Get New Refresh Token
+				</button>
                 </div>
-              </div>
             `
                 : `
               <div class="text-center">
