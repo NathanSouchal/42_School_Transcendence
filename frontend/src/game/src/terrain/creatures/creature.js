@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import {
   computeBoundsTree,
@@ -32,6 +31,7 @@ export default class Creature {
     this.center = this.getTerrainCenter();
     this.mixer = scene.mixer;
     this.animationAction = scene.animationAction;
+    this.model = scene.model;
   }
 
   getTerrainCenter() {
@@ -45,7 +45,7 @@ export default class Creature {
 
   makeSomeCreatures() {
     this.obj = new THREE.Object3D();
-    this.obj.add(this.scene.model);
+    this.obj.add(this.model);
     this.obj.position.set(0, this.spawn_y, 0);
     this.velocity = this.random_initial_velocity();
     this.obj.rotateY(Math.PI);
