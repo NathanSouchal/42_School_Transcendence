@@ -42,7 +42,6 @@ class UserView(APIView):
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			# print(f"Data: {request.data}")
 			serializer = UserSerializer(user, data=request.data, partial=True)
-			print(f"Avatar value: {request.data.get('avatar')}")
 			if serializer.is_valid():
 				user = serializer.save()
 				return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)

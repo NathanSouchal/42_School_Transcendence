@@ -46,6 +46,7 @@ def file_location(instance, filename, **kwargs):
 class User(AbstractBaseUser, PermissionsMixin):
 	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
+	alias = models.CharField(max_length=100, unique=True, null=True)
 	avatar = models.ImageField(upload_to=file_location, null=True, blank=True)
 	match_history = models.ManyToManyField('api.Game', blank=True, related_name='match_history')
 	is_active = models.BooleanField(default=True)
