@@ -68,15 +68,11 @@ class Game {
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
     );
 
-    await measureFnTime("Arena", "Arena Init", async () => this.arena.init());
+    await this.arena.init();
 
-    await measureFnTime("Paddles", "Left Paddle Init", async () =>
-      this.paddleLeft.init(),
-    );
+    await this.paddleLeft.init();
 
-    await measureFnTime("Paddles", "Right Paddle Init", async () =>
-      this.paddleRight.init(),
-    );
+    await this.paddleRight.init();
 
     this.arena.computeBoundingBoxes(this.scene);
     this.paddleLeft.computeBoundingBoxes(this.scene);
@@ -107,9 +103,9 @@ class Game {
 
     this.sky = new SkyGenerator(this.config.getSkyConfig());
 
-    await measureFnTime("Creatures", "Boids Creation", async () => {
-      this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
-    });
+    // await measureFnTime("Creatures", "Boids Creation", async () => {
+    this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
+    // });
 
     for (let creature of this.boid.creatures) {
       this.scene.add(creature.obj);

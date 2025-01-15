@@ -16,7 +16,7 @@ class MarchingCubes {
   static cornerIndexAFromEdge = cornerIndexAFromEdge;
   static cornerIndexBFromEdge = cornerIndexBFromEdge;
 
-  async march(cells) {
+  march(cells) {
     const points = [];
     const isoLevel = 0.5;
 

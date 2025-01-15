@@ -69,6 +69,7 @@ class Arena {
       loader.load(
         path,
         (gltf) => {
+          this.asset = gltf.scene;
           gltf.scene.scale.set(scale.x, scale.y, scale.z);
           resolve(gltf.scene);
         },

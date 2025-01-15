@@ -20,24 +20,24 @@ class Corrals extends BasicTerrain {
     this.createCorrals();
   }
 
-  async createCorrals() {
+  createCorrals() {
     this.simplex = new SimplexNoise();
     this.marching_cubes = new MarchingCubes(
       this.depth,
       this.width,
       this.height,
     );
-    //await measureFnTime("Terrain", "Make Cells", async () => {
+    // await measureFnTime("Terrain", "Make Cells", async () => {
     this.makeCells();
-    //});
+    // });
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-    //await measureFnTime("Terrain", "Marching Cubes", async () => {
+    // await measureFnTime("Terrain", "Marching Cubes", async () => {
     this.geometry = this.marching_cubes.march(this.cells);
-    //});
+    // });
 
     const material = new THREE.MeshLambertMaterial({
       vertexColors: true,
