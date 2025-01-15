@@ -81,8 +81,34 @@ class StatsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    from_user = SimpleUserSerializer(read_only = True)
-    to_user = SimpleUserSerializer(read_only = True)
+    from_user = serializers.SerializerMethodField()
+    to_user = serializers.SerializerMethodField()
+
     class Meta:
         model = Friendship
         fields = '__all__'
+
+    def get_from_user(self, obj):
+        request = self.context.get('request')
+        if request and request.method == 'GET':
+            # Pour GET, utilisez un sérialiseur pour retourner les détails
+            return SimpleUserSerializer(obj.from_user).data
+        else:
+            # Pour POST, retournez l'ID uniquement
+            return obj.from_user.id
+
+    def get_to_user(self, obj):
+        request = self.context.get('request')
+        if request and request.method == 'GET':
+            # Pour GET, utilisez un sérialiseur pour retourner les détails
+            return SimpleUserSerializer(obj.to_user).data
+        else:
+            # Pour POST, retournez l'ID uniquement
+            return obj.to_user.id
+
+"""
+Dans Django REST Framework, le sérialiseur appelle automatiquement les 
+méthodes nommées selon le schéma get_<field_name> lorsque vous utilisez 
+un champ de type SerializerMethodField. Cela se produit lors de la sérialisation 
+des données.
+"""

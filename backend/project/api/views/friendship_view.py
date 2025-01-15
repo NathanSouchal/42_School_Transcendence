@@ -18,7 +18,7 @@ class FriendshipView(APIView):
             # if not request.user.is_superuser:
             # 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             friendship = get_object_or_404(Friendship, id=id)
-            serialized = FriendshipSerializer(friendship)
+            serialized = FriendshipSerializer(friendship, context={'request': request})
             return Response({'stats': serialized.data}, status=status.HTTP_200_OK)
         except Http404:
             return Response({'error': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -32,14 +32,14 @@ class FriendshipView(APIView):
 			# if not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             friendship = get_object_or_404(Friendship, id=id)
-            serialized = FriendshipSerializer(friendship, data=request.data, partial=True)
+            serialized = FriendshipSerializer(friendship, data=request.data, context={'request': request}, partial=True)
             if serialized.is_valid():
                 if serialized.validated_data['accepted'] is True:
                     friendship.accept()
-                    return Response({'friendship': FriendshipSerializer(friendship).data, 'message': f'friendship with id {id} has been accepted.'}, status=status.HTTP_200_OK)
+                    return Response({'friendship': FriendshipSerializer(friendship, context={'request': request}).data, 'message': f'friendship with id {id} has been accepted.'}, status=status.HTTP_200_OK)
                 else :
                     friendship.decline()
-                    return Response({'friendship': FriendshipSerializer(friendship).data, 'message': f'friendship with id {id} has been declined.'}, status=status.HTTP_200_OK)
+                    return Response({'friendship': FriendshipSerializer(friendship, context={'request': request}).data, 'message': f'friendship with id {id} has been declined.'}, status=status.HTTP_200_OK)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
             return Response({'error': 'Friendship not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -53,10 +53,10 @@ class FriendshipListView(APIView):
 
     def post(self, request):
         try:
-            serialized = FriendshipSerializer(data=request.data)
+            serialized = FriendshipSerializer(data=request.data, context={'request': request})
             if serialized.is_valid():
                 friendship = serialized.save()
-                return Response({'friendship': FriendshipSerializer(friendship).data, 'message': 'Friendship created successfully.'}, status=status.HTTP_201_CREATED)
+                return Response({'friendship': FriendshipSerializer(friendship, context={'request': request}).data, 'message': 'Friendship created successfully.'}, status=status.HTTP_201_CREATED)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -72,7 +72,7 @@ class FriendshipByUserView(APIView):
             sent_friendships = Friendship.objects.filter(from_user=user, accepted=False)
             received_friendships = Friendship.objects.filter(to_user=user, accepted=False)
             pending_friendships = sent_friendships | received_friendships.order_by('-created_at')
-            serialized = FriendshipSerializer(pending_friendships, many=True)
+            serialized = FriendshipSerializer(pending_friendships, context={'request': request}, many=True)
             return Response({'pending_friendships': serialized.data}, status=status.HTTP_200_OK)
         except Http404:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
