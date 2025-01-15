@@ -38,9 +38,14 @@ class UserManager(BaseUserManager):
 		extra_fields.setdefault('is_superuser', True)
 		return self.create_user(username, password, **extra_fields)
 
+def file_location(instance, filename, **kwargs):
+	file_path = f"{instance.username}/avatar-{filename}"
+	return file_path
+
 class User(AbstractBaseUser, PermissionsMixin):
 	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
+	avatar = models.ImageField(upload_to=file_location, null=True, blank=True)
 	match_history = models.ManyToManyField('api.Game', blank=True, related_name='match_history')
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
