@@ -52,6 +52,8 @@ export default class Account {
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = this.render();
+      this.removeEventListeners();
+      this.attachEventListeners();
     }
   }
 
@@ -136,10 +138,8 @@ export default class Account {
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
         formButton.addEventListener("click", async () => {
           this.isForm = !this.isForm;
+          this.updateView();
         });
-        this.updateView();
-        this.removeEventListeners();
-        this.attachEventListeners();
         this.eventListeners.push({
           name: "formButton",
           type: "click",
