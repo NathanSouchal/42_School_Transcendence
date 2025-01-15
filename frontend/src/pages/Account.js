@@ -62,7 +62,7 @@ export default class Account {
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", async (e) => {
+        avatarInput.addEventListener("change", (e) => {
           const file = e.target.files[0];
           handleChangeBound("avatar", file);
         });
@@ -82,6 +82,9 @@ export default class Account {
         updateButton.addEventListener("click", async () => {
           console.log("Updating user info...");
           try {
+            //HERE
+            //put new html for alias + check if works
+            console.log(this.userData.alias ? "CCCC" : "AAAA");
             await this.updateUserInfo(this.userData.id);
             await this.fetchData(this.userData.id);
             handleChangeBound("update-user-info", "");
@@ -143,7 +146,7 @@ export default class Account {
       const handleChangeBound = this.handleChange.bind(this);
       // Vérifie si le gestionnaire d'événements a déjà été ajouté
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", async () => {
+        formButton.addEventListener("click", () => {
           handleChangeBound("form-button", "");
         });
         this.eventListeners.push({
@@ -205,7 +208,7 @@ export default class Account {
     try {
       const res = await axios.put(
         `https://localhost:8000/user/${id}/`,
-        { avatar: `${this.userData.avatar}` },
+        this.userData,
         {
           withCredentials: true,
         }
