@@ -8,10 +8,10 @@ import SimplexNoise from "https://cdn.skypack.dev/simplex-noise@3.0.0";
 import {
   computeBoundsTree,
   disposeBoundsTree,
-  computeBatchedBoundsTree,
-  disposeBatchedBoundsTree,
   acceleratedRaycast,
 } from "three-mesh-bvh";
+
+import { measureFnTime } from "../../../performance_utils";
 
 class Corrals extends BasicTerrain {
   constructor(size, world) {
@@ -20,21 +20,24 @@ class Corrals extends BasicTerrain {
     this.createCorrals();
   }
 
-  createCorrals() {
+  async createCorrals() {
     this.simplex = new SimplexNoise();
     this.marching_cubes = new MarchingCubes(
       this.depth,
       this.width,
       this.height,
     );
-
+    //await measureFnTime("Terrain", "Make Cells", async () => {
     this.makeCells();
-    //this.makeGUI();
+    //});
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+    //await measureFnTime("Terrain", "Marching Cubes", async () => {
     this.geometry = this.marching_cubes.march(this.cells);
+    //});
 
     const material = new THREE.MeshLambertMaterial({
       vertexColors: true,
@@ -179,59 +182,6 @@ class Corrals extends BasicTerrain {
     Cellular.add(cellularConfig, "step").name("Step");
     Cellular.open();
   }
-
-  //cubesVue() {
-  //  const existingInstancedMeshes = this.obj.children.filter(
-  //    (child) => child instanceof THREE.InstancedMesh,
-  //  );
-  //  existingInstancedMeshes.forEach((mesh) => {
-  //    this.obj.remove(mesh);
-  //    mesh.dispose();
-  //  });
-  //
-  //  let i = 0;
-  //  const matrices = [];
-  //  const positions = [];
-  //  const geometry = new THREE.BoxGeometry(1, 1, 1);
-  //  const material = new THREE.MeshLambertMaterial();
-  //
-  //  for (let z = 0; z < this.depth; z++) {
-  //    for (let y = 0; y < this.height; y++) {
-  //      for (let x = 0; x < this.width; x++) {
-  //        if (this.cells[z][y][x].w >= 0.5) {
-  //          positions[i] = x - this.width / 2;
-  //          positions[i + 1] = y - this.height / 2;
-  //          positions[i + 2] = z - this.depth / 2;
-  //          let matrix = new THREE.Matrix4();
-  //          matrix.makeTranslation(
-  //            x - this.width / 2,
-  //            y - this.height / 2,
-  //            z - this.depth / 2,
-  //          );
-  //          matrices.push(matrix);
-  //          i += 3;
-  //        }
-  //      }
-  //    }
-  //  }
-  //  if (matrices.length > 0) {
-  //    const instancedMesh = new THREE.InstancedMesh(
-  //      geometry,
-  //      material,
-  //      matrices.length,
-  //    );
-  //    instancedMesh.receiveShadow = true;
-  //    instancedMesh.castShadow = true;
-  //    for (let j = 0; j < matrices.length; j++) {
-  //      instancedMesh.setMatrixAt(j, matrices[j]);
-  //    }
-  //    instancedMesh.instanceMatrix.needsUpdate = true;
-  //    this.cubes = new THREE.Object3D();
-  //    this.cubes.add(instancedMesh);
-  //    //this.obj.add(instancedMesh);
-  //  }
-  //  this.cubes.position.set(-10, 0, -15);
-  //}
 }
 
 export default Corrals;
