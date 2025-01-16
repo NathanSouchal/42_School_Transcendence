@@ -20,12 +20,12 @@ class Arena {
   async init() {
     try {
       const raftModel = await this.loadModel(
-        "src/game/assets/raft/scene.gltf",
+        "src/game/assets/raft.glb",
         new THREE.Vector3(11, 10, 10),
       );
       this.raft.add(raftModel);
       const barrel = await this.loadModel(
-        "src/game/assets/barril/scene.gltf",
+        "src/game/assets/barril.glb",
         new THREE.Vector3(3, 3, 3),
       );
       this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");

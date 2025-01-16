@@ -9,7 +9,7 @@ class JellyFish extends Creature {
     this.min_speed = -0.2;
     this.spawn_y = -10;
     this.max_y = -5;
-    this.path = "src/game/assets/jellyfish/scene.gltf";
+    this.path = "src/game/assets/jellyfish.glb";
     this.scale = { x: 4, y: 4, z: 4 };
     this.makeSomeCreatures();
   }
@@ -23,7 +23,7 @@ class Fish extends Creature {
     this.min_speed = -0.3;
     this.spawn_y = -5;
     this.max_y = -1;
-    this.path = "src/game/assets/guppy_fish/scene.gltf";
+    this.path = "src/game/assets/guppy_fish.glb";
     this.scale = { x: 0.5, y: 0.5, z: 0.5 };
     this.makeSomeCreatures();
   }
