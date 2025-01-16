@@ -118,11 +118,11 @@ class Game {
       this.config.getCameraConfig(),
     );
 
-    window.addEventListener("resize", () => {
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.camera.aspect = window.innerWidth / window.innerHeight;
-      this.camera.updateProjectionMatrix();
-    });
+    // window.addEventListener("resize", () => {
+    //   this.renderer.setSize(window.innerWidth, window.innerHeight);
+    //   this.camera.aspect = window.innerWidth / window.innerHeight;
+    //   this.camera.updateProjectionMatrix();
+    // });
 
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
     this.renderer.shadowMap.enabled = true;

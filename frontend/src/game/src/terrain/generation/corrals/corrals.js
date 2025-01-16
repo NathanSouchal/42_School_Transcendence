@@ -101,11 +101,11 @@ class Corrals extends BasicTerrain {
     const mapWidth = this.width;
     const mapDepth = this.depth;
     const borderFactorX = Math.pow(
-      Math.min(x, mapWidth - x) / (mapWidth / 2),
+      Math.min(x, mapWidth - x) / (mapWidth * 0.5),
       0.5,
     );
     const borderFactorZ = Math.pow(
-      Math.min(z, mapDepth - z) / (mapDepth / 2),
+      Math.min(z, mapDepth - z) / (mapDepth * 0.5),
       0.5,
     );
     const borderFactor = Math.min(borderFactorX, borderFactorZ);
@@ -116,67 +116,6 @@ class Corrals extends BasicTerrain {
     if (y == 0) weight = 1;
     if (y == -this.height - 100) weight = 1;
     return weight;
-  }
-
-  // cellularAutomaton() {
-  //   const nextState = Array.from({ length: this.depth }, () =>
-  //     Array.from({ length: this.height }, () =>
-  //       Array.from({ length: this.width }, () => new Cell()),
-  //     ),
-  //   );
-  //
-  //   for (let z = 0; z < this.depth; z++) {
-  //     for (let y = 0; y < this.height; y++) {
-  //       for (let x = 0; x < this.width; x++) {
-  //         let res = { count: 0, checkBorders: true };
-  //         this.countNeighbors(z, y, x, res);
-  //         if (res.count < 13) {
-  //           nextState[z][y][x].w = Math.min(1, this.cells[z][y][x].w + 0.05);
-  //         } else if (res.count == 13) {
-  //           nextState[z][y][x].w = this.cells[z][y][x].w;
-  //         } else if (res.count > 13) {
-  //           nextState[z][y][x].w = Math.max(0, this.cells[z][y][x].w - 0.05);
-  //         }
-  //       }
-  //     }
-  //   }
-  //   this.cells = nextState;
-  // }
-
-  countNeighbors(cellZ, cellY, cellX, res) {
-    let count = 0;
-    for (let z = cellZ - 1; z <= cellZ + 1; z++) {
-      for (let y = cellY - 1; y <= cellY + 1; y++) {
-        for (let x = cellX - 1; x <= cellX + 1; x++) {
-          if (z !== cellZ || x !== cellX || y !== cellY) {
-            if (
-              z >= 0 &&
-              z < this.depth &&
-              y >= 0 &&
-              y < this.height &&
-              x >= 0 &&
-              x < this.width
-            ) {
-              count++;
-            }
-          }
-        }
-      }
-    }
-    res.count = count;
-  }
-
-  makeGUI() {
-    const gui = new GUI();
-    const Cellular = gui.addFolder("Cellular Automata");
-    const cellularConfig = {
-      step: () => {
-        this.cellularAutomaton();
-        this.marching_cubes.march(this.cells);
-      },
-    };
-    Cellular.add(cellularConfig, "step").name("Step");
-    Cellular.open();
   }
 }
 
