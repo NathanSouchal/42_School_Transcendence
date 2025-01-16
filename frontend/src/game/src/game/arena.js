@@ -65,22 +65,7 @@ class Arena {
 
   loadModel(path, scale) {
     return new Promise((resolve, reject) => {
-      const loadingManager = new THREE.LoadingManager();
-
-      loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
-        console.log(
-          `Started loading: ${url}. Loaded ${itemsLoaded} of ${itemsTotal} files.`,
-        );
-      };
-
-      loadingManager.onLoad = () => {
-        console.log("All assets are loaded!");
-      };
-
-      loadingManager.onError = (url) => {
-        console.error(`There was an error loading: ${url}`);
-      };
-      const loader = new GLTFLoader(loadingManager);
+      const loader = new GLTFLoader();
       loader.load(
         path,
         (gltf) => {

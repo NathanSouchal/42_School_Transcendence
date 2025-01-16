@@ -11,8 +11,10 @@ import SkyGenerator from "./terrain/sky.js";
 import FishFactory from "./terrain/creatures/FishFactory.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";
-import EventHandler from "./events/event_handler.js";
-import { measureFnTime, printPerformanceReport } from "./performance_utils.js";
+import {
+  updateLoadingTime,
+  printPerformanceReport,
+} from "./performance_utils.js";
 
 class Game {
   constructor() {
@@ -31,6 +33,7 @@ class Game {
     init_light(this.scene);
 
     this.state = state;
+    this.state.setGameHasLoaded(false);
     this.handleStateChange = this.handleStateChange.bind(this);
 
     this.players = state.players;
@@ -45,24 +48,27 @@ class Game {
     this.arena = new Arena(this.config.getSize());
     // await Arena.initialized;
 
-    this.paddleLeft = await measureFnTime(
+    this.paddleLeft = await updateLoadingTime(
       "Paddles",
       "Left Paddle Creation",
       async () =>
         new Paddle(this.arena, "left", this.players.left, this.config),
+      10,
     );
 
-    this.paddleRight = await measureFnTime(
+    this.paddleRight = await updateLoadingTime(
       "Paddles",
       "Right Paddle Creation",
       async () =>
         new Paddle(this.arena, "right", this.players.right, this.config),
+      10,
     );
 
-    this.ball = await measureFnTime(
+    this.ball = await updateLoadingTime(
       "Ball",
       "Ball Creation",
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
+      5,
     );
 
     await this.arena.initialized;
@@ -117,7 +123,6 @@ class Game {
       this.arena.obj,
       this.config.getCameraConfig(),
     );
-
     // window.addEventListener("resize", () => {
     //   this.renderer.setSize(window.innerWidth, window.innerHeight);
     //   this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -147,8 +152,9 @@ class Game {
       game,
     );
     this.rendererInstance.animate();
+    this.state.setGameHasLoaded(true);
 
-    printPerformanceReport();
+    // printPerformanceReport();
   }
 }
 

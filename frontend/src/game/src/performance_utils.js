@@ -1,9 +1,11 @@
+import state from "../../app.js";
+
 class PerformanceTracker {
   constructor() {
     this.stats = {};
   }
 
-  async measureFnTime(category, name, fn) {
+  async updateLoadingTime(category, name, fn, loadValue = 10) {
     const start = performance.now();
     const result = await fn();
     const end = performance.now();
@@ -13,7 +15,9 @@ class PerformanceTracker {
       this.stats[category] = {};
     }
     this.stats[category][name] = time;
-    //console.log(`${category} > ${name}: ${time.toFixed(2)}ms`);
+
+    state.state.gameLoadingPercentage += loadValue;
+    console.log(`Loading: ${state.state.gameLoadingPercentage}`);
     return result;
   }
 
@@ -46,10 +50,9 @@ class PerformanceTracker {
     this.stats = {};
   }
 }
-
 export const performanceTracker = new PerformanceTracker();
 
-export const measureFnTime =
-  performanceTracker.measureFnTime.bind(performanceTracker);
+export const updateLoadingTime =
+  performanceTracker.updateLoadingTime.bind(performanceTracker);
 export const printPerformanceReport =
   performanceTracker.printPerformanceReport.bind(performanceTracker);

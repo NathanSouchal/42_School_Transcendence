@@ -4,7 +4,7 @@ import Cell from "./cell";
 import MarchingCubes from "./marchingCubes";
 import BasicTerrain from "../basic_terrain";
 import SimplexNoise from "https://cdn.skypack.dev/simplex-noise@3.0.0";
-import { measureFnTime } from "../../../performance_utils";
+import { updateLoadingTime } from "../../../performance_utils";
 
 import {
   computeBoundsTree,
@@ -26,17 +26,25 @@ class Corrals extends BasicTerrain {
       this.width,
       this.height,
     );
-    await measureFnTime("Terrain", "Make Cells", async () => {
-      this.makeCells();
-    });
+    await updateLoadingTime(
+      "Terrain",
+      "Make Cells",
+      async () => this.makeCells(),
+      30,
+    );
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-    await measureFnTime("Terrain", "Marching Cubes", async () => {
-      this.geometry = this.marching_cubes.march(this.cells);
-    });
+    await updateLoadingTime(
+      "Terrain",
+      "Marching Cubes",
+      async () => {
+        this.geometry = this.marching_cubes.march(this.cells);
+      },
+      30,
+    );
 
     const material = new THREE.MeshLambertMaterial({
       vertexColors: true,

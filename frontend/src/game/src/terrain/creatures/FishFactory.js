@@ -2,6 +2,7 @@ import Creature from "./creature.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import * as THREE from "three";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
+import { updateLoadingTime } from "../../performance_utils.js";
 
 class FishFactory {
   constructor(terrain_geometry, terrain_obj) {
@@ -11,8 +12,18 @@ class FishFactory {
 
   async initialize(terrain_geometry, terrain_obj) {
     try {
-      await this.loadObjects();
-      await this.init(terrain_geometry, terrain_obj);
+      await updateLoadingTime(
+        "Terrain",
+        "Fish1",
+        async () => this.loadObjects(),
+        7,
+      );
+      await updateLoadingTime(
+        "Terrain",
+        "Fish2",
+        async () => this.init(terrain_geometry, terrain_obj),
+        8,
+      );
     } catch (error) {
       console.error("Error initializing FishFactory:", error);
     }

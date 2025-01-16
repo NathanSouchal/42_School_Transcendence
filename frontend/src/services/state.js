@@ -9,6 +9,8 @@ export default class State {
       PVRgameStarted: false,
       gameStarted: false,
       gameModeHasChanged: false,
+      gameHasLoaded: false,
+      gameLoadingPercentage: 0,
     };
 
     this.player_types = {
@@ -38,6 +40,11 @@ export default class State {
   updateData(newData) {
     this.data = { ...this.data, ...newData };
     this.notifyListeners();
+  }
+
+  setGameHasLoaded(bool) {
+    this.state.gameHasLoaded = bool;
+    console.log(`${this.state.gameHasLoaded}`);
   }
 
   setIsGamePage(isGamePage) {
