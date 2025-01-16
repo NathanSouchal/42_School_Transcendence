@@ -62,9 +62,9 @@ export default class Account {
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", (e) => {
+        avatarInput.addEventListener("change", async (e) => {
           const file = e.target.files[0];
-          handleChangeBound("avatar", file);
+          await handleChangeBound("avatar", file);
         });
         this.eventListeners.push({
           name: "avatar",
@@ -80,23 +80,7 @@ export default class Account {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
         updateButton.addEventListener("click", async () => {
-          console.log("Updating user info...");
-          try {
-            //HERE
-            //put new html for alias + check if works
-            console.log(this.userData.alias ? "CCCC" : "AAAA");
-            await this.updateUserInfo(this.userData.id);
-            await this.fetchData(this.userData.id);
-            handleChangeBound("update-user-info", "");
-            this.removeEventListener("updateUserInfo");
-            const content = `${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}`;
-            const container = document.getElementById("avatar-main-div");
-            if (container) {
-              container.innerHTML = content;
-            }
-          } catch (error) {
-            console.error(error);
-          }
+          await handleChangeBound("update-user-info", "");
         });
         this.eventListeners.push({
           name: "updateUserInfo",
@@ -112,8 +96,7 @@ export default class Account {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
         refreshButton.addEventListener("click", async () => {
-          await this.getNewRefreshToken(this.userData.id);
-          handleChangeBound("refresh-token-button", "");
+          await handleChangeBound("refresh-token-button", "");
         });
         this.eventListeners.push({
           name: "refreshButton",
@@ -127,11 +110,12 @@ export default class Account {
     const accessButton = document.getElementById("access-token-button");
     if (accessButton) {
       const handleChangeBound = this.handleChange.bind(this);
+      console.log("checking if accessButton object exists");
       if (!this.eventListeners.some((e) => e.name === "accessButton")) {
         accessButton.addEventListener("click", async () => {
-          await this.getNewAccessToken(this.userData.id);
-          handleChangeBound("access-token-button", "");
+          await handleChangeBound("access-token-button", "");
         });
+        console.log("pushing accessButton object");
         this.eventListeners.push({
           name: "accessButton",
           type: "click",
@@ -146,8 +130,8 @@ export default class Account {
       const handleChangeBound = this.handleChange.bind(this);
       // Vérifie si le gestionnaire d'événements a déjà été ajouté
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", () => {
-          handleChangeBound("form-button", "");
+        formButton.addEventListener("click", async () => {
+          await handleChangeBound("form-button", "");
         });
         this.eventListeners.push({
           name: "formButton",
@@ -157,6 +141,20 @@ export default class Account {
         });
       }
     }
+
+    const inputs = document.querySelectorAll("input");
+    inputs.forEach((input) => {
+      const handleChangeInputBound = this.handleChangeInput.bind(this);
+      input.addEventListener("input", (e) => {
+        handleChangeInputBound(e.target.name, e.target.value, e.target);
+      });
+      this.eventListeners.push({
+        name: input.name,
+        type: "input",
+        element: input,
+        listener: handleChangeInputBound,
+      });
+    });
   }
 
   handleStateChange(newState) {
@@ -169,7 +167,12 @@ export default class Account {
     }
   }
 
-  handleChange(key, value) {
+  handleChangeInput(key, value, inputElement) {
+    this.userData[key] = value;
+    console.log(this.userData.alias);
+  }
+
+  async handleChange(key, value) {
     console.log("handlechange");
     if (key == "avatar") {
       const fileInput = value;
@@ -185,6 +188,29 @@ export default class Account {
     } else if (key == "form-button") {
       this.isForm = !this.isForm;
       this.updateView();
+    } else if (key == "update-user-info") {
+      try {
+        const promise1 = this.updateUserInfo(this.userData.id);
+        const promise2 = this.fetchData(this.userData.id);
+        await Promise.all([promise1, promise2]);
+        this.isForm = !this.isForm;
+        alert("aaaah");
+        this.updateView();
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (key == "refresh-token-button") {
+      try {
+        await this.getNewRefreshToken(this.userData.id);
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (key == "access-token-button") {
+      try {
+        await this.getNewAccessToken(this.userData.id);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
@@ -206,9 +232,10 @@ export default class Account {
 
   async updateUserInfo(id) {
     try {
+      console.log("ALIAS" + `${this.userData.alias}`);
       const res = await axios.put(
         `https://localhost:8000/user/${id}/`,
-        this.userData,
+        JSON.stringify(this.userData),
         {
           withCredentials: true,
         }
@@ -309,7 +336,7 @@ export default class Account {
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
-            ? `<div id="username-main-div">
+            ? `<div id="user-main-div">
 				<form id="user-form">
 			 	<div id="avatar-main-div">
 					${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
