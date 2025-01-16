@@ -47,10 +47,10 @@ class PaddleControls {
   update(deltaTime, ballX) {
     if (this.controls.keyboardControl) {
       if (this.state.bottom) {
-        this.paddle.obj.position.x -= this.controls.movementSpeed;
+        this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
       }
       if (this.state.top) {
-        this.paddle.obj.position.x += this.controls.movementSpeed;
+        this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
       }
       this.constrainPaddlePosition();
     }

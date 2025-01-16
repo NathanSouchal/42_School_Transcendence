@@ -81,25 +81,6 @@ class Arena {
       );
     });
   }
-
-  update(deltaTime, speedRatio) {
-    this.elapsedTime += deltaTime;
-    this.prevSpeedRatio += (speedRatio - this.prevSpeedRatio) * this.lerpFactor;
-
-    const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    this.obj.rotation.z = rockingAngle;
-    //const ballPosition = new THREE.Vector3(
-    //  this.ball.position.x,
-    //  this.ball.position.y,
-    //  this.ball.position.z,
-    //);
-    //ballPosition.applyAxisAngle(
-    //  new THREE.Vector3(0, 0, 1),
-    //  rockingAngle - this.ball.rotation.z,
-    //);
-    //this.ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
-    //this.ball.rotation.z = rockingAngle;
-  }
 }
 
 export default Arena;

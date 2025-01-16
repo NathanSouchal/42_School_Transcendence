@@ -16,6 +16,7 @@ export default class Creature {
     this.turnSpeed = 0.05;
     this.currentTurnTarget = null;
     this.isTurning = false;
+    this.deltaFactor = 30;
     this.width = 180;
     this.height = 100;
     this.depth = 180;
@@ -85,7 +86,10 @@ export default class Creature {
       ) {
         this.directionChange();
       }
-      this.obj.position.add(this.velocity);
+      const newVel = this.velocity
+        .clone()
+        .multiplyScalar(deltaTime * this.deltaFactor);
+      this.obj.position.add(newVel);
     }
     if (this.mixer) {
       this.mixer.update(deltaTime);

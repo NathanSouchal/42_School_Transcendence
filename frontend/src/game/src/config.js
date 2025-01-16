@@ -3,7 +3,7 @@ import { deepMerge } from "./utils.js";
 export const DEFAULT_CONFIG = {
   paddle: {
     left: {
-      movementSpeed: 0.5,
+      deltaFactor: 30,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
@@ -12,7 +12,7 @@ export const DEFAULT_CONFIG = {
       },
     },
     right: {
-      movementSpeed: 0.5,
+      deltaFactor: 30,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
@@ -45,9 +45,10 @@ export const DEFAULT_CONFIG = {
 
   ball: {
     speed: {
-      initialMin: 0.2,
-      initialMax: 0.4,
-      max: 1.2,
+      deltaFactor: 30,
+      initialMin: 0.5,
+      initialMax: 0.6,
+      max: 1.5,
       incrementFactor: 1.03,
     },
     color: 0x938a8f,

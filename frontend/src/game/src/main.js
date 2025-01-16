@@ -70,6 +70,13 @@ class Game {
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
       5,
     );
+    this.pivot = new THREE.Group();
+    this.pivot.add(
+      this.arena.obj,
+      this.ball.obj,
+      this.paddleLeft.obj,
+      this.paddleRight.obj,
+    );
 
     await this.arena.initialized;
     await this.paddleLeft.init();
@@ -85,27 +92,23 @@ class Game {
     this.scene.add(this.paddleLeft.obj);
     this.scene.add(this.ball.obj);
     this.scene.add(this.ball.sparks.group);
+    this.scene.add(this.pivot);
   }
 
   async makeTerrain() {
     this.terrainFactory = new TerrainFactory();
-
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
       this.config.getGenerationConfig("corrals"),
     );
     await this.terrain.initialized;
-
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
       this.config.getGenerationConfig("sea"),
     );
-
     this.sky = new SkyGenerator(this.config.getSkyConfig());
-
     this.fishFactory = new FishFactory(this.terrain.geometry, this.terrain.obj);
     await this.fishFactory.initialized;
-
     for (let creature of this.fishFactory.creatures) {
       this.scene.add(creature.obj);
     }
@@ -123,11 +126,6 @@ class Game {
       this.arena.obj,
       this.config.getCameraConfig(),
     );
-    // window.addEventListener("resize", () => {
-    //   this.renderer.setSize(window.innerWidth, window.innerHeight);
-    //   this.camera.aspect = window.innerWidth / window.innerHeight;
-    //   this.camera.updateProjectionMatrix();
-    // });
 
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
     this.renderer.shadowMap.enabled = true;
@@ -143,6 +141,7 @@ class Game {
       sea: this.sea,
       fishFactory: this.fishFactory,
       players: this.players,
+      pivot: this.pivot,
     };
 
     this.rendererInstance = new Renderer(
@@ -153,8 +152,6 @@ class Game {
     );
     this.rendererInstance.animate();
     this.state.setGameHasLoaded(true);
-
-    // printPerformanceReport();
   }
 }
 
