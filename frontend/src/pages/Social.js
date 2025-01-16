@@ -8,6 +8,7 @@ export default class Social {
         this.isInitialized = false;
         this.friends = {};
         this.invitations = {};
+        this.eventListeners = [];
     }
 
     async initialize() {
@@ -46,7 +47,7 @@ export default class Social {
           this.friends = data;
           console.log(
             "Friends: " +
-              Object.entries(this.matchHistory).map(([key, value]) => `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`)
+              Object.entries(this.friends).map(([key, value]) => `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`)
           );
         } catch (error) {
           console.error(error);
@@ -60,7 +61,7 @@ export default class Social {
           this.invitations = data;
           console.log(
             "Invitations: " +
-              Object.entries(this.matchHistory).map(([key, value]) => `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`)
+              Object.entries(this.invitations).map(([key, value]) => `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`)
           );
         } catch (error) {
           console.error(error);
@@ -69,6 +70,66 @@ export default class Social {
     
       destroy() {}
     
+      attachEventListeners(){
+
+        const validate_button = document.getElementById("validate_invit");
+        if (validate_button) {
+          const validate_btn_fctn = this.validate_btn_fctn.bind(this);
+          if (!this.eventListeners.some((e) => e.name === "validate_invit")) {
+            validate_button.addEventListener("click", async (e) => {
+              await validate_btn_fctn(e.target.value);
+            })
+          }
+          this.eventListeners.push({
+            name: "validate_invit",
+            type: "click",
+            element: validate_button,
+            listener: validate_btn_fctn,
+          })
+        }
+
+        const cancel_button = document.getElementById("cancel_decline_invit");
+        if (cancel_button) {
+          const cancel_btn_fctn = this.cancel_btn_fctn.bind(this);
+          if (!this.eventListeners.some((e) => e.name === "cancel_decline_invit")) {
+            cancel_button.addEventListener("click", async (e) => {
+              await cancel_btn_fctn(e.target.value);
+            })
+          }
+          this.eventListeners.push({
+            name: "cancel_decline_invit",
+            type: "click",
+            element: cancel_button,
+            listener: cancel_btn_fctn,
+          })
+        }
+      }
+
+      async validate_btn_fctn(invit_id) {
+        console.log(invit_id);
+        await this.validate_invit_request(invit_id);
+      }
+
+      async validate_invit_request(invit_id) {
+        const res = await axios.put(
+          `https://localhost:8000/friendship/${invit_id}/`,
+          {accepted: "true"},
+        )
+      }
+
+      async cancel_btn_fctn(invit_id) {
+        console.log(invit_id);
+        await this.cancel_invit_request(invit_id);
+      }
+
+      async cancel_invit_request(invit_id) {
+        const res = await axios.put(
+          `https://localhost:8000/friendship/${invit_id}/`,
+          {accepted: "false"},
+        )
+      }
+
+
       render(userId) {
         if (this.friends && this.invitations) {
             return `<div class="d-flex flex-column m-5">
@@ -100,9 +161,9 @@ export default class Social {
                                     `
                                     :`
                                     <h3>From ${value.from_user.username}</h3>
-                                    <button class="btn border-0 bg-transparent text-danger">X</button>
+                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
                                     `}
-                                    <button class="btn border-0 bg-transparent text-danger">X</button>
+                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
                                 </div>`)
                             .join("")}`
                           : `

@@ -81,34 +81,48 @@ class StatsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    from_user = serializers.SerializerMethodField()
-    to_user = serializers.SerializerMethodField()
-
     class Meta:
         model = Friendship
         fields = '__all__'
 
-    def get_from_user(self, obj):
-        request = self.context.get('request')
-        if request and request.method == 'GET':
-            # Pour GET, utilisez un sérialiseur pour retourner les détails
-            return SimpleUserSerializer(obj.from_user).data
-        else:
-            # Pour POST, retournez l'ID uniquement
-            return obj.from_user.id
+    def to_representation(self, instance):
+        """
+        Cette méthode est utilisée pour la sérialisation (GET).
+        Elle retourne les détails utilisateur plutôt que leurs IDs.
+        """
+        data = super().to_representation(instance)
+        data['from_user'] = SimpleUserSerializer(instance.from_user).data
+        data['to_user'] = SimpleUserSerializer(instance.to_user).data
+        return data
 
-    def get_to_user(self, obj):
-        request = self.context.get('request')
-        if request and request.method == 'GET':
-            # Pour GET, utilisez un sérialiseur pour retourner les détails
-            return SimpleUserSerializer(obj.to_user).data
-        else:
-            # Pour POST, retournez l'ID uniquement
-            return obj.to_user.id
+    def create(self, validated_data):
+        """
+        Cette méthode est utilisée pour la désérialisation (POST).
+        Elle accepte uniquement les IDs des utilisateurs.
+        """
+        from_user = validated_data.pop('from_user')
+        to_user = validated_data.pop('to_user')
+        if from_user == to_user:
+            raise serializers.ValidationError(
+                {"to_user": "You cannot send a friendship request to yourself."}
+            )
+        if Friendship.objects.filter(from_user=to_user, to_user=from_user, accepted=False).exists():
+            raise serializers.ValidationError(
+                {"to_user": "This user has already sent you a friendship request. Accept it instead."}
+            )
+        if from_user.friends.filter(id=to_user.id).exists():
+            raise serializers.ValidationError(
+                {"to_user": "You are already friends with this user."}
+            )
+        return Friendship.objects.create(from_user=from_user, to_user=to_user, **validated_data)
+
 
 """
-Dans Django REST Framework, le sérialiseur appelle automatiquement les 
-méthodes nommées selon le schéma get_<field_name> lorsque vous utilisez 
-un champ de type SerializerMethodField. Cela se produit lors de la sérialisation 
-des données.
+Pourquoi extraire from_user et to_user avec .pop()  ?
+
+Les champs comme from_user et to_user sont des relations ForeignKey, 
+et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode Friendship.objects.create().
+En les extrayant avec .pop(), nous préparons ces champs pour les utiliser comme arguments distincts lors de la création.
+Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à Friendship.objects.create(), 
+Django essaiera de traiter from_user et to_user comme des champs ordinaires, ce qui peut entraîner des erreurs.
 """
