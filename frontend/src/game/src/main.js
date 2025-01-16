@@ -8,7 +8,7 @@ import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
 import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
-import Boid from "./terrain/creatures/boids.js";
+import FishFactory from "./terrain/creatures/FishFactory.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";
 import EventHandler from "./events/event_handler.js";
@@ -42,11 +42,8 @@ class Game {
   async makeArena() {
     this.state.subscribe(this.handleStateChange);
 
-    this.arena = await measureFnTime(
-      "Arena",
-      "Arena Class Creation",
-      async () => new Arena(this.config.getSize()),
-    );
+    this.arena = new Arena(this.config.getSize());
+    // await Arena.initialized;
 
     this.paddleLeft = await measureFnTime(
       "Paddles",
@@ -68,10 +65,8 @@ class Game {
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
     );
 
-    await this.arena.init();
-
+    await this.arena.initialized;
     await this.paddleLeft.init();
-
     await this.paddleRight.init();
 
     this.arena.computeBoundingBoxes(this.scene);
@@ -89,12 +84,10 @@ class Game {
   async makeTerrain() {
     this.terrainFactory = new TerrainFactory();
 
-    await measureFnTime("Terrain", "Corrals Generation", async () => {
-      this.terrain = this.terrainFactory.create(
-        this.config.getSize(),
-        this.config.getGenerationConfig("corrals"),
-      );
-    });
+    this.terrain = this.terrainFactory.create(
+      this.config.getSize(),
+      this.config.getGenerationConfig("corrals"),
+    );
 
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
@@ -103,11 +96,10 @@ class Game {
 
     this.sky = new SkyGenerator(this.config.getSkyConfig());
 
-    // await measureFnTime("Creatures", "Boids Creation", async () => {
-    this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
-    // });
+    this.fishFactory = new FishFactory(this.terrain.geometry, this.terrain.obj);
+    await this.fishFactory.initialized;
 
-    for (let creature of this.boid.creatures) {
+    for (let creature of this.fishFactory.creatures) {
       this.scene.add(creature.obj);
     }
     this.scene.add(this.sky.sky);
@@ -143,7 +135,7 @@ class Game {
       paddleRight: this.paddleRight,
       terrain: this.terrain,
       sea: this.sea,
-      boid: this.boid,
+      fishFactory: this.fishFactory,
       players: this.players,
     };
 

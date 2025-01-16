@@ -10,7 +10,7 @@ class Arena {
     this.borderTop = new THREE.Object3D();
     this.BBoxes = [];
     this.elapsedTime = 0;
-    this.init();
+    this.initialized = this.init();
     this.obj.add(this.raft, this.borderTop, this.borderBottom);
     this.obj.position.set(0, 2, 0);
     this.lerpFactor = 0.1;
@@ -18,17 +18,22 @@ class Arena {
   }
 
   async init() {
-    const raftModel = await this.loadModels(
-      "src/game/assets/raft/scene.gltf",
-      new THREE.Vector3(11, 10, 10),
-    );
-    this.raft.add(raftModel);
-    const barrel = await this.loadModels(
-      "src/game/assets/barril/scene.gltf",
-      new THREE.Vector3(3, 3, 3),
-    );
-    this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");
-    this.addBarrelsToBorder(this.borderTop, barrel, "top");
+    try {
+      const raftModel = await this.loadModel(
+        "src/game/assets/raft/scene.gltf",
+        new THREE.Vector3(11, 10, 10),
+      );
+      this.raft.add(raftModel);
+      const barrel = await this.loadModel(
+        "src/game/assets/barril/scene.gltf",
+        new THREE.Vector3(3, 3, 3),
+      );
+      this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");
+      this.addBarrelsToBorder(this.borderTop, barrel, "top");
+    } catch (error) {
+      console.error("Error loading fish objects: ", error);
+      throw error;
+    }
   }
 
   computeBoundingBoxes() {
@@ -58,14 +63,24 @@ class Arena {
     }
   }
 
-  async loadModels(path, scale) {
-    const scene = await this.loadModel(path, scale);
-    return scene;
-  }
-
   loadModel(path, scale) {
     return new Promise((resolve, reject) => {
-      const loader = new GLTFLoader();
+      const loadingManager = new THREE.LoadingManager();
+
+      loadingManager.onStart = (url, itemsLoaded, itemsTotal) => {
+        console.log(
+          `Started loading: ${url}. Loaded ${itemsLoaded} of ${itemsTotal} files.`,
+        );
+      };
+
+      loadingManager.onLoad = () => {
+        console.log("All assets are loaded!");
+      };
+
+      loadingManager.onError = (url) => {
+        console.error(`There was an error loading: ${url}`);
+      };
+      const loader = new GLTFLoader(loadingManager);
       loader.load(
         path,
         (gltf) => {

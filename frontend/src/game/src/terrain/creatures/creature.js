@@ -90,9 +90,6 @@ export default class Creature {
     if (this.mixer) {
       this.mixer.update(deltaTime);
     }
-    if (this.animationAction && !this.animationAction.isRunning()) {
-      this.animationAction.play();
-    }
   }
 
   directionChange() {

@@ -4,14 +4,13 @@ import Cell from "./cell";
 import MarchingCubes from "./marchingCubes";
 import BasicTerrain from "../basic_terrain";
 import SimplexNoise from "https://cdn.skypack.dev/simplex-noise@3.0.0";
+import { measureFnTime } from "../../../performance_utils";
 
 import {
   computeBoundsTree,
   disposeBoundsTree,
   acceleratedRaycast,
 } from "three-mesh-bvh";
-
-import { measureFnTime } from "../../../performance_utils";
 
 class Corrals extends BasicTerrain {
   constructor(size, world) {
