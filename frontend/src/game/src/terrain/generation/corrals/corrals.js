@@ -16,27 +16,27 @@ class Corrals extends BasicTerrain {
   constructor(size, world) {
     super(size, world, false);
     this.height = world.size?.terrain_height || 0;
-    this.createCorrals();
+    this.initialized = this.createCorrals();
   }
 
-  createCorrals() {
+  async createCorrals() {
     this.simplex = new SimplexNoise();
     this.marching_cubes = new MarchingCubes(
       this.depth,
       this.width,
       this.height,
     );
-    // await measureFnTime("Terrain", "Make Cells", async () => {
-    this.makeCells();
-    // });
+    await measureFnTime("Terrain", "Make Cells", async () => {
+      this.makeCells();
+    });
 
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-    // await measureFnTime("Terrain", "Marching Cubes", async () => {
-    this.geometry = this.marching_cubes.march(this.cells);
-    // });
+    await measureFnTime("Terrain", "Marching Cubes", async () => {
+      this.geometry = this.marching_cubes.march(this.cells);
+    });
 
     const material = new THREE.MeshLambertMaterial({
       vertexColors: true,
@@ -50,7 +50,6 @@ class Corrals extends BasicTerrain {
 
     let y = -50;
     this.obj.position.set(0, y, 0);
-    return this.obj;
   }
 
   makeCells() {
@@ -91,8 +90,6 @@ class Corrals extends BasicTerrain {
     const surfaceDistance = this.height - y;
     const floorDistance = y;
 
-    //const surfaceFactor = Math.max(0, surfaceDistance / this.height);
-    //const floorFactor = Math.max(0, 1 - floorDistance / this.height);
     const surfaceFactor = Math.max(
       0,
       Math.pow(surfaceDistance / this.height, 3),
@@ -121,30 +118,30 @@ class Corrals extends BasicTerrain {
     return weight;
   }
 
-  cellularAutomaton() {
-    const nextState = Array.from({ length: this.depth }, () =>
-      Array.from({ length: this.height }, () =>
-        Array.from({ length: this.width }, () => new Cell()),
-      ),
-    );
-
-    for (let z = 0; z < this.depth; z++) {
-      for (let y = 0; y < this.height; y++) {
-        for (let x = 0; x < this.width; x++) {
-          let res = { count: 0, checkBorders: true };
-          this.countNeighbors(z, y, x, res);
-          if (res.count < 13) {
-            nextState[z][y][x].w = Math.min(1, this.cells[z][y][x].w + 0.05);
-          } else if (res.count == 13) {
-            nextState[z][y][x].w = this.cells[z][y][x].w;
-          } else if (res.count > 13) {
-            nextState[z][y][x].w = Math.max(0, this.cells[z][y][x].w - 0.05);
-          }
-        }
-      }
-    }
-    this.cells = nextState;
-  }
+  // cellularAutomaton() {
+  //   const nextState = Array.from({ length: this.depth }, () =>
+  //     Array.from({ length: this.height }, () =>
+  //       Array.from({ length: this.width }, () => new Cell()),
+  //     ),
+  //   );
+  //
+  //   for (let z = 0; z < this.depth; z++) {
+  //     for (let y = 0; y < this.height; y++) {
+  //       for (let x = 0; x < this.width; x++) {
+  //         let res = { count: 0, checkBorders: true };
+  //         this.countNeighbors(z, y, x, res);
+  //         if (res.count < 13) {
+  //           nextState[z][y][x].w = Math.min(1, this.cells[z][y][x].w + 0.05);
+  //         } else if (res.count == 13) {
+  //           nextState[z][y][x].w = this.cells[z][y][x].w;
+  //         } else if (res.count > 13) {
+  //           nextState[z][y][x].w = Math.max(0, this.cells[z][y][x].w - 0.05);
+  //         }
+  //       }
+  //     }
+  //   }
+  //   this.cells = nextState;
+  // }
 
   countNeighbors(cellZ, cellY, cellX, res) {
     let count = 0;

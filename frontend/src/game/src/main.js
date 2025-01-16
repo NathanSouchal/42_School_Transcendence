@@ -88,6 +88,7 @@ class Game {
       this.config.getSize(),
       this.config.getGenerationConfig("corrals"),
     );
+    await this.terrain.initialized;
 
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
