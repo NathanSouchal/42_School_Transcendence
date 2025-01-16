@@ -194,8 +194,6 @@ export default class Account {
         const promise2 = this.fetchData(this.userData.id);
         await Promise.all([promise1, promise2]);
         this.isForm = !this.isForm;
-        alert("aaaah");
-        this.updateView();
       } catch (error) {
         console.error(error);
       }
@@ -235,7 +233,7 @@ export default class Account {
       console.log("ALIAS" + `${this.userData.alias}`);
       const res = await axios.put(
         `https://localhost:8000/user/${id}/`,
-        JSON.stringify(this.userData),
+        this.userData,
         {
           withCredentials: true,
         }
