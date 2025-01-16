@@ -40,7 +40,7 @@ class UserView(APIView):
 			user = get_object_or_404(User, id=id)
 			if request.user != user and not request.user.is_superuser:
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
-			# print(f"Data: {request.data}")
+			print(f"Data: {request.data}")
 			serializer = UserSerializer(user, data=request.data, partial=True)
 			if serializer.is_valid():
 				user = serializer.save()

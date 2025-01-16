@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.apps import apps
+from django.conf import settings
 import os
 
 """
@@ -64,8 +65,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 			try:
 				old_avatar = User.objects.get(pk=self.pk).avatar
 				if old_avatar and old_avatar != self.avatar:
-					if os.path.isfile(old_avatar.path):
-						os.remove(old_avatar.path)
+					if not str(old_avatar.path).startswith(os.path.join(settings.MEDIA_ROOT, 'defaults')):
+						if os.path.isfile(old_avatar.path):
+							os.remove(old_avatar.path)
 			except User.DoesNotExist:
 				pass
 

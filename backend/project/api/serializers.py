@@ -33,6 +33,12 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        avatar = validated_data.get('avatar', None)
+        if not avatar:
+            validated_data['avatar'] = "defaults/bob.jpg"
+        alias = validated_data.get('alias', None)
+        if not alias:
+            validated_data['alias'] = validated_data.get('username')
         user = User.objects.create_user(**validated_data)
         return user
 

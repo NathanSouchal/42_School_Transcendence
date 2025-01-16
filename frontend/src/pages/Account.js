@@ -9,6 +9,10 @@ export default class Account {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.userData = {};
+    this.formData = {
+      username: "",
+      alias: "",
+    };
     this.lastDeleted = 0;
     this.isForm = false;
     this.isLoading = true;
@@ -42,6 +46,8 @@ export default class Account {
     } catch (error) {
       console.error(error);
     } finally {
+      this.formData.username = this.userData.username;
+      this.formData.alias = this.userData.alias;
       //   this.render();
       // Ajouter les écouteurs d'événements après le rendu
       this.attachEventListeners();
@@ -125,6 +131,22 @@ export default class Account {
       }
     }
 
+    const deleteUserButton = document.getElementById("delete-user-button");
+    if (deleteUserButton) {
+      const handleChangeBound = this.handleChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "deleteUserButton")) {
+        deleteUserButton.addEventListener("click", async () => {
+          await handleChangeBound("delete-user-button", "");
+        });
+        this.eventListeners.push({
+          name: "deleteUserButton",
+          type: "click",
+          element: deleteUserButton,
+          listener: handleChangeBound,
+        });
+      }
+    }
+
     const formButton = document.getElementById("form-button");
     if (formButton) {
       const handleChangeBound = this.handleChange.bind(this);
@@ -145,15 +167,17 @@ export default class Account {
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
       const handleChangeInputBound = this.handleChangeInput.bind(this);
-      input.addEventListener("input", (e) => {
-        handleChangeInputBound(e.target.name, e.target.value, e.target);
-      });
-      this.eventListeners.push({
-        name: input.name,
-        type: "input",
-        element: input,
-        listener: handleChangeInputBound,
-      });
+      if (!this.eventListeners.some((e) => e.name === input.name)) {
+        input.addEventListener("input", (e) => {
+          handleChangeInputBound(e.target.name, e.target.value, e.target);
+        });
+        this.eventListeners.push({
+          name: input.name,
+          type: "input",
+          element: input,
+          listener: handleChangeInputBound,
+        });
+      }
     });
   }
 
@@ -168,8 +192,10 @@ export default class Account {
   }
 
   handleChangeInput(key, value, inputElement) {
-    this.userData[key] = value;
-    console.log(this.userData.alias);
+    this.formData[key] = value;
+    console.log(this.formData.alias);
+    console.log(this.formData.username);
+    console.log(this.formData.avatar);
   }
 
   async handleChange(key, value) {
@@ -181,7 +207,7 @@ export default class Account {
         reader.onload = (e) => {
           const base64String = e.target.result;
           console.log(base64String);
-          this.userData.avatar = base64String;
+          this.formData.avatar = base64String;
         };
         reader.readAsDataURL(fileInput);
       }
@@ -194,6 +220,7 @@ export default class Account {
         const promise2 = this.fetchData(this.userData.id);
         await Promise.all([promise1, promise2]);
         this.isForm = !this.isForm;
+        this.updateView();
       } catch (error) {
         console.error(error);
       }
@@ -206,6 +233,12 @@ export default class Account {
     } else if (key == "access-token-button") {
       try {
         await this.getNewAccessToken(this.userData.id);
+      } catch (error) {
+        console.error(error);
+      }
+    } else if (key == "delete-user-button") {
+      try {
+        await this.deleteUser(this.userData.id);
       } catch (error) {
         console.error(error);
       }
@@ -230,10 +263,9 @@ export default class Account {
 
   async updateUserInfo(id) {
     try {
-      console.log("ALIAS" + `${this.userData.alias}`);
       const res = await axios.put(
         `https://localhost:8000/user/${id}/`,
-        this.userData,
+        this.formData,
         {
           withCredentials: true,
         }
@@ -337,9 +369,11 @@ export default class Account {
             ? `<div id="user-main-div">
 				<form id="user-form">
 			 	<div id="avatar-main-div">
-					${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+					<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">
 					<div class="custom-file m-2">
-						<label class="form-label" for="avatar">Avatar</label>
+						<label class="form-label" for="avatar">
+							Avatar
+						</label>
 						<input
 						type="file"
 						class="form-control"
@@ -355,10 +389,10 @@ export default class Account {
 					<input
 					type="text"
 					class="form-control"
-					placeholder="Change username"
+					placeholder="${this.userData.username}"
 					minLength="4"
 					maxLength="10"
-					value="${this.userData.username}"
+					value="${this.formData.username}"
 					name="username"
 					required
 					/>
@@ -370,10 +404,10 @@ export default class Account {
 					<input
 					type="text"
 					class="form-control"
-					placeholder="Change alias"
+					placeholder="${this.userData.alias}"
 					minLength="4"
 					maxLength="10"
-					value="${this.userData.alias}"
+					value="${this.formData.alias}"
 					name="alias"
 					required
 					/>
@@ -406,8 +440,8 @@ export default class Account {
 					${this.isForm ? `Cancel` : `Change my info`}
 				</button>
 				<button
-					onclick="deleteUser(${this.userData.id})"
 					class="btn btn-danger mb-2"
+					id="delete-user-button"
 				>
 					Delete Account
 				</button>
