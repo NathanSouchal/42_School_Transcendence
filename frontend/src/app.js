@@ -37,7 +37,7 @@ document.addEventListener("click", (event) => {
 
 // Exemple d'utilisation de l'état
 state.subscribe((data) => {
-  console.log("État mis à jour:", data);
+  // console.log("État mis à jour:", data);
 });
 
 // Exposez le router et l'état globalement si nécessaire

@@ -10,8 +10,11 @@ export default class State {
       gameStarted: false,
       gameModeHasChanged: false,
       gameHasLoaded: false,
-      gameLoadingPercentage: 0,
+      gameLoadPercentage: 0,
     };
+
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("c").classList.add("hidden");
 
     this.player_types = {
       default: {
@@ -42,9 +45,18 @@ export default class State {
     this.notifyListeners();
   }
 
-  setGameHasLoaded(bool) {
-    this.state.gameHasLoaded = bool;
-    console.log(`${this.state.gameHasLoaded}`);
+  setGameHasLoaded() {
+    this.state.gameHasLoaded = true;
+    this.notifyListeners();
+
+    document.getElementById("loading-overlay").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    document.getElementById("c").classList.remove("hidden");
+  }
+
+  increaseLoadPercentage(value) {
+    this.state.gameLoadPercentage += value;
+    this.notifyListeners();
   }
 
   setIsGamePage(isGamePage) {
