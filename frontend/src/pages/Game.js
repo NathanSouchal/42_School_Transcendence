@@ -11,7 +11,7 @@ export default class GamePage {
     this.startGameButton = null;
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -151,7 +151,7 @@ export default class GamePage {
     return container.innerHTML;
   }
 
-  render() {
+  render(routeParams = {}) {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
 

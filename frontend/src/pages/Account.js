@@ -21,7 +21,7 @@ export default class Account {
     this.eventListeners = [];
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -268,7 +268,7 @@ export default class Account {
         this.formData,
         {
           withCredentials: true,
-        },
+        }
       );
       console.log(res);
     } catch (error) {
@@ -283,7 +283,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
       this.lastDeleted = id;
       this.render();
@@ -300,7 +300,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
     } catch (error) {
       console.error(`Error while trying to get new access token : ${error}`);
@@ -314,7 +314,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
@@ -347,7 +347,7 @@ export default class Account {
     this.removeEventListeners();
   }
 
-  render() {
+  render(routeParams = {}) {
     // if (this.isLoading) {
     //   return "<p>Loading...</p>";
     // }

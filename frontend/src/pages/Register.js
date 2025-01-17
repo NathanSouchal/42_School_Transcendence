@@ -18,7 +18,7 @@ export default class Register {
     this.eventListeners = [];
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -113,7 +113,7 @@ export default class Register {
     try {
       const response = await axios.post(
         "https://localhost:8000/user/register/",
-        this.formState,
+        this.formState
       );
       window.app.router.navigate("/login");
     } catch (error) {
@@ -152,7 +152,7 @@ export default class Register {
     resetZIndex();
   }
 
-  render() {
+  render(routeParams = {}) {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const template = `<div class="d-flex justify-content-center align-items-center h-100">

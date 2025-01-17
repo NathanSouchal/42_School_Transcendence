@@ -2,6 +2,8 @@ export class Router {
   constructor(routes) {
     this.routes = routes;
     this.currentPage = window.location.pathname; // Garde une référence de la page actuelle
+    this.currentPath = window.location.pathname;
+    this.routeParams = {};
 
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
     this.navigate = this.navigate.bind(this);
@@ -26,10 +28,32 @@ export class Router {
     this.navigate(this.currentPath, false);
   }
 
+  matchRoute(path) {
+    for (const route in this.routes) {
+      // Remplace les segments dynamiques (e.g., :id) par une expression régulière
+      const regex = new RegExp(`^${route.replace(/:\w+/g, "([^/]+)")}$`);
+      const match = path.match(regex);
+      if (match) {
+        // Extrait les noms des paramètres dynamiques
+        const keys = (route.match(/:(\w+)/g) || []).map((key) =>
+          key.substring(1)
+        );
+        const values = match.slice(1);
+        this.routeParams = keys.reduce(
+          (params, key, index) => ({ ...params, [key]: values[index] }),
+          {}
+        );
+        console.log(route + " COUCOU");
+        return this.routes[route]; // Retourne la vue correspondante
+      }
+    }
+    return null; // Aucun match trouvé
+  }
+
   async navigate(path, shouldPushState = true) {
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
 
-    const view = this.routes[path] || this.routes["/404"];
+    const view = this.matchRoute(path) || this.routes["/404"];
 
     if (this.currentPage && typeof this.currentPage.destroy === "function") {
       this.currentPage.destroy();
@@ -41,11 +65,11 @@ export class Router {
     console.log("INITIALISED ? " + view.isInitialized);
     if (typeof view.initialize === "function" && !view.isInitialized) {
       console.log("Appel à initialize pour :", path);
-      await view.initialize();
+      await view.initialize(this.routeParams || {});
     } else if (typeof view.render === "function") {
       const app = document.getElementById("app");
       if (app) {
-        app.innerHTML = view.render();
+        app.innerHTML = view.render(this.routeParams || {});
         console.log("Appel à render pour :", path);
       }
     }

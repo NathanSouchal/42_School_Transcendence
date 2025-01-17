@@ -16,7 +16,7 @@ export default class Login {
     this.eventListeners = [];
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -79,7 +79,7 @@ export default class Login {
         this.formState,
         {
           withCredentials: true,
-        },
+        }
       );
       const { id } = response.data.user;
       console.log(response.data);
@@ -121,7 +121,7 @@ export default class Login {
     resetZIndex();
   }
 
-  render() {
+  render(routeParams = {}) {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const template = `<div class="d-flex justify-content-center align-items-center h-100">

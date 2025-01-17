@@ -9,7 +9,7 @@ export default class LoadingPage {
     this.currentPercentage = 0;
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -50,7 +50,7 @@ export default class LoadingPage {
     }
   }
 
-  render() {
+  render(routeParams = {}) {
     const percentage = state.state.gameLoadPercentage || 0;
     const loadingContainer = document.createElement("div");
     loadingContainer.className = "loading-container text-center mb-4";

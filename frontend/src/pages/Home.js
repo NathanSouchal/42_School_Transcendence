@@ -9,7 +9,7 @@ export default class Home {
     this.isSubscribed = false;
     this.isInitialized = false;
   }
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -50,7 +50,7 @@ export default class Home {
     resetZIndex();
   }
 
-  render() {
+  render(routeParams = {}) {
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
 
