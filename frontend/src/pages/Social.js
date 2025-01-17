@@ -36,8 +36,6 @@ export default class Social {
         this.attachEventListeners();
       }
     
-      attachEventListeners() {}
-
       handleStateChange() {}
     
       async getFriends(id) {
