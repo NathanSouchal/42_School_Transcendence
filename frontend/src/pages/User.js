@@ -1,3 +1,5 @@
+import { resetZIndex } from "/src/utils.js";
+
 export default class User {
   constructor(state) {
     this.state = state;
@@ -16,7 +18,7 @@ export default class User {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    this.pageId = params.id;
+    this.pageId = routeParams.id;
     resetZIndex();
     this.render();
   }

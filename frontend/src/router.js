@@ -2,7 +2,6 @@ export class Router {
   constructor(routes) {
     this.routes = routes;
     this.currentPage = window.location.pathname; // Garde une référence de la page actuelle
-    this.currentPath = window.location.pathname;
     this.routeParams = {};
 
     // Bind this.navigate pour qu'il conserve le contexte de l'instance
