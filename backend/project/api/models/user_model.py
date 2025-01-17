@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.apps import apps
+from django.conf import settings
+import os
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -20,7 +22,7 @@ class UserManager(BaseUserManager):
 	def create_user(self, username, password=None, **extra_fields):
 		if not username:
 			raise ValueError('No username')
-		
+
 		user = self.model(username=username, **extra_fields)
 		user.set_password(password)
 		user.save(using=self._db)
@@ -45,6 +47,7 @@ def file_location(instance, filename, **kwargs):
 class User(AbstractBaseUser, PermissionsMixin):
 	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
+	alias = models.CharField(max_length=100, unique=True, null=True)
 	avatar = models.ImageField(upload_to=file_location, null=True, blank=True)
 	match_history = models.ManyToManyField('api.Game', blank=True, related_name='match_history')
 	is_active = models.BooleanField(default=True)
@@ -56,6 +59,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	def __str__(self):
 		return self.username
+
+	def delete_old_avatar(self):
+		if self.pk:
+			try:
+				old_avatar = User.objects.get(pk=self.pk).avatar
+				if old_avatar and old_avatar != self.avatar:
+					if not str(old_avatar.path).startswith(os.path.join(settings.MEDIA_ROOT, 'defaults')):
+						if os.path.isfile(old_avatar.path):
+							os.remove(old_avatar.path)
+			except User.DoesNotExist:
+				pass
+
+	def save(self, *args, **kwargs):
+		self.delete_old_avatar()
+		super().save(*args, **kwargs)
 
 """
 def create_user(self, username, password=None, **extra_fields):
