@@ -33,13 +33,12 @@ class Game {
     init_light(this.scene);
 
     this.state = state;
-    this.state.setGameHasLoaded(false);
     this.handleStateChange = this.handleStateChange.bind(this);
 
     this.players = state.players;
   }
   handleStateChange(newState) {
-    console.log("État mis à jour:", newState);
+    // console.log("État mis à jour:", newState);
   }
 
   async makeArena() {
@@ -151,7 +150,7 @@ class Game {
       game,
     );
     this.rendererInstance.animate();
-    this.state.setGameHasLoaded(true);
+    this.state.setGameHasLoaded();
   }
 }
 

@@ -182,7 +182,7 @@ export default class Account {
   }
 
   handleStateChange(newState) {
-    console.log("État mis à jour:", newState);
+    // console.log("État mis à jour:", newState);
     const content = this.render();
     const container = document.getElementById("app");
     if (container) {
@@ -268,7 +268,7 @@ export default class Account {
         this.formData,
         {
           withCredentials: true,
-        }
+        },
       );
       console.log(res);
     } catch (error) {
@@ -283,7 +283,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
       this.lastDeleted = id;
       this.render();
@@ -300,7 +300,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
     } catch (error) {
       console.error(`Error while trying to get new access token : ${error}`);
@@ -314,7 +314,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        }
+        },
       );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);

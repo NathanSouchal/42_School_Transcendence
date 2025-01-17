@@ -16,8 +16,8 @@ class PerformanceTracker {
     }
     this.stats[category][name] = time;
 
-    state.state.gameLoadingPercentage += loadValue;
-    console.log(`Loading: ${state.state.gameLoadingPercentage}`);
+    state.increaseLoadPercentage(loadValue);
+    // console.log(`Loading: ${state.state.gameLoadPercentage}`);
     return result;
   }
 

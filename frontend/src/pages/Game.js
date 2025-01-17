@@ -85,7 +85,7 @@ export default class GamePage {
   handleStateChange(newState) {
     // Cette méthode sera appelée à chaque fois que l'état est mis à jour
     // Vous pouvez traiter ici ce que vous souhaitez faire lorsque isGamePage change
-    console.log("État mis à jour:", newState);
+    // console.log("État mis à jour:", newState);
     const content = this.render();
     const container = document.getElementById("app");
     if (container) {
