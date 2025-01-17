@@ -9,6 +9,7 @@ export default class Social {
         this.friends = {};
         this.invitations = {};
         this.eventListeners = [];
+        this.search_result;
     }
 
     async initialize() {
@@ -101,6 +102,24 @@ export default class Social {
             listener: cancel_btn_fctn,
           })
         }
+
+        const search_bar_user = document.getElementById("search_bar_user");
+        if (search_bar_user) {
+          const search_bar_user_fctn = this.search_bar_user_fctn.bind(this);
+          if (!this.eventListeners.some((e) => e.name === "search_bar_user")) {
+            search_bar_user.addEventListener("keydown", async (e) => {
+              if (e.key === "Enter") {
+                await search_bar_user_fctn(e.target.value);
+              }
+            })
+          }
+          this.eventListeners.push({
+            name: "search_bar_user",
+            type: "input",
+            element: search_bar_user,
+            listener: search_bar_user_fctn,
+          })
+        }
       }
 
       async validate_btn_fctn(invit_id) {
@@ -127,11 +146,33 @@ export default class Social {
         )
       }
 
+      async search_bar_user_fctn(username_to_search) {
+        console.log(username_to_search);
+        await this.search_bar_user_request(username_to_search);
+      }
+
+      async search_bar_user_request(username_to_search) {
+        const res = await axios.get(
+          `https://localhost:8000/user/${username_to_search}/`,
+        )
+        this.search_result = res.data.user.username;
+        console.log(this.search_result);
+      }
+
 
       render(userId) {
         if (this.friends && this.invitations) {
             return `<div class="d-flex flex-column m-5">
-                      <div class="m-2">
+                      <div class="m-3">
+                        <input type="text" id="search_bar_user" placeholder="Search..." />
+                        ${this.search_result
+                          ? `
+                          <div>${this.search_result}</div>`
+                          :
+                          ``
+                        }
+                      </div>
+                      <div class="m-3">
                         <h3>FRIENDS</h3>
                         ${Object.keys(this.friends).length > 0
                           ? `
@@ -146,7 +187,7 @@ export default class Social {
                           <h4>zero friend, sniff sniff</h4>`
                         }
                       </div>
-                      <div class="m-2">
+                      <div class="m-3">
                         <h3>INVITATIONS</h3>
                         ${Object.keys(this.invitations).length > 0
                           ? `

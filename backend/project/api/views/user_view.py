@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from api.models import User
-from api.serializers import UserSerializer
+from api.serializers import UserSerializer, SimpleUserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
@@ -76,7 +76,7 @@ class UserByNameView(APIView):
 			user = get_object_or_404(User, username=username)
 			# if request.user != user and not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
-			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
+			return Response({'user': SimpleUserSerializer(user).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
