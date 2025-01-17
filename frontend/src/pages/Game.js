@@ -49,13 +49,13 @@ export default class GamePage {
     const startPVRGameButton = document.getElementById("start-pvr-game");
     if (startPVPGameButton) {
       startPVPGameButton.addEventListener("click", () => {
-        this.state.setPVPGameStarted(true);
+        this.state.setGameStarted(true);
         this.updateZIndex();
       });
     }
     if (startPVRGameButton) {
       startPVRGameButton.addEventListener("click", () => {
-        this.state.setPVRGameStarted(true);
+        this.state.setGameStarted(true);
         this.updateZIndex();
       });
     }
@@ -156,7 +156,7 @@ export default class GamePage {
     const sanitizedData = DOMPurify.sanitize(userData);
 
     let template;
-    if (!this.state.state.PVRgameStarted && !this.state.state.PVPgameStarted) {
+    if (!this.state.state.gameStarted) {
       template = this.gameNotStartedMenu();
     } else {
       template = this.gameStartedMenu();

@@ -57,14 +57,6 @@ class Renderer {
         this.game.ball.reset();
       }
 
-      if (state.state.gameModeHasChanged) {
-        this.game.ball.reset();
-
-        this.game.paddleLeft.choosePlayer(state.players.left);
-        this.game.paddleRight.choosePlayer(state.players.right);
-        state.state.gameModeHasChanged = false;
-      }
-
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;

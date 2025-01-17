@@ -34,18 +34,27 @@ class Game {
 
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
-
     this.players = state.players;
   }
+
   handleStateChange(newState) {
-    // console.log("État mis à jour:", newState);
+    if (this.state.state.gameNeedsReset === true) {
+      this.ball.reset();
+      this.paddleLeft.choosePlayer(state.players.left);
+      this.paddleRight.choosePlayer(state.players.right);
+      this.paddleLeft.setInitialPos();
+      this.paddleRight.setInitialPos();
+      this.state.setGameNeedsReset(false);
+    }
+    if (this.state.state.gameIsPaused === true) {
+      t;
+    }
   }
 
   async makeArena() {
     this.state.subscribe(this.handleStateChange);
 
     this.arena = new Arena(this.config.getSize());
-    // await Arena.initialized;
 
     this.paddleLeft = await updateLoadingTime(
       "Paddles",

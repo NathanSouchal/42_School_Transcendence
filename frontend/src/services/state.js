@@ -11,6 +11,7 @@ export default class State {
       gameModeHasChanged: false,
       gameHasLoaded: false,
       gameLoadPercentage: 0,
+      gameNeedsReset: false,
     };
 
     document.getElementById("app").classList.add("hidden");
@@ -54,6 +55,11 @@ export default class State {
     document.getElementById("c").classList.remove("hidden");
   }
 
+  setGameNeedsReset(bool) {
+    this.state.gameNeedsReset = bool;
+    this.notifyListeners();
+  }
+
   increaseLoadPercentage(value) {
     this.state.gameLoadPercentage += value;
     this.notifyListeners();
@@ -69,23 +75,32 @@ export default class State {
     }
   }
 
-  setPVPGameStarted(value) {
-    this.state.PVPgameStarted = value;
-    this.state.PVRgameStarted = !value;
-    this.state.gameStarted = true;
-    this.state.gameModeHasChanged = true;
-    this.players = this.player_types.PVP;
-    this.resetScore();
-    this.notifyListeners();
-  }
-
-  setPVRGameStarted(value) {
-    this.state.PVRgameStarted = value;
-    this.state.PVPgameStarted = !value;
-    this.state.gameStarted = true;
-    this.state.gameModeHasChanged = true;
+  // setPVPGameStarted(value) {
+  //   this.state.PVPgameStarted = value;
+  //   this.state.PVRgameStarted = !value;
+  //   this.state.gameStarted = true;
+  //   this.state.gameModeHasChanged = true;
+  //   this.players = this.player_types.PVP;
+  //   this.resetScore();
+  //   this.notifyListeners();
+  // }
+  //
+  // setPVRGameStarted(value) {
+  //   this.state.PVRgameStarted = value;
+  //   this.state.PVPgameStarted = !value;
+  //   this.state.gameStarted = true;
+  //   this.state.gameModeHasChanged = true;
+  //   this.players = this.player_types.PVR;
+  //   this.resetScore();
+  //   this.notifyListeners();
+  // }
+  //
+  //
+  setGameStarted(value) {
     this.players = this.player_types.PVR;
     this.resetScore();
+    this.state.gameStarted = value;
+    this.setGameNeedsReset(true);
     this.notifyListeners();
   }
 
@@ -96,11 +111,6 @@ export default class State {
 
   resetScore() {
     this.score = { left: 0, right: 0 };
-  }
-
-  setGameStarted(value) {
-    this.state.gameStarted = value;
-    this.notifyListeners();
   }
 
   getState() {
