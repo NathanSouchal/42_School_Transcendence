@@ -3,8 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import AllowAny
 from api.models import User
-from api.serializers import UserSerializer
+from api.serializers import UserSerializer, PublicUserSerializer
 from api.permissions import IsAuthenticated
 
 
@@ -65,3 +66,16 @@ class UserListView(APIView):
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PublicUserView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request, id=None):
+		try:
+			user = get_object_or_404(User, id=id)
+			return Response({'user': PublicUserSerializer(user).data}, status=status.HTTP_200_OK)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
