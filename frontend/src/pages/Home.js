@@ -10,6 +10,7 @@ export default class Home {
     this.isInitialized = false;
   }
   async initialize(routeParams = {}) {
+    console.log("Home initialized");
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -51,6 +52,7 @@ export default class Home {
   }
 
   render(routeParams = {}) {
+    console.log("Home rendered");
     const userData = this.state.data.username || "";
     const sanitizedData = DOMPurify.sanitize(userData);
 

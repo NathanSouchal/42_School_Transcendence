@@ -31,7 +31,9 @@ export class Router {
   matchRoute(path) {
     for (const route in this.routes) {
       // Remplace les segments dynamiques (e.g., :id) par une expression régulière
-      const regex = new RegExp(`^${route.replace(/:\w+/g, "([^/]+)")}$`);
+      const regex = new RegExp(
+        `^${route.replace(/:\w+/g, "([^/]+)").replace(/\/$/, "")}\/?$`
+      );
       const match = path.match(regex);
       if (match) {
         // Extrait les noms des paramètres dynamiques

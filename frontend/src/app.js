@@ -15,13 +15,13 @@ export default state;
 
 const routes = {
   "/": new Home(state),
-  "/account/": new Account(state),
-  "/login/": new Login(state),
-  "/register/": new Register(state),
-  "/game/": new GamePage(state),
-  "/404/": new page404(state),
-  "/stats/": new Stats(state),
-  "/match-history/": new MatchHistory(state),
+  "/account": new Account(state),
+  "/login": new Login(state),
+  "/register": new Register(state),
+  "/game": new GamePage(state),
+  "/404": new page404(state),
+  "/stats": new Stats(state),
+  "/match-history": new MatchHistory(state),
   "/user/:id/": new User(state),
 };
 
