@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import {
   computeBoundsTree,
@@ -8,7 +7,7 @@ import {
 } from "three-mesh-bvh";
 
 export default class Creature {
-  constructor(terrain_geometry, terrain_obj) {
+  constructor(terrain_geometry, terrain_obj, scene) {
     THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
     THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
     THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -17,6 +16,7 @@ export default class Creature {
     this.turnSpeed = 0.05;
     this.currentTurnTarget = null;
     this.isTurning = false;
+    this.deltaFactor = 30;
     this.width = 180;
     this.height = 100;
     this.depth = 180;
@@ -30,6 +30,9 @@ export default class Creature {
     ];
     this.dir = null;
     this.center = this.getTerrainCenter();
+    this.mixer = scene.mixer;
+    this.animationAction = scene.animationAction;
+    this.model = scene.model;
   }
 
   getTerrainCenter() {
@@ -43,41 +46,11 @@ export default class Creature {
 
   makeSomeCreatures() {
     this.obj = new THREE.Object3D();
-    this.loadObjects();
+    this.obj.add(this.model);
     this.obj.position.set(0, this.spawn_y, 0);
     this.velocity = this.random_initial_velocity();
     this.obj.rotateY(Math.PI);
     this.updateOrientation();
-  }
-
-  async loadObjects() {
-    await this.loadModel();
-  }
-
-  loadModel() {
-    return new Promise((resolve, reject) => {
-      const loader = new GLTFLoader();
-      loader.load(
-        this.path,
-        (gltf) => {
-          this.asset = gltf.scene;
-          this.animations = gltf.animations;
-          this.mixer = new THREE.AnimationMixer(this.asset);
-
-          if (this.animations.length > 0) {
-            this.animationAction = this.mixer.clipAction(this.animations[0]);
-          }
-          gltf.scene.scale.set(this.scale.x, this.scale.y, this.scale.z);
-          this.obj.add(gltf.scene);
-          resolve();
-        },
-        undefined,
-        (error) => {
-          console.error(error);
-          reject(error);
-        },
-      );
-    });
   }
 
   updateOrientation() {
@@ -113,13 +86,13 @@ export default class Creature {
       ) {
         this.directionChange();
       }
-      this.obj.position.add(this.velocity);
+      const newVel = this.velocity
+        .clone()
+        .multiplyScalar(deltaTime * this.deltaFactor);
+      this.obj.position.add(newVel);
     }
     if (this.mixer) {
       this.mixer.update(deltaTime);
-    }
-    if (this.animationAction && !this.animationAction.isRunning()) {
-      this.animationAction.play();
     }
   }
 

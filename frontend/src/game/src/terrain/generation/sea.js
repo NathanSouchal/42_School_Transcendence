@@ -12,22 +12,25 @@ class Sea extends BasicTerrain {
       this.width,
     );
 
-    const material = new THREE.ShaderMaterial({
-      uniforms: SeaShader.uniforms,
+    this.material = new THREE.ShaderMaterial({
+      uniforms: { ...SeaShader.uniforms, time: { value: 0 } },
       vertexShader: SeaShader.vertexShader,
       fragmentShader: SeaShader.fragmentShader,
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.3,
     });
-    const sea = new THREE.Mesh(geometry, material);
+    this.material.timeScale = 0.5;
+    this.material.elapsedTime = 0;
+    const sea = new THREE.Mesh(geometry, this.material);
     sea.rotateX(-Math.PI / 2);
     this.obj.add(sea);
     this.obj.position.set(0, 0, 0);
   }
 
-  update() {
-    SeaShader.uniforms.time.value += 0.02;
+  update(deltaTime) {
+    this.material.elapsedTime += deltaTime * this.material.timeScale;
+    this.material.uniforms.time.value = this.material.elapsedTime;
   }
 }
 

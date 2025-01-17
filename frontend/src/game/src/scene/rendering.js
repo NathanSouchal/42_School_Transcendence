@@ -11,6 +11,7 @@ class Renderer {
     this.previousTime = performance.now();
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
+    this.elapsedTime = 0;
   }
 
   resizeRendererToDisplaySize() {
@@ -45,6 +46,7 @@ class Renderer {
       this.previousTime = currentTime;
 
       this.gameElementsUpdate(deltaTime);
+      this.pivotUpdate(deltaTime);
       this.collisionsUpdate(deltaTime);
 
       if (
@@ -75,6 +77,12 @@ class Renderer {
     requestAnimationFrame(render);
   }
 
+  pivotUpdate(deltaTime) {
+    this.elapsedTime += deltaTime;
+    const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
+    this.game.pivot.rotation.z = rockingAngle;
+  }
+
   gameElementsUpdate(deltaTime) {
     this.game.ball.update(deltaTime);
     this.game.paddleRight.update(
@@ -88,9 +96,8 @@ class Renderer {
         this.game.ball.velocity,
       );
     this.game.sea.update(deltaTime);
-    this.game.arena.update(deltaTime, this.game.ball.speedRatio);
 
-    for (let creature of this.game.boid.creatures) {
+    for (let creature of this.game.fishFactory.creatures) {
       creature.update(deltaTime);
     }
   }
