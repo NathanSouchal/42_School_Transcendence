@@ -31,10 +31,13 @@ class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
-
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.players = state.players;
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.pauseButton = "Escape";
+    this.intializeEventListener();
   }
 
   handleStateChange(newState) {
@@ -46,8 +49,17 @@ class Game {
       this.paddleRight.setInitialPos();
       this.state.setGameNeedsReset(false);
     }
-    if (this.state.state.gameIsPaused === true) {
-      t;
+  }
+
+  intializeEventListener() {
+    window.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  handleKeyDown(event) {
+    if (!this.state.state.gameHasLoaded || !this.state.state.gameStarted)
+      return;
+    if (event.key === this.pauseButton) {
+      this.state.state.gameIsPaused = !this.state.state.gameIsPaused;
     }
   }
 

@@ -5,13 +5,12 @@ export default class State {
     }
     this.state = {
       isGamePage: false,
-      PVPgameStarted: false,
-      PVRgameStarted: false,
       gameStarted: false,
       gameModeHasChanged: false,
       gameHasLoaded: false,
       gameLoadPercentage: 0,
       gameNeedsReset: false,
+      gameIsPaused: false,
     };
 
     document.getElementById("app").classList.add("hidden");
@@ -75,27 +74,6 @@ export default class State {
     }
   }
 
-  // setPVPGameStarted(value) {
-  //   this.state.PVPgameStarted = value;
-  //   this.state.PVRgameStarted = !value;
-  //   this.state.gameStarted = true;
-  //   this.state.gameModeHasChanged = true;
-  //   this.players = this.player_types.PVP;
-  //   this.resetScore();
-  //   this.notifyListeners();
-  // }
-  //
-  // setPVRGameStarted(value) {
-  //   this.state.PVRgameStarted = value;
-  //   this.state.PVPgameStarted = !value;
-  //   this.state.gameStarted = true;
-  //   this.state.gameModeHasChanged = true;
-  //   this.players = this.player_types.PVR;
-  //   this.resetScore();
-  //   this.notifyListeners();
-  // }
-  //
-  //
   setGameStarted(value) {
     this.players = this.player_types.PVR;
     this.resetScore();

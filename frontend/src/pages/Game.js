@@ -101,8 +101,7 @@ export default class GamePage {
       this.isSubscribed = false;
       console.log("Game page unsubscribed from state");
     }
-    this.state.state.PVRgameStarted = false;
-    this.state.state.PVPgameStarted = false;
+    this.state.state.gameStarted = false;
     resetZIndex();
     this.state.setGameStarted(false);
     if (this.startGameButton) {

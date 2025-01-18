@@ -45,9 +45,13 @@ class Renderer {
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
-      this.gameElementsUpdate(deltaTime);
-      this.pivotUpdate(deltaTime);
-      this.collisionsUpdate(deltaTime);
+      if (state.state.gameIsPaused === false) {
+        this.gameElementsUpdate(deltaTime);
+        this.pivotUpdate(deltaTime);
+        this.collisionsUpdate(deltaTime);
+      }
+
+      this.terrainElementsUpdate(deltaTime);
 
       if (
         this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3 ||
@@ -87,8 +91,10 @@ class Renderer {
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
-    this.game.sea.update(deltaTime);
+  }
 
+  terrainElementsUpdate(deltaTime) {
+    this.game.sea.update(deltaTime);
     for (let creature of this.game.fishFactory.creatures) {
       creature.update(deltaTime);
     }
