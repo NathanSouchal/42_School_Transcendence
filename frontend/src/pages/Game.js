@@ -15,7 +15,6 @@ export default class GamePage {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Game page subscribed to state");
     }
     if (this.isInitialized) return;
     this.isInitialized = true;
@@ -25,36 +24,29 @@ export default class GamePage {
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
-      // container.innerHTML = "";
       container.innerHTML = content;
     }
     this.state.setIsGamePage(true);
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
     this.attachEventListeners();
   }
 
   handleStateUpdate(state) {
-    // Re-render the component when state changes
-    this.updateDisplay();
-  }
-
-  updateDisplay() {
     if (this.container) {
       this.container.innerHTML = this.render();
     }
   }
 
   attachEventListeners() {
-    const startPVPGameButton = document.getElementById("start-pvp-game");
-    const startPVRGameButton = document.getElementById("start-pvr-game");
-    if (startPVPGameButton) {
-      startPVPGameButton.addEventListener("click", () => {
+    const PVPGameButton = document.getElementById("start-pvp-game");
+    const PVRGameButton = document.getElementById("start-pvr-game");
+    if (PVPGameButton) {
+      PVPGameButton.addEventListener("click", () => {
         this.state.setGameStarted(true);
         this.updateZIndex();
       });
     }
-    if (startPVRGameButton) {
-      startPVRGameButton.addEventListener("click", () => {
+    if (PVRGameButton) {
+      PVRGameButton.addEventListener("click", () => {
         this.state.setGameStarted(true);
         this.updateZIndex();
       });
@@ -65,14 +57,14 @@ export default class GamePage {
     const canvas = document.querySelector("#c");
     const app = document.querySelector("#app");
 
-    if (this.state.state.gameStarted) {
+    if (this.state.state.gameStarted && !this.state.state.gameIsPaused) {
       // Canvas au-dessus, app en dessous
       //   if (canvas) canvas.style.zIndex = "1";
       //   if (app) app.style.zIndex = "0";
       app.classList.remove("view1");
       app.classList.add("view2");
       if (canvas) canvas.style.zIndex = "0";
-    } else {
+    } else if (!this.state.state.gameIsPaused) {
       // Canvas en dessous, app au-dessus
       //   if (canvas) canvas.style.zIndex = "-1";
       //   if (app) app.style.zIndex = "1";
@@ -83,9 +75,16 @@ export default class GamePage {
   }
 
   handleStateChange(newState) {
-    // Cette méthode sera appelée à chaque fois que l'état est mis à jour
-    // Vous pouvez traiter ici ce que vous souhaitez faire lorsque isGamePage change
-    // console.log("État mis à jour:", newState);
+    if (this.state.state.gameIsPaused) {
+      const app = document.querySelector("#app");
+      app.classList.remove("view2");
+      app.classList.add("view1");
+    } else {
+      const app = document.querySelector("#app");
+      app.classList.remove("view1");
+      app.classList.add("view2");
+    }
+
     const content = this.render();
     const container = document.getElementById("app");
     if (container) {
@@ -93,6 +92,33 @@ export default class GamePage {
       this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
     }
     this.updateZIndex();
+  }
+
+  startGame() {
+    this.state.players = this.state.player_types.PVR;
+    this.resetScore();
+    this.state.state.gameStarted = value;
+    this.setGameNeedsReset(true);
+    this.notifyListeners();
+  }
+
+  togglePause() {
+    this.state.state.gameIsPaused = !this.state.gameIsPaused;
+    this.state.notifyListeners();
+  }
+
+  resetScore() {
+    this.state.score = { left: 0, right: 0 };
+  }
+
+  setGameNeedsReset(bool) {
+    this.state.state.gameNeedsReset = bool;
+    this.state.notifyListeners();
+  }
+
+  updateScore(side, points) {
+    this.state.score[side] += points;
+    this.state.notifyListeners();
   }
 
   destroy() {

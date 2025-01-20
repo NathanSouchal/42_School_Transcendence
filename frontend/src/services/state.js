@@ -82,6 +82,11 @@ export default class State {
     this.notifyListeners();
   }
 
+  setGameIsPaused() {
+    this.state.gameIsPaused = !this.state.gameIsPaused;
+    this.notifyListeners();
+  }
+
   updateScore(side, points) {
     this.score[side] += points;
     this.notifyListeners();

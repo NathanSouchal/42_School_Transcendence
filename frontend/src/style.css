@@ -38,6 +38,9 @@ canvas#c {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Optionnel : pour donner un effet d'ombre */
   z-index: 0;
   font-size: 24;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .view2 {
@@ -61,6 +64,9 @@ canvas#c {
   color: white; /* Choisir une couleur de texte adaptée */
   border-radius: 10px;
   z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 header {
