@@ -1,6 +1,5 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 
 export default class Account {
@@ -86,7 +85,7 @@ export default class Account {
     if (updateButton) {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", async () => {
+        updateButton.addEventListener("click", async (e) => {
           await handleChangeBound("update-user-info", "");
         });
         this.eventListeners.push({
@@ -160,6 +159,23 @@ export default class Account {
           name: "formButton",
           type: "click",
           element: formButton,
+          listener: handleChangeBound,
+        });
+      }
+    }
+
+    const formSubmit = document.getElementById("user-form");
+    if (formSubmit) {
+      const handleChangeBound = this.handleChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
+        formButton.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          await handleChangeBound("form-submit", "");
+        });
+        this.eventListeners.push({
+          name: "formSubmit",
+          type: "form-submit",
+          element: formSubmit,
           listener: handleChangeBound,
         });
       }
@@ -258,11 +274,11 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
-      this.state.isUserLoggedIn = true;
+      if (!this.state.isUserLoggedIn) this.state.isUserLoggedIn = true;
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = { id: 0, username: "" };
-      this.state.isUserLoggedIn = false;
+      if (this.state.isUserLoggedIn) this.state.isUserLoggedIn = false;
     }
   }
 
@@ -422,7 +438,7 @@ export default class Account {
 					required
 					/>
 				</div>
-				<button class="btn btn-success m-3" id="update-user-info">
+				<button type="button" class="btn btn-success m-3" id="update-user-info">
 					Update my info
 				</button>
 				</form>

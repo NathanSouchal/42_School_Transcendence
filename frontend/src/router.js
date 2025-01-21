@@ -53,6 +53,7 @@ export class Router {
   }
 
   async navigate(path, shouldPushState = true) {
+    console.log("Navigating to:", path); // Log ajouté pour vérifier l'appel
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
 
     state.state.lastRoute = this.currentPath;
@@ -72,8 +73,12 @@ export class Router {
       if (app) {
         app.innerHTML = view.render(this.routeParams || {});
         console.log("Appel à render pour :", path);
+        if (typeof view.attachEventListeners === "function") {
+          view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
+        }
       }
     }
+
     if (shouldPushState) {
       window.history.pushState({}, "", path);
     }

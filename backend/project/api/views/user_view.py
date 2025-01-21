@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
+from django.http import Http404
 from api.models import User
 from api.serializers import UserSerializer, PublicUserSerializer
 from api.permissions import IsAuthenticated
@@ -74,6 +75,8 @@ class PublicUserView(APIView):
 		try:
 			user = get_object_or_404(User, id=id)
 			return Response({'user': PublicUserSerializer(user).data}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'User not found.'},status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

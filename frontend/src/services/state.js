@@ -12,6 +12,7 @@ export default class State {
       gameHasLoaded: false,
       gameLoadPercentage: 0,
       lastRoute: null,
+      lastLastRoute: null,
     };
 
     document.getElementById("app").classList.add("hidden");

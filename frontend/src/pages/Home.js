@@ -50,6 +50,7 @@ export default class Home {
   removeEventListeners() {}
 
   destroy() {
+    console.log("Home destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
@@ -73,7 +74,8 @@ export default class Home {
         { href: "/game", text: "Play" },
         { href: "/login", text: "Login" },
         { href: "/register", text: "Register" },
-        { href: "/user/1", text: "User" },
+        { href: "/user/2", text: "User" },
+        { href: "/user/200", text: "User (inexistant)" },
       ];
     }
     return `
