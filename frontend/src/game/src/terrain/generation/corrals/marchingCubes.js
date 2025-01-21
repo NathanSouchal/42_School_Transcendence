@@ -17,16 +17,6 @@ class MarchingCubes {
   static cornerIndexBFromEdge = cornerIndexBFromEdge;
 
   march(cells) {
-    //while (this.obj.children.length > 0) {
-    //  this.obj.remove(this.obj.children[0]);
-    //}
-    //const existingInstancedMeshes = this.obj.children.filter(
-    //  (child) => child instanceof THREE.Mesh,
-    //);
-    //existingInstancedMeshes.forEach((mesh) => {
-    //  this.obj.remove(mesh);
-    //});
-    //
     const points = [];
     const isoLevel = 0.5;
 

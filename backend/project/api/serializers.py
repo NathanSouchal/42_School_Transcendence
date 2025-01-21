@@ -1,5 +1,6 @@
 from rest_framework import serializers;
 from api.models import Game, User, Tournament, Match, Stats, Friendship
+from drf_extra_fields.fields import Base64ImageField
 
 class GameSerializer(serializers.ModelSerializer):
     # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
@@ -26,16 +27,24 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
+    avatar = Base64ImageField(required=False)
     
     class Meta:
         model = User
-        fields = ['id', 'username', 'is_superuser', 'password', 'match_history', 'friends']
+        # fields = ['id', 'username', 'is_superuser', 'password', 'avatar', 'match_history']
+        fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True},
             'is_superuser': {'read_only': True}  # Empêche la modification via l'API
         }
 
     def create(self, validated_data):
+        avatar = validated_data.get('avatar', None)
+        if not avatar:
+            validated_data['avatar'] = "defaults/bob.jpg"
+        alias = validated_data.get('alias', None)
+        if not alias:
+            validated_data['alias'] = validated_data.get('username')
         user = User.objects.create_user(**validated_data)
         return user
 

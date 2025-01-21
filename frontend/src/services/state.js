@@ -9,7 +9,12 @@ export default class State {
       PVRgameStarted: false,
       gameStarted: false,
       gameModeHasChanged: false,
+      gameHasLoaded: false,
+      gameLoadPercentage: 0,
     };
+
+    document.getElementById("app").classList.add("hidden");
+    document.getElementById("c").classList.add("hidden");
 
     this.player_types = {
       default: {
@@ -32,10 +37,25 @@ export default class State {
     this.data = {};
     this.listeners = [];
     State.instance = this;
+    this.isUserLoggedIn = false;
   }
 
   updateData(newData) {
     this.data = { ...this.data, ...newData };
+    this.notifyListeners();
+  }
+
+  setGameHasLoaded() {
+    this.state.gameHasLoaded = true;
+    this.notifyListeners();
+
+    document.getElementById("loading-overlay").classList.add("hidden");
+    document.getElementById("app").classList.remove("hidden");
+    document.getElementById("c").classList.remove("hidden");
+  }
+
+  increaseLoadPercentage(value) {
+    this.state.gameLoadPercentage += value;
     this.notifyListeners();
   }
 

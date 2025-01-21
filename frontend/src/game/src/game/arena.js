@@ -10,7 +10,7 @@ class Arena {
     this.borderTop = new THREE.Object3D();
     this.BBoxes = [];
     this.elapsedTime = 0;
-    this.init();
+    this.initialized = this.init();
     this.obj.add(this.raft, this.borderTop, this.borderBottom);
     this.obj.position.set(0, 2, 0);
     this.lerpFactor = 0.1;
@@ -18,17 +18,22 @@ class Arena {
   }
 
   async init() {
-    const raftModel = await this.loadModels(
-      "src/game/assets/raft/scene.gltf",
-      new THREE.Vector3(11, 10, 10),
-    );
-    this.raft.add(raftModel);
-    const barrel = await this.loadModels(
-      "src/game/assets/barril/scene.gltf",
-      new THREE.Vector3(3, 3, 3),
-    );
-    this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");
-    this.addBarrelsToBorder(this.borderTop, barrel, "top");
+    try {
+      const raftModel = await this.loadModel(
+        "src/game/assets/raft.glb",
+        new THREE.Vector3(11, 10, 10),
+      );
+      this.raft.add(raftModel);
+      const barrel = await this.loadModel(
+        "src/game/assets/barril.glb",
+        new THREE.Vector3(3, 3, 3),
+      );
+      this.addBarrelsToBorder(this.borderBottom, barrel, "bottom");
+      this.addBarrelsToBorder(this.borderTop, barrel, "top");
+    } catch (error) {
+      console.error("Error loading fish objects: ", error);
+      throw error;
+    }
   }
 
   computeBoundingBoxes() {
@@ -58,17 +63,13 @@ class Arena {
     }
   }
 
-  async loadModels(path, scale) {
-    const scene = await this.loadModel(path, scale);
-    return scene;
-  }
-
   loadModel(path, scale) {
     return new Promise((resolve, reject) => {
       const loader = new GLTFLoader();
       loader.load(
         path,
         (gltf) => {
+          this.asset = gltf.scene;
           gltf.scene.scale.set(scale.x, scale.y, scale.z);
           resolve(gltf.scene);
         },
@@ -79,25 +80,6 @@ class Arena {
         },
       );
     });
-  }
-
-  update(deltaTime, speedRatio) {
-    this.elapsedTime += deltaTime;
-    this.prevSpeedRatio += (speedRatio - this.prevSpeedRatio) * this.lerpFactor;
-
-    const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    this.obj.rotation.z = rockingAngle;
-    //const ballPosition = new THREE.Vector3(
-    //  this.ball.position.x,
-    //  this.ball.position.y,
-    //  this.ball.position.z,
-    //);
-    //ballPosition.applyAxisAngle(
-    //  new THREE.Vector3(0, 0, 1),
-    //  rockingAngle - this.ball.rotation.z,
-    //);
-    //this.ball.position.set(ballPosition.x, ballPosition.y, ballPosition.z);
-    //this.ball.rotation.z = rockingAngle;
   }
 }
 

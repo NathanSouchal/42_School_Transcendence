@@ -8,13 +8,18 @@ import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
 import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
-import Boid from "./terrain/creatures/boids.js";
+import FishFactory from "./terrain/creatures/FishFactory.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";
-import EventHandler from "./events/event_handler.js";
+import {
+  updateLoadingTime,
+  printPerformanceReport,
+} from "./performance_utils.js";
 
 class Game {
   constructor() {
+    this.loadingTimes = {};
+    this.stats = {};
     this.config = new GameConfig();
     this.canvas = document.querySelector("#c");
     this.renderer = new THREE.WebGLRenderer({
@@ -32,56 +37,78 @@ class Game {
 
     this.players = state.players;
   }
-
   handleStateChange(newState) {
-    console.log("État mis à jour:", newState);
+    // console.log("État mis à jour:", newState);
   }
 
   async makeArena() {
     this.state.subscribe(this.handleStateChange);
-    this.arena = new Arena(this.config.getSize());
-    this.paddleLeft = new Paddle(
-      this.arena,
-      "left",
-      this.players.left,
-      this.config
-    );
-    this.paddleRight = new Paddle(
-      this.arena,
-      "right",
-      this.players.right,
-      this.config
-    );
-    this.ball = new Ball(this.config.getSize(), this.config.getBallConfig());
 
-    await this.arena.init();
+    this.arena = new Arena(this.config.getSize());
+    // await Arena.initialized;
+
+    this.paddleLeft = await updateLoadingTime(
+      "Paddles",
+      "Left Paddle Creation",
+      async () =>
+        new Paddle(this.arena, "left", this.players.left, this.config),
+      10,
+    );
+
+    this.paddleRight = await updateLoadingTime(
+      "Paddles",
+      "Right Paddle Creation",
+      async () =>
+        new Paddle(this.arena, "right", this.players.right, this.config),
+      10,
+    );
+
+    this.ball = await updateLoadingTime(
+      "Ball",
+      "Ball Creation",
+      async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
+      5,
+    );
+    this.pivot = new THREE.Group();
+    this.pivot.add(
+      this.arena.obj,
+      this.ball.obj,
+      this.paddleLeft.obj,
+      this.paddleRight.obj,
+    );
+
+    await this.arena.initialized;
     await this.paddleLeft.init();
     await this.paddleRight.init();
+
     this.arena.computeBoundingBoxes(this.scene);
     this.paddleLeft.computeBoundingBoxes(this.scene);
     this.paddleRight.computeBoundingBoxes(this.scene);
+
     this.arena.ball = this.ball.obj;
     this.scene.add(this.arena.obj);
     this.scene.add(this.paddleRight.obj);
     this.scene.add(this.paddleLeft.obj);
     this.scene.add(this.ball.obj);
     this.scene.add(this.ball.sparks.group);
+    this.scene.add(this.pivot);
   }
 
-  makeTerrain() {
+  async makeTerrain() {
     this.terrainFactory = new TerrainFactory();
-
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals")
+      this.config.getGenerationConfig("corrals"),
     );
+    await this.terrain.initialized;
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea")
+      this.config.getGenerationConfig("sea"),
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
-    this.boid = new Boid(this.terrain.geometry, this.terrain.obj);
-    for (let creature of this.boid.creatures) {
+    this.fishFactory = new FishFactory(this.terrain.geometry, this.terrain.obj);
+    await this.fishFactory.initialized;
+    for (let creature of this.fishFactory.creatures) {
       this.scene.add(creature.obj);
     }
     this.scene.add(this.sky.sky);
@@ -91,19 +118,13 @@ class Game {
 
   async init() {
     await this.makeArena();
-    this.makeTerrain();
+    await this.makeTerrain();
 
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig()
+      this.config.getCameraConfig(),
     );
-
-    window.addEventListener("resize", () => {
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.camera.aspect = window.innerWidth / window.innerHeight;
-      this.camera.updateProjectionMatrix();
-    });
 
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
     this.renderer.shadowMap.enabled = true;
@@ -117,17 +138,19 @@ class Game {
       paddleRight: this.paddleRight,
       terrain: this.terrain,
       sea: this.sea,
-      boid: this.boid,
+      fishFactory: this.fishFactory,
       players: this.players,
+      pivot: this.pivot,
     };
 
     this.rendererInstance = new Renderer(
       this.renderer,
       this.scene,
       this.camera,
-      game
+      game,
     );
     this.rendererInstance.animate();
+    this.state.setGameHasLoaded();
   }
 }
 
