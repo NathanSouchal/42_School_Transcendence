@@ -19,7 +19,7 @@ export default class Home {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    if (!this.state.gameStarted) return;
+    if (!this.state.state.gameHasLoaded) return;
     else {
       const content = this.render();
       const container = document.getElementById("app");
@@ -34,7 +34,7 @@ export default class Home {
   attachEventListeners() {}
 
   handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameStarted);
+    console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
       const content = this.render();
@@ -61,7 +61,7 @@ export default class Home {
     console.log("Home rendered");
     const { id } = routeParams;
     let links;
-    if (this.state.isUserLoggedIn) {
+    if (this.state.state.isUserLoggedIn) {
       links = [
         { href: "/game", text: "Play" },
         { href: "/account", text: "Account" },

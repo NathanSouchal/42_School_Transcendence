@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
+import state from "../app.js";
 
 export default class Login {
   constructor(state) {
@@ -17,15 +18,15 @@ export default class Login {
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
-    if (!this.state.gameStarted) return;
+    if (!this.state.state.gameHasLoaded) return;
     else {
       const content = this.render();
       const container = document.getElementById("app");
@@ -93,12 +94,16 @@ export default class Login {
   }
 
   handleStateChange(newState) {
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content; // Remplacer le contenu du conteneur
-      // container.appendChild(createBackArrow());
-      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    console.log("GameHasLoaded : " + newState.gameHasLoaded);
+    if (newState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Login page");
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
   }
 
@@ -123,7 +128,8 @@ export default class Login {
   render(routeParams = {}) {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
-    const template = `<div class="d-flex justify-content-center align-items-center h-100">
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
         <form id="login-form">
           <h3 class="text-center">Login</h3>
           <div class="mb-3">
@@ -160,11 +166,5 @@ export default class Login {
           </div>
         </form>
       </div>`;
-
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
   }
 }

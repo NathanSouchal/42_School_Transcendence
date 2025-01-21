@@ -1,3 +1,5 @@
+import state from "./app";
+
 export class Router {
   constructor(routes) {
     this.routes = routes;
@@ -53,6 +55,7 @@ export class Router {
   async navigate(path, shouldPushState = true) {
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
 
+    state.state.lastRoute = this.currentPath;
     const view = this.matchRoute(path) || this.routes["/404"];
 
     if (this.currentPage && typeof this.currentPage.destroy === "function") {
@@ -63,7 +66,6 @@ export class Router {
     this.currentPath = path;
 
     if (typeof view.initialize === "function" && !view.isInitialized) {
-      console.log("Appel à initialize pour :", path);
       await view.initialize(this.routeParams || {});
     } else if (typeof view.render === "function") {
       const app = document.getElementById("app");
@@ -71,9 +73,6 @@ export class Router {
         app.innerHTML = view.render(this.routeParams || {});
         console.log("Appel à render pour :", path);
       }
-    }
-    if (typeof view.attachEventListeners === "function") {
-      view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
     }
     if (shouldPushState) {
       window.history.pushState({}, "", path);
