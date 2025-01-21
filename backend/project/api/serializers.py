@@ -28,7 +28,7 @@ class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
-    
+
     class Meta:
         model = User
         # fields = ['id', 'username', 'is_superuser', 'password', 'avatar', 'match_history']
@@ -47,6 +47,12 @@ class UserSerializer(serializers.ModelSerializer):
             validated_data['alias'] = validated_data.get('username')
         user = User.objects.create_user(**validated_data)
         return user
+
+class PublicUserSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = User
+		fields = ['id', 'avatar', 'username', 'alias']
 
 """
 	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre
@@ -129,9 +135,9 @@ class FriendshipSerializer(serializers.ModelSerializer):
 """
 Pourquoi extraire from_user et to_user avec .pop()  ?
 
-Les champs comme from_user et to_user sont des relations ForeignKey, 
+Les champs comme from_user et to_user sont des relations ForeignKey,
 et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode Friendship.objects.create().
 En les extrayant avec .pop(), nous préparons ces champs pour les utiliser comme arguments distincts lors de la création.
-Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à Friendship.objects.create(), 
+Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à Friendship.objects.create(),
 Django essaiera de traiter from_user et to_user comme des champs ordinaires, ce qui peut entraîner des erreurs.
 """

@@ -11,6 +11,8 @@ export default class State {
       gameModeHasChanged: false,
       gameHasLoaded: false,
       gameLoadPercentage: 0,
+      lastRoute: null,
+      lastLastRoute: null,
     };
 
     document.getElementById("app").classList.add("hidden");
@@ -56,7 +58,6 @@ export default class State {
 
   increaseLoadPercentage(value) {
     this.state.gameLoadPercentage += value;
-    this.notifyListeners();
   }
 
   setIsGamePage(isGamePage) {
@@ -121,6 +122,7 @@ export default class State {
   }
 
   notifyListeners() {
-    this.listeners.forEach((listener) => listener(this.state));
+    if (this.state.gameHasLoaded)
+      this.listeners.forEach((listener) => listener(this.state));
   }
 }

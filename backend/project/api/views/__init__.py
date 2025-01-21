@@ -2,7 +2,7 @@ from .auth_view import RegisterView, LoginView, RefreshTokenView, AccessTokenVie
 from .game_view import GameView, GameListView
 from .match_view import MatchView, MatchListView
 from .tournament_view import TournamentView, TournamentListView
-from .user_view import UserView, UserListView, UserByNameView
+from .user_view import UserView, UserListView, PublicUserView, UserByNameView
 from .stats_view import StatsView
 from .match_history_view import MatchHistoryView
 from .friendship_view import FriendshipView, FriendshipListView, FriendshipByUserView

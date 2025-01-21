@@ -1,13 +1,14 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
-import state from "../app.js";
 
 export default class Account {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
+
     this.userData = {};
     this.formData = {
       username: "",
@@ -16,20 +17,18 @@ export default class Account {
     this.lastDeleted = 0;
     this.isForm = false;
     this.isLoading = true;
-    this.isInitialized = false;
-    this.isSubscribed = false;
     this.eventListeners = [];
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-    resetZIndex();
 
     // Récupérer l'ID utilisateur depuis le stockage local
     const userId = Number(localStorage.getItem("id"));
@@ -38,19 +37,20 @@ export default class Account {
     try {
       await this.fetchData(userId);
       this.isLoading = false;
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
+      this.formData.username = this.userData.username;
+      this.formData.alias = this.userData.alias;
+      if (!this.state.state.gameHasLoaded) return;
+      else {
+        const content = this.render();
+        const container = document.getElementById("app");
+        if (container) {
+          container.innerHTML = content;
+          this.removeEventListeners();
+          this.attachEventListeners();
+        }
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      this.formData.username = this.userData.username;
-      this.formData.alias = this.userData.alias;
-      //   this.render();
-      // Ajouter les écouteurs d'événements après le rendu
-      this.attachEventListeners();
     }
   }
 
@@ -85,7 +85,7 @@ export default class Account {
     if (updateButton) {
       const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", async () => {
+        updateButton.addEventListener("click", async (e) => {
           await handleChangeBound("update-user-info", "");
         });
         this.eventListeners.push({
@@ -164,6 +164,23 @@ export default class Account {
       }
     }
 
+    const formSubmit = document.getElementById("user-form");
+    if (formSubmit) {
+      const handleChangeBound = this.handleChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
+        formButton.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          await handleChangeBound("form-submit", "");
+        });
+        this.eventListeners.push({
+          name: "formSubmit",
+          type: "form-submit",
+          element: formSubmit,
+          listener: handleChangeBound,
+        });
+      }
+    }
+
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
       const handleChangeInputBound = this.handleChangeInput.bind(this);
@@ -182,12 +199,16 @@ export default class Account {
   }
 
   handleStateChange(newState) {
-    // console.log("État mis à jour:", newState);
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content; // Remplacer le contenu du conteneur
-      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    console.log("GameHasLoaded : " + newState.gameHasLoaded);
+    if (newState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Account page");
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
   }
 
@@ -253,11 +274,11 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
-      this.state.isUserLoggedIn = true;
+      if (!this.state.isUserLoggedIn) this.state.isUserLoggedIn = true;
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = { id: 0, username: "" };
-      this.state.isUserLoggedIn = false;
+      if (this.state.isUserLoggedIn) this.state.isUserLoggedIn = false;
     }
   }
 
@@ -268,7 +289,7 @@ export default class Account {
         this.formData,
         {
           withCredentials: true,
-        },
+        }
       );
       console.log(res);
     } catch (error) {
@@ -283,7 +304,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
       this.lastDeleted = id;
       this.render();
@@ -300,7 +321,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
     } catch (error) {
       console.error(`Error while trying to get new access token : ${error}`);
@@ -314,7 +335,7 @@ export default class Account {
         {},
         {
           withCredentials: true,
-        },
+        }
       );
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
@@ -345,9 +366,14 @@ export default class Account {
 
   destroy() {
     this.removeEventListeners();
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+      console.log("Account page unsubscribed from state");
+    }
   }
 
-  render() {
+  render(routeParams = {}) {
     // if (this.isLoading) {
     //   return "<p>Loading...</p>";
     // }
@@ -355,8 +381,8 @@ export default class Account {
     // const sanitizedData = DOMPurify.sanitize(userData);
     const hasUsername =
       this.userData.username && this.userData.username.length > 0;
-    console.log("hasUsername:", hasUsername, "this.userData:", this.userData);
-    const template = `<div class="d-flex flex-column justify-content-center align-items-center h-100">
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    return `${backArrow}<div class="d-flex flex-column justify-content-center align-items-center h-100">
           <div class="title-div mb-4">
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
@@ -412,7 +438,7 @@ export default class Account {
 					required
 					/>
 				</div>
-				<button class="btn btn-success m-3" id="update-user-info">
+				<button type="button" class="btn btn-success m-3" id="update-user-info">
 					Update my info
 				</button>
 				</form>
@@ -472,10 +498,5 @@ export default class Account {
             `
             }
       </div>`;
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
   }
 }

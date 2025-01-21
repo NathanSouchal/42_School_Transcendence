@@ -10,7 +10,7 @@ export default class MatchHistory {
     this.matchHistory = {};
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -59,7 +59,7 @@ export default class MatchHistory {
 
   destroy() {}
 
-  render() {
+  render(routeParams = {}) {
     let template;
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
       template = `${Object.values(this.matchHistory)
