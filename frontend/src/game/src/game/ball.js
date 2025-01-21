@@ -32,7 +32,6 @@ class Ball {
     };
     this.velocity = this.random_initial_velocity();
     this.make_sparks();
-    //this.rotateAxis = new THREE.Vector3(0, 1, 0);
   }
 
   bounce(bbox) {
@@ -70,11 +69,6 @@ class Ball {
     this.obj.position.add(scaledVelocity);
     this.box = new THREE.Box3().setFromObject(this.obj);
     this.animate_sparks();
-
-    //this.elapsedTime += deltaTime;
-    //
-    //const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    //this.obj.rotateOnAxis(this.rotateAxis, rockingAngle);
   }
 
   random_initial_velocity() {

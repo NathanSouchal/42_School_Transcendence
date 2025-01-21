@@ -3,20 +3,24 @@ export default class State {
     if (State.instance) {
       return State.instance; // Retourner l'instance existante si elle existe déjà
     }
+
     this.state = {
       isGamePage: false,
-      PVPgameStarted: false,
-      PVRgameStarted: false,
       gameStarted: false,
       gameModeHasChanged: false,
       gameHasLoaded: false,
       gameLoadPercentage: 0,
       lastRoute: null,
       lastLastRoute: null,
+      gameNeedsReset: false,
+      gameIsPaused: false,
+      gameHasBeenWon: false,
     };
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
+
+    this.gamePoints = 10;
 
     this.player_types = {
       default: {
@@ -36,6 +40,7 @@ export default class State {
     this.players = this.player_types.default;
 
     this.score = { left: 0, right: 0 };
+    this.scores = [];
     this.data = {};
     this.listeners = [];
     State.instance = this;
@@ -56,56 +61,68 @@ export default class State {
     document.getElementById("c").classList.remove("hidden");
   }
 
-  increaseLoadPercentage(value) {
-    this.state.gameLoadPercentage += value;
+  setGameNeedsReset(bool) {
+    this.state.gameNeedsReset = bool;
+    this.notifyListeners();
   }
 
-  setIsGamePage(isGamePage) {
-    console.log("setIsGamePage appelé avec :", isGamePage);
-    if (this.state.isGamePage !== isGamePage) {
-      this.state.isGamePage = isGamePage;
-      this.notifyListeners();
-    } else {
-      console.log("setIsGamePage appelé sans changement.");
+  setGameStarted(gameMode) {
+    if (gameMode) {
+      this.gameMode = gameMode;
+      switch (gameMode) {
+        case "PVR":
+          this.players = this.player_types.PVR;
+          break;
+        case "PVP":
+          this.players = this.player_types.PVP;
+          break;
+        case "default":
+          this.players = this.player_types.default;
+          break;
+      }
     }
-  }
-
-  setPVPGameStarted(value) {
-    this.state.PVPgameStarted = value;
-    this.state.PVRgameStarted = !value;
-    this.state.gameStarted = true;
-    this.state.gameModeHasChanged = true;
-    this.players = this.player_types.PVP;
+    this.state.gameIsPaused = false;
     this.resetScore();
+    if (gameMode && gameMode !== "default") this.state.gameStarted = true;
+    this.state.gameHasBeenWon = false;
+    this.setGameNeedsReset(true);
     this.notifyListeners();
   }
 
-  setPVRGameStarted(value) {
-    this.state.PVRgameStarted = value;
-    this.state.PVPgameStarted = !value;
-    this.state.gameStarted = true;
-    this.state.gameModeHasChanged = true;
-    this.players = this.player_types.PVR;
-    this.resetScore();
+  setGameEnded() {
+    this.state.gameIsPaused = false;
+    this.scores.push(this.score);
+    this.state.gameStarted = false;
+    this.setGameNeedsReset(true);
     this.notifyListeners();
+  }
+
+  backToBackgroundPlay() {
+    this.state.gameHasBeenWon = false;
+    this.setGameStarted("default");
+  }
+
+  togglePause(bool) {
+    if (bool) this.state.gameIsPaused = bool;
+    else this.state.gameIsPaused = !this.state.gameIsPaused;
+    this.notifyListeners();
+  }
+
+  restart() {
+    this.setGameStarted(this.gameMode);
   }
 
   updateScore(side, points) {
     this.score[side] += points;
+    if (this.score[side] === this.gamePoints) {
+      this.setGameEnded();
+      this.state.gameHasBeenWon = true;
+    }
     this.notifyListeners();
   }
 
   resetScore() {
     this.score = { left: 0, right: 0 };
-  }
-
-  setGameStarted(value) {
-    this.state.gameStarted = value;
-    this.notifyListeners();
-  }
-
-  getState() {
-    return this.state;
   }
 
   subscribe(listener) {

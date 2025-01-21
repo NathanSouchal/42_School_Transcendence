@@ -1,3 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Creepster&display=swap");
+:root {
+  --blue: rgba(10, 68, 120);
+  --beige: rgba(222, 212, 184);
+  --orange: #ffcc00;
+}
+
 body,
 html {
   height: 100%;
@@ -15,7 +22,7 @@ canvas#c {
 }
 
 /* Appliquer un positionnement relatif pour le contenu */
-.view1 {
+.menu {
   position: absolute;
   top: 50%; /* Positionner l'élément 50% du haut de l'écran */
   left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
@@ -33,34 +40,14 @@ canvas#c {
     0.8
   ); /* Fond semi-transparent (si vous le souhaitez) */
   padding: 20px;
-  color: rgba(10, 68, 120); /* Choisir une couleur de texte adaptée */
+  color: var(--blue); /* Choisir une couleur de texte adaptée */
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Optionnel : pour donner un effet d'ombre */
   z-index: 0;
   font-size: 24;
-}
-
-.view2 {
-  position: absolute;
-  top: 12%; /* Positionner l'élément 50% du haut de l'écran */
-  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Centre l'élément par rapport à son point de départ */
-  height: 10vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
-  width: 40%; /* Définir une largeur (ou un max-width) pour #app */
-  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
-  background: rgba(
-    175,
-    60,
-    60,
-    0
-  ); /* Fond semi-transparent (si vous le souhaitez) */
-  padding: 20px;
-  color: white; /* Choisir une couleur de texte adaptée */
-  border-radius: 10px;
-  z-index: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 header {
@@ -75,20 +62,11 @@ h1 {
 
 .back-arrow {
   font-size: 70px;
-  color: rgba(10, 68, 120);
+  color: var(--blue);
   text-decoration: none;
   position: absolute;
   top: 10px;
   left: 30px;
-}
-
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 55vh;
-  width: 55vh;
-  position: center;
 }
 
 .loading-overlay {
@@ -97,13 +75,13 @@ h1 {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(222, 212, 184);
+  background-color: var(--beige);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 9999;
   transition: opacity 0.3s ease-in-out;
-  color: rgba(10, 68, 120);
+  color: var(--blue);
 }
 
 .loading-content {
@@ -113,4 +91,68 @@ h1 {
 .loading-overlay.hidden {
   opacity: 0;
   pointer-events: none;
+}
+
+.game-hud {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.game-score {
+  /*background-color: var(--beige);*/
+  color: var(--orange);
+  padding: 16px;
+  border-radius: 8px;
+  margin-right: 16px;
+  font-family: "Creepster", cursive;
+  font-family: 48px;
+}
+
+.pause-play-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: var(--beige);
+  border: none;
+  border-radius: 50%;
+  padding: 12px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+  cursor: pointer;
+}
+.pause-play-btn:hover {
+  transform: scale(1.1);
+}
+.pause-play-btn:focus {
+  outline: none;
+}
+.play-icon {
+  width: 0;
+  height: 0;
+  border-left: 15px solid var(--blue);
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+.pause-icon {
+  display: flex;
+  gap: 4px;
+}
+.pause-icon::before,
+.pause-icon::after {
+  content: "";
+  width: 6px;
+  height: 20px;
+  background-color: var(--blue);
 }

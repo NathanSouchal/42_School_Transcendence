@@ -31,21 +31,42 @@ class Game {
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
-
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
-
     this.players = state.players;
+    this.handleStateChange = this.handleStateChange.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.pauseButton = "Escape";
+    this.intializeEventListener();
   }
+
   handleStateChange(newState) {
-    // console.log("État mis à jour:", newState);
+    if (this.state.state.gameNeedsReset === true) {
+      this.ball.reset();
+      this.paddleLeft.choosePlayer(state.players.left);
+      this.paddleRight.choosePlayer(state.players.right);
+      this.paddleLeft.setInitialPos();
+      this.paddleRight.setInitialPos();
+      this.state.setGameNeedsReset(false);
+    }
+  }
+
+  intializeEventListener() {
+    window.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  handleKeyDown(event) {
+    if (!this.state.state.gameHasLoaded || !this.state.state.gameStarted)
+      return;
+    if (event.key === this.pauseButton) {
+      this.state.togglePause();
+    }
   }
 
   async makeArena() {
     this.state.subscribe(this.handleStateChange);
 
     this.arena = new Arena(this.config.getSize());
-    // await Arena.initialized;
 
     this.paddleLeft = await updateLoadingTime(
       "Paddles",

@@ -359,7 +359,7 @@ export default class Account {
       console.log("Removed unique eventListener from input");
       // Supprimez l'événement de la liste
       this.eventListeners = this.eventListeners.filter(
-        (el) => el.name !== name
+        (el) => el.name !== name,
       );
     }
   }
