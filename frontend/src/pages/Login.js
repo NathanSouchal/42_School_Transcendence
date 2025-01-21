@@ -2,18 +2,18 @@ import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
-import state from "../app.js";
 
 export default class Login {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
+
     this.formState = {
       username: "",
       password: "",
     };
-    this.isSubscribed = false;
-    this.isInitialized = false;
     this.eventListeners = [];
   }
 
@@ -122,7 +122,6 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    resetZIndex();
   }
 
   render(routeParams = {}) {

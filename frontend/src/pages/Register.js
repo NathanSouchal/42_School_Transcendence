@@ -19,24 +19,24 @@ export default class Register {
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-    resetZIndex();
-    // Appeler render pour obtenir le contenu HTML
-    const content = this.render();
-
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
+    if (!this.state.state.gameHasLoaded) return;
+    else {
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {
@@ -126,11 +126,16 @@ export default class Register {
   }
 
   handleStateChange(newState) {
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content; // Remplacer le contenu du conteneur
-      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    console.log("GameHasLoaded : " + newState.gameHasLoaded);
+    if (newState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Register page");
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
   }
 
@@ -149,13 +154,13 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
-    resetZIndex();
   }
 
   render(routeParams = {}) {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
-    const template = `<div class="d-flex justify-content-center align-items-center h-100">
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
         <form id="register-form">
           <h3 class="text-center">Register</h3>
           <div class="mb-3">
@@ -203,11 +208,5 @@ export default class Register {
           </div>
         </form>
       </div>`;
-
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
   }
 }
