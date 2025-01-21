@@ -9,7 +9,7 @@ export default class Social {
         this.friends = {};
         this.invitations = {};
         this.eventListeners = [];
-        this.search_result;
+        this.search_result = {};
     }
 
     async initialize() {
@@ -36,8 +36,6 @@ export default class Social {
         // Ajouter les écouteurs d'événements après avoir rendu le contenu
         this.attachEventListeners();
       }
-    
-      handleStateChange() {}
     
       async getFriends(id) {
         try {
@@ -66,8 +64,6 @@ export default class Social {
           console.error(error);
         }
       }
-    
-      destroy() {}
     
       attachEventListeners(){
 
@@ -148,6 +144,8 @@ export default class Social {
 
       async search_bar_user_fctn(username_to_search) {
         console.log(username_to_search);
+        const searchResultDiv = document.getElementById('search_result');
+        searchResultDiv.innerHTML = '';
         await this.search_bar_user_request(username_to_search);
       }
 
@@ -155,22 +153,60 @@ export default class Social {
         const res = await axios.get(
           `https://localhost:8000/user/${username_to_search}/`,
         )
-        this.search_result = res.data.user.username;
+        this.search_result = res.data.user;
+        this.updateSearchResult()
         console.log(this.search_result);
       }
 
+      updateSearchResult() {
+        const searchResultDiv = document.getElementById('search_result');
+        if (this.search_result.username) {
+          searchResultDiv.innerHTML = `
+          <a href="https://localhost:3000/user/${this.search_result.id}/"/
+            <h6>${this.search_result.username}</h6>
+          </a>`;
+        }
+      }
+      
+      handleStateChange(newState) {
+        console.log("GameHasLoaded : " + newState.gameHasLoaded);
+        if (newState.gameHasLoaded) {
+          console.log("GameHasLoaded state changed, rendering Account page");
+          const content = this.render();
+          const container = document.getElementById("app");
+          if (container) {
+            container.innerHTML = content;
+            this.removeEventListeners();
+            this.attachEventListeners();
+          }
+        }
+      }
+
+      removeEventListeners() {
+        this.eventListeners.forEach(({ element, listener, type }) => {
+          if (element) {
+            element.removeEventListener(type, listener);
+            console.log("Removed ${type} eventListener from input");
+          }
+        });
+        this.eventListeners = [];
+      }
+    
+      destroy() {
+        this.removeEventListeners();
+        if (this.isSubscribed) {
+          this.state.unsubscribe(this.handleStateChange);
+          this.isSubscribed = false;
+          console.log("Account page unsubscribed from state");
+        }
+      }
 
       render(userId) {
         if (this.friends && this.invitations) {
             return `<div class="d-flex flex-column m-5">
                       <div class="m-3">
                         <input type="text" id="search_bar_user" placeholder="Search..." />
-                        ${this.search_result
-                          ? `
-                          <div>${this.search_result}</div>`
-                          :
-                          ``
-                        }
+                        <div id="search_result"></div>
                       </div>
                       <div class="m-3">
                         <h3>FRIENDS</h3>
