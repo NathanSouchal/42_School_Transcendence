@@ -7,35 +7,35 @@ export default class Login {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
+
     this.formState = {
       username: "",
       password: "",
     };
-    this.isSubscribed = false;
-    this.isInitialized = false;
     this.eventListeners = [];
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
-    resetZIndex();
-    // Appeler render pour obtenir le contenu HTML
-    const content = this.render();
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-      // container.appendChild(createBackArrow());
+    if (!this.state.state.gameHasLoaded) return;
+    else {
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {
@@ -79,7 +79,7 @@ export default class Login {
         this.formState,
         {
           withCredentials: true,
-        },
+        }
       );
       const { id } = response.data.user;
       console.log(response.data);
@@ -94,12 +94,16 @@ export default class Login {
   }
 
   handleStateChange(newState) {
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content; // Remplacer le contenu du conteneur
-      // container.appendChild(createBackArrow());
-      this.attachEventListeners(); // Réattacher les écouteurs après chaque rendu
+    console.log("GameHasLoaded : " + newState.gameHasLoaded);
+    if (newState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Login page");
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
   }
 
@@ -118,13 +122,13 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    resetZIndex();
   }
 
-  render() {
+  render(routeParams = {}) {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
-    const template = `<div class="d-flex justify-content-center align-items-center h-100">
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
         <form id="login-form">
           <h3 class="text-center">Login</h3>
           <div class="mb-3">
@@ -161,11 +165,5 @@ export default class Login {
           </div>
         </form>
       </div>`;
-
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
   }
 }

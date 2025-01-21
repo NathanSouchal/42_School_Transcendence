@@ -10,7 +10,7 @@ export default class Stats {
     this.stats = {};
   }
 
-  async initialize() {
+  async initialize(routeParams = {}) {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -45,7 +45,7 @@ export default class Stats {
 
   destroy() {}
 
-  render() {
+  render(routeParams = {}) {
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`),

@@ -52,7 +52,7 @@ class Game {
       "Left Paddle Creation",
       async () =>
         new Paddle(this.arena, "left", this.players.left, this.config),
-      10,
+      10
     );
 
     this.paddleRight = await updateLoadingTime(
@@ -60,21 +60,21 @@ class Game {
       "Right Paddle Creation",
       async () =>
         new Paddle(this.arena, "right", this.players.right, this.config),
-      10,
+      10
     );
 
     this.ball = await updateLoadingTime(
       "Ball",
       "Ball Creation",
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
-      5,
+      5
     );
     this.pivot = new THREE.Group();
     this.pivot.add(
       this.arena.obj,
       this.ball.obj,
       this.paddleLeft.obj,
-      this.paddleRight.obj,
+      this.paddleRight.obj
     );
 
     await this.arena.initialized;
@@ -98,12 +98,12 @@ class Game {
     this.terrainFactory = new TerrainFactory();
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals"),
+      this.config.getGenerationConfig("corrals")
     );
     await this.terrain.initialized;
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea"),
+      this.config.getGenerationConfig("sea")
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.fishFactory = new FishFactory(this.terrain.geometry, this.terrain.obj);
@@ -123,7 +123,7 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig(),
+      this.config.getCameraConfig()
     );
 
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
@@ -147,7 +147,7 @@ class Game {
       this.renderer,
       this.scene,
       this.camera,
-      game,
+      game
     );
     this.rendererInstance.animate();
     this.state.setGameHasLoaded();
