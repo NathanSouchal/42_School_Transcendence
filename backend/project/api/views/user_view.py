@@ -6,20 +6,24 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import AllowAny
 from django.http import Http404
 from api.models import User
-from api.serializers import UserSerializer, PublicUserSerializer
+from api.serializers import UserSerializer, PublicUserSerializer, SimpleUserSerializer
 from api.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
+from django.http import Http404
 
 
 class UserView(APIView):
 	serializer_class = UserSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [AllowAny]
 
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			if request.user != user and not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			# if request.user != user and not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
@@ -82,3 +86,18 @@ class PublicUserView(APIView):
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class UserByNameView(APIView):
+	permission_classes = [AllowAny]
+
+	def get(self, request, username):
+		try:
+			user = get_object_or_404(User, username=username)
+			# if request.user != user and not request.user.is_superuser:
+			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			return Response({'user': SimpleUserSerializer(user).data}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+		except AuthenticationFailed as auth_error:
+			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except Exception as e:
+			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -12,7 +12,9 @@ urlpatterns = [
     path('tournament/', include("api.router.tournament_router")),
     path('match/', include("api.router.match_router")),
     path('stats/', include("api.router.stats_router")),
-    path('match-history/', include("api.router.match_history_router"))
+    path('match-history/', include("api.router.match_history_router")),
+    path('friendship/', include("api.router.friendship_router")),
+    path('friends/', include("api.router.friends_router"))
 ]
 
 if settings.DEBUG:

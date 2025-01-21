@@ -9,6 +9,7 @@ import Stats from "./pages/Stats.js";
 import User from "./pages/User.js";
 import State from "./services/state.js";
 import MatchHistory from "./pages/MatchHistory.js";
+import Social from "./pages/Social.js";
 
 const state = new State();
 export default state;
@@ -23,6 +24,7 @@ const routes = {
   "/stats": new Stats(state),
   "/match-history": new MatchHistory(state),
   "/user/:id/": new User(state),
+  "/social": new Social(state),
 };
 
 const router = new Router(routes);

@@ -1,5 +1,5 @@
 from rest_framework import serializers;
-from api.models import Game, User, Tournament, Match, Stats
+from api.models import Game, User, Tournament, Match, Stats, Friendship
 from drf_extra_fields.fields import Base64ImageField
 
 class GameSerializer(serializers.ModelSerializer):
@@ -19,10 +19,16 @@ class GameSerializer(serializers.ModelSerializer):
         representation['player2'] = instance.player2.username if instance.player2 else None
         return representation
 
+class SimpleUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
 
 class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
+    friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
+
     class Meta:
         model = User
         # fields = ['id', 'username', 'is_superuser', 'password', 'avatar', 'match_history']
@@ -88,3 +94,50 @@ class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stats
         fields = '__all__'
+
+class FriendshipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Friendship
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        """
+        Cette méthode est utilisée pour la sérialisation (GET).
+        Elle retourne les détails utilisateur plutôt que leurs IDs.
+        """
+        data = super().to_representation(instance)
+        data['from_user'] = SimpleUserSerializer(instance.from_user).data
+        data['to_user'] = SimpleUserSerializer(instance.to_user).data
+        return data
+
+    def create(self, validated_data):
+        """
+        Cette méthode est utilisée pour la désérialisation (POST).
+        Elle accepte uniquement les IDs des utilisateurs.
+        """
+        from_user = validated_data.pop('from_user')
+        to_user = validated_data.pop('to_user')
+        if from_user == to_user:
+            raise serializers.ValidationError(
+                {"to_user": "You cannot send a friendship request to yourself."}
+            )
+        if Friendship.objects.filter(from_user=to_user, to_user=from_user, accepted=False).exists():
+            raise serializers.ValidationError(
+                {"to_user": "This user has already sent you a friendship request. Accept it instead."}
+            )
+        if from_user.friends.filter(id=to_user.id).exists():
+            raise serializers.ValidationError(
+                {"to_user": "You are already friends with this user."}
+            )
+        return Friendship.objects.create(from_user=from_user, to_user=to_user, **validated_data)
+
+
+"""
+Pourquoi extraire from_user et to_user avec .pop()  ?
+
+Les champs comme from_user et to_user sont des relations ForeignKey,
+et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode Friendship.objects.create().
+En les extrayant avec .pop(), nous préparons ces champs pour les utiliser comme arguments distincts lors de la création.
+Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à Friendship.objects.create(),
+Django essaiera de traiter from_user et to_user comme des champs ordinaires, ce qui peut entraîner des erreurs.
+"""
