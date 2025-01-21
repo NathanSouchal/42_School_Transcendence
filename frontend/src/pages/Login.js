@@ -25,17 +25,16 @@ export default class Login {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    resetZIndex();
-    // Appeler render pour obtenir le contenu HTML
-    const content = this.render();
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-      // container.appendChild(createBackArrow());
+    if (!this.state.gameStarted) return;
+    else {
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = content;
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
     }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {

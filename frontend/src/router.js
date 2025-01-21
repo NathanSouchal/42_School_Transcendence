@@ -44,7 +44,6 @@ export class Router {
           (params, key, index) => ({ ...params, [key]: values[index] }),
           {}
         );
-        console.log(route + " COUCOU");
         return this.routes[route]; // Retourne la vue correspondante
       }
     }
@@ -63,7 +62,6 @@ export class Router {
     this.currentPage = view;
     this.currentPath = path;
 
-    console.log("INITIALISED ? " + view.isInitialized);
     if (typeof view.initialize === "function" && !view.isInitialized) {
       console.log("Appel à initialize pour :", path);
       await view.initialize(this.routeParams || {});
