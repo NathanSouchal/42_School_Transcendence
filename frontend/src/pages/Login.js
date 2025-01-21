@@ -25,7 +25,7 @@ export default class Login {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    resetZIndex();
+    //resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
     // Insérer le contenu dans le conteneur dédié
@@ -118,7 +118,7 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    resetZIndex();
+    //resetZIndex();
   }
 
   render() {

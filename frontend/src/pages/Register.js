@@ -26,7 +26,7 @@ export default class Register {
     }
     if (this.isInitialized) return;
     this.isInitialized = true;
-    resetZIndex();
+    //resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
 
@@ -149,7 +149,7 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
-    resetZIndex();
+    //resetZIndex();
   }
 
   render() {

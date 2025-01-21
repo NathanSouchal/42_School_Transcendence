@@ -18,7 +18,7 @@ export default class Home {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    resetZIndex();
+    //resetZIndex();
     // Appeler render pour obtenir le contenu HTML
     const content = this.render();
     // Insérer le contenu dans le conteneur dédié
@@ -47,7 +47,7 @@ export default class Home {
       this.isSubscribed = false;
       console.log("Home page unsubscribed from state");
     }
-    resetZIndex();
+    //resetZIndex();
   }
 
   render() {

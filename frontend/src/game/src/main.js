@@ -59,7 +59,7 @@ class Game {
     if (!this.state.state.gameHasLoaded || !this.state.state.gameStarted)
       return;
     if (event.key === this.pauseButton) {
-      this.state.setGameIsPaused();
+      this.state.togglePause();
     }
   }
 

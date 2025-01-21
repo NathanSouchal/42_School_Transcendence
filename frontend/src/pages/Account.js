@@ -29,7 +29,7 @@ export default class Account {
     }
     if (this.isInitialized) return;
     this.isInitialized = true;
-    resetZIndex();
+    //resetZIndex();
 
     // Récupérer l'ID utilisateur depuis le stockage local
     const userId = Number(localStorage.getItem("id"));
@@ -338,7 +338,7 @@ export default class Account {
       console.log("Removed unique eventListener from input");
       // Supprimez l'événement de la liste
       this.eventListeners = this.eventListeners.filter(
-        (el) => el.name !== name
+        (el) => el.name !== name,
       );
     }
   }
