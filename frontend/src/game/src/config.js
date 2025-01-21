@@ -12,7 +12,7 @@ export const DEFAULT_CONFIG = {
       },
     },
     right: {
-      deltaFactor: 30,
+      movementSpeed: 0.5,
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
