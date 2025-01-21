@@ -1,28 +1,12 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 class Ball {
   constructor(size, conf) {
     this.obj = new THREE.Object3D();
     this.conf = conf;
     this.size = size;
-    this.geometry = new THREE.CylinderGeometry(
-      size.ball_radius_left,
-      size.ball_radius_right,
-      size.ball_height,
-    );
     this.elapsedTime = 0;
-    this.material = new THREE.MeshPhongMaterial({
-      color: conf.color,
-      specular: conf.color_specular,
-      shininess: 100,
-    });
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.obj.add(this.mesh);
-    this.obj.castShadow = true;
-    this.obj.receiveShadow = true;
-    this.obj.position.copy(this.set_position());
-    this.box = new THREE.Box3().setFromObject(this.obj);
-
     this.maxAngle = Math.PI / 4;
     this.reflectionNormals = {
       bottom: new THREE.Vector3(1, 0, 0),
@@ -30,8 +14,48 @@ class Ball {
       right: new THREE.Vector3(0, 0, 1),
       left: new THREE.Vector3(0, 0, -1),
     };
+    //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
+  }
+
+  computeBoundingBoxes() {
+    this.box = new THREE.Box3().setFromObject(this.obj, true);
     this.velocity = this.random_initial_velocity();
+    this.obj.position.set(this.setPosition());
     this.make_sparks();
+    //this.boxHelper.box.copy(this.box);
+  }
+
+  setPosition() {
+    return new THREE.Vector3(0, 2.7, 0);
+  }
+
+  async init() {
+    await this.loadModel(
+      "src/game/assets/crab.glb",
+      new THREE.Vector3(1, 1, 1),
+    );
+    this.obj.add(this.asset);
+    //this.box = new THREE.Box3().setFromObject(this.obj, true);
+    //this.boxHelper.box.copy(this.box);
+  }
+
+  loadModel(path, scale) {
+    return new Promise((resolve, reject) => {
+      const loader = new GLTFLoader();
+      loader.load(
+        path,
+        (gltf) => {
+          this.asset = gltf.scene;
+          gltf.scene.scale.set(scale.x, scale.y, scale.z);
+          resolve(gltf.scene);
+        },
+        undefined,
+        (error) => {
+          console.error(error);
+          reject(error);
+        },
+      );
+    });
   }
 
   bounce(bbox) {
@@ -62,12 +86,13 @@ class Ball {
     this.velocity.copy(reflection);
   }
 
-  update(deltaTime) {
+  update(deltaTime, scene) {
     const scaledVelocity = this.velocity
       .clone()
       .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
     this.obj.position.add(scaledVelocity);
-    this.box = new THREE.Box3().setFromObject(this.obj);
+    this.box = new THREE.Box3().setFromObject(this.obj, true);
+    //this.boxHelper.box.copy(this.box);
     this.animate_sparks();
   }
 
@@ -94,15 +119,8 @@ class Ball {
     return new THREE.Vector3(x, z, y); // DO NOT CHANGE
   }
 
-  set_position() {
-    const x = 0;
-    const y = 3.0;
-    const z = 0;
-    return new THREE.Vector3(x, y, z);
-  }
-
   reset() {
-    this.obj.position.copy(this.set_position());
+    this.obj.position.copy(this.setPosition());
     this.velocity = this.random_initial_velocity();
   }
 

@@ -80,7 +80,7 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime) {
-    this.game.ball.update(deltaTime);
+    this.game.ball.update(deltaTime, this.scene);
     this.game.paddleRight.update(
       deltaTime,
       this.game.ball.obj.position,
@@ -104,7 +104,7 @@ class Renderer {
     for (const bbox of this.game.arena.BBoxes) {
       if (this.game.ball.box.intersectsBox(bbox.box)) {
         this.game.ball.bounce(bbox);
-        this.game.ball.update(deltaTime);
+        this.game.ball.update(deltaTime, this.scene);
         if (bbox.side === "right") {
           this.game.paddleLeft.controls.other_has_hit = true;
           this.game.paddleRight.controls.other_has_hit = false;

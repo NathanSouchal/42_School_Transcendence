@@ -73,7 +73,7 @@ class Game {
       "Left Paddle Creation",
       async () =>
         new Paddle(this.arena, "left", this.players.left, this.config),
-      10
+      10,
     );
 
     this.paddleRight = await updateLoadingTime(
@@ -81,37 +81,39 @@ class Game {
       "Right Paddle Creation",
       async () =>
         new Paddle(this.arena, "right", this.players.right, this.config),
-      10
+      10,
     );
 
     this.ball = await updateLoadingTime(
       "Ball",
       "Ball Creation",
       async () => new Ball(this.config.getSize(), this.config.getBallConfig()),
-      5
-    );
-    this.pivot = new THREE.Group();
-    this.pivot.add(
-      this.arena.obj,
-      this.ball.obj,
-      this.paddleLeft.obj,
-      this.paddleRight.obj
+      5,
     );
 
     await this.arena.initialized;
     await this.paddleLeft.init();
     await this.paddleRight.init();
+    await this.ball.init();
 
     this.arena.computeBoundingBoxes(this.scene);
     this.paddleLeft.computeBoundingBoxes(this.scene);
     this.paddleRight.computeBoundingBoxes(this.scene);
+    this.ball.computeBoundingBoxes();
 
-    this.arena.ball = this.ball.obj;
-    this.scene.add(this.arena.obj);
-    this.scene.add(this.paddleRight.obj);
-    this.scene.add(this.paddleLeft.obj);
-    this.scene.add(this.ball.obj);
-    this.scene.add(this.ball.sparks.group);
+    this.pivot = new THREE.Group();
+    this.pivot.add(
+      this.arena.obj,
+      this.ball.obj,
+      this.paddleLeft.obj,
+      this.paddleRight.obj,
+      this.ball.sparks.group,
+      //this.ball.boxHelper,
+      //this.arena.boxHelperTop,
+      //this.arena.boxHelperBottom,
+    );
+
+    this.pivot.position.set(0, 0, 0);
     this.scene.add(this.pivot);
   }
 
@@ -119,12 +121,12 @@ class Game {
     this.terrainFactory = new TerrainFactory();
     this.terrain = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("corrals")
+      this.config.getGenerationConfig("corrals"),
     );
     await this.terrain.initialized;
     this.sea = this.terrainFactory.create(
       this.config.getSize(),
-      this.config.getGenerationConfig("sea")
+      this.config.getGenerationConfig("sea"),
     );
     this.sky = new SkyGenerator(this.config.getSkyConfig());
     this.fishFactory = new FishFactory(this.terrain.geometry, this.terrain.obj);
@@ -144,10 +146,10 @@ class Game {
     this.camera = init_camera(
       this.renderer,
       this.arena.obj,
-      this.config.getCameraConfig()
+      this.config.getCameraConfig(),
     );
 
-    this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj);
+    this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj, true);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.render(this.scene, this.camera);
@@ -168,7 +170,7 @@ class Game {
       this.renderer,
       this.scene,
       this.camera,
-      game
+      game,
     );
     this.rendererInstance.animate();
     this.state.setGameHasLoaded();
