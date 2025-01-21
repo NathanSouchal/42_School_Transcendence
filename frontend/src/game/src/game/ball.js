@@ -15,6 +15,9 @@ class Ball {
       left: new THREE.Vector3(0, 0, -1),
     };
     this.rotationSpeed = 3.0;
+    this.isFalling = false;
+    this.waterResistance = 0.99;
+    this.sinkingSpeed = -0.2;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
   }
 
@@ -88,15 +91,48 @@ class Ball {
     this.rotationSpeed *= -1;
   }
 
-  update(deltaTime, scene) {
-    const scaledVelocity = this.velocity
-      .clone()
-      .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
-    this.obj.position.add(scaledVelocity);
-    this.box = new THREE.Box3().setFromObject(this.obj, true);
-    //this.boxHelper.box.copy(this.box);
-    this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
-    this.animate_sparks();
+  update(deltaTime, scene, renderer) {
+    if (this.isFalling) {
+      this.velocity.multiplyScalar(this.waterResistance);
+      const scaledVelocity = this.velocity
+        .clone()
+        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
+      this.obj.position.add(scaledVelocity);
+      this.obj.rotateY(0.5 * deltaTime);
+      //if (Math.abs(this.velocity.y) < Math.abs(this.minSinkSpeed)) {
+      if (this.obj.position.y < -1.5) {
+        renderer.markPoints();
+        this.reset();
+      }
+    } else {
+      const scaledVelocity = this.velocity
+        .clone()
+        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
+      this.obj.position.add(scaledVelocity);
+      this.box = new THREE.Box3().setFromObject(this.obj, true);
+      //this.boxHelper.box.copy(this.box);
+      this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
+      this.animate_sparks();
+
+      if (this.isOutOfArena(renderer)) {
+        this.startFalling();
+      }
+    }
+  }
+
+  isOutOfArena(renderer) {
+    return (
+      this.obj.position.z < -(renderer.zMax / 2) + renderer.depth / 2 - 3 ||
+      this.obj.position.z > renderer.zMax / 2 - renderer.depth / 2 + 3
+    );
+  }
+
+  startFalling() {
+    if (!this.isFalling) {
+      this.isFalling = true;
+      this.velocity.multiplyScalar(0.9);
+      this.velocity.y = this.sinkingSpeed;
+    }
   }
 
   random_initial_velocity() {
@@ -123,6 +159,7 @@ class Ball {
   }
 
   reset() {
+    this.isFalling = false;
     this.obj.position.copy(this.setPosition());
     this.velocity = this.random_initial_velocity();
   }
