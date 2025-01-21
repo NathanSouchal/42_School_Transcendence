@@ -9,7 +9,7 @@ export default class State {
       PVRgameStarted: false,
       gameStarted: false,
       gameModeHasChanged: false,
-      gameHasLoaded: false,
+      gameHasLoaded: true,
       gameLoadPercentage: 0,
       lastRoute: null,
       lastLastRoute: null,

@@ -115,8 +115,8 @@ export default class GamePage {
     container1.className =
       "d-flex justify-content-center align-items-center h-100";
 
-    const backArrow = createBackArrow();
-    container1.appendChild(backArrow);
+    // const backArrow = createBackArrow();
+    // container1.appendChild(backArrow);
 
     const container2 = document.createElement("ul");
     container2.className =
