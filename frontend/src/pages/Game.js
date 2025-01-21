@@ -58,16 +58,10 @@ export default class GamePage {
     const app = document.querySelector("#app");
 
     if (this.state.state.gameStarted && !this.state.state.gameIsPaused) {
-      // Canvas au-dessus, app en dessous
-      //   if (canvas) canvas.style.zIndex = "1";
-      //   if (app) app.style.zIndex = "0";
       app.classList.remove("view1");
       app.classList.add("view2");
       if (canvas) canvas.style.zIndex = "0";
     } else if (!this.state.state.gameIsPaused) {
-      // Canvas en dessous, app au-dessus
-      //   if (canvas) canvas.style.zIndex = "-1";
-      //   if (app) app.style.zIndex = "1";
       app.classList.remove("view2");
       app.classList.add("view1");
       if (canvas) canvas.style.zIndex = "-1";
@@ -94,33 +88,6 @@ export default class GamePage {
     this.updateZIndex();
   }
 
-  startGame() {
-    this.state.players = this.state.player_types.PVR;
-    this.resetScore();
-    this.state.state.gameStarted = value;
-    this.setGameNeedsReset(true);
-    this.notifyListeners();
-  }
-
-  togglePause() {
-    this.state.state.gameIsPaused = !this.state.gameIsPaused;
-    this.state.notifyListeners();
-  }
-
-  resetScore() {
-    this.state.score = { left: 0, right: 0 };
-  }
-
-  setGameNeedsReset(bool) {
-    this.state.state.gameNeedsReset = bool;
-    this.state.notifyListeners();
-  }
-
-  updateScore(side, points) {
-    this.state.score[side] += points;
-    this.state.notifyListeners();
-  }
-
   destroy() {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
@@ -135,7 +102,7 @@ export default class GamePage {
     }
   }
 
-  gameNotStartedMenu() {
+  gameMenu() {
     const container1 = document.createElement("div");
     container1.className =
       "d-flex justify-content-center align-items-center h-100";
@@ -164,7 +131,7 @@ export default class GamePage {
     return container1.innerHTML;
   }
 
-  gameStartedMenu() {
+  gameHUD() {
     const container = document.createElement("div");
     container.className =
       "d-flex flex-column justify-content-center align-items-center h-100";
@@ -182,9 +149,12 @@ export default class GamePage {
 
     let template;
     if (!this.state.state.gameStarted) {
-      template = this.gameNotStartedMenu();
+      template = this.gameMenu();
     } else {
-      template = this.gameStartedMenu();
+      template = this.gameHUD();
+    }
+    if (this.state.state.gameStarted && this.state.state.gameIsPaused) {
+      template = this.pauseMenu();
     }
     return template;
   }
