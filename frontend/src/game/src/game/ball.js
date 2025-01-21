@@ -14,6 +14,7 @@ class Ball {
       right: new THREE.Vector3(0, 0, 1),
       left: new THREE.Vector3(0, 0, -1),
     };
+    this.rotationSpeed = 3.0;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
   }
 
@@ -31,8 +32,8 @@ class Ball {
 
   async init() {
     await this.loadModel(
-      "src/game/assets/crab.glb",
-      new THREE.Vector3(1, 1, 1),
+      "src/game/assets/duck.glb",
+      new THREE.Vector3(0.007, 0.007, 0.007),
     );
     this.obj.add(this.asset);
     //this.box = new THREE.Box3().setFromObject(this.obj, true);
@@ -84,6 +85,7 @@ class Ball {
 
     const reflection = this.velocity.clone().reflect(normal);
     this.velocity.copy(reflection);
+    this.rotationSpeed *= -1;
   }
 
   update(deltaTime, scene) {
@@ -93,6 +95,7 @@ class Ball {
     this.obj.position.add(scaledVelocity);
     this.box = new THREE.Box3().setFromObject(this.obj, true);
     //this.boxHelper.box.copy(this.box);
+    this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
     this.animate_sparks();
   }
 
