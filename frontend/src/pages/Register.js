@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
+import API from "../services/api.js";
 
 export default class Register {
   constructor(state) {
@@ -111,10 +112,7 @@ export default class Register {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await axios.post(
-        "https://localhost:8000/user/register/",
-        this.formState
-      );
+      const response = await API.post("/user/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
       console.error(`Error while trying to post data : ${error}`);
