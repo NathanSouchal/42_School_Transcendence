@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
+import API from "../services/api.js";
 
 export default class Login {
   constructor(state) {
@@ -74,13 +75,7 @@ export default class Login {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await axios.post(
-        "https://localhost:8000/user/login/",
-        this.formState,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await API.post("/user/login/", this.formState);
       const { id } = response.data.user;
       console.log(response.data);
       localStorage.setItem("id", id);

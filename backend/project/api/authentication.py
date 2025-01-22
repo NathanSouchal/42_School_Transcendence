@@ -5,7 +5,6 @@ class CookieJWTAuthentication(JWTAuthentication):
 		# Vérifier si le cookie "access_token" est présent
 		token = request.COOKIES.get('access_token')
 		if token is None:
-			print("Aucun token trouvé dans les cookies")
 			return None  # Aucun token trouvé dans les cookies
 		try:
 			# Valider et décoder le token JWT

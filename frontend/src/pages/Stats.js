@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
+import API from "../services/api.js";
 
 export default class Stats {
   constructor(state) {
@@ -35,7 +36,7 @@ export default class Stats {
 
   async getStats(id) {
     try {
-      const res = await axios.get(`https://localhost:8000/stats/${id}/`);
+      const res = await API.get(`/stats/${id}/`);
       const data = res.data.stats;
       this.stats = data;
     } catch (error) {
@@ -48,7 +49,7 @@ export default class Stats {
   render(routeParams = {}) {
     console.log(
       "STATS: " +
-        Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`),
+        Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
     );
     let template;
     if (this.stats && Object.keys(this.stats).length > 0) {

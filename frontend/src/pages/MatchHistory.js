@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
+import API from "../services/api.js";
 
 export default class MatchHistory {
   constructor(state) {
@@ -40,17 +41,15 @@ export default class MatchHistory {
 
   async getMatchHistory(id) {
     try {
-      const res = await axios.get(
-        `https://localhost:8000/match-history/${id}/`,
-      );
+      const res = await API.get(`/match-history/${id}/`);
       const data = res.data.match_history;
       this.matchHistory = data;
       console.log(
         "MatchHistory: " +
           Object.entries(this.matchHistory).map(
             ([key, value]) =>
-              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`,
-          ),
+              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
+          )
       );
     } catch (error) {
       console.error(error);
@@ -75,7 +74,7 @@ export default class MatchHistory {
                     <h4>${value.player2}</h4>
                 </div>
 
-            </div>`,
+            </div>`
         )
         .join("")}`;
     } else {
@@ -89,4 +88,3 @@ export default class MatchHistory {
     return tmpContainer.innerHTML;
   }
 }
-

@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
+import API from "../services/api.js";
 
 export default class Account {
   constructor(state) {
@@ -268,9 +269,7 @@ export default class Account {
 
   async fetchData(id) {
     try {
-      const response = await axios.get(`https://localhost:8000/user/${id}/`, {
-        withCredentials: true,
-      });
+      const response = await API.get(`/user/${id}/`);
       const data = response.data;
       console.log(data);
       this.userData = data.user || { id: 0, username: "" };
@@ -284,13 +283,7 @@ export default class Account {
 
   async updateUserInfo(id) {
     try {
-      const res = await axios.put(
-        `https://localhost:8000/user/${id}/`,
-        this.formData,
-        {
-          withCredentials: true,
-        }
-      );
+      const res = await API.put(`/user/${id}/`, this.formData);
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
@@ -299,13 +292,7 @@ export default class Account {
 
   async deleteUser(id) {
     try {
-      await axios.delete(
-        `https://localhost:8000/user/${id}/`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
       this.render();
     } catch (error) {
@@ -316,13 +303,7 @@ export default class Account {
 
   async getNewAccessToken(id) {
     try {
-      await axios.post(
-        `https://localhost:8000/auth/custom-token/access/`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await API.post(`/access/`);
     } catch (error) {
       console.error(`Error while trying to get new access token : ${error}`);
     }
@@ -330,13 +311,7 @@ export default class Account {
 
   async getNewRefreshToken(id) {
     try {
-      await axios.post(
-        `https://localhost:8000/auth/custom-token/refresh/`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await API.post(`/auth/custom-token/refresh/`);
     } catch (error) {
       console.error(`Error while trying to get new refresh token : ${error}`);
     }
@@ -359,7 +334,7 @@ export default class Account {
       console.log("Removed unique eventListener from input");
       // Supprimez l'événement de la liste
       this.eventListeners = this.eventListeners.filter(
-        (el) => el.name !== name,
+        (el) => el.name !== name
       );
     }
   }

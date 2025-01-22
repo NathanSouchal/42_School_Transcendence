@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
 import { Router } from "../router.js";
+import API from "../services/api.js";
 
 export default class User {
   constructor(state) {
@@ -49,12 +50,7 @@ export default class User {
 
   async fetchUserInfo() {
     try {
-      const response = await axios.get(
-        `https://localhost:8000/user/public-profile/${this.pageId}/`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await API.get(`/user/public-profile/${this.pageId}/`);
       const data = response.data;
       this.userData = data.user;
       console.log(data);
