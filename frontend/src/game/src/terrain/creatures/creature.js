@@ -47,7 +47,7 @@ export default class Creature {
   makeSomeCreatures() {
     this.obj = new THREE.Object3D();
     this.obj.add(this.model);
-    this.obj.position.set(0, this.spawn_y, 0);
+    this.randomSpawn();
     this.velocity = this.random_initial_velocity();
     this.obj.rotateY(Math.PI);
     this.updateOrientation();
@@ -58,6 +58,14 @@ export default class Creature {
     const targetPosition = this.obj.position.clone().add(this.velocity);
     this.obj.lookAt(targetPosition);
     this.obj.rotateY(Math.PI);
+  }
+
+  randomSpawn() {
+    let x, z;
+
+    x = Math.random() * (50 - -50) + -50;
+    z = Math.random() * (50 - -50) + -50;
+    this.obj.position.set(x, this.spawn_y, z);
   }
 
   random_initial_velocity() {

@@ -30,12 +30,12 @@ class Renderer {
     if (state.players.left === "robot" && state.players.right === "robot")
       return;
     if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
-      state.updateScore("left", 1);
+      state.updateScore("right", 1);
     } else if (
       this.game.ball.obj.position.z >
       this.zMax / 2 - this.depth / 2 + 3
     ) {
-      state.updateScore("right", 1);
+      state.updateScore("left", 1);
     }
   }
 
@@ -45,25 +45,13 @@ class Renderer {
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
-      this.gameElementsUpdate(deltaTime);
-      this.pivotUpdate(deltaTime);
-      this.collisionsUpdate(deltaTime);
-
-      if (
-        this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3 ||
-        this.game.ball.obj.position.z > this.zMax / 2 - this.depth / 2 + 3
-      ) {
-        this.markPoints();
-        this.game.ball.reset();
+      if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
+        this.gameElementsUpdate(deltaTime);
+        this.pivotUpdate(deltaTime);
+        this.collisionsUpdate(deltaTime);
       }
 
-      if (state.state.gameModeHasChanged) {
-        this.game.ball.reset();
-
-        this.game.paddleLeft.choosePlayer(state.players.left);
-        this.game.paddleRight.choosePlayer(state.players.right);
-        state.state.gameModeHasChanged = false;
-      }
+      this.terrainElementsUpdate(deltaTime);
 
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
@@ -84,7 +72,7 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime) {
-    this.game.ball.update(deltaTime);
+    this.game.ball.update(deltaTime, this.scene, this);
     this.game.paddleRight.update(
       deltaTime,
       this.game.ball.obj.position,
@@ -95,8 +83,10 @@ class Renderer {
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
-    this.game.sea.update(deltaTime);
+  }
 
+  terrainElementsUpdate(deltaTime) {
+    this.game.sea.update(deltaTime);
     for (let creature of this.game.fishFactory.creatures) {
       creature.update(deltaTime);
     }
@@ -106,7 +96,7 @@ class Renderer {
     for (const bbox of this.game.arena.BBoxes) {
       if (this.game.ball.box.intersectsBox(bbox.box)) {
         this.game.ball.bounce(bbox);
-        this.game.ball.update(deltaTime);
+        this.game.ball.update(deltaTime, this.scene, this);
         if (bbox.side === "right") {
           this.game.paddleLeft.controls.other_has_hit = true;
           this.game.paddleRight.controls.other_has_hit = false;
