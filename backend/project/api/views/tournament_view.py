@@ -58,7 +58,7 @@ class TournamentView(APIView):
 			return Response({'error': f'Deletion failed due to related objects: {str(protected_error)}'}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		
+
 class TournamentListView(APIView):
 	permission_classes = [AllowAny]
 
@@ -73,11 +73,13 @@ class TournamentListView(APIView):
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		
+
 	def post(self, request):
 		try:
 			serializer = TournamentSerializer(data=request.data)
+			print(f"Data : ${request.data}")
 			if serializer.is_valid():
+				print("coucou")
 				tournament = serializer.save()
 				tournament.start_tournament()
 				firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])

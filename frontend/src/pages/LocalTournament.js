@@ -9,7 +9,7 @@ export default class LocalTournament {
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
-    this.playerNames = [];
+    this.playerList = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
@@ -72,11 +72,12 @@ export default class LocalTournament {
   }
 
   handlePlayersName(playerName) {
-    this.playerNames.push(playerName);
+    this.playerList.push(playerName);
     this.inputCount++;
     console.log(this.inputCount);
-    console.log(this.playerNames.map((el) => el));
+    console.log(this.playerList.map((el) => el));
     this.updateView();
+    if (this.inputCount == this.nbPlayers) this.createLocalTournament();
   }
 
   handleStateChange(newState) {
@@ -91,6 +92,21 @@ export default class LocalTournament {
     //     this.attachEventListeners();
     //   }
     // }
+  }
+
+  async createLocalTournament() {
+    try {
+      const res = await axios.post(
+        `https://localhost:8000/tournament/list/`,
+        this.playerList,
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res);
+    } catch (error) {
+      console.error(`Error while trying to update user data : ${error}`);
+    }
   }
 
   removeEventListeners() {
