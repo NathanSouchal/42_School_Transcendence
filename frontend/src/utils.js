@@ -8,3 +8,12 @@ export function resetZIndex() {
     app.classList.add("view1");
   }
 }
+
+export function updateView(context) {
+  const container = document.getElementById("app");
+  if (container) {
+    container.innerHTML = context.render();
+    context.removeEventListeners();
+    context.attachEventListeners();
+  }
+}
