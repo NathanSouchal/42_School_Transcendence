@@ -16,8 +16,6 @@ class Ball {
     };
     this.rotationSpeed = 3.0;
     this.isFalling = false;
-    this.waterResistance = 0.99;
-    this.sinkingSpeed = -0.2;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
   }
 
@@ -93,14 +91,19 @@ class Ball {
 
   update(deltaTime, scene, renderer) {
     if (this.isFalling) {
-      this.velocity.multiplyScalar(this.waterResistance);
+      if (this.obj.position.y <= -1) {
+        this.velocity.y *= 0.7;
+        this.velocity.x *= 0.85;
+        this.velocity.z *= 0.85;
+      }
       const scaledVelocity = this.velocity
         .clone()
         .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
       this.obj.position.add(scaledVelocity);
       this.obj.rotateY(0.5 * deltaTime);
-      //if (Math.abs(this.velocity.y) < Math.abs(this.minSinkSpeed)) {
-      if (this.obj.position.y < -1.5) {
+
+      this.elapsedTime += deltaTime;
+      if (this.elapsedTime >= 1.5) {
         renderer.markPoints();
         this.reset();
       }
@@ -110,10 +113,8 @@ class Ball {
         .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
       this.obj.position.add(scaledVelocity);
       this.box = new THREE.Box3().setFromObject(this.obj, true);
-      //this.boxHelper.box.copy(this.box);
       this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
       this.animate_sparks();
-
       if (this.isOutOfArena(renderer)) {
         this.startFalling();
       }
@@ -129,9 +130,10 @@ class Ball {
 
   startFalling() {
     if (!this.isFalling) {
+      this.elapsedTime = 0;
       this.isFalling = true;
-      this.velocity.multiplyScalar(0.9);
-      this.velocity.y = this.sinkingSpeed;
+      this.velocity.multiplyScalar(0.7);
+      this.velocity.y = -0.2;
     }
   }
 
@@ -159,6 +161,7 @@ class Ball {
   }
 
   reset() {
+    this.elapsedTime = 0;
     this.isFalling = false;
     this.obj.position.copy(this.setPosition());
     this.velocity = this.random_initial_velocity();
