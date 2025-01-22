@@ -16,7 +16,7 @@ export function init_camera(renderer, arena, CameraConfig) {
   //controls.maxPolarAngle = Math.PI / 2;
 
   const centerOfScene = new THREE.Vector3();
-  const box = new THREE.Box3().setFromObject(arena);
+  const box = new THREE.Box3().setFromObject(arena, true);
   box.getCenter(centerOfScene);
 
   camera.position.set(

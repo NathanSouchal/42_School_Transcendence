@@ -118,7 +118,7 @@ class JellyFish extends Creature {
     this.max_speed = 0.1;
     this.min_speed = -0.1;
     this.spawn_y = -10;
-    this.max_y = -5;
+    this.max_y = -9;
     this.makeSomeCreatures();
   }
 }
