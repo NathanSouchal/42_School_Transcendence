@@ -14,7 +14,7 @@ from django.http import Http404
 
 class UserView(APIView):
 	serializer_class = UserSerializer
-	permission_classes = [AllowAny]
+	permission_classes = [IsAuthenticated]
 
 	def get(self, request, id=None):
 		try:
