@@ -19,7 +19,7 @@ export default class LocalTournament {
     this.MatchToPlay = {};
     this.cssLink;
     this.tournamentFinished = false;
-    this.winner = "";
+    this.tournamentWinner = null;
   }
 
   async initialize() {
@@ -138,26 +138,29 @@ export default class LocalTournament {
   }
 
   async matchFinished() {
+    let winner = "";
     if (this.state.score.left > this.state.score.right)
-        this.winner = this.MatchToPlay.player1;
+        winner = this.MatchToPlay.player1;
     else
-        this.winner = this.MatchToPlay.player2;
+        winner = this.MatchToPlay.player2;
     try {
       const res = await API.put(
         `/match/${this.MatchToPlay.id}/`,
         {
           "score_player1": this.state.score.left,
           "score_player2": this.state.score.right,
-          "winner": this.winner
+          "winner": winner
         }
       )
       console.log(res);
       if (res.status === 200) {
         this.MatchToPlay = res.data.nextMatchToPlay;
-        this.currentRound = res.data.tournament.rounds_tree[MatchToPlay.round_number];
+        this.currentRound = res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
       }
-      else
+      else {
         this.tournamentFinished = true;
+        this.tournamentWinner = winner;
+      }
     }
     catch (error) {
       console.error(`Error while trying to update match data : ${error}`);
@@ -228,18 +231,18 @@ export default class LocalTournament {
   renderTournament() {
     return `<div class="matches-main-div">
         ${this.tournamentFinished
-          ? `<h1> Winner: ${this.winner} !</h1>`
-          : ``
+          ? `<h1>Winner: ${this.tournamentWinner} !</h1>`
+          : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
         }
 				${this.currentRound.map((element) =>
-          this.MatchToPlay.id === element.id
+          ((this.MatchToPlay.id === element.id) && !this.tournamentWinner)
         ? `<div class="next-match-main-div">
             <h1 class="me-3">${element.player1}</h1> 
             <h2>vs</h2>
             <h1>${element.player2}</h1>
             <button id="btn-start-match">PLAY</button>
           </div>`
-        : !element.winner
+        : !element.winner && !this.tournamentWinner
           ?`<div class="upcoming-match-main-div">
               <h1 class="me-3">${element.player1}</h1> 
               <h2>vs</h2>
@@ -250,7 +253,7 @@ export default class LocalTournament {
               <h1 class="me-3">${element.player1}</h1> 
               <h2>vs</h2>
               <h1>${element.player2}</h1>
-              <h1>${element.score_player1} - ${element.score_player2}</h1>
+              <h1>${this.tournamentWinner ? `${this.state.score.left}` : `${element.score_player1}`} - ${this.tournamentWinner ? `${this.state.score.right}` : `${element.score_player2}`}</h1>
             </div>`).join('')}
 			</div>`;
   }
