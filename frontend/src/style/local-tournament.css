@@ -19,6 +19,34 @@
     font-size: 140%;
 }
 
+.matches-main-div button {
+    background-color: #54e254; /* Couleur principale */
+    color: #fff; /* Couleur du texte */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem; /* Taille du texte */
+    font-weight: bold;
+    padding: 10px 20px; /* Espace intérieur */
+    border: none; /* Pas de bordure */
+    border-radius: 8px; /* Bordures arrondies */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
+    cursor: pointer; /* Curseur au survol */
+    transition: all 0.3s ease; /* Transition pour un effet fluide */
+    letter-spacing: 1px; /* Espacement des lettres */
+}
+
+.matches-main-div button:hover {
+    background-color: #4aca4a; /* Couleur légèrement plus sombre */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Augmentation de l'ombre */
+    transform: translateY(-2px); /* Légère élévation */
+}
+
+.matches-main-div button:active {
+    background-color: #3da43d; /* Couleur encore plus sombre au clic */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduction de l'ombre */
+    transform: translateY(0); /* Annule l'élévation */
+}
+
+
 .next-match-main-div {
     width: 60%;
     height: 25%;

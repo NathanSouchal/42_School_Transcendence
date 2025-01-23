@@ -16,8 +16,10 @@ export default class LocalTournament {
     this.inputCount = 0;
     this.eventListeners = [];
     this.currentRound = [];
-    this.idMatchToPlay = 0;
+    this.MatchToPlay = {};
     this.cssLink;
+    this.tournamentFinished = false;
+    this.winner = "";
   }
 
   async initialize() {
@@ -69,6 +71,22 @@ export default class LocalTournament {
         listener: handlePlayersName,
       });
     }
+
+    const btnToStartMatch = document.getElementById("btn-start-match");
+    if (btnToStartMatch) {
+      const handleStartButton = this.handleStartButton.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "btnToStartMatch")) {
+        btnToStartMatch.addEventListener("click", (e) =>
+          handleStartButton(e.target.value)
+        );
+      }
+      this.eventListeners.push({
+        name: "btnToStartMatch",
+        type: "click",
+        element: btnToStartMatch,
+        listener: handleStartButton,
+      });
+    }
   }
 
   handleNbPlayersChange(selectedValue) {
@@ -86,18 +104,64 @@ export default class LocalTournament {
     this.updateView();
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    // if (newState.gameHasLoaded) {
-    //   console.log("GameHasLoaded state changed, rendering Account page");
-    //   const content = this.render();
-    //   const container = document.getElementById("app");
-    //   if (container) {
-    //     container.innerHTML = content;
-    //     this.removeEventListeners();
-    //     this.attachEventListeners();
-    //   }
-    // }
+  async handleStateChange(newState) {
+    console.log("gameHasBeenWon : " + newState.gameHasBeenWon);
+    if (newState.gameStarted) {
+      console.log("Game has started");
+      
+      const container = document.getElementById("app");
+      if (container) {
+        container.className = "";
+        const content = this.render();
+        container.innerHTML = content;
+        
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
+    }
+    if (newState.gameHasBeenWon) {
+      await this.matchFinished();
+      const content = this.render();
+      const container = document.getElementById("app");
+      if (container) {
+        container.className = "menu";
+        container.innerHTML = content;
+        
+        this.removeEventListeners();
+        this.attachEventListeners();
+      }
+    }
+  }
+
+  handleStartButton(){
+    this.state.setGameStarted("PVP");
+  }
+
+  async matchFinished() {
+    if (this.state.score.left > this.state.score.right)
+        this.winner = this.MatchToPlay.player1;
+    else
+        this.winner = this.MatchToPlay.player2;
+    try {
+      const res = await API.put(
+        `/match/${this.MatchToPlay.id}/`,
+        {
+          "score_player1": this.state.score.left,
+          "score_player2": this.state.score.right,
+          "winner": this.winner
+        }
+      )
+      console.log(res);
+      if (res.status === 200) {
+        this.MatchToPlay = res.data.nextMatchToPlay;
+        this.currentRound = res.data.tournament.rounds_tree[MatchToPlay.round_number];
+      }
+      else
+        this.tournamentFinished = true;
+    }
+    catch (error) {
+      console.error(`Error while trying to update match data : ${error}`);
+    }
   }
 
   async createLocalTournament() {
@@ -110,7 +174,7 @@ export default class LocalTournament {
       );
       console.log(res);
       this.currentRound = res.data.tournament.rounds_tree[0];
-      this.idMatchToPlay = res.data.FirstMatch.id;
+      this.MatchToPlay = res.data.FirstMatch;
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }
@@ -163,13 +227,17 @@ export default class LocalTournament {
 
   renderTournament() {
     return `<div class="matches-main-div">
+        ${this.tournamentFinished
+          ? `<h1> Winner: ${this.winner} !</h1>`
+          : ``
+        }
 				${this.currentRound.map((element) =>
-          this.idMatchToPlay === element.id
+          this.MatchToPlay.id === element.id
         ? `<div class="next-match-main-div">
             <h1 class="me-3">${element.player1}</h1> 
             <h2>vs</h2>
             <h1>${element.player2}</h1>
-            <h1>NEXT</h1>
+            <button id="btn-start-match">PLAY</button>
           </div>`
         : !element.winner
           ?`<div class="upcoming-match-main-div">
@@ -187,13 +255,32 @@ export default class LocalTournament {
 			</div>`;
   }
 
+  getGameHUDTemplate() {
+    const { left, right } = this.state.score;
+    const { gameIsPaused } = this.state.state;
+
+    return `
+          <div class="game-hud">
+            <div class="game-score">
+              <h1 class="display-4 mb-0">${left} - ${right}</h1>
+            </div>
+            <button id="toggle-pause" class="pause-play-btn">
+              <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+            </button>
+          </div>
+          `;
+  }
+
   render() {
+    console.log(this.state.state.gameStarted);
     return `${
-      !this.nbPlayers
-        ? `${this.renderSelectNbPlayers()}`
-        : this.nbPlayers == this.inputCount
-          ? `${this.renderTournament()}`
-          : `${this.renderInputPlayerName()}`
+      this.state.state.gameStarted === true
+        ? `${this.getGameHUDTemplate()}`
+        : !this.nbPlayers
+          ? `${this.renderSelectNbPlayers()}`
+          : this.nbPlayers == this.inputCount
+            ? `${this.renderTournament()}`
+            : `${this.renderInputPlayerName()}`
     }`;
   }
 }
