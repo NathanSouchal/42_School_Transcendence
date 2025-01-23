@@ -238,9 +238,8 @@ export default class Account {
       this.updateView();
     } else if (key == "update-user-info") {
       try {
-        const promise1 = this.updateUserInfo(this.userData.id);
-        const promise2 = this.fetchData(this.userData.id);
-        await Promise.all([promise1, promise2]);
+        await this.updateUserInfo(this.userData.id);
+        await this.fetchData(this.userData.id);
         this.isForm = !this.isForm;
         this.updateView();
       } catch (error) {
@@ -268,23 +267,25 @@ export default class Account {
   }
 
   async fetchData(id) {
+    console.log("Fetchind data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
       console.log(data);
-      this.userData = data.user || { id: 0, username: "" };
+      this.userData = data.user;
       if (!this.state.isUserLoggedIn) this.state.isUserLoggedIn = true;
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
-      this.userData = { id: 0, username: "" };
+      this.userData = {};
       if (this.state.isUserLoggedIn) this.state.isUserLoggedIn = false;
     }
   }
 
   async updateUserInfo(id) {
+    console.log("Updating data...");
     try {
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res);
+      console.log(res + "ICI");
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }
@@ -302,11 +303,11 @@ export default class Account {
   }
 
   async getNewAccessToken(id) {
-    try {
-      await API.post(`/access/`);
-    } catch (error) {
-      console.error(`Error while trying to get new access token : ${error}`);
-    }
+    // try {
+    //   await API.post(`/auth/custom-token/access/`);
+    // } catch (error) {
+    //   console.error(`Error while trying to get new access token : ${error}`);
+    // }
   }
 
   async getNewRefreshToken(id) {
