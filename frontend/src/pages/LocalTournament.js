@@ -1,5 +1,7 @@
 import axios from "axios";
 import { updateView } from "../utils";
+import API from "../services/api";
+import {addCSS, removeCSS} from "../utils";
 
 export default class LocalTournament {
   constructor(state) {
@@ -13,12 +15,16 @@ export default class LocalTournament {
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
+    this.currentRound = [];
+    this.idMatchToPlay = 0;
+    this.cssLink;
   }
 
   async initialize() {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
+    this.cssLink = addCSS("src/style/local-tournament.css");
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -51,9 +57,9 @@ export default class LocalTournament {
     if (inputPlayerButton) {
       const handlePlayersName = this.handlePlayersName.bind(this);
       if (!this.eventListeners.some((e) => e.name === "inputPlayerButton")) {
-        inputPlayerButton.addEventListener("click", () => {
+        inputPlayerButton.addEventListener("click", async () => {
           const playerName = document.getElementById("input-player-name").value;
-          if (playerName) handlePlayersName(playerName);
+          if (playerName) await handlePlayersName(playerName);
         });
       }
       this.eventListeners.push({
@@ -66,18 +72,18 @@ export default class LocalTournament {
   }
 
   handleNbPlayersChange(selectedValue) {
-    this.nbPlayers = selectedValue;
+    this.nbPlayers = parseInt(selectedValue, 10);
     console.log(this.nbPlayers);
     this.updateView();
   }
 
-  handlePlayersName(playerName) {
+  async handlePlayersName(playerName) {
     this.playerList.push(playerName);
     this.inputCount++;
     console.log(this.inputCount);
     console.log(this.playerList.map((el) => el));
+    if (this.inputCount == this.nbPlayers) await this.createLocalTournament();
     this.updateView();
-    if (this.inputCount == this.nbPlayers) this.createLocalTournament();
   }
 
   handleStateChange(newState) {
@@ -95,15 +101,16 @@ export default class LocalTournament {
   }
 
   async createLocalTournament() {
+    console.log(typeof this.nbPlayers, this.nbPlayers);
     try {
-      const res = await axios.post(
-        `https://localhost:8000/tournament/list/`,
-        this.playerList,
-        {
-          withCredentials: true,
-        }
+      const res = await API.post(
+        `/tournament/list/`,
+      {"participants": this.playerList,
+        "number_of_players": this.nbPlayers}
       );
       console.log(res);
+      this.currentRound = res.data.tournament.rounds_tree[0];
+      this.idMatchToPlay = res.data.FirstMatch.id;
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }
@@ -125,6 +132,7 @@ export default class LocalTournament {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
+      removeCSS(this.cssLink);
     }
   }
 
@@ -154,8 +162,28 @@ export default class LocalTournament {
   }
 
   renderTournament() {
-    return `<div class="d-flex justify-content-center align-items-center m-5">
-				Tournament ready
+    return `<div class="matches-main-div">
+				${this.currentRound.map((element) =>
+          this.idMatchToPlay === element.id
+        ? `<div class="next-match-main-div">
+            <h1 class="me-3">${element.player1}</h1> 
+            <h2>vs</h2>
+            <h1>${element.player2}</h1>
+            <h1>NEXT</h1>
+          </div>`
+        : !element.winner
+          ?`<div class="upcoming-match-main-div">
+              <h1 class="me-3">${element.player1}</h1> 
+              <h2>vs</h2>
+              <h1>${element.player2}</h1>
+              <h1>⏳</h1>
+          </div>`
+          : `<div class="passed-match-main-div">
+              <h1 class="me-3">${element.player1}</h1> 
+              <h2>vs</h2>
+              <h1>${element.player2}</h1>
+              <h1>${element.score_player1} - ${element.score_player2}</h1>
+            </div>`).join('')}
 			</div>`;
   }
 

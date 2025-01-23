@@ -17,3 +17,20 @@ export function updateView(context) {
     context.attachEventListeners();
   }
 }
+
+
+export function addCSS(path) {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.type = 'text/css';
+  link.href = path;
+  document.head.appendChild(link);
+
+  console.log("CSS ajouté");
+  return link;
+}
+
+export function removeCSS(link) {
+  document.head.removeChild(link);
+  console.log("CSS supprimé");
+}

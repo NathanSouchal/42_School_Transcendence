@@ -5,7 +5,7 @@ from .user_model import User
 from .match_model import Match
 
 class Tournament(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, default='unnamed')
     creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     # participants = models.ManyToManyField(User, related_name='tournaments')
     participants = models.JSONField(default=list, blank=True)
@@ -56,6 +56,7 @@ class Tournament(models.Model):
         # Ici se fait l'attribution des next_match en se basant sur l'arbre
         self.assign_next_matches()
         self.status = 'in progress'
+        self.name = f'Tournament nº{self.id}'
         self.save()
 
     def find_next_match_to_play(self, id_last_match):

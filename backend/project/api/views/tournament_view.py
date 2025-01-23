@@ -16,6 +16,7 @@ class TournamentView(APIView):
 	def get(self, request, id=None):
 		try:
 			tournament = get_object_or_404(Tournament, id=id)
+			firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
 			# if request.user != tournament.creator and not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'tournament': TournamentSerializer(tournament).data}, status=status.HTTP_200_OK)
@@ -81,7 +82,9 @@ class TournamentListView(APIView):
 			if serializer.is_valid():
 				print("coucou")
 				tournament = serializer.save()
+				print("coucou11")
 				tournament.start_tournament()
+				print(f"Name: {tournament.name}")
 				firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
 				return Response(
                     {'message': 'Tournament created successfully', 'tournament': TournamentSerializer(tournament).data,
