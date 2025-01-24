@@ -18,6 +18,7 @@ export default class User {
     this.friendRequests = [];
     this.userId = null;
     this.friendStatus = "";
+    this.friendRequestId = null;
   }
 
   async initialize(routeParams = {}) {
@@ -53,7 +54,45 @@ export default class User {
     }
   }
 
-  attachEventListeners() {}
+  attachEventListeners() {
+    const cancelFriendRequest = document.getElementById(
+      "cancel-friend-request"
+    );
+    if (cancelFriendRequest) {
+      const handleFriend = this.handleFriend.bind(this);
+      if (
+        !this.eventListeners.some((e) => e.name === "cancel-friend-request")
+      ) {
+        cancelFriendRequest.addEventListener(
+          "click",
+          async (e) => await handleFriend("cancel-friend-request", "")
+        );
+        this.eventListeners.push({
+          name: "cancel-friend-request",
+          type: "click",
+          element: cancelFriendRequest,
+          listener: handleFriend,
+        });
+      }
+    }
+
+    const sendFriendRequest = document.getElementById("send-friend-request");
+    if (sendFriendRequest) {
+      const handleFriend = this.handleFriend.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "send-friend-request")) {
+        sendFriendRequest.addEventListener(
+          "click",
+          async (e) => await handleFriend("send-friend-request", "")
+        );
+        this.eventListeners.push({
+          name: "send-friend-request",
+          type: "click",
+          element: sendFriendRequest,
+          listener: handleFriend,
+        });
+      }
+    }
+  }
 
   async getPublicUserInfo() {
     try {
@@ -87,6 +126,37 @@ export default class User {
     }
   }
 
+  async addFriend() {
+    try {
+      const res = API.post("/friendship/list/", {
+        from_user: this.userId.toString(),
+        to_user: this.pageId.toString(),
+      });
+    } catch (error) {
+      console.error(`Error while trying to add friend : ${error}`);
+    }
+  }
+
+  async deleteFriend() {}
+
+  async cancelFriendRequest() {
+    try {
+      const res = API.post(`/friendship/${this.friendRequestId}/`, {
+        accepted: "false",
+      });
+    } catch (error) {
+      console.error(`Error while trying to cancel friend request : ${error}`);
+    }
+  }
+
+  async handleFriend(key, value) {
+    if (key === "cancel-friend-request") {
+      await cancelFriendRequest();
+    } else if (key === "send-friend-request") {
+      await sendFriendRequest();
+    }
+  }
+
   checkFriendStatus() {
     if (this.friends.some((el) => el.id.toString() === this.pageId))
       this.friendStatus = "friend";
@@ -94,9 +164,15 @@ export default class User {
       this.friendRequests.some(
         (el) => !el.accepted && el.to_user?.id.toString() === this.pageId
       )
-    )
-      this.friendStatus = "pending";
-    else {
+    ) {
+      const matchingRequest = this.friendRequests.find(
+        (el) => !el.accepted && el.to_user?.id.toString() === this.pageId
+      );
+      if (matchingRequest) {
+        this.friendRequestId = matchingRequest.id;
+        this.friendStatus = "pending";
+      }
+    } else {
       if (this.pageId.toString() === this.userId.toString())
         this.friendStatus = "me";
       else this.friendStatus = "free";
@@ -118,7 +194,15 @@ export default class User {
     }
   }
 
-  removeEventListeners() {}
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
 
   destroy() {
     this.removeEventListeners();
@@ -137,6 +221,7 @@ export default class User {
     this.friendRequests = [];
     this.userId = null;
     this.friendStatus = "";
+    this.friendRequestId = null;
   }
 
   render(routeParams = {}) {
@@ -175,7 +260,7 @@ export default class User {
 					</div>
 					${
             this.friendStatus === "free"
-              ? `<button type="button" class="btn btn-success m-3" id="add-friend">
+              ? `<button type="button" class="btn btn-success m-3" id="send-friend-request">
 						Add friend
 					</button>`
               : this.friendStatus === "friend"
@@ -183,8 +268,8 @@ export default class User {
 						Unfriend
 					</button>`
                 : this.friendStatus === "pending"
-                  ? `<button type="button" class="btn btn-info m-3" id="pending-request">
-						Pending request
+                  ? `<button type="button" class="btn btn-info m-3" id="cancel-friend-request">
+						Cancel friend request
 					</button>`
                   : ``
           }
