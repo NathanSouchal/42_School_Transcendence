@@ -1,0 +1,128 @@
+.matches-main-div {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3%;
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 3%;
+}
+
+.matches-main-div h1 {
+    font-size: 170%;
+}
+
+.matches-main-div h2 {
+    font-size: 140%;
+}
+
+.matches-main-div button {
+    background-color: #5560db;
+    color: #fff; /* Couleur du texte */
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.2rem; /* Taille du texte */
+    font-weight: bold;
+    padding: 10px 20px; /* Espace intérieur */
+    border: none; /* Pas de bordure */
+    border-radius: 8px; /* Bordures arrondies */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
+    cursor: pointer; /* Curseur au survol */
+    transition: all 0.3s ease; /* Transition pour un effet fluide */
+    letter-spacing: 1px; /* Espacement des lettres */
+    margin-top: 10%;
+}
+
+.matches-main-div button:hover {
+    background-color: #4b55c2;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Augmentation de l'ombre */
+    transform: translateY(-2px); /* Légère élévation */
+}
+
+.matches-main-div button:active {
+    background-color: #3f47a3;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduction de l'ombre */
+    transform: translateY(0); /* Annule l'élévation */
+}
+
+
+.next-match-main-div {
+    width: 60%;
+    height: 25%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    border-radius: 15px;
+    background-color: rgba(226, 82, 82, 0.397); 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.747);
+    padding: 20px;
+}
+
+.next-match-main-div button {
+    background-color: #54e254; /* Couleur principale */
+    margin-top: 0;
+}
+
+.next-match-main-div button:hover {
+    background-color: #4aca4a; /* Couleur légèrement plus sombre */
+}
+
+.next-match-main-div button:active {
+    background-color: #3da43d; /* Couleur encore plus sombre au clic */
+}
+
+.upcoming-match-main-div {
+    width: 60%;
+    height: 25%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    border-radius: 15px;
+    background-color: rgba(204, 130, 120, 0.397); 
+    padding: 20px;
+}
+
+.passed-match-main-div {
+    width: 60%;
+    height: 25%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    border-radius: 15px;
+    background-color: rgba(135, 143, 229, 0.397); 
+    padding: 20px;
+}
+
+.tournament-game-hud {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 16px;
+    z-index: 9999;
+  }
+  
+.tournament-game-score {
+    width: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4%;
+    color: var(--orange);
+    padding: 16px;
+    border-radius: 8px;
+    margin-right: 16px;
+    font-family: "Creepster", cursive;
+    font-family: 48px;
+}
+
+.tournament-game-score h1 {
+    width: 33%;
+    display: flex;
+    justify-content: center;
+}
+    

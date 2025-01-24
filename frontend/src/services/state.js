@@ -8,7 +8,7 @@ export default class State {
       isGamePage: false,
       gameStarted: false,
       gameModeHasChanged: false,
-      gameHasLoaded: false,
+      gameHasLoaded: true,
       gameLoadPercentage: 0,
       lastRoute: null,
       lastLastRoute: null,
@@ -20,7 +20,8 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    this.gamePoints = 10;
+    //this.gamePoints = 10;
+    this.gamePoints = 1;
 
     this.player_types = {
       default: {

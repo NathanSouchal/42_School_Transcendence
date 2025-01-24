@@ -79,15 +79,27 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = '__all__'
+        fields = ['id', 'round_number', 'player1', 'player2', 'winner', 'score_player1', 'score_player2', 'next_match']
         read_only_fields = ['created_at', 'id']
 
 class TournamentSerializer(serializers.ModelSerializer):
+    rounds_tree = serializers.SerializerMethodField()
 
     class Meta:
         model = Tournament
         fields = '__all__'
         read_only_fields = ['created_at', 'id']
+
+    def get_rounds_tree(self, obj):
+        serialized_rounds_tree = []
+
+        for round_ids in obj.rounds_tree:
+            matches = Match.objects.filter(id__in=round_ids)
+            serialized_matches = MatchSerializer(matches, many=True).data
+            serialized_rounds_tree.append(serialized_matches)
+
+        return serialized_rounds_tree
+
 
 class StatsSerializer(serializers.ModelSerializer):
 
