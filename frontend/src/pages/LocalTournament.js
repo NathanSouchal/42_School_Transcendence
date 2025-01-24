@@ -20,6 +20,7 @@ export default class LocalTournament {
     this.cssLink;
     this.tournamentFinished = false;
     this.tournamentWinner = null;
+    this.userAlias = "";
   }
 
   async initialize() {
@@ -34,8 +35,18 @@ export default class LocalTournament {
     }
 
     const userId = Number(localStorage.getItem("id"));
-
+    this.getUserAlias(userId);
     this.updateView();
+  }
+
+  async getUserAlias(id) {
+    try {
+      const response = await API.get(`/user/${id}/`);
+      this.userAlias = response.data.user.alias;
+    }
+      catch (error) {
+        console.error(`Error while trying to get data : ${error}`);
+    }
   }
 
   attachEventListeners() {
@@ -55,19 +66,21 @@ export default class LocalTournament {
       });
     }
 
-    const inputPlayerButton = document.getElementById("input-player-button");
-    if (inputPlayerButton) {
+    const inputPlayerName = document.getElementById("input-player-name");
+    if (inputPlayerName) {
       const handlePlayersName = this.handlePlayersName.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "inputPlayerButton")) {
-        inputPlayerButton.addEventListener("click", async () => {
-          const playerName = document.getElementById("input-player-name").value;
-          if (playerName) await handlePlayersName(playerName);
+      if (!this.eventListeners.some((e) => e.name === "inputPlayerName")) {
+        inputPlayerName.addEventListener("keydown", async (event) => {
+          if (event.key === "Enter") {
+            const playerName = inputPlayerName.value;
+            if (playerName) await handlePlayersName(playerName);
+          }
         });
       }
       this.eventListeners.push({
-        name: "inputPlayerButton",
-        type: "click",
-        element: inputPlayerButton,
+        name: "inputPlayerName",
+        type: "keydown",
+        element: inputPlayerName,
         listener: handlePlayersName,
       });
     }
@@ -85,6 +98,22 @@ export default class LocalTournament {
         type: "click",
         element: btnToStartMatch,
         listener: handleStartButton,
+      });
+    }
+
+    const gameMenueButton = document.getElementById("game-menu-button");
+    if (gameMenueButton) {
+      const handleGameMenuButton = this.handleGameMenuButton.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "gameMenueButton")) {
+        gameMenueButton.addEventListener("click", (e) =>
+          handleGameMenuButton(e.target.value)
+        );
+      }
+      this.eventListeners.push({
+        name: "gameMenueButton",
+        type: "click",
+        element: gameMenueButton,
+        listener: handleGameMenuButton,
       });
     }
   }
@@ -135,6 +164,10 @@ export default class LocalTournament {
 
   handleStartButton(){
     this.state.setGameStarted("PVP");
+  }
+
+  handleGameMenuButton(){
+    window.location.href = "https://localhost:3000/game";
   }
 
   async matchFinished() {
@@ -220,19 +253,19 @@ export default class LocalTournament {
 
   renderInputPlayerName() {
     return `<div class="d-flex justify-content-center align-items-center m-5">
-					<label>Player n°${this.inputCount + 1}</label>
-					<input id="input-player-name" type="text" name="" value="" placeholder="Enter player n°${this.inputCount + 1} name" required/>
-					<button id="input-player-button" type="button" class="btn btn-primary">
-						Ok
-					</button>
-				</div>`;
+					    <label>Player n°${this.inputCount + 1}</label>
+					      <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}" 
+                placeholder="Enter player n°${this.inputCount + 1} name" required/>
+				    </div>`;
   }
 
   renderTournament() {
     return `<div class="matches-main-div">
         ${this.tournamentFinished
           ? `<h1>Winner: ${this.tournamentWinner} !</h1>`
-          : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
+          : !this.MatchToPlay.next_match
+            ? `<h1>FINAL</h1>`
+            : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
         }
 				${this.currentRound.map((element) =>
           ((this.MatchToPlay.id === element.id) && !this.tournamentWinner)
@@ -248,24 +281,29 @@ export default class LocalTournament {
               <h2>vs</h2>
               <h1>${element.player2}</h1>
               <h1>⏳</h1>
-          </div>`
+            </div>`
           : `<div class="passed-match-main-div">
               <h1 class="me-3">${element.player1}</h1> 
               <h2>vs</h2>
               <h1>${element.player2}</h1>
               <h1>${this.tournamentWinner ? `${this.state.score.left}` : `${element.score_player1}`} - ${this.tournamentWinner ? `${this.state.score.right}` : `${element.score_player2}`}</h1>
             </div>`).join('')}
+        <button id="game-menu-button">${!this.MatchToPlay.next_match ? `Game Menu` : `Stop Tournament`}</button>
 			</div>`;
   }
 
   getGameHUDTemplate() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
-
+    const leftPlayerName = this.MatchToPlay.player1;
+    const rightPlayerName = this.MatchToPlay.player2;
+    
     return `
-          <div class="game-hud">
-            <div class="game-score">
-              <h1 class="display-4 mb-0">${left} - ${right}</h1>
+          <div class="tournament-game-hud">
+            <div class="tournament-game-score">
+              <h1>${leftPlayerName}</h1>
+              <h1>${left} - ${right}</h1>
+              <h1>${rightPlayerName}</h1>
             </div>
             <button id="toggle-pause" class="pause-play-btn">
               <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>

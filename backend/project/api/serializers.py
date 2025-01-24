@@ -79,7 +79,7 @@ class MatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Match
-        fields = ['id', 'round_number', 'player1', 'player2', 'winner', 'score_player1', 'score_player2']
+        fields = ['id', 'round_number', 'player1', 'player2', 'winner', 'score_player1', 'score_player2', 'next_match']
         read_only_fields = ['created_at', 'id']
 
 class TournamentSerializer(serializers.ModelSerializer):
