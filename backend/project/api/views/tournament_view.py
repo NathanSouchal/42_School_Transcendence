@@ -80,9 +80,7 @@ class TournamentListView(APIView):
 			serializer = TournamentSerializer(data=request.data)
 			print(f"Data : ${request.data}")
 			if serializer.is_valid():
-				print("coucou")
 				tournament = serializer.save()
-				print("coucou11")
 				tournament.start_tournament()
 				print(f"Name: {tournament.name}")
 				firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
