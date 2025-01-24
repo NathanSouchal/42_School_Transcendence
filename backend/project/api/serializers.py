@@ -49,7 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class PublicUserSerializer(serializers.ModelSerializer):
-
 	class Meta:
 		model = User
 		fields = ['id', 'avatar', 'username', 'alias']

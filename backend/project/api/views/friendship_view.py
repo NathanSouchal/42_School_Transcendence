@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
 from api.models import Friendship, User
-from api.serializers import FriendshipSerializer
+from api.serializers import FriendshipSerializer, UserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
@@ -12,7 +12,7 @@ from django.http import Http404
 
 class FriendshipView(APIView):
     permission_classes = [AllowAny]
-	
+
     def get(self, request, id=None):
         try:
             # if not request.user.is_superuser:
@@ -65,7 +65,7 @@ class FriendshipListView(APIView):
 
 class FriendshipByUserView(APIView):
     permission_classes = [AllowAny]
-	
+
     def get(self, request, id=None):
         try:
             user = get_object_or_404(User, id=id)
@@ -73,7 +73,8 @@ class FriendshipByUserView(APIView):
             received_friendships = Friendship.objects.filter(to_user=user, accepted=False)
             pending_friendships = sent_friendships | received_friendships.order_by('-created_at')
             serialized = FriendshipSerializer(pending_friendships, many=True)
-            return Response({'pending_friendships': serialized.data}, status=status.HTTP_200_OK)
+            friends = UserSerializer(user)
+            return Response({'friends': friends.data['friends'], 'pending_friendships': serialized.data}, status=status.HTTP_200_OK)
         except Http404:
             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
