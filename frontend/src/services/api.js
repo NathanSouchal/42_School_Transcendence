@@ -36,7 +36,7 @@ API.interceptors.response.use(
       try {
         // Essayer d'obtenir un nouveau token
         await getNewAccessToken();
-		
+
         // Relancer la requête originale avec le nouveau token
         return API(originalRequest);
       } catch (tokenError) {

@@ -303,11 +303,11 @@ export default class Account {
   }
 
   async getNewAccessToken(id) {
-    // try {
-    //   await API.post(`/auth/custom-token/access/`);
-    // } catch (error) {
-    //   console.error(`Error while trying to get new access token : ${error}`);
-    // }
+    try {
+      await API.post(`/auth/custom-token/access/`);
+    } catch (error) {
+      console.error(`Error while trying to get new access token : ${error}`);
+    }
   }
 
   async getNewRefreshToken(id) {

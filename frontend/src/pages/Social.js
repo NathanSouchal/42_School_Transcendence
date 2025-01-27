@@ -1,4 +1,3 @@
-import axios from "axios";
 import API from "../services/api.js";
 
 export default class Social {
@@ -164,7 +163,7 @@ export default class Social {
     const searchResultDiv = document.getElementById("search_result");
     if (this.search_result.username) {
       searchResultDiv.innerHTML = `
-          <a href="https://localhost:3000/user/${this.search_result.id}/"/
+          <a href="/user/${this.search_result.id}/">
             <h6>${this.search_result.username}</h6>
           </a>`;
     }

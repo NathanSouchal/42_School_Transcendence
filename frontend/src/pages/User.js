@@ -241,7 +241,9 @@ export default class User {
 
   async deleteRecievedFriendRequest() {
     try {
-      const res = await API.delete(`/friends/friend/${this.pageId}/`);
+      const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
+        accepted: "false",
+      });
       console.log(res.data);
     } catch (error) {
       console.error(
