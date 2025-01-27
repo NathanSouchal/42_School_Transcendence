@@ -54,40 +54,110 @@ export default class User {
     }
   }
 
+  updateView() {
+    const container = document.getElementById("app");
+    if (container) {
+      container.innerHTML = this.render();
+      this.removeEventListeners();
+      this.attachEventListeners();
+    }
+  }
+
   attachEventListeners() {
-    const cancelFriendRequest = document.getElementById(
+    const cancelFriendRequestButton = document.getElementById(
       "cancel-friend-request"
     );
-    if (cancelFriendRequest) {
+    if (cancelFriendRequestButton) {
       const handleFriend = this.handleFriend.bind(this);
       if (
         !this.eventListeners.some((e) => e.name === "cancel-friend-request")
       ) {
-        cancelFriendRequest.addEventListener(
+        cancelFriendRequestButton.addEventListener(
           "click",
           async (e) => await handleFriend("cancel-friend-request", "")
         );
         this.eventListeners.push({
           name: "cancel-friend-request",
           type: "click",
-          element: cancelFriendRequest,
+          element: cancelFriendRequestButton,
           listener: handleFriend,
         });
       }
     }
 
-    const sendFriendRequest = document.getElementById("send-friend-request");
-    if (sendFriendRequest) {
+    const sendFriendRequestButton = document.getElementById(
+      "send-friend-request"
+    );
+    if (sendFriendRequestButton) {
       const handleFriend = this.handleFriend.bind(this);
       if (!this.eventListeners.some((e) => e.name === "send-friend-request")) {
-        sendFriendRequest.addEventListener(
+        sendFriendRequestButton.addEventListener(
           "click",
           async (e) => await handleFriend("send-friend-request", "")
         );
         this.eventListeners.push({
           name: "send-friend-request",
           type: "click",
-          element: sendFriendRequest,
+          element: sendFriendRequestButton,
+          listener: handleFriend,
+        });
+      }
+    }
+
+    const unfriendButton = document.getElementById("unfriend");
+    if (unfriendButton) {
+      const handleFriend = this.handleFriend.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "unfriend")) {
+        unfriendButton.addEventListener(
+          "click",
+          async (e) => await handleFriend("unfriend", "")
+        );
+        this.eventListeners.push({
+          name: "unfriend",
+          type: "click",
+          element: unfriendButton,
+          listener: handleFriend,
+        });
+      }
+    }
+
+    const acceptFriendButton = document.getElementById("accept-friend-request");
+    if (acceptFriendButton) {
+      const handleFriend = this.handleFriend.bind(this);
+      if (
+        !this.eventListeners.some((e) => e.name === "accept-friend-request")
+      ) {
+        acceptFriendButton.addEventListener(
+          "click",
+          async (e) => await handleFriend("accept-friend-request", "")
+        );
+        this.eventListeners.push({
+          name: "accept-friend-request",
+          type: "click",
+          element: acceptFriendButton,
+          listener: handleFriend,
+        });
+      }
+    }
+
+    const deleteRecievedFriendRequestButton = document.getElementById(
+      "delete-recieved-friend-request"
+    );
+    if (deleteRecievedFriendRequestButton) {
+      const handleFriend = this.handleFriend.bind(this);
+      if (
+        !this.eventListeners.some(
+          (e) => e.name === "delete-recieved-friend-request"
+        )
+      ) {
+        deleteRecievedFriendRequestButton.addEventListener(
+          "click",
+          async (e) => await handleFriend("delete-recieved-friend-request", "")
+        );
+        this.eventListeners.push({
+          name: "delete-recieved-friend-request",
+          type: "click",
+          element: deleteRecievedFriendRequestButton,
           listener: handleFriend,
         });
       }
@@ -119,45 +189,84 @@ export default class User {
       const data = response.data;
       this.friends = response.data.friends;
       this.friendRequests = response.data.pending_friendships;
-      this.checkFriendStatus();
+      await this.checkFriendStatus();
       console.log(this.friends, this.friendRequests);
     } catch (error) {
       console.error(`Error while trying to get MyFriends : ${error}`);
     }
   }
 
-  async addFriend() {
+  async sendFriendRequest() {
     try {
-      const res = API.post("/friendship/list/", {
+      const res = await API.post("/friendship/list/", {
         from_user: this.userId.toString(),
-        to_user: this.pageId.toString(),
+        to_user: this.pageId,
       });
+      console.log(res);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
     }
   }
 
-  async deleteFriend() {}
+  async deleteFriend() {
+    try {
+      const res = await API.delete(`/friends/friend/${this.pageId}/`);
+      console.log(res.data);
+    } catch (error) {
+      console.error(`Error while trying to add friend : ${error}`);
+    }
+  }
 
   async cancelFriendRequest() {
     try {
-      const res = API.post(`/friendship/${this.friendRequestId}/`, {
+      const res = await API.put(`/friendship/${this.friendRequestId}/`, {
         accepted: "false",
       });
+      console.log(res);
     } catch (error) {
       console.error(`Error while trying to cancel friend request : ${error}`);
     }
   }
 
-  async handleFriend(key, value) {
-    if (key === "cancel-friend-request") {
-      await cancelFriendRequest();
-    } else if (key === "send-friend-request") {
-      await sendFriendRequest();
+  async acceptFriendRequest() {
+    try {
+      const res = await API.put(`/friendship/${this.friendRequestId}/`, {
+        accepted: "true",
+      });
+      console.log(res);
+    } catch (error) {
+      console.error(`Error while trying to accept friend request : ${error}`);
     }
   }
 
-  checkFriendStatus() {
+  async deleteRecievedFriendRequest() {
+    try {
+      const res = await API.delete(`/friends/friend/${this.pageId}/`);
+      console.log(res.data);
+    } catch (error) {
+      console.error(
+        `Error while trying to delete recieved friend request : ${error}`
+      );
+    }
+  }
+
+  async handleFriend(key, value) {
+    if (key === "cancel-friend-request") {
+      await this.cancelFriendRequest();
+    } else if (key === "send-friend-request") {
+      await this.sendFriendRequest();
+    } else if (key === "unfriend") {
+      await this.deleteFriend();
+    } else if ("accept-friend-request") {
+      await this.acceptFriendRequest();
+    } else if ("delete-recieved-friend-request") {
+      await this.deleteRecievedFriendRequest();
+    }
+    await this.getMyFriends();
+    this.updateView();
+  }
+
+  async checkFriendStatus() {
     if (this.friends.some((el) => el.id.toString() === this.pageId))
       this.friendStatus = "friend";
     else if (
@@ -171,6 +280,18 @@ export default class User {
       if (matchingRequest) {
         this.friendRequestId = matchingRequest.id;
         this.friendStatus = "pending";
+      }
+    } else if (
+      this.friendRequests.some(
+        (el) => !el.accepted && el.from_user?.id.toString() === this.pageId
+      )
+    ) {
+      const matchingRequest = this.friendRequests.find(
+        (el) => !el.accepted && el.from_user?.id.toString() === this.pageId
+      );
+      if (matchingRequest) {
+        this.friendRequestId = matchingRequest.id;
+        this.friendStatus = "recieved";
       }
     } else {
       if (this.pageId.toString() === this.userId.toString())
@@ -271,7 +392,13 @@ export default class User {
                   ? `<button type="button" class="btn btn-info m-3" id="cancel-friend-request">
 						Cancel friend request
 					</button>`
-                  : ``
+                  : this.friendStatus === "recieved"
+                    ? `<button type="button" class="btn btn-info m-3" id="accept-friend-request">
+						Accept friend request
+					</button><button type="button" class="btn btn-info m-3" id="delete-recieved-friend-request">
+						Delete friend request
+					</button>`
+                    : ``
           }
 				</div>
 			</div>

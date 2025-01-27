@@ -6,4 +6,4 @@ from .user_view import UserView, UserListView, PublicUserView, UserByNameView
 from .stats_view import StatsView
 from .match_history_view import MatchHistoryView
 from .friendship_view import FriendshipView, FriendshipListView, FriendshipByUserView
-from .friends_view import FriendsView
+from .friends_view import FriendsView, FriendView

@@ -13,7 +13,17 @@ class Friendship(models.Model):
     accepted = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ('from_user', 'to_user')  # Empêche les doublons d'invitation
+        # unique_together = ('from_user', 'to_user')  # Empêche les doublons d'invitation
+        constraints = [
+        models.UniqueConstraint(
+            fields=['from_user', 'to_user'],
+            name='unique_friendship'
+        ),
+        models.UniqueConstraint(
+            fields=['to_user', 'from_user'],
+            name='unique_reverse_friendship'
+        ),
+    ]
 
     def accept(self):
         self.accepted = True

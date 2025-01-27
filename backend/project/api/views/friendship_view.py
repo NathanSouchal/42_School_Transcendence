@@ -53,6 +53,7 @@ class FriendshipListView(APIView):
 
     def post(self, request):
         try:
+            print(f"coucou {request.data}")
             serialized = FriendshipSerializer(data=request.data)
             if serialized.is_valid():
                 friendship = serialized.save()
