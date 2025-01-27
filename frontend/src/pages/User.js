@@ -185,10 +185,10 @@ export default class User {
 
   async getMyFriends() {
     try {
-      const response = await API.get(`/friendship/byuser/${this.userId}/`);
+      const response = await API.get(`/friend-requests/byuser/${this.userId}/`);
       const data = response.data;
       this.friends = response.data.friends;
-      this.friendRequests = response.data.pending_friendships;
+      this.friendRequests = response.data.pending_friend_requests;
       await this.checkFriendStatus();
       console.log(this.friends, this.friendRequests);
     } catch (error) {
@@ -198,7 +198,7 @@ export default class User {
 
   async sendFriendRequest() {
     try {
-      const res = await API.post("/friendship/list/", {
+      const res = await API.post("/friend-requests/create/", {
         from_user: this.userId.toString(),
         to_user: this.pageId,
       });
@@ -219,7 +219,7 @@ export default class User {
 
   async cancelFriendRequest() {
     try {
-      const res = await API.put(`/friendship/${this.friendRequestId}/`, {
+      const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "false",
       });
       console.log(res);
@@ -230,7 +230,7 @@ export default class User {
 
   async acceptFriendRequest() {
     try {
-      const res = await API.put(`/friendship/${this.friendRequestId}/`, {
+      const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "true",
       });
       console.log(res);
@@ -257,9 +257,9 @@ export default class User {
       await this.sendFriendRequest();
     } else if (key === "unfriend") {
       await this.deleteFriend();
-    } else if ("accept-friend-request") {
+    } else if (key === "accept-friend-request") {
       await this.acceptFriendRequest();
-    } else if ("delete-recieved-friend-request") {
+    } else if (key === "delete-recieved-friend-request") {
       await this.deleteRecievedFriendRequest();
     }
     await this.getMyFriends();
@@ -271,7 +271,10 @@ export default class User {
       this.friendStatus = "friend";
     else if (
       this.friendRequests.some(
-        (el) => !el.accepted && el.to_user?.id.toString() === this.pageId
+        (el) =>
+          !el.accepted &&
+          el.to_user?.id.toString() === this.pageId &&
+          this.pageId.toString() !== this.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(
@@ -283,7 +286,10 @@ export default class User {
       }
     } else if (
       this.friendRequests.some(
-        (el) => !el.accepted && el.from_user?.id.toString() === this.pageId
+        (el) =>
+          !el.accepted &&
+          el.from_user?.id.toString() === this.pageId &&
+          this.pageId.toString() !== this.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(

@@ -2,12 +2,12 @@ from django.db import models
 from .user_model import User
 
 
-class Friendship(models.Model):
+class FriendRequest(models.Model):
     from_user = models.ForeignKey(
-        User, related_name='friendship_sent', on_delete=models.CASCADE
+        User, related_name='friend_request_sent', on_delete=models.CASCADE
     )
     to_user = models.ForeignKey(
-        User, related_name='friendship_received', on_delete=models.CASCADE
+        User, related_name='friend_request_received', on_delete=models.CASCADE
     )
     created_at = models.DateTimeField(auto_now_add=True)
     accepted = models.BooleanField(default=False)
@@ -17,11 +17,11 @@ class Friendship(models.Model):
         constraints = [
         models.UniqueConstraint(
             fields=['from_user', 'to_user'],
-            name='unique_friendship'
+            name='unique_friend_request'
         ),
         models.UniqueConstraint(
             fields=['to_user', 'from_user'],
-            name='unique_reverse_friendship'
+            name='unique_reverse_friend_request'
         ),
     ]
 
