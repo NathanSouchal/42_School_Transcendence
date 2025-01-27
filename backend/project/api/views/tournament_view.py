@@ -16,6 +16,7 @@ class TournamentView(APIView):
 	def get(self, request, id=None):
 		try:
 			tournament = get_object_or_404(Tournament, id=id)
+			firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
 			# if request.user != tournament.creator and not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'tournament': TournamentSerializer(tournament).data}, status=status.HTTP_200_OK)
@@ -58,7 +59,7 @@ class TournamentView(APIView):
 			return Response({'error': f'Deletion failed due to related objects: {str(protected_error)}'}, status=status.HTTP_400_BAD_REQUEST)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		
+
 class TournamentListView(APIView):
 	permission_classes = [AllowAny]
 
@@ -73,13 +74,15 @@ class TournamentListView(APIView):
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		
+
 	def post(self, request):
 		try:
 			serializer = TournamentSerializer(data=request.data)
+			print(f"Data : ${request.data}")
 			if serializer.is_valid():
 				tournament = serializer.save()
 				tournament.start_tournament()
+				print(f"Name: {tournament.name}")
 				firstMatch = Match.objects.get(id = tournament.rounds_tree[0][0])
 				return Response(
                     {'message': 'Tournament created successfully', 'tournament': TournamentSerializer(tournament).data,
