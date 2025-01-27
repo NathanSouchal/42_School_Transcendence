@@ -303,11 +303,11 @@ export default class Account {
   }
 
   async getNewAccessToken(id) {
-    // try {
-    //   await API.post(`/auth/custom-token/access/`);
-    // } catch (error) {
-    //   console.error(`Error while trying to get new access token : ${error}`);
-    // }
+    try {
+      await API.post(`/auth/custom-token/access/`);
+    } catch (error) {
+      console.error(`Error while trying to get new access token : ${error}`);
+    }
   }
 
   async getNewRefreshToken(id) {
@@ -322,7 +322,7 @@ export default class Account {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log("Removed ${type} eventListener from input");
+        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];

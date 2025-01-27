@@ -1,5 +1,5 @@
 from rest_framework import serializers;
-from api.models import Game, User, Tournament, Match, Stats, Friendship
+from api.models import Game, User, Tournament, Match, Stats, FriendRequest
 from drf_extra_fields.fields import Base64ImageField
 
 class GameSerializer(serializers.ModelSerializer):
@@ -49,7 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class PublicUserSerializer(serializers.ModelSerializer):
-
 	class Meta:
 		model = User
 		fields = ['id', 'avatar', 'username', 'alias']
@@ -107,9 +106,9 @@ class StatsSerializer(serializers.ModelSerializer):
         model = Stats
         fields = '__all__'
 
-class FriendshipSerializer(serializers.ModelSerializer):
+class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Friendship
+        model = FriendRequest
         fields = '__all__'
 
     def to_representation(self, instance):
@@ -131,25 +130,25 @@ class FriendshipSerializer(serializers.ModelSerializer):
         to_user = validated_data.pop('to_user')
         if from_user == to_user:
             raise serializers.ValidationError(
-                {"to_user": "You cannot send a friendship request to yourself."}
+                {"to_user": "You cannot send a friend request to yourself."}
             )
-        if Friendship.objects.filter(from_user=to_user, to_user=from_user, accepted=False).exists():
+        if FriendRequest.objects.filter(from_user=to_user, to_user=from_user, accepted=False).exists():
             raise serializers.ValidationError(
-                {"to_user": "This user has already sent you a friendship request. Accept it instead."}
+                {"to_user": "This user has already sent you a friend request. Accept it instead."}
             )
         if from_user.friends.filter(id=to_user.id).exists():
             raise serializers.ValidationError(
                 {"to_user": "You are already friends with this user."}
             )
-        return Friendship.objects.create(from_user=from_user, to_user=to_user, **validated_data)
+        return FriendRequest.objects.create(from_user=from_user, to_user=to_user, **validated_data)
 
 
 """
 Pourquoi extraire from_user et to_user avec .pop()  ?
 
 Les champs comme from_user et to_user sont des relations ForeignKey,
-et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode Friendship.objects.create().
+et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode FriendRequest.objects.create().
 En les extrayant avec .pop(), nous préparons ces champs pour les utiliser comme arguments distincts lors de la création.
-Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à Friendship.objects.create(),
+Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à FriendRequest.objects.create(),
 Django essaiera de traiter from_user et to_user comme des champs ordinaires, ce qui peut entraîner des erreurs.
 """

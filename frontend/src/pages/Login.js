@@ -81,7 +81,14 @@ export default class Login {
       localStorage.setItem("id", id);
       window.app.router.navigate("/account");
     } catch (error) {
-      console.error(`Error while trying to post data : ${error}`);
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 401) {
+          console.error(`Error 401 while trying to login ${error}`);
+        }
+      } else {
+        console.error(`Error while trying to login ${error}`);
+      }
     } finally {
       this.formState.username = "";
       this.formState.password = "";
