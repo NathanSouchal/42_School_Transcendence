@@ -1,11 +1,13 @@
 import DOMPurify from "dompurify";
 import { createBackArrow } from "../components/backArrow.js";
+import {addCSS, removeCSS} from "../utils";
 
 export default class GamePage {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
+    this.cssLink;
   }
 
   async initialize() {
@@ -84,6 +86,7 @@ export default class GamePage {
     this.state.unsubscribe(this.handleStateChange);
     this.state.setGameEnded();
     this.container = null;
+    removeCSS(this.cssLink);
   }
 
   getGameMenuTemplate() {
@@ -91,19 +94,16 @@ export default class GamePage {
         <div class="menu">
         ${createBackArrow().outerHTML}
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-          <div class="text-center">
-            <h2 class="mb-4">Choose Game Mode</h2>
-            <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-              <li id="start-pvp-game" class="nav-item my-2">
-                Player vs Player
-              </li>
-              <li id="start-pvr-game" class="nav-item my-2">
-                Player vs Robot
-              </li>
-			  <li id="start-local-tournament" class="nav-item my-2">
-			  	<a class="nav-link" href="/local-tournament">Local tournament</a>
-			  </li>
-            </ul>
+          <div class="global-nav-section">
+              <div id="start-pvp-game" class="global-nav-items">
+                <h1>Player vs Player</h1>
+              </div>
+              <div id="start-pvr-game" class="global-nav-items">
+                <h1>Player vs Robot</h1>
+              </div>
+              <div id="start-local-tournament" class="global-nav-items">
+                 <a class="nav-link" href="/local-tournament">Local tournament</a>
+              </div>
           </div>
         </div>
       </div>
@@ -177,6 +177,7 @@ export default class GamePage {
 
   render() {
     if (!this.container) return;
+    this.cssLink = addCSS("src/style/game.css");
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     this.container.className = "";
     let template;

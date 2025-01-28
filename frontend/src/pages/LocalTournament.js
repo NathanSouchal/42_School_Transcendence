@@ -27,7 +27,6 @@ export default class LocalTournament {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    this.cssLink = addCSS("src/style/local-tournament.css");
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -314,6 +313,7 @@ export default class LocalTournament {
 
   render() {
     console.log(this.state.state.gameStarted);
+    this.cssLink = addCSS("src/style/local-tournament.css");
     return `${
       this.state.state.gameStarted === true
         ? `${this.getGameHUDTemplate()}`

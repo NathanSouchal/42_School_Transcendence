@@ -1,0 +1,10 @@
+.global-nav-items h1:hover {
+    text-shadow: 0 6px 12px rgba(218, 76, 15, 0.3); /* Augmentation de l'ombre */
+    transform: translateY(-2px); /* Légère élévation */
+  }
+
+@media (min-width: 0px) and (max-width: 850px) {
+    .global-nav-section {
+        font-size: 1.5em;
+    }
+}

@@ -33,12 +33,8 @@ canvas#c {
   height: 60vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
   width: 60%; /* Définir une largeur (ou un max-width) pour #app */
   max-width: 1200px; /* Optionnel : limiter la largeur maximale */
-  background: rgba(
-    222,
-    212,
-    184,
-    0.8
-  ); /* Fond semi-transparent (si vous le souhaitez) */
+  min-width: 320px;
+  background: #ece8c4e9; /* Fond semi-transparent (si vous le souhaitez) */
   padding: 20px;
   color: var(--blue); /* Choisir une couleur de texte adaptée */
   border-radius: 10px;
@@ -49,6 +45,12 @@ canvas#c {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (max-width: 602px) {
+  .menu {
+    width: 90%;
+  }
 }
 
 .view2 {
@@ -182,4 +184,42 @@ h1 {
   width: 6px;
   height: 20px;
   background-color: var(--blue);
+}
+
+.global-nav-section {
+  font-size: 2.4em;
+  font-family: 'Dangrek', cursive;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  letter-spacing: 0.2em;
+  transition: all 0.3s ease;
+  color: #DA4C0F;
+}
+
+@media (max-width: 410px) {
+  .global-nav-section {
+      font-size: 1.8em;
+  }
+}
+
+.global-nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.7em;
+}
+
+.global-nav-items a {
+  transition: all 0.3s ease;
+}
+
+.global-nav-items h1 {
+  transition: all 0.3s ease;
+}
+
+.global-nav-items a:hover {
+  text-shadow: 0 6px 12px rgba(218, 76, 15, 0.3); /* Augmentation de l'ombre */
+  transform: translateY(-2px); /* Légère élévation */
 }
