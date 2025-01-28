@@ -119,6 +119,11 @@ class Ball {
         this.startFalling();
       }
     }
+
+    renderer.ws.sendMessage({
+      type: "ball",
+      ["ball"]: { ...this.obj.position },
+    });
   }
 
   isOutOfArena(renderer) {

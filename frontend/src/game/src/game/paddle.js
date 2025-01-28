@@ -94,10 +94,17 @@ class Paddle {
     }
   }
 
-  update(deltaTime, position, velocity) {
-    this.player.update(deltaTime, ballX, (position) => {
-      this.ws.send(JSON.stringify(position));
-    });
+  update(deltaTime, ballPosition, ballVelocity, ws) {
+    this.player.update(deltaTime, ballPosition, ballVelocity);
+
+    const message = {
+      type: `paddle_${this.side}`,
+      [`paddle_${this.side}`]: {
+        x: this.obj.position.x,
+      },
+    };
+    ws.sendMessage(message);
+
     const newBox = new THREE.Box3().setFromObject(this.obj, true);
     const paddleBoxIndex = this.arena.BBoxes.findIndex(
       (bbox) => bbox.side === this.side,
