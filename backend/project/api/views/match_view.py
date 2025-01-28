@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from django.shortcuts import get_object_or_404
-from api.models import Match
-from api.serializers import MatchSerializer
+from api.models import Match, Tournament
+from api.serializers import MatchSerializer, TournamentSerializer
 from rest_framework.permissions import AllowAny
 from django.http import Http404
 
@@ -38,7 +38,8 @@ class MatchView(APIView):
 					nextMatchToPlay = match.tournament.find_next_match_to_play(id)
 					if nextMatchToPlay is None:
 						match.tournament.is_finished
-					return Response({'match': MatchSerializer(match).data, 'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data,
+						return Response({'message': 'tournament is finished.'}, status=status.HTTP_204_NO_CONTENT)
+					return Response({'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data, 'tournament': TournamentSerializer(nextMatchToPlay.tournament).data,
 					   'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
 				return Response({'match': MatchSerializer(match).data, 'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

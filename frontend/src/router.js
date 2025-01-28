@@ -66,7 +66,11 @@ export class Router {
     this.currentPage = view;
     this.currentPath = path;
 
-    if (typeof view.initialize === "function" && !view.isInitialized) {
+    if (
+      typeof view.initialize === "function" &&
+      !view.isInitialized &&
+      !view.isRouteId
+    ) {
       await view.initialize(this.routeParams || {});
     } else if (typeof view.render === "function") {
       const app = document.getElementById("app");

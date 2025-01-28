@@ -74,8 +74,10 @@ export default class Home {
         { href: "/game", text: "Play" },
         { href: "/login", text: "Login" },
         { href: "/register", text: "Register" },
-        { href: "/user/2", text: "User" },
-        { href: "/user/200", text: "User (inexistant)" },
+        { href: "/user/1", text: "User 1" },
+        { href: "/user/2", text: "User 2" },
+        { href: "/user/3", text: "User 3" },
+        { href: "/user/200", text: "User 200" },
       ];
     }
     return `

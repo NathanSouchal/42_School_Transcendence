@@ -1,4 +1,3 @@
-import axios from "axios";
 import API from "../services/api.js";
 
 export default class Social {
@@ -57,8 +56,8 @@ export default class Social {
 
   async getInvitations(id) {
     try {
-      const res = await API.get(`/friendship/byuser/${id}/`);
-      const data = res.data.pending_friendships;
+      const res = await API.get(`/friend-requests/byuser/${id}/`);
+      const data = res.data.pending_friend_requests;
       this.invitations = data;
       console.log(
         "Invitations: " +
@@ -130,7 +129,9 @@ export default class Social {
   }
 
   async validate_invit_request(invit_id) {
-    const res = await API.put(`/friendship/${invit_id}/`, { accepted: "true" });
+    const res = await API.put(`/friend-requests/${invit_id}/`, {
+      accepted: "true",
+    });
   }
 
   async cancel_btn_fctn(invit_id) {
@@ -139,7 +140,7 @@ export default class Social {
   }
 
   async cancel_invit_request(invit_id) {
-    const res = await API.put(`/friendship/${invit_id}/`, {
+    const res = await API.put(`/friend-requests/${invit_id}/`, {
       accepted: "false",
     });
   }
@@ -162,7 +163,7 @@ export default class Social {
     const searchResultDiv = document.getElementById("search_result");
     if (this.search_result.username) {
       searchResultDiv.innerHTML = `
-          <a href="https://localhost:3000/user/${this.search_result.id}/"/
+          <a href="/user/${this.search_result.id}/">
             <h6>${this.search_result.username}</h6>
           </a>`;
     }
