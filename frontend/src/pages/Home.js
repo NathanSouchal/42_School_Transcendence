@@ -45,6 +45,10 @@ export default class Home {
         this.attachEventListeners();
       }
     }
+    if (this.state.isUserLoggedIn != newState.isUserLoggedIn) {
+      //rerender header
+    }
+    this.state = newState;
   }
 
   removeEventListeners() {}
@@ -59,7 +63,9 @@ export default class Home {
   }
 
   render(routeParams = {}) {
-    header.show();
+    if (typeof header.initialize === "function" && !header.isInitialized)
+      header.initialize();
+    else header.render();
     console.log("Home rendered");
     const { id } = routeParams;
     let links;

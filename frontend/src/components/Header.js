@@ -10,7 +10,7 @@ export class Header {
     this.cssLink = null;
   }
 
-  async initialize() {
+  initialize() {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
@@ -19,27 +19,16 @@ export class Header {
       this.isSubscribed = true;
       console.log("Header component subscribed to state");
     }
-    this.cssLink = addCSS("src/style/header.css");
+    this.updateHeader();
+  }
+
+  updateHeader() {
     const content = this.render();
     const container = document.getElementById("header");
     if (container) {
-      container.innerHTML = content;
+      container.innerHTML = content; // Insérer le rendu dans le container
       this.removeEventListeners();
       this.attachEventListeners();
-    }
-  }
-
-  show() {
-    const container = document.getElementById("header");
-    if (container) {
-      container.style.display = "block";
-    }
-  }
-
-  hide() {
-    const container = document.getElementById("header");
-    if (container) {
-      container.style.display = "none";
     }
   }
 
@@ -50,19 +39,29 @@ export class Header {
     let menuOpen = false;
 
     toggleButton.addEventListener("click", () => {
+      // Basculez la classe show-nav pour ouvrir/fermer le menu
       navBar.classList.toggle("show-nav");
       navbarLinks.classList.toggle("show-nav");
+
+      // Ajouter/retirer la classe 'closed' pour réduire la navbar quand elle est fermée
       if (!menuOpen) {
         toggleButton.classList.add("open");
+        navBar.classList.remove("closed"); // Agrandir la navbar
         menuOpen = true;
       } else {
         toggleButton.classList.remove("open");
+        navBar.classList.add("closed"); // Réduire la navbar
         menuOpen = false;
       }
     });
   }
 
-  handleStateChange(newState) {}
+  handleStateChange(newState) {
+    if (this.state.isUserLoggedIn != newState.isUserLoggedIn) {
+      this.updateHeader();
+    }
+    this.state = newState;
+  }
 
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
@@ -80,15 +79,18 @@ export class Header {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Header component unsubscribed from state");
-      removeCSS(this.cssLink);
     }
+    this.removeCSS(this.cssLink);
   }
 
   render() {
-    const header = `<nav class="navbar">
-		<a href="#" class="toggle-button">
+    this.cssLink = addCSS("src/style/header.css");
+    const header = `${
+      this.state.isUserLoggedIn
+        ? `<div class="toggle-button">
           <span class="bar2"></span>
-        </a>
+        </div><nav class="navbar">
+
         <ul class="navbar-links">
 			<li class="navbar-link">
 		  		<a class="active" href="/login">Login</a>
@@ -97,7 +99,21 @@ export class Header {
             	<a class="active" href="/register">Register</a>
 			</li>
         </ul>
-      </nav>`;
+      </nav>`
+        : `<nav class="navbar">
+	  <div class="toggle-button">
+		<span class="bar2"></span>
+	  </div>
+	  <ul class="navbar-links">
+		  <li class="navbar-link">
+				<a class="active" href="/social">Social</a>
+		  </li>
+		  <li class="navbar-link">
+			  <a class="active" href="/">Home</a>
+		  </li>
+	  </ul>
+	</nav>`
+    }`;
     return header;
   }
 }

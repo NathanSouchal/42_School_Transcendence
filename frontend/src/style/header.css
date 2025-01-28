@@ -1,98 +1,90 @@
+/* Style principal de la navbar */
 .navbar {
-  /* display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  align-items: center;
-  height: 20%;
-  white-space: nowrap; */
   position: fixed;
-  top: 50%; /* Positionner l'élément 50% du haut de l'écran */
-  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
-  transform: translate(
-    -50%,
-    -45%
-  ); /* Centre l'élément par rapport à son point de départ */
-  height: 60vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
-  width: 60%; /* Définir une largeur (ou un max-width) pour #app */
-  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
+  top: 50%;
+  left: 60%;
+  transform: translate(-50%, -45%);
+  height: 60vh;
+  width: 40%; /* Largeur normale quand le menu est ouvert */
   padding: 20px;
-  z-index: 1;
+  z-index: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: width 0.5s ease-in-out; /* Transition sur la largeur */
 }
 
+.navbar.show-nav {
+  z-index: 1; /* Z-index élevé quand le menu est ouvert */
+}
+
+/* Style des liens de la navbar */
 .navbar-links {
-  position: fixed; /* Fixée pour occuper toute la fenêtre */
+  position: fixed;
   top: 0;
-  right: -100%; /* Cachée par défaut (hors de l'écran) */
-  width: 100%; /* Prend toute la largeur */
-  height: 100%; /* Prend toute la hauteur */
-  flex-direction: column; /* Liens affichés en colonne */
+  right: 0;
+  width: 0%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: rgba(225, 233, 233, 0.9); /* Fond semi-transparent */
+  background: rgba(222, 212, 184, 1);
   transition:
-    right 0.5s ease-in-out,
-    opacity 0.5s ease-in-out; /* Animation fluide */
-  opacity: 0; /* Transparente par défaut */
-  pointer-events: none; /* Désactivée par défaut */
+    width 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  z-index: 0;
 }
 
-/* Lorsqu'elle est active (menu ouvert) */
+/* Lorsque le menu est ouvert, les liens prennent toute la largeur */
 .navbar.show-nav .navbar-links {
-  right: 0; /* Affichée */
-  opacity: 1; /* Rendue visible */
-  pointer-events: auto; /* Active */
+  width: 100%;
+  opacity: 1;
 }
 
-/* Liens individuels */
+/* Liens dans la navbar */
 .navbar-links li {
-  list-style: none; /* Supprime les puces */
-  margin: 1rem 0; /* Espacement vertical */
+  list-style: none;
+  margin: 1.5rem 0;
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+
+.navbar.show-nav .navbar-links li {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .navbar-links li a {
-  text-decoration: none; /* Supprime les soulignements */
-  font-size: 1.5rem; /* Taille des liens */
-  color: black; /* Couleur par défaut */
-  transition: color 0.3s ease-in-out; /* Transition fluide */
+  text-decoration: none;
+  font-size: 1.5rem;
+  color: black;
+  transition: color 0.3s ease-in-out;
 }
 
 .navbar-links li a:hover {
-  color: #007bff; /* Couleur au survol */
+  color: #d2443a;
 }
 
-/* Effet de soulignement au survol */
-.navbar-link > a::after {
-  display: block;
-  content: "";
-  width: 0;
-  height: 2px;
-  background-color: black;
-  transition: width 0.5s ease-in-out; /* Animation fluide */
-}
-
-.navbar-link:hover > a::after {
-  width: 100%;
-}
-
-/* Bouton toggle (menu burger) */
+/* Bouton burger */
 .toggle-button {
-  position: absolute; /* Fixé par rapport à la navbar */
-  top: 1.7rem;
-  right: 1rem;
-  display: flex; /* Toujours visible */
+  position: fixed;
+  top: 2rem;
+  right: 1.5rem;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
   width: 30px;
   height: 21px;
-  z-index: 15; /* Au-dessus du menu */
   cursor: pointer;
+  z-index: 15;
 }
 
-/* Barre du burger */
 .toggle-button .bar2 {
   height: 3px;
   width: 100%;
@@ -102,7 +94,6 @@
   position: relative;
 }
 
-/* Barres avant/après pour le burger */
 .toggle-button .bar2::before,
 .toggle-button .bar2::after {
   content: "";
@@ -115,27 +106,21 @@
 }
 
 .toggle-button .bar2::before {
-  transform: translateY(-10px); /* Barre supérieure */
+  transform: translateY(-10px);
 }
 
 .toggle-button .bar2::after {
-  transform: translateY(10px); /* Barre inférieure */
+  transform: translateY(10px);
 }
 
-/* Animation du bouton burger en croix */
 .toggle-button.open .bar2 {
   background: transparent;
 }
 
 .toggle-button.open .bar2::before {
-  transform: rotate(45deg); /* Rotation pour former une croix */
+  transform: rotate(45deg);
 }
 
 .toggle-button.open .bar2::after {
-  transform: rotate(-45deg); /* Rotation pour former une croix */
-}
-
-/* Suppression du comportement spécifique au mobile (optionnel) */
-.navbar-links.active {
-  display: flex;
+  transform: rotate(-45deg);
 }
