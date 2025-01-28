@@ -44,7 +44,7 @@ class PaddleControls {
     }
   }
 
-  update(deltaTime, ballX) {
+  update(deltaTime, ballX, sendPositionToServer) {
     if (this.controls.keyboardControl) {
       if (this.state.bottom) {
         this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
@@ -53,6 +53,14 @@ class PaddleControls {
         this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
       }
       this.constrainPaddlePosition();
+      if (sendPositionToServer && typeof sendPositionToServer === "function") {
+        const paddlePosition = {
+          paddle: {
+            x: this.paddle.obj.position.x,
+          },
+        };
+        sendPositionToServer(paddlePosition);
+      }
     }
   }
 

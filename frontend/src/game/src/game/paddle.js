@@ -95,8 +95,9 @@ class Paddle {
   }
 
   update(deltaTime, position, velocity) {
-    this.player.update(deltaTime, position, velocity);
-
+    this.player.update(deltaTime, ballX, (position) => {
+      this.ws.send(JSON.stringify(position));
+    });
     const newBox = new THREE.Box3().setFromObject(this.obj, true);
     const paddleBoxIndex = this.arena.BBoxes.findIndex(
       (bbox) => bbox.side === this.side,

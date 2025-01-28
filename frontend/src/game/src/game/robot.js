@@ -58,12 +58,20 @@ class Robot {
     }
   }
 
-  updatePaddlePosition(deltaTime) {
+  updatePaddlePosition(deltaTime, ballX, sendPositionToServer) {
     if (this.state.bottom) {
       this.paddle.obj.position.x -= deltaTime * this.deltaFactor;
     }
     if (this.state.top) {
       this.paddle.obj.position.x += deltaTime * this.deltaFactor;
+    }
+    if (sendPositionToServer && typeof sendPositionToServer === "function") {
+      const paddlePosition = {
+        paddle: {
+          x: this.paddle.obj.position.x,
+        },
+      };
+      sendPositionToServer(paddlePosition);
     }
   }
 
