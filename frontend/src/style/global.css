@@ -77,11 +77,6 @@ canvas#c {
   align-items: center;
 }
 
-header {
-  height: 60px; /* Définir la hauteur du header si nécessaire */
-  z-index: 0;
-}
-
 h1 {
   font-size: large;
   color: brown;

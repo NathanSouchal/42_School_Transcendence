@@ -1,0 +1,141 @@
+.navbar {
+  /* display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  height: 20%;
+  white-space: nowrap; */
+  position: fixed;
+  top: 50%; /* Positionner l'élément 50% du haut de l'écran */
+  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
+  transform: translate(
+    -50%,
+    -45%
+  ); /* Centre l'élément par rapport à son point de départ */
+  height: 60vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
+  width: 60%; /* Définir une largeur (ou un max-width) pour #app */
+  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
+  padding: 20px;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-links {
+  position: fixed; /* Fixée pour occuper toute la fenêtre */
+  top: 0;
+  right: -100%; /* Cachée par défaut (hors de l'écran) */
+  width: 100%; /* Prend toute la largeur */
+  height: 100%; /* Prend toute la hauteur */
+  flex-direction: column; /* Liens affichés en colonne */
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(225, 233, 233, 0.9); /* Fond semi-transparent */
+  transition:
+    right 0.5s ease-in-out,
+    opacity 0.5s ease-in-out; /* Animation fluide */
+  opacity: 0; /* Transparente par défaut */
+  pointer-events: none; /* Désactivée par défaut */
+}
+
+/* Lorsqu'elle est active (menu ouvert) */
+.navbar.show-nav .navbar-links {
+  right: 0; /* Affichée */
+  opacity: 1; /* Rendue visible */
+  pointer-events: auto; /* Active */
+}
+
+/* Liens individuels */
+.navbar-links li {
+  list-style: none; /* Supprime les puces */
+  margin: 1rem 0; /* Espacement vertical */
+}
+
+.navbar-links li a {
+  text-decoration: none; /* Supprime les soulignements */
+  font-size: 1.5rem; /* Taille des liens */
+  color: black; /* Couleur par défaut */
+  transition: color 0.3s ease-in-out; /* Transition fluide */
+}
+
+.navbar-links li a:hover {
+  color: #007bff; /* Couleur au survol */
+}
+
+/* Effet de soulignement au survol */
+.navbar-link > a::after {
+  display: block;
+  content: "";
+  width: 0;
+  height: 2px;
+  background-color: black;
+  transition: width 0.5s ease-in-out; /* Animation fluide */
+}
+
+.navbar-link:hover > a::after {
+  width: 100%;
+}
+
+/* Bouton toggle (menu burger) */
+.toggle-button {
+  position: absolute; /* Fixé par rapport à la navbar */
+  top: 1.7rem;
+  right: 1rem;
+  display: flex; /* Toujours visible */
+  flex-direction: column;
+  justify-content: space-between;
+  width: 30px;
+  height: 21px;
+  z-index: 15; /* Au-dessus du menu */
+  cursor: pointer;
+}
+
+/* Barre du burger */
+.toggle-button .bar2 {
+  height: 3px;
+  width: 100%;
+  background-color: black;
+  border-radius: 10px;
+  transition: 0.5s ease-in-out;
+  position: relative;
+}
+
+/* Barres avant/après pour le burger */
+.toggle-button .bar2::before,
+.toggle-button .bar2::after {
+  content: "";
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  background-color: black;
+  border-radius: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.toggle-button .bar2::before {
+  transform: translateY(-10px); /* Barre supérieure */
+}
+
+.toggle-button .bar2::after {
+  transform: translateY(10px); /* Barre inférieure */
+}
+
+/* Animation du bouton burger en croix */
+.toggle-button.open .bar2 {
+  background: transparent;
+}
+
+.toggle-button.open .bar2::before {
+  transform: rotate(45deg); /* Rotation pour former une croix */
+}
+
+.toggle-button.open .bar2::after {
+  transform: rotate(-45deg); /* Rotation pour former une croix */
+}
+
+/* Suppression du comportement spécifique au mobile (optionnel) */
+.navbar-links.active {
+  display: flex;
+}

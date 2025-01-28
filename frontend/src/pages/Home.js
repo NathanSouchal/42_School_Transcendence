@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
-import state from "../app.js";
+import { header } from "../app";
 
 export default class Home {
   constructor(state) {
@@ -59,6 +59,7 @@ export default class Home {
   }
 
   render(routeParams = {}) {
+    header.show();
     console.log("Home rendered");
     const { id } = routeParams;
     let links;
