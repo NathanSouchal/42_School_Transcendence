@@ -39,8 +39,8 @@ export default class Social {
 
   async getFriends(id) {
     try {
-      const res = await API.get(`/friends/${id}/`);
-      const data = res.data.friends;
+      const res = await API.get(`/friends/list/${id}/`);
+      const data = res.data.friend_list;
       this.friends = data;
       console.log(
         "Friends: " +
