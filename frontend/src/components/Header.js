@@ -36,6 +36,7 @@ export class Header {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
+    const header = document.getElementById("header");
     let menuOpen = false;
 
     toggleButton.addEventListener("click", () => {
@@ -47,10 +48,12 @@ export class Header {
       if (!menuOpen) {
         toggleButton.classList.add("open");
         navBar.classList.remove("closed"); // Agrandir la navbar
+        header.style.zIndex = "1";
         menuOpen = true;
       } else {
         toggleButton.classList.remove("open");
         navBar.classList.add("closed"); // Réduire la navbar
+        header.style.zIndex = "0";
         menuOpen = false;
       }
     });
@@ -87,10 +90,7 @@ export class Header {
     this.cssLink = addCSS("src/style/header.css");
     const header = `${
       this.state.isUserLoggedIn
-        ? `<div class="toggle-button">
-          <span class="bar2"></span>
-        </div><nav class="navbar">
-
+        ? `<nav class="navbar">
         <ul class="navbar-links">
 			<li class="navbar-link">
 		  		<a class="active" href="/login">Login</a>
@@ -101,9 +101,6 @@ export class Header {
         </ul>
       </nav>`
         : `<nav class="navbar">
-	  <div class="toggle-button">
-		<span class="bar2"></span>
-	  </div>
 	  <ul class="navbar-links">
 		  <li class="navbar-link">
 				<a class="active" href="/social">Social</a>

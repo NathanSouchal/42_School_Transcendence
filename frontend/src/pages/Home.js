@@ -48,12 +48,13 @@ export default class Home {
     if (this.state.isUserLoggedIn != newState.isUserLoggedIn) {
       //rerender header
     }
-    this.state = newState;
+    // this.state = newState;
   }
 
   removeEventListeners() {}
 
   destroy() {
+    this.removeEventListeners();
     console.log("Home destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
