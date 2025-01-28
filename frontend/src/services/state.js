@@ -4,6 +4,8 @@ export default class State {
       return State.instance; // Retourner l'instance existante si elle existe déjà
     }
 
+    const savedState = JSON.parse(localStorage.getItem("pongState"));
+
     this.state = {
       isGamePage: false,
       gameStarted: false,
@@ -44,12 +46,24 @@ export default class State {
     this.scores = [];
     this.data = {};
     this.listeners = [];
+    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
+
     State.instance = this;
+  }
+
+  saveState() {
+    const stateToSave = { isUserLoggedIn: this.isUserLoggedIn };
+    localStorage.setItem("pongState", JSON.stringify(stateToSave));
+  }
+
+  resetState() {
+    localStorage.removeItem("pongState");
     this.isUserLoggedIn = false;
   }
 
-  updateData(newData) {
-    this.data = { ...this.data, ...newData };
+  setIsUserLoggedIn(value) {
+    this.isUserLoggedIn = value;
+    this.saveState();
     this.notifyListeners();
   }
 
@@ -140,7 +154,6 @@ export default class State {
   }
 
   notifyListeners() {
-    if (this.state.gameHasLoaded)
-      this.listeners.forEach((listener) => listener(this.state));
+    this.listeners.forEach((listener) => listener(this.state));
   }
 }

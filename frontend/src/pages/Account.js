@@ -273,11 +273,11 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
-      if (!this.state.isUserLoggedIn) this.state.isUserLoggedIn = true;
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = {};
-      if (this.state.isUserLoggedIn) this.state.isUserLoggedIn = false;
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
     }
   }
 

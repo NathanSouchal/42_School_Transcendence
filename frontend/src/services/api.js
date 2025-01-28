@@ -12,6 +12,7 @@ async function getNewAccessToken() {
   try {
     await API.post(`/auth/custom-token/access/`);
   } catch (error) {
+    state.setIsUserLoggedIn(false);
     console.error(`Error while trying to get new access token : ${error}`);
     throw error;
   }
@@ -38,6 +39,7 @@ API.interceptors.response.use(
         await getNewAccessToken();
 
         // Relancer la requête originale avec le nouveau token
+        state.setIsUserLoggedIn(true);
         return API(originalRequest);
       } catch (tokenError) {
         // Si l'obtention d'un nouveau token échoue, gérer l'erreur (ex : déconnexion)
