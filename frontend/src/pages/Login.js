@@ -3,6 +3,7 @@ import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import {addCSS, removeCSS} from "../utils";
 
 export default class Login {
   constructor(state) {
@@ -16,6 +17,7 @@ export default class Login {
       password: "",
     };
     this.eventListeners = [];
+    this.cssLink;
   }
 
   async initialize(routeParams = {}) {
@@ -123,18 +125,19 @@ export default class Login {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
+      removeCSS(this.cssLink);
     }
   }
 
   render(routeParams = {}) {
+    this.cssLink = addCSS("src/style/login.css");
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="login-form">
-          <h3 class="text-center">Login</h3>
-          <div class="mb-3">
-            <label>Username</label>
+    return `
+        <form id="login-form" class="form-div-login">
+          <h1 class="form-title-login">Login</h1>
+          <div class="inputs-button-form-login">
             <input
               type="text"
               class="form-control"
@@ -143,29 +146,22 @@ export default class Login {
               maxLength="10"
               value="${this.formState.username}"
               name="username"
+              aria-label="Username"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
               name="password"
+              aria-label="Password"
               required
             />
-          </div>
-          <div class="d-grid">
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Submit
+            <button type="submit" class="form-button-login">
+              Sign in
             </button>
           </div>
-        </form>
-      </div>`;
+        </form>`;
   }
 }

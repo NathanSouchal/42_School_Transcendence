@@ -1,0 +1,73 @@
+.form-div-login {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+.form-title-login {
+    font-size: 2.2em;
+    letter-spacing: 0.2em;
+    padding: 1em;
+    font-family: 'Dangrek', cursive;
+    color: #DA4C0F;
+}
+
+.inputs-button-form-login {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.inputs-button-form-login input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.inputs-button-form-login input::placeholder {
+    opacity: 0.5;
+}
+
+.inputs-button-form-login input:focus {
+    border-color: #DA4C0F;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+}
+
+.form-button-login {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    color: white;
+    background: #DA4C0F;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+  
+.form-button-login:hover {
+    background: #ba410d;
+    transform: scale(1.05);
+}
+
+.form-button-login:active {
+    background: #98350b;
+    transform: scale(1);
+}
+
+@media (max-width: 400px) {
+    .form-div-login {
+        width: 90%;
+        padding: 1.5rem;
+    }   
+}
+  
