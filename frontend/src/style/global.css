@@ -241,16 +241,14 @@ h1 {
   align-items: center;
   justify-content: center;
   margin: 0.7em;
+  text-align: center;
+
 }
 
 .global-nav-items a {
   padding-right: 0.3em;
   padding-left: 0.3em;
   border-radius: 20px;
-  transition: all 0.3s ease;
-}
-
-.global-nav-items h1 {
   transition: all 0.3s ease;
 }
 

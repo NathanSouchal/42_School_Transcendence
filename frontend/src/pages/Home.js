@@ -63,6 +63,9 @@ export default class Home {
 
   render(routeParams = {}) {
     console.log("Home rendered");
+    const container = document.getElementById("app");
+    if (container)
+      container.className = "menu";
     this.cssLink = addCSS("src/style/home.css");
     const { id } = routeParams;
     let links;
