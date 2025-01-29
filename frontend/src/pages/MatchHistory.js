@@ -1,6 +1,6 @@
-import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader } from "../utils";
 
 export default class MatchHistory {
   constructor(state) {
@@ -60,6 +60,7 @@ export default class MatchHistory {
 
   render(routeParams = {}) {
     let template;
+    handleHeader(this.state.isUserLoggedIn, false);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
       template = `${Object.values(this.matchHistory)
         .map(

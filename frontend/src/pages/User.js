@@ -1,7 +1,7 @@
-import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
 import { Router } from "../router.js";
 import API from "../services/api.js";
+import { handleHeader } from "../utils";
 
 export default class User {
   constructor(state) {
@@ -355,6 +355,7 @@ export default class User {
 
   render(routeParams = {}) {
     const { id } = routeParams;
+    handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     // if (this.errorCode === 404) {
     //   return setTimeout(() => {

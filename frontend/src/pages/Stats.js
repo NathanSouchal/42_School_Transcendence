@@ -1,6 +1,6 @@
-import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader } from "../utils";
 
 export default class Stats {
   constructor(state) {
@@ -47,6 +47,7 @@ export default class Stats {
   destroy() {}
 
   render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)

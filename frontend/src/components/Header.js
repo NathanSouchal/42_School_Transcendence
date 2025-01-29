@@ -109,15 +109,27 @@ export class Header {
     this.isGuestRendered = false;
     this.cssLink = addCSS("src/style/header.css");
     const header = `<nav class="navbar">
-    <ul class="navbar-links">
-  <li class="navbar-link" name="login">
-      <a class="active" href="/login">Login</a>
-  </li>
-  <li class="navbar-link" name="register">
-          <a class="active" href="/register">Register</a>
-  </li>
-    </ul>
-  </nav>`;
+                    <ul class="navbar-links">
+                      <li class="navbar-link">
+                          <a class="active" href="/">Home</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/game">Play</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/account">Account</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/stats">Stats</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/match-history">Match History</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/social">Social</a>
+                      </li>
+                    </ul>
+                    </nav>`;
     const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
     if (container) {
@@ -134,15 +146,21 @@ export class Header {
     this.isGuestRendered = true;
     this.cssLink = addCSS("src/style/header.css");
     const header = `<nav class="navbar">
-    <ul class="navbar-links">
-  <li class="navbar-link" name="home">
-      <a class="active" href="/">Home</a>
-  </li>
-  <li class="navbar-link" name="social">
-          <a class="active" href="/social">Social</a>
-  </li>
-    </ul>
-  </nav>`;
+                    <ul class="navbar-links">
+                      <li class="navbar-link">
+                          <a class="active" href="/">Home</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/game">Play</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/register">Register</a>
+                      </li>
+                      <li class="navbar-link">
+                          <a class="active" href="/login">Login</a>
+                      </li>
+                    </ul>
+                    </nav>`;
     const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
     if (container) {

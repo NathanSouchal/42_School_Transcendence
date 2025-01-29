@@ -1,7 +1,8 @@
 import axios from "axios";
 import { updateView } from "../utils";
 import API from "../services/api";
-import {addCSS, removeCSS} from "../utils";
+import { addCSS, removeCSS } from "../utils";
+import { handleHeader } from "../utils";
 
 export default class LocalTournament {
   constructor(state) {
@@ -43,9 +44,8 @@ export default class LocalTournament {
     try {
       const response = await API.get(`/user/${id}/`);
       this.userAlias = response.data.user.alias;
-    }
-      catch (error) {
-        console.error(`Error while trying to get data : ${error}`);
+    } catch (error) {
+      console.error(`Error while trying to get data : ${error}`);
     }
   }
 
@@ -137,13 +137,13 @@ export default class LocalTournament {
     console.log("gameHasBeenWon : " + newState.gameHasBeenWon);
     if (newState.gameStarted) {
       console.log("Game has started");
-      
+
       const container = document.getElementById("app");
       if (container) {
         container.className = "";
         const content = this.render();
         container.innerHTML = content;
-        
+
         this.removeEventListeners();
         this.attachEventListeners();
       }
@@ -155,47 +155,42 @@ export default class LocalTournament {
       if (container) {
         container.className = "menu";
         container.innerHTML = content;
-        
+
         this.removeEventListeners();
         this.attachEventListeners();
       }
     }
   }
 
-  handleStartButton(){
+  handleStartButton() {
     this.state.setGameStarted("PVP");
   }
 
-  handleGameMenuButton(){
+  handleGameMenuButton() {
     window.location.href = "https://localhost:3000/game";
   }
 
   async matchFinished() {
     let winner = "";
     if (this.state.score.left > this.state.score.right)
-        winner = this.MatchToPlay.player1;
-    else
-        winner = this.MatchToPlay.player2;
+      winner = this.MatchToPlay.player1;
+    else winner = this.MatchToPlay.player2;
     try {
-      const res = await API.put(
-        `/match/${this.MatchToPlay.id}/`,
-        {
-          "score_player1": this.state.score.left,
-          "score_player2": this.state.score.right,
-          "winner": winner
-        }
-      )
+      const res = await API.put(`/match/${this.MatchToPlay.id}/`, {
+        score_player1: this.state.score.left,
+        score_player2: this.state.score.right,
+        winner: winner,
+      });
       console.log(res);
       if (res.status === 200) {
         this.MatchToPlay = res.data.nextMatchToPlay;
-        this.currentRound = res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
-      }
-      else {
+        this.currentRound =
+          res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
+      } else {
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error(`Error while trying to update match data : ${error}`);
     }
   }
@@ -203,11 +198,10 @@ export default class LocalTournament {
   async createLocalTournament() {
     console.log(typeof this.nbPlayers, this.nbPlayers);
     try {
-      const res = await API.post(
-        `/tournament/list/`,
-      {"participants": this.playerList,
-        "number_of_players": this.nbPlayers}
-      );
+      const res = await API.post(`/tournament/list/`, {
+        participants: this.playerList,
+        number_of_players: this.nbPlayers,
+      });
       console.log(res);
       this.currentRound = res.data.tournament.rounds_tree[0];
       this.MatchToPlay = res.data.FirstMatch;
@@ -261,33 +255,37 @@ export default class LocalTournament {
 
   renderTournament() {
     return `<div class="matches-main-div">
-        ${this.tournamentFinished
-          ? `<h1>Winner: ${this.tournamentWinner} !</h1>`
-          : !this.MatchToPlay.next_match
-            ? `<h1>FINAL</h1>`
-            : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
+        ${
+          this.tournamentFinished
+            ? `<h1>Winner: ${this.tournamentWinner} !</h1>`
+            : !this.MatchToPlay.next_match
+              ? `<h1>FINAL</h1>`
+              : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
         }
-				${this.currentRound.map((element) =>
-          ((this.MatchToPlay.id === element.id) && !this.tournamentWinner)
-        ? `<div class="next-match-main-div">
+				${this.currentRound
+          .map((element) =>
+            this.MatchToPlay.id === element.id && !this.tournamentWinner
+              ? `<div class="next-match-main-div">
             <h1 class="me-3">${element.player1}</h1> 
             <h2>vs</h2>
             <h1>${element.player2}</h1>
             <button id="btn-start-match">PLAY</button>
           </div>`
-        : !element.winner && !this.tournamentWinner
-          ?`<div class="upcoming-match-main-div">
+              : !element.winner && !this.tournamentWinner
+                ? `<div class="upcoming-match-main-div">
               <h1 class="me-3">${element.player1}</h1> 
               <h2>vs</h2>
               <h1>${element.player2}</h1>
               <h1>⏳</h1>
             </div>`
-          : `<div class="passed-match-main-div">
+                : `<div class="passed-match-main-div">
               <h1 class="me-3">${element.player1}</h1> 
               <h2>vs</h2>
               <h1>${element.player2}</h1>
               <h1>${this.tournamentWinner ? `${this.state.score.left}` : `${element.score_player1}`} - ${this.tournamentWinner ? `${this.state.score.right}` : `${element.score_player2}`}</h1>
-            </div>`).join('')}
+            </div>`
+          )
+          .join("")}
         <button id="game-menu-button">${!this.MatchToPlay.next_match ? `Game Menu` : `Stop Tournament`}</button>
 			</div>`;
   }
@@ -297,7 +295,7 @@ export default class LocalTournament {
     const { gameIsPaused } = this.state.state;
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
-    
+
     return `
           <div class="tournament-game-hud">
             <div class="tournament-game-score">
@@ -314,6 +312,7 @@ export default class LocalTournament {
 
   render() {
     console.log(this.state.state.gameStarted);
+    handleHeader(this.state.isUserLoggedIn, false);
     return `${
       this.state.state.gameStarted === true
         ? `${this.getGameHUDTemplate()}`

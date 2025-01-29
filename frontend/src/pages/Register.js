@@ -1,6 +1,4 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
 import { handleHeader } from "../utils.js";

@@ -45,10 +45,6 @@ export default class Home {
         this.attachEventListeners();
       }
     }
-    if (this.state.isUserLoggedIn != newState.isUserLoggedIn) {
-      //rerender header
-    }
-    // this.state = newState;
   }
 
   removeEventListeners() {}

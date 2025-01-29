@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { createBackArrow } from "../components/backArrow.js";
+import { handleHeader } from "../utils";
 
 export default class GamePage {
   constructor(state) {
@@ -177,6 +178,7 @@ export default class GamePage {
 
   render() {
     if (!this.container) return;
+    handleHeader(this.state.isUserLoggedIn, false);
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     this.container.className = "";
     let template;

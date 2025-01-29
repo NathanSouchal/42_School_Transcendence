@@ -1,4 +1,5 @@
 import API from "../services/api.js";
+import { handleHeader } from "../utils.js";
 
 export default class Social {
   constructor(state) {
@@ -203,6 +204,7 @@ export default class Social {
   }
 
   render(userId) {
+    handleHeader(this.state.isUserLoggedIn, false);
     if (this.friends && this.invitations) {
       return `<div class="d-flex flex-column m-5">
                       <div class="m-3">
