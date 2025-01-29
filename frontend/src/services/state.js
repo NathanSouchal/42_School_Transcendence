@@ -19,7 +19,7 @@ export default class State {
       gameHasBeenWon: false,
     };
 
-    document.getElementById("app").classList.add("hidden");
+    document.getElementById("menu").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
     //this.gamePoints = 10;
@@ -72,7 +72,7 @@ export default class State {
     this.notifyListeners();
 
     document.getElementById("loading-overlay").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
+    document.getElementById("menu").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
   }
 

@@ -85,11 +85,13 @@ export default class GamePage {
     this.state.unsubscribe(this.handleStateChange);
     this.state.setGameEnded();
     this.container = null;
+    const renderGame = document.getElementById("menu");
+    renderGame.className = "menu";
   }
 
   getGameMenuTemplate() {
     return `
-        <div class="menu">
+        <div>
         ${createBackArrow().outerHTML}
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
           <div class="text-center">
@@ -129,7 +131,7 @@ export default class GamePage {
 
   getPauseMenuTemplate() {
     return `
-  <div class="menu">
+  <div>
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
           <div class="text-center">
         <h2 class="mb-4">Game Paused</h2>
@@ -152,7 +154,7 @@ export default class GamePage {
     const { gameMode } = this.state.state;
 
     return `
-  <div class="menu">
+  <div>
     <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
       <div class="text-center">
     <div class="game-score">
@@ -177,10 +179,11 @@ export default class GamePage {
   }
 
   render() {
+    const renderGame = document.getElementById("menu");
     if (!this.container) return;
     handleHeader(this.state.isUserLoggedIn, false);
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    this.container.className = "";
+    renderGame.className = "";
     let template;
     if (!gameStarted && !gameHasBeenWon) {
       template = this.getGameMenuTemplate();

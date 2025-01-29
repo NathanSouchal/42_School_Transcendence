@@ -11,10 +11,6 @@ export class Header {
 
   attachEventListeners() {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
-    const navbarLinks = document.getElementsByClassName("navbar-links")[0];
-    const navBar = document.querySelector(".navbar");
-    const header = document.getElementById("header");
-
     if (toggleButton) {
       const handleToggleButton = this.handleToggleButton.bind(this);
       if (!this.eventListeners.some((e) => e.name === "toggle-menu")) {
@@ -46,10 +42,12 @@ export class Header {
   }
 
   handleToggleButton() {
+    console.log("click");
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
+    const app = document.getElementById("app");
 
     if (toggleButton && navBar && navbarLinks && header) {
       const isOpen = navBar.classList.toggle("show-nav");
@@ -59,6 +57,7 @@ export class Header {
         toggleButton.classList.add("open");
         navBar.classList.remove("closed");
         header.style.zIndex = "1";
+        app.style.pointerEvents = "none";
       } else {
         this.closeMenu();
       }
@@ -70,13 +69,14 @@ export class Header {
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
+    const app = document.getElementById("app");
 
     if (toggleButton && navBar && navbarLinks && header) {
       toggleButton.classList.remove("open");
       navBar.classList.add("closed");
       navbarLinks.classList.remove("show-nav");
       navBar.classList.remove("show-nav");
-
+      app.style.pointerEvents = "auto";
       setTimeout(() => {
         header.style.zIndex = "0";
       }, 500);

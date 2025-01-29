@@ -67,24 +67,20 @@ export default class Home {
     if (this.state.isUserLoggedIn) {
       links = [
         { href: "/game", text: "Play" },
-        { href: "/account", text: "Account" },
-        { href: "/stats", text: "Stats" },
-        { href: "/match-history", text: "MatchHistory" },
-        { href: "/social", text: "Social" },
-        { href: "/user/1", text: "User 1" },
-        { href: "/user/2", text: "User 2" },
-        { href: "/user/3", text: "User 3" },
-        { href: "/user/200", text: "User 200" },
+        // { href: "/user/1", text: "User 1" },
+        // { href: "/user/2", text: "User 2" },
+        // { href: "/user/3", text: "User 3" },
+        // { href: "/user/200", text: "User 200" },
       ];
     } else {
       links = [
         { href: "/game", text: "Play" },
         { href: "/login", text: "Login" },
         { href: "/register", text: "Register" },
-        { href: "/user/1", text: "User 1" },
-        { href: "/user/2", text: "User 2" },
-        { href: "/user/3", text: "User 3" },
-        { href: "/user/200", text: "User 200" },
+        // { href: "/user/1", text: "User 1" },
+        // { href: "/user/2", text: "User 2" },
+        // { href: "/user/3", text: "User 3" },
+        // { href: "/user/200", text: "User 200" },
       ];
     }
     return `
