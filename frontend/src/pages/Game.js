@@ -6,10 +6,22 @@ export default class GamePage {
   constructor(state) {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.isSubscribed = false;
+    this.isInitialized = false;
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
   }
 
   async initialize() {
+    console.log("GamePage initialized");
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("GamePage subscribed to state");
+    }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     this.container = document.getElementById("app");
     if (!this.container) return;
 
@@ -180,21 +192,29 @@ export default class GamePage {
 
   render() {
     const renderGame = document.getElementById("menu");
+    const menuButton = document.getElementById("toggle-button");
     if (!this.container) return;
     handleHeader(this.state.isUserLoggedIn, false);
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    renderGame.className = "";
     let template;
     if (!gameStarted && !gameHasBeenWon) {
+      renderGame.className = "menu";
+      menuButton.className = "toggle-button";
       template = this.getGameMenuTemplate();
     } else if (!gameStarted && gameHasBeenWon) {
+      renderGame.className = "menu";
+      menuButton.className = "toggle-button";
       template = this.getGameEndingTemplate();
     } else {
       template = this.getGameHUDTemplate();
+      renderGame.className = "";
+      menuButton.className = "";
       if (gameIsPaused) {
         template += `
           ${this.getPauseMenuTemplate()}
       `;
+        renderGame.className = "menu";
+        menuButton.className = "toggle-button";
       }
     }
 
