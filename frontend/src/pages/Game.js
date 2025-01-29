@@ -91,7 +91,6 @@ export default class GamePage {
 
   getGameMenuTemplate() {
     return `
-        <div class="menu">
         ${createBackArrow().outerHTML}
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
           <div class="global-nav-section">
@@ -106,7 +105,6 @@ export default class GamePage {
               </div>
           </div>
         </div>
-      </div>
     `;
   }
 
@@ -128,7 +126,6 @@ export default class GamePage {
 
   getPauseMenuTemplate() {
     return `
-  <div class="menu">
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
           <div class="text-center">
         <h2 class="mb-4">Game Paused</h2>
@@ -142,7 +139,6 @@ export default class GamePage {
         </ul>
       </div>
     </div>
-  </div>
   `;
   }
 
@@ -151,7 +147,6 @@ export default class GamePage {
     const { gameMode } = this.state.state;
 
     return `
-  <div class="menu">
     <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
       <div class="text-center">
     <div class="game-score">
@@ -171,7 +166,6 @@ export default class GamePage {
         </ul>
       </div>
     </div>
-  </div>
   `;
   }
 
@@ -179,7 +173,6 @@ export default class GamePage {
     if (!this.container) return;
     this.cssLink = addCSS("src/style/game.css");
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    this.container.className = "";
     let template;
     if (!gameStarted && !gameHasBeenWon) {
       template = this.getGameMenuTemplate();
