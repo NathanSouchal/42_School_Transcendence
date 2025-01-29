@@ -3,20 +3,20 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-class PongConsumer(AsyncWebsocketConsumer):
+class GameState(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         print(f"Consumer connected")
         self.state = {
             "paddle_left": {"x": 0},
             "paddle_right": {"x": 0},
-            "ball": {"x": 0, "y": 0, "z": 0},
+            "ball": {"x": 0, "y": 0, "z": 0, "vel_x": 0, "vel_y": 0, "vel_z": 0},
         }
 
     async def receive(self, text_data):
         data = json.loads(text_data)
 
-        print(f"Received data: {data}")
+        # print(f"Received data: {data}")
 
         if "paddle_left" in data:
             self.state["paddle_left"]["x"] = data["paddle_left"]["x"]
