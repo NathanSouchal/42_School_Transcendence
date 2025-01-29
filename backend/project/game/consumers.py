@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class GameState(AsyncWebsocketConsumer):
     async def connect(self):
+        print(f"Attempting connection")
         # Join game room
         self.room_name = "game_room"
         self.room_group_name = "pong_game"
@@ -12,7 +13,7 @@ class GameState(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
 
         await self.accept()
-        # print(f"Consumer connected")
+        print(f"Consumer connected")
         self.state = {
             "paddle_left": {"x": 0},
             "paddle_right": {"x": 0},
@@ -20,8 +21,9 @@ class GameState(AsyncWebsocketConsumer):
         }
 
     async def receive(self, text_data):
+        print(f"hey")
         data = json.loads(text_data)
-        # print(f"Received data: {data}")
+        print(f"Received data: {data}")
 
         # Update state based on received data
         message_type = data.get("type")

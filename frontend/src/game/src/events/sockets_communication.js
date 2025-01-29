@@ -54,7 +54,9 @@ export class ws {
   }
 
   sendMessage(data) {
-    if (this.socket.readyState === WebSocket.OPEN) {
+    // console.log("Attempting to send message:", data);
+    // console.log("WebSocket readyState:", this.socket.readyState);
+    if (this.socket.readyState === 1) {
       this.socket.send(JSON.stringify(data));
     } else {
       console.warn("WebSocket is not in OPEN state");
