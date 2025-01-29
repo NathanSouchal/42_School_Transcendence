@@ -125,19 +125,19 @@ export default class Login {
       this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
-      removeCSS(this.cssLink);
     }
+    removeCSS(this.cssLink);
   }
 
   render(routeParams = {}) {
-    this.cssLink = addCSS("src/style/login.css");
+    this.cssLink = addCSS("src/style/login-register.css");
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `
-        <form id="login-form" class="form-div-login">
-          <h1 class="form-title-login">Login</h1>
-          <div class="inputs-button-form-login">
+        <form id="login-form" class="form-div-login-register">
+          <h1 class="form-title-login-register">Login</h1>
+          <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
@@ -158,7 +158,7 @@ export default class Login {
               aria-label="Password"
               required
             />
-            <button type="submit" class="form-button-login">
+            <button type="submit" class="form-button-login-register">
               Sign in
             </button>
           </div>
