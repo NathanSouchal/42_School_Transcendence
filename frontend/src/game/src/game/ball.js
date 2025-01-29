@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { position } from "../events/sockets_communication.js";
 
 class Ball {
   constructor(size, conf) {
@@ -17,7 +18,7 @@ class Ball {
     this.rotationSpeed = 3.0;
     this.isFalling = false;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
-    this.pos = { x: 0, y: 0, z: 0 };
+    this.pos = new position();
   }
 
   computeBoundingBoxes() {
@@ -123,7 +124,14 @@ class Ball {
 
     renderer.ws.sendMessage({
       type: "ball",
-      pos: { ...this.pos },
+      pos: {
+        x: this.pos.x,
+        y: this.pos.y,
+        z: this.pos.z,
+        vel_x: this.velocity.x,
+        vel_y: this.velocity.y,
+        vel_z: this.velocity.z,
+      },
     });
   }
 

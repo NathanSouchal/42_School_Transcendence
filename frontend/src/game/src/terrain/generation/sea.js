@@ -10,6 +10,7 @@ class Sea extends BasicTerrain {
       this.width * 3,
       this.depth * 3,
       this.width,
+      this.width,
     );
 
     this.material = new THREE.ShaderMaterial({
@@ -19,6 +20,7 @@ class Sea extends BasicTerrain {
       side: THREE.DoubleSide,
       transparent: true,
       opacity: 0.3,
+      // wireframe: true,
     });
     this.material.timeScale = 0.5;
     this.material.elapsedTime = 0;

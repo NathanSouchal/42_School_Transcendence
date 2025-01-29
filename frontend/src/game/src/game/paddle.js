@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import PaddleControls from "./paddle_controls";
 import Robot from "./robot";
+import { position } from "../events/sockets_communication.js";
 
 class Paddle {
   constructor(arena, side, player_type, config) {
@@ -12,7 +13,7 @@ class Paddle {
     this.needsRemoving = false;
     this.controls = config.getPaddleConfig(side);
     this.obj = new THREE.Object3D();
-    this.pos = { x: 0, y: 0, z: 0 };
+    this.pos = new position();
     this.choosePlayer(player_type);
   }
 

@@ -1,49 +1,7 @@
 import * as THREE from "three";
 import state from "../../../app.js";
 
-class ws {
-  constructor() {
-    this.connect();
-  }
-
-  connect() {
-    this.socket = new WebSocket(
-      "ws://" + window.location.hostname + ":8080" + "/ws/pong/room1/",
-    );
-
-    this.socket.onopen = () => {
-      console.log("WebSocket Connected");
-    };
-
-    this.socket.onmessage = (event) => {
-      console.log("WebSocket Message:", event.data);
-    };
-
-    this.socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
-    };
-
-    this.socket.onclose = () => {
-      console.log("WebSocket Disconnected");
-      setTimeout(() => this.reconnect(), 1000);
-    };
-  }
-
-  reconnect() {
-    if (this.socket.readyState === WebSocket.CLOSED) {
-      this.connect();
-    }
-  }
-
-  sendMessage(data) {
-    if (this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(data));
-    } else {
-      console.warn("WebSocket is not in OPEN state");
-      this.reconnect();
-    }
-  }
-}
+import { ws } from "../events/sockets_communication.js";
 
 class Renderer {
   constructor(renderer, scene, camera, game, stat) {
@@ -56,7 +14,7 @@ class Renderer {
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
-    this.ws = new ws();
+    this.ws = new ws(game.paddleLeft.obj, game.paddleRight.obj, game.ball.obj);
   }
 
   resizeRendererToDisplaySize() {
