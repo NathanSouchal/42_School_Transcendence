@@ -96,7 +96,6 @@ export default class GamePage {
   destroy() {
     this.state.unsubscribe(this.handleStateChange);
     this.state.setGameEnded();
-    this.container = null;
     const renderGame = document.getElementById("menu");
     renderGame.className = "menu";
   }

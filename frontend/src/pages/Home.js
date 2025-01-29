@@ -89,7 +89,7 @@ export default class Home {
 			${links
         .map(
           (link) =>
-            `<li class="nav-item my-2"><a class="nav-link" href="${link.href}">${link.text}</a></li>`
+            `<li class="nav-item my-2"><a class="nav-link active" href="${link.href}">${link.text}</a></li>`
         )
         .join("")}
 		</ul>
