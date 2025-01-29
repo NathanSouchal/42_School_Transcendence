@@ -1,35 +1,12 @@
+import DOMPurify from "dompurify";
 import { addCSS, removeCSS } from "../utils";
 
 export class Header {
-  constructor(state) {
-    this.state = state;
-    this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false;
-    this.isInitialized = false;
+  constructor() {
+    this.isUserRendered = false;
+    this.isGuestRendered = false;
     this.eventListeners = [];
     this.cssLink = null;
-  }
-
-  initialize() {
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
-    if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange);
-      this.isSubscribed = true;
-      console.log("Header component subscribed to state");
-    }
-    this.updateHeader();
-  }
-
-  updateHeader() {
-    const content = this.render();
-    const container = document.getElementById("header");
-    if (container) {
-      container.innerHTML = content; // Insérer le rendu dans le container
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
   }
 
   attachEventListeners() {
@@ -39,31 +16,34 @@ export class Header {
     const header = document.getElementById("header");
     let menuOpen = false;
 
-    toggleButton.addEventListener("click", () => {
-      // Basculez la classe show-nav pour ouvrir/fermer le menu
-      navBar.classList.toggle("show-nav");
-      navbarLinks.classList.toggle("show-nav");
+    if (toggleButton && navBar && navbarLinks && header) {
+      const toggleMenu = () => {
+        navBar.classList.toggle("show-nav");
+        navbarLinks.classList.toggle("show-nav");
 
-      // Ajouter/retirer la classe 'closed' pour réduire la navbar quand elle est fermée
-      if (!menuOpen) {
-        toggleButton.classList.add("open");
-        navBar.classList.remove("closed"); // Agrandir la navbar
-        header.style.zIndex = "1";
-        menuOpen = true;
-      } else {
-        toggleButton.classList.remove("open");
-        navBar.classList.add("closed"); // Réduire la navbar
-        header.style.zIndex = "0";
-        menuOpen = false;
+        if (!menuOpen) {
+          toggleButton.classList.add("open");
+          navBar.classList.remove("closed");
+          header.style.zIndex = "1";
+          menuOpen = true;
+        } else {
+          toggleButton.classList.remove("open");
+          navBar.classList.add("closed");
+          header.style.zIndex = "0";
+          menuOpen = false;
+        }
+      };
+
+      if (!this.eventListeners.some((e) => e.name === "toggle-menu")) {
+        toggleButton.addEventListener("click", toggleMenu);
+        this.eventListeners.push({
+          name: "toggle-menu",
+          type: "click",
+          element: toggleButton,
+          listener: toggleMenu,
+        });
       }
-    });
-  }
-
-  handleStateChange(newState) {
-    if (this.state.isUserLoggedIn != newState.isUserLoggedIn) {
-      this.updateHeader();
     }
-    this.state = newState;
   }
 
   removeEventListeners() {
@@ -77,40 +57,62 @@ export class Header {
   }
 
   destroy() {
+    console.log("Destroying Header");
     this.removeEventListeners();
-    if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange);
-      this.isSubscribed = false;
-      console.log("Header component unsubscribed from state");
-    }
-    this.removeCSS(this.cssLink);
+    this.isUserRendered = false;
+    this.isGuestRendered = false;
+    removeCSS(this.cssLink);
+    const container = document.getElementById("header");
+    if (container) container.style.display = "none";
   }
 
-  render() {
+  renderUserLoggedIn() {
+    console.log("renderUserLoggedIn Header");
+    this.isUserRendered = true;
+    this.isGuestRendered = false;
     this.cssLink = addCSS("src/style/header.css");
-    const header = `${
-      this.state.isUserLoggedIn
-        ? `<nav class="navbar">
-        <ul class="navbar-links">
-			<li class="navbar-link">
-		  		<a class="active" href="/login">Login</a>
-			</li>
-			<li class="navbar-link">
-            	<a class="active" href="/register">Register</a>
-			</li>
-        </ul>
-      </nav>`
-        : `<nav class="navbar">
-	  <ul class="navbar-links">
-		  <li class="navbar-link">
-				<a class="active" href="/social">Social</a>
-		  </li>
-		  <li class="navbar-link">
-			  <a class="active" href="/">Home</a>
-		  </li>
-	  </ul>
-	</nav>`
-    }`;
-    return header;
+    const header = `<nav class="navbar">
+    <ul class="navbar-links">
+  <li class="navbar-link">
+      <a class="active" href="/login">Login</a>
+  </li>
+  <li class="navbar-link">
+          <a class="active" href="/register">Register</a>
+  </li>
+    </ul>
+  </nav>`;
+    const sanitizedData = DOMPurify.sanitize(header);
+    const container = document.getElementById("header");
+    if (container) {
+      container.style.display = "block";
+      container.innerHTML = sanitizedData; // Insérer le rendu dans le container
+      this.removeEventListeners();
+      this.attachEventListeners();
+    }
+  }
+
+  renderGuestUser() {
+    console.log("renderGuestUser Header");
+    this.isUserRendered = false;
+    this.isGuestRendered = true;
+    this.cssLink = addCSS("src/style/header.css");
+    const header = `<nav class="navbar">
+    <ul class="navbar-links">
+  <li class="navbar-link">
+      <a class="active" href="/">Home</a>
+  </li>
+  <li class="navbar-link">
+          <a class="active" href="/social">Social</a>
+  </li>
+    </ul>
+  </nav>`;
+    const sanitizedData = DOMPurify.sanitize(header);
+    const container = document.getElementById("header");
+    if (container) {
+      container.style.display = "block";
+      container.innerHTML = sanitizedData; // Insérer le rendu dans le container
+      this.removeEventListeners();
+      this.attachEventListeners();
+    }
   }
 }

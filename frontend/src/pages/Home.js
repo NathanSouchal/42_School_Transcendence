@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
-import { header } from "../app";
+import { handleHeader } from "../utils";
 
 export default class Home {
   constructor(state) {
@@ -64,9 +64,7 @@ export default class Home {
   }
 
   render(routeParams = {}) {
-    if (typeof header.initialize === "function" && !header.isInitialized)
-      header.initialize();
-    else header.render();
+    handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
     const { id } = routeParams;
     let links;

@@ -16,8 +16,7 @@ import { Header } from "./components/Header.js";
 const state = new State();
 export default state;
 
-const header = new Header(state);
-header.initialize();
+const header = new Header();
 export { header };
 
 const routes = {

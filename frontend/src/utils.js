@@ -1,3 +1,5 @@
+import { header } from "./app";
+
 export function resetZIndex() {
   const canvas = document.querySelector("#c");
   const app = document.querySelector("#app");
@@ -18,11 +20,10 @@ export function updateView(context) {
   }
 }
 
-
 export function addCSS(path) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.type = "text/css";
   link.href = path;
   document.head.appendChild(link);
 
@@ -33,4 +34,22 @@ export function addCSS(path) {
 export function removeCSS(link) {
   document.head.removeChild(link);
   console.log("CSS supprimé");
+}
+
+export function handleHeader(isUserLoggedIn, needsToDestroy) {
+  if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
+    header.destroy();
+  } else if (needsToDestroy) {
+    return;
+  } else if (isUserLoggedIn && !header.isUserRendered) {
+    if (header.isGuestRendered) {
+      header.destroy();
+    }
+    header.renderUserLoggedIn();
+  } else if (!isUserLoggedIn && !header.isGuestRendered) {
+    if (header.isUserRendered) {
+      header.destroy();
+    }
+    header.renderGuestUser();
+  }
 }
