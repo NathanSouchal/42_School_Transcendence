@@ -12,6 +12,7 @@ class Paddle {
     this.needsRemoving = false;
     this.controls = config.getPaddleConfig(side);
     this.obj = new THREE.Object3D();
+    this.pos = { x: 0, y: 0, z: 0 };
     this.choosePlayer(player_type);
   }
 
@@ -34,7 +35,7 @@ class Paddle {
       this.side === "left"
         ? -(zMax / 2) + this.size.paddle_depth / 2
         : zMax / 2 - this.size.paddle_depth / 2;
-    this.obj.position.set(0, 2.5, z);
+    this.pos.set(0, 2.5, z);
   }
 
   computeBoundingBoxes() {
@@ -99,8 +100,8 @@ class Paddle {
 
     const message = {
       type: `paddle_${this.side}`,
-      [`paddle_${this.side}`]: {
-        x: this.obj.position.x,
+      pos: {
+        x: this.pos.x,
       },
     };
     ws.sendMessage(message);

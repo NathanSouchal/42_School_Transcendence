@@ -46,11 +46,18 @@ class PaddleControls {
 
   update(deltaTime) {
     if (this.controls.keyboardControl) {
+      //if (this.state.bottom) {
+      //  this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
+      //}
+      //if (this.state.top) {
+      //  this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
+      //}
+
       if (this.state.bottom) {
-        this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
+        this.paddle.pos.x -= deltaTime * this.deltaFactor;
       }
       if (this.state.top) {
-        this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
+        this.paddle.pos.x += deltaTime * this.deltaFactor;
       }
       this.constrainPaddlePosition();
     }
