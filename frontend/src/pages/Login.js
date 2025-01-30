@@ -133,7 +133,7 @@ export default class Login {
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `
         <form id="login-form" class="form-div-login-register">
-          <h1 class="form-title-login-register">Login</h1>
+          <h1 class="global-page-title">Login</h1>
           <div class="inputs-button-form-login-register">
             <input
               type="text"

@@ -262,3 +262,11 @@ h1 {
   box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
   transform: translateY(-3px); /* Légère élévation */
 }
+
+.global-page-title {
+  font-size: 2.2em;
+  letter-spacing: 0.2em;
+  padding: 0.5em;
+  font-family: var(--primary-font);
+  color: var(--primary-color);
+}

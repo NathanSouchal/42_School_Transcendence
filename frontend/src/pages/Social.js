@@ -206,53 +206,61 @@ export default class Social {
   render() {
     if (this.friends && this.invitations) {
       return `<div class="main-div-social">
-                <h1>Social</h1>
+                <h1 class="global-page-title">Social</h1>
                 <div class="content-social">
                   <div class="search-bar-and-result-social">
                     <input type="text" id="search_bar_user" placeholder="Search..." />
                     <div id="search_result"></div>
                   </div>
-                  <div class="friends-div-social">
-                    <h2>FRIENDS</h2>
-                    ${
-                      Object.keys(this.friends).length > 0
-                        ? `
-                      ${Object.values(this.friends)
-                        .map(
-                          (value) =>
-                            `<div class="friends-list-social">
-                                <a href="/user/${this.search_result.id}/">${value.username}</a>
+                  <div class="friends-and-invitations-social">
+                    <div class="friends-div-social">
+                      <h2>FRIENDS</h2>
+                      ${
+                        Object.keys(this.friends).length > 0
+                          ? `
+                        ${Object.values(this.friends)
+                          .map(
+                            (value) =>
+                              `<div class="friends-list-social">
+                                  <a href="/user/${this.search_result.id}/">${value.username}</a>
+                              </div>`
+                          )
+                          .join("")} `
+                          : `<div>
+                              <p>zero friend, sniff sniff</p>
                             </div>`
-                        )
-                        .join("")} `
-                        : `<div>
-                            <p>zero friend, sniff sniff</p>
-                          </div>`
-                    }
-                  </div>
-                  <div class="invitations-div-social">
-                    <h2>INVITATIONS</h2>
-                    ${
-                      Object.keys(this.invitations).length > 0
-                        ? `
-                      ${Object.values(this.invitations)
-                        .map(
-                          (value) =>
-                            `<div class="invitations-list-div-social">
-                                ${value.from_user.id == this.userId
-                                ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
-                                : `<div>
-                                    <p>From ${value.from_user.username}</p>
-                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
-                                  </div>`
-                                }
-                                <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
+                      }
+                    </div>
+                    <div class="invitations-div-social">
+                      <h2>INVITATIONS</h2>
+                      ${
+                        Object.keys(this.invitations).length > 0
+                          ? `
+                        ${Object.values(this.invitations)
+                          .map(
+                            (value) =>
+                              `<div class="invitations-list-div-social">
+                                  ${value.from_user.id == this.userId
+                                  ? `<div class="invitation-item-social">
+                                      <p>To ${value.to_user.username}, waiting for acceptation...</p>
+                                      <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">X</button>
+                                    </div>`
+                                  : `<div>
+                                      <p>From ${value.from_user.username}</p>
+                                      <div class="invitation-item-social">
+                                        <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">V</button>
+                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">X</button>
+                                      </div>
+                                    </div>`
+                                  }
+                              </div>`
+                          )
+                          .join("")}`
+                          : `<div>
+                              <p>no pending invitations</p>
                             </div>`
-                        )
-                        .join("")}`
-                        : `
-                      <h4>no pending invitations</h4>`
-                    }
+                      }
+                    </div>
                   </div>
                 </div>
               </div>`;
