@@ -3,6 +3,10 @@
   --blue: rgba(10, 68, 120);
   --beige: rgba(222, 212, 184);
   --orange: #ffcc00;
+  --primary-color: #DA4C0F;
+  --secondary-color: #ece8c4e9;
+  --primary-font: 'Dangrek', sans-serif;
+  --secondary-font: 'Roboto', sans-serif;
 }
 
 body,
@@ -18,37 +22,65 @@ canvas#c {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Place le canvas derrière les autres éléments */
+  z-index: -1; /* Place le canvas derrière les autres éléments */ 
 }
 
 /* Appliquer un positionnement relatif pour le contenu */
 .menu {
   position: absolute;
-  top: 50%; /* Positionner l'élément 50% du haut de l'écran */
-  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
-  transform: translate(
-    -50%,
-    -45%
-  ); /* Centre l'élément par rapport à son point de départ */
-  height: 60vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
-  width: 60%; /* Définir une largeur (ou un max-width) pour #app */
-  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
-  background: rgba(
-    222,
-    212,
-    184,
-    0.8
-  ); /* Fond semi-transparent (si vous le souhaitez) */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%); /* Conserve le centrage */
+  height: 60vh;
+  width: 60%;
+  max-width: 1200px;
+  min-width: 320px;
+  background: var(--secondary-color);
   padding: 20px;
-  color: var(--blue); /* Choisir une couleur de texte adaptée */
+  color: var(--blue);
   border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Optionnel : pour donner un effet d'ombre */
-  z-index: 0;
-  font-size: 24;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  font-size: 24px;
 
   display: flex;
   justify-content: center;
   align-items: center;
+
+  animation: floating 3s ease-in-out infinite;
+}
+
+/* Animation mise à jour */
+@keyframes floating {
+  0% {
+    transform: translate(-50%, -45%) translateY(0) rotate(0deg);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    transform: translate(-50%, -45%) translateY(-10px) rotate(1deg);
+    box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.25);
+  }
+  100% {
+    transform: translate(-50%, -45%) translateY(0) rotate(0deg);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+@media (min-width: 931px) and (max-width: 1250px) {
+  .menu {
+    width: 70%;
+  }
+}
+
+@media (min-width: 800px) and (max-width: 930px) {
+  .menu {
+    width: 80%;
+  }
+}
+
+@media (max-width: 799px) {
+  .menu {
+    width: 90%;
+  }
 }
 
 .view2 {
@@ -182,4 +214,51 @@ h1 {
   width: 6px;
   height: 20px;
   background-color: var(--blue);
+}
+
+.global-nav-section {
+  font-size: 2.4em;
+  font-family: var(--primary-font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  letter-spacing: 0.2em;
+  transition: all 0.3s ease;
+  color: var(--primary-color);
+}
+
+@media (min-width: 490px) and (max-width: 620px) {
+  .global-nav-section {
+      font-size: 1.8em;
+  }
+}
+
+@media (max-width: 489px) {
+  .global-nav-section {
+      font-size: 1.3em;
+  }
+}
+
+.global-nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.7em;
+  text-align: center;
+
+}
+
+.global-nav-items a {
+  padding-right: 0.3em;
+  padding-left: 0.3em;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.global-nav-items a:hover {
+  color: var(--secondary-color);
+  background: var(--primary-color);
+  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
+  transform: translateY(-3px); /* Légère élévation */
 }

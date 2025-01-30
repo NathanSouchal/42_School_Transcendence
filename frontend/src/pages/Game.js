@@ -6,6 +6,7 @@ export default class GamePage {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
+    this.cssLink;
   }
 
   async initialize() {
@@ -88,22 +89,19 @@ export default class GamePage {
 
   getGameMenuTemplate() {
     return `
-        <div class="menu">
+      <div class="menu">
         ${createBackArrow().outerHTML}
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-          <div class="text-center">
-            <h2 class="mb-4">Choose Game Mode</h2>
-            <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-              <li id="start-pvp-game" class="nav-item my-2">
-                Player vs Player
-              </li>
-              <li id="start-pvr-game" class="nav-item my-2">
-                Player vs Robot
-              </li>
-			  <li id="start-local-tournament" class="nav-item my-2">
-			  	<a class="nav-link" href="/local-tournament">Local tournament</a>
-			  </li>
-            </ul>
+          <div class="global-nav-section nav-section-game">
+              <div id="start-pvp-game" class="global-nav-items">
+                <button>Player vs Player</button>
+              </div>
+              <div id="start-pvr-game" class="global-nav-items">
+                <button>Player vs Robot</button>
+              </div>
+              <div id="start-local-tournament" class="global-nav-items">
+                 <a class="nav-link" href="/local-tournament">Local tournament</a>
+              </div>
           </div>
         </div>
       </div>
@@ -128,21 +126,21 @@ export default class GamePage {
 
   getPauseMenuTemplate() {
     return `
-  <div class="menu">
-        <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-          <div class="text-center">
-        <h2 class="mb-4">Game Paused</h2>
-        <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-          <li id="resume-game" class="nav-item my-2">
-            Resume Game
-          </li>
-          <li id="quit-game" class="nav-item my-2">
-            Quit Game
-          </li>
-        </ul>
+    <div class="menu">
+      <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+        <div class="text-center">
+          <h2 class="mb-4">Game Paused</h2>
+          <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
+            <li id="resume-game" class="nav-item my-2">
+              Resume Game
+            </li>
+            <li id="quit-game" class="nav-item my-2">
+              Quit Game
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
   `;
   }
 
@@ -151,27 +149,27 @@ export default class GamePage {
     const { gameMode } = this.state.state;
 
     return `
-  <div class="menu">
-    <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-      <div class="text-center">
-    <div class="game-score">
-      <h1 class="display-4 mb-0">${left} - ${right}</h1>
-        </div>
-          <p class="h4 mt-2">
-            ${left > right ? "Left Player Wins!" : "Right Player Wins!"}
-          </p>
+    <div class="menu">
+      <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+        <div class="text-center">
+      <div class="game-score">
+        <h1 class="display-4 mb-0">${left} - ${right}</h1>
+          </div>
+            <p class="h4 mt-2">
+              ${left > right ? "Left Player Wins!" : "Right Player Wins!"}
+            </p>
 
-        <ul class="h3 navbar-nav mr-auto mt-4 mb-4">
-          <li id="restart-game" class="nav-item my-2">
-            Play Again
-          </li>
-          <li id="quit-game" class="nav-item my-2">
-            Back to Menu
-          </li>
-        </ul>
+          <ul class="h3 navbar-nav mr-auto mt-4 mb-4">
+            <li id="restart-game" class="nav-item my-2">
+              Play Again
+            </li>
+            <li id="quit-game" class="nav-item my-2">
+              Back to Menu
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
   `;
   }
 

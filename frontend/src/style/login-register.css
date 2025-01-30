@@ -1,0 +1,89 @@
+.form-div-login-register {
+    height: 100%;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.form-title-login-register {
+    font-size: 2.2em;
+    letter-spacing: 0.2em;
+    padding: 1em;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
+}
+
+.inputs-button-form-login-register {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3em;
+}
+
+.inputs-button-form-login-register input {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.inputs-button-form-login-register input::placeholder {
+    opacity: 0.5;
+}
+
+.inputs-button-form-login-register input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+}
+
+.form-button-login-register {
+    width: 100%;
+    padding: 12px;
+    font-size: 18px;
+    color: white;
+    background: var(--primary-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+  
+.form-button-login-register:hover {
+    background: #ba410d;
+    transform: scale(1.05);
+}
+
+.form-button-login-register:active {
+    background: #98350b;
+    transform: scale(1);
+}
+
+.link-to-register {
+    color: rgba(99, 99, 90, 0.62);
+    font-size: 1.2rem;
+    text-decoration: underline;
+    transition: transform 0.2s;
+}
+
+.link-to-register:hover {
+    color: rgba(48, 48, 44, 0.62);
+    transform: scale(1.03)
+}
+
+.link-to-register:active {
+    transform: scale(1);
+}
+
+@media (max-width: 400px) {
+    .form-div-login-register {
+        width: 90%;
+        padding: 1.5rem;
+    }   
+}
+  
