@@ -92,7 +92,7 @@ export default class Home {
           ${links
             .map(
               (link) =>
-                `<div  class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
+                `<div class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
             )
             .join("")}
         </div>

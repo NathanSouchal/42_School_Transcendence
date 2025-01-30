@@ -104,25 +104,25 @@ export class Header {
     console.log("renderUserLoggedIn Header");
     this.isUserRendered = true;
     this.isGuestRendered = false;
-    const header = `<nav class="navbar">
-                    <ul class="navbar-links">
-                      <li class="navbar-link">
-                          <a class="active" href="/">Home</a>
+    const header = `<nav class="navbar-links">
+                    <ul>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/">Home</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/game">Play</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/game">Play</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/account">Account</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/account">Account</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/stats">Stats</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/stats">Stats</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/match-history">Match History</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/match-history">Match History</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/social">Social</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/social">Social</a>
                       </li>
                     </ul>
                     </nav>`;
@@ -142,17 +142,17 @@ export class Header {
     this.isGuestRendered = true;
     const header = `<nav class="navbar">
                     <ul class="navbar-links">
-                      <li class="navbar-link">
-                          <a class="active" href="/">Home</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/">Home</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/game">Play</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/game">Play</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/register">Register</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/register">Register</a>
                       </li>
-                      <li class="navbar-link">
-                          <a class="active" href="/login">Login</a>
+                      <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/login">Login</a>
                       </li>
                     </ul>
                     </nav>`;
