@@ -10,6 +10,7 @@ export default class GamePage {
     this.isInitialized = false;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
+    this.cssLink;
   }
 
   async initialize() {
@@ -96,8 +97,8 @@ export default class GamePage {
   destroy() {
     this.state.unsubscribe(this.handleStateChange);
     this.state.setGameEnded();
-    const renderGame = document.getElementById("menu");
-    renderGame.className = "menu";
+    const renderGame = document.getElementById("app");
+    renderGame.className = "app";
   }
 
   getGameMenuTemplate() {
@@ -105,19 +106,16 @@ export default class GamePage {
         <div>
         ${createBackArrow().outerHTML}
         <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-          <div class="text-center">
-            <h2 class="mb-4">Choose Game Mode</h2>
-            <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-              <li id="start-pvp-game" class="nav-item my-2">
-                Player vs Player
-              </li>
-              <li id="start-pvr-game" class="nav-item my-2">
-                Player vs Robot
-              </li>
-			  <li id="start-local-tournament" class="nav-item my-2">
-			  	<a class="nav-link" href="/local-tournament">Local tournament</a>
-			  </li>
-            </ul>
+          <div class="global-nav-section nav-section-game">
+              <div id="start-pvp-game" class="global-nav-items">
+                <button>Player vs Player</button>
+              </div>
+              <div id="start-pvr-game" class="global-nav-items">
+                <button>Player vs Robot</button>
+              </div>
+              <div id="start-local-tournament" class="global-nav-items">
+                 <a class="nav-link" href="/local-tournament">Local tournament</a>
+              </div>
           </div>
         </div>
       </div>
@@ -156,7 +154,6 @@ export default class GamePage {
         </ul>
       </div>
     </div>
-  </div>
   `;
   }
 
@@ -175,33 +172,33 @@ export default class GamePage {
             ${left > right ? "Left Player Wins!" : "Right Player Wins!"}
           </p>
 
-        <ul class="h3 navbar-nav mr-auto mt-4 mb-4">
-          <li id="restart-game" class="nav-item my-2">
-            Play Again
-          </li>
-          <li id="quit-game" class="nav-item my-2">
-            Back to Menu
-          </li>
-        </ul>
+          <ul class="h3 navbar-nav mr-auto mt-4 mb-4">
+            <li id="restart-game" class="nav-item my-2">
+              Play Again
+            </li>
+            <li id="quit-game" class="nav-item my-2">
+              Back to Menu
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
-  </div>
   `;
   }
 
   render() {
-    const renderGame = document.getElementById("menu");
+    const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
     if (!this.container) return;
     handleHeader(this.state.isUserLoggedIn, false);
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     let template;
     if (!gameStarted && !gameHasBeenWon) {
-      renderGame.className = "menu";
+      renderGame.className = "app";
       menuButton.className = "toggle-button";
       template = this.getGameMenuTemplate();
     } else if (!gameStarted && gameHasBeenWon) {
-      renderGame.className = "menu";
+      renderGame.className = "app";
       menuButton.className = "toggle-button";
       template = this.getGameEndingTemplate();
     } else {
@@ -212,7 +209,7 @@ export default class GamePage {
         template += `
           ${this.getPauseMenuTemplate()}
       `;
-        renderGame.className = "menu";
+        renderGame.className = "app";
         menuButton.className = "toggle-button";
       }
     }

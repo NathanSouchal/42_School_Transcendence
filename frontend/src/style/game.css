@@ -1,0 +1,26 @@
+.nav-section-game {
+    font-size: 2em;
+    letter-spacing: 0.1em;
+}
+
+.global-nav-items button:hover {
+    color: var(--secondary-color);
+    background: var(--primary-color);
+    box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
+    transform: translateY(-3px); /* Légère élévation */
+  }
+
+.global-nav-items button {
+    all: unset; /* Réinitialise toutes les propriétés CSS */
+    display: revert; /* Réapplique les valeurs par défaut du navigateur */
+    padding-right: 0.3em;
+    padding-left: 0.3em;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+@media (min-width: 0px) and (max-width: 850px) {
+    .global-nav-section {
+        font-size: 1.5em;
+    }
+}

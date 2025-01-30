@@ -16,6 +16,7 @@ export default class Register {
       passwordConfirmation: "",
     };
     this.eventListeners = [];
+    this.cssLink;
   }
 
   async initialize(routeParams = {}) {
@@ -158,11 +159,10 @@ export default class Register {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="register-form">
-          <h3 class="text-center">Register</h3>
-          <div class="mb-3">
-            <label>Username</label>
+    return `
+        <form id="register-form" class="form-div-login-register">
+          <h1 class="form-title-login-register">Register</h1>
+          <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
@@ -171,40 +171,31 @@ export default class Register {
               maxLength="10"
               value="${this.formState.username}"
               name="username"
+              aria-label="Username"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
               name="password"
+              aria-label="Password"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Confirm password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Confirm password"
               value="${this.formState.passwordConfirmation}"
               name="passwordConfirmation"
+              aria-label="Confirm Password"
               required
             />
-          </div>
-          <div class="d-grid">
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Submit
+            <button type="submit" class="form-button-login-register">
+              Sign up
             </button>
           </div>
-        </form>
-      </div>`;
+        </form>`;
   }
 }

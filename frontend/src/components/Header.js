@@ -1,12 +1,10 @@
 import DOMPurify from "dompurify";
-import { addCSS, removeCSS } from "../utils";
 
 export class Header {
   constructor() {
     this.isUserRendered = false;
     this.isGuestRendered = false;
     this.eventListeners = [];
-    this.cssLink = null;
   }
 
   attachEventListeners() {
@@ -98,7 +96,6 @@ export class Header {
     this.removeEventListeners();
     this.isUserRendered = false;
     this.isGuestRendered = false;
-    removeCSS(this.cssLink);
     const container = document.getElementById("header");
     if (container) container.style.display = "none";
   }
@@ -107,7 +104,6 @@ export class Header {
     console.log("renderUserLoggedIn Header");
     this.isUserRendered = true;
     this.isGuestRendered = false;
-    this.cssLink = addCSS("src/style/header.css");
     const header = `<nav class="navbar">
                     <ul class="navbar-links">
                       <li class="navbar-link">
@@ -144,7 +140,6 @@ export class Header {
     console.log("renderGuestUser Header");
     this.isUserRendered = false;
     this.isGuestRendered = true;
-    this.cssLink = addCSS("src/style/header.css");
     const header = `<nav class="navbar">
                     <ul class="navbar-links">
                       <li class="navbar-link">

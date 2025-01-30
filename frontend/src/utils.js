@@ -20,22 +20,6 @@ export function updateView(context) {
   }
 }
 
-export function addCSS(path) {
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.type = "text/css";
-  link.href = path;
-  document.head.appendChild(link);
-
-  console.log("CSS ajouté");
-  return link;
-}
-
-export function removeCSS(link) {
-  document.head.removeChild(link);
-  console.log("CSS supprimé");
-}
-
 export function handleHeader(isUserLoggedIn, needsToDestroy) {
   if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
     header.destroy();

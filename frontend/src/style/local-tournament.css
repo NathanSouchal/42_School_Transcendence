@@ -30,7 +30,7 @@
     border-radius: 8px; /* Bordures arrondies */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
     cursor: pointer; /* Curseur au survol */
-    transition: all 0.3s ease; /* Transition pour un effet fluide */
+    transition: all 0.3s ease; /*Transition pour un effet fluide */
     letter-spacing: 1px; /* Espacement des lettres */
     margin-top: 10%;
 }

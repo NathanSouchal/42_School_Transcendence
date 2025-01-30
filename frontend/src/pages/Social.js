@@ -11,6 +11,7 @@ export default class Social {
     this.invitations = {};
     this.eventListeners = [];
     this.search_result = {};
+    this.userId;
   }
 
   async initialize() {
@@ -22,13 +23,13 @@ export default class Social {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getFriends(userId);
-      await this.getInvitations(userId);
+    this.userId = Number(localStorage.getItem("id"));
+    if (this.userId) {
+      await this.getFriends(this.userId);
+      await this.getInvitations(this.userId);
     }
     // Appeler render pour obtenir le contenu HTML
-    const content = this.render(userId);
+    const content = this.render();
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
@@ -164,8 +165,8 @@ export default class Social {
     const searchResultDiv = document.getElementById("search_result");
     if (this.search_result.username) {
       searchResultDiv.innerHTML = `
-          <a href="/user/${this.search_result.id}/">
-            <h6>${this.search_result.username}</h6>
+          <a href="/user/${this.search_result.id}/" class="user-search-result-social">
+            ${this.search_result.username}
           </a>`;
     }
   }
@@ -173,7 +174,7 @@ export default class Social {
   handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Account page");
+      console.log("GameHasLoaded state changed, rendering Social page");
       const content = this.render();
       const container = document.getElementById("app");
       if (container) {
@@ -199,64 +200,65 @@ export default class Social {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Account page unsubscribed from state");
+      console.log("Social page unsubscribed from state");
     }
   }
 
   render(userId) {
     handleHeader(this.state.isUserLoggedIn, false);
     if (this.friends && this.invitations) {
-      return `<div class="d-flex flex-column m-5">
-                      <div class="m-3">
-                        <input type="text" id="search_bar_user" placeholder="Search..." />
-                        <div id="search_result"></div>
-                      </div>
-                      <div class="m-3">
-                        <h3>FRIENDS</h3>
-                        ${
-                          Object.keys(this.friends).length > 0
-                            ? `
-                          ${Object.values(this.friends)
-                            .map(
-                              (value) =>
-                                `<div class="d-flex gap-3 align-items-center">
-                                    <h3>${value.username}</h3>
-                                    <h4>Id: ${value.id}</h4>
-                                </div>`
-                            )
-                            .join("")} `
-                            : `
-                          <h4>zero friend, sniff sniff</h4>`
-                        }
-                      </div>
-                      <div class="m-3">
-                        <h3>INVITATIONS</h3>
-                        ${
-                          Object.keys(this.invitations).length > 0
-                            ? `
-                          ${Object.values(this.invitations)
-                            .map(
-                              (value) =>
-                                `<div class="d-flex gap-3 align-items-center">
-                                    ${
-                                      value.from_user.id == userId
-                                        ? `
-                                    <h3>To ${value.to_user.username}, waiting for acceptation...</h3>
-                                    `
-                                        : `
-                                    <h3>From ${value.from_user.username}</h3>
+      return `<div class="main-div-social">
+                <h1>Social</h1>
+                <div class="content-social">
+                  <div class="search-bar-and-result-social">
+                    <input type="text" id="search_bar_user" placeholder="Search..." />
+                    <div id="search_result"></div>
+                  </div>
+                  <div class="friends-div-social">
+                    <h2>FRIENDS</h2>
+                    ${
+                      Object.keys(this.friends).length > 0
+                        ? `
+                      ${Object.values(this.friends)
+                        .map(
+                          (value) =>
+                            `<div class="friends-list-social">
+                                <a href="/user/${this.search_result.id}/">${value.username}</a>
+                            </div>`
+                        )
+                        .join("")} `
+                        : `<div>
+                            <p>zero friend, sniff sniff</p>
+                          </div>`
+                    }
+                  </div>
+                  <div class="invitations-div-social">
+                    <h2>INVITATIONS</h2>
+                    ${
+                      Object.keys(this.invitations).length > 0
+                        ? `
+                      ${Object.values(this.invitations)
+                        .map(
+                          (value) =>
+                            `<div class="invitations-list-div-social">
+                                ${
+                                  value.from_user.id == this.userId
+                                    ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
+                                    : `<div>
+                                    <p>From ${value.from_user.username}</p>
                                     <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
-                                    `
-                                    }
-                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
-                                </div>`
-                            )
-                            .join("")}`
-                            : `
-                          <h4>no pending invitations</h4>`
-                        }
-                      </div>
-                    </div>`;
+                                  </div>`
+                                }
+                                <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
+                            </div>`
+                        )
+                        .join("")}`
+                        : `
+                      <h4>no pending invitations</h4>`
+                    }
+                  </div>
+                </div>
+              </div>`;
     } else {
       return `<h1>No data</h1>`;
     }

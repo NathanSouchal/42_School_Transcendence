@@ -15,6 +15,7 @@ export default class Login {
       password: "",
     };
     this.eventListeners = [];
+    this.cssLink;
   }
 
   async initialize(routeParams = {}) {
@@ -130,11 +131,10 @@ export default class Login {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="login-form">
-          <h3 class="text-center">Login</h3>
-          <div class="mb-3">
-            <label>Username</label>
+    return `
+        <form id="login-form" class="form-div-login-register">
+          <h1 class="form-title-login-register">Login</h1>
+          <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
@@ -143,29 +143,25 @@ export default class Login {
               maxLength="10"
               value="${this.formState.username}"
               name="username"
+              aria-label="Username"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
               name="password"
+              aria-label="Password"
               required
             />
-          </div>
-          <div class="d-grid">
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Submit
+            <button type="submit" class="form-button-login-register">
+              Sign in
             </button>
+            <div class="link-to-register">
+              <a class="nav-link" href="/register">No account? Create one here</a>
+            </div>
           </div>
-        </form>
-      </div>`;
+        </form>`;
   }
 }

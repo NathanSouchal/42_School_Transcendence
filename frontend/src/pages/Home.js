@@ -8,6 +8,7 @@ export default class Home {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
+    this.cssLink;
   }
   async initialize(routeParams = {}) {
     console.log("Home initialized");
@@ -62,6 +63,8 @@ export default class Home {
   render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
+    const container = document.getElementById("app");
+    if (container) container.className = "app";
     const { id } = routeParams;
     let links;
     if (this.state.isUserLoggedIn) {
@@ -74,25 +77,27 @@ export default class Home {
       ];
     } else {
       links = [
-        { href: "/game", text: "Play" },
         { href: "/login", text: "Login" },
-        { href: "/register", text: "Register" },
-        // { href: "/user/1", text: "User 1" },
-        // { href: "/user/2", text: "User 2" },
-        // { href: "/user/3", text: "User 3" },
-        // { href: "/user/200", text: "User 200" },
+        { href: "/game", text: "Guest Mode" },
       ];
     }
     return `
-	<div class="d-flex justify-content-center align-items-center h-100">
-		<ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-			${links
-        .map(
-          (link) =>
-            `<li class="nav-item my-2"><a class="nav-link active" href="${link.href}">${link.text}</a></li>`
-        )
-        .join("")}
-		</ul>
-	</div>`;
+    <div class="home-main-div">
+      <div class="home-title">
+        <h1>PONG</h1>
+        <h1>GAME</h1>
+      </div>
+      <div>
+        <div class="global-nav-section">
+          ${links
+            .map(
+              (link) =>
+                `<div  class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
+            )
+            .join("")}
+        </div>
+      </div>
+    </div>
+	`;
   }
 }

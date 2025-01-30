@@ -2,12 +2,12 @@
 
 .navbar {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  max-width: 1200px;
-  transform: translate(-50%, -40%);
-  height: 55vh;
-  width: 60%; /* Largeur normale quand le menu est ouvert */
+  /* top: -50%;
+  left: -50%; */
+  /* max-width: 1200px; */
+  /* transform: translate(-50%, -40%); */
+  /* height: 55vh;
+  width: 60%; */
   padding: 20px;
   z-index: 0;
   display: flex;
