@@ -8,7 +8,6 @@ export default class GamePage {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
-    this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
     this.cssLink;
   }
