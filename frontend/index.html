@@ -47,28 +47,30 @@
     <script type="module" src="src/game/src/main.js"></script>
   </head>
   <body>
-	<div class="body-container">
-    <!-- <div class="toggle-button">
+    <div class="body-container">
+      <!-- <div class="toggle-button">
       <span class="bar2"></span>
     </div> -->
-    <header id="header" class="" style="display: none"></header>
-    <div id="loading-overlay" class="loading-overlay">
-      <div class="loading-content">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
+      <header id="header" class="" style="display: none"></header>
+      <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <h2>Loading Game...</h2>
         </div>
-        <h2>Loading Game...</h2>
       </div>
+      <canvas id="c"></canvas>
+      <main id="main" class="main">
+        <div class="toggle-button-container">
+          <div class="toggle-button" id="toggle-button">
+            <span class="bar2"></span>
+          </div>
+        </div>
+        <div id="app" class="app"></div>
+      </main>
+      <footer></footer>
+      <script type="module" src="/src/app.js"></script>
     </div>
-    <canvas id="c"></canvas>
-    <main id="main" class="main">
-      <div class="toggle-button" id="toggle-button">
-        <span class="bar2"></span>
-      </div>
-      <div id="app" class="app"></div>
-    </main>
-    <footer></footer>
-    <script type="module" src="/src/app.js"></script>
-</div>
   </body>
 </html>
