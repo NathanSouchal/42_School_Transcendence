@@ -3,7 +3,6 @@ import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import {addCSS, removeCSS} from "../utils";
 
 export default class Login {
   constructor(state) {
@@ -126,11 +125,9 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    removeCSS(this.cssLink);
   }
 
   render(routeParams = {}) {
-    this.cssLink = addCSS("src/style/login-register.css");
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
@@ -161,6 +158,9 @@ export default class Login {
             <button type="submit" class="form-button-login-register">
               Sign in
             </button>
+            <div class="link-to-register">
+              <a class="nav-link" href="/register">No account? Create one here</a>
+            </div>
           </div>
         </form>`;
   }

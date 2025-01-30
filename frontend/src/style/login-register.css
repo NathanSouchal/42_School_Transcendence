@@ -11,8 +11,8 @@
     font-size: 2.2em;
     letter-spacing: 0.2em;
     padding: 1em;
-    font-family: 'Dangrek', cursive;
-    color: #DA4C0F;
+    font-family: var(--primary-font);
+    color: var(--primary-color);
 }
 
 .inputs-button-form-login-register {
@@ -38,7 +38,7 @@
 }
 
 .inputs-button-form-login-register input:focus {
-    border-color: #DA4C0F;
+    border-color: var(--primary-color);
     box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
 }
 
@@ -47,7 +47,7 @@
     padding: 12px;
     font-size: 18px;
     color: white;
-    background: #DA4C0F;
+    background: var(--primary-color);
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -61,6 +61,22 @@
 
 .form-button-login-register:active {
     background: #98350b;
+    transform: scale(1);
+}
+
+.link-to-register {
+    color: rgba(99, 99, 90, 0.62);
+    font-size: 1.2rem;
+    text-decoration: underline;
+    transition: transform 0.2s;
+}
+
+.link-to-register:hover {
+    color: rgba(48, 48, 44, 0.62);
+    transform: scale(1.03)
+}
+
+.link-to-register:active {
     transform: scale(1);
 }
 

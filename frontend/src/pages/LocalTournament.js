@@ -1,7 +1,6 @@
 import axios from "axios";
 import { updateView } from "../utils";
 import API from "../services/api";
-import {addCSS, removeCSS} from "../utils";
 
 export default class LocalTournament {
   constructor(state) {
@@ -231,7 +230,6 @@ export default class LocalTournament {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
-      removeCSS(this.cssLink);
     }
   }
 
@@ -313,7 +311,6 @@ export default class LocalTournament {
 
   render() {
     console.log(this.state.state.gameStarted);
-    this.cssLink = addCSS("src/style/local-tournament.css");
     return `${
       this.state.state.gameStarted === true
         ? `${this.getGameHUDTemplate()}`

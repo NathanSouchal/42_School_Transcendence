@@ -3,6 +3,10 @@
   --blue: rgba(10, 68, 120);
   --beige: rgba(222, 212, 184);
   --orange: #ffcc00;
+  --primary-color: #DA4C0F;
+  --secondary-color: #ece8c4e9;
+  --primary-font: 'Dangrek', sans-serif;
+  --secondary-font: 'Roboto', sans-serif;
 }
 
 body,
@@ -31,7 +35,7 @@ canvas#c {
   width: 60%;
   max-width: 1200px;
   min-width: 320px;
-  background: #ece8c4e9;
+  background: var(--secondary-color);
   padding: 20px;
   color: var(--blue);
   border-radius: 10px;
@@ -214,14 +218,14 @@ h1 {
 
 .global-nav-section {
   font-size: 2.4em;
-  font-family: 'Dangrek', cursive;
+  font-family: var(--primary-font);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   letter-spacing: 0.2em;
   transition: all 0.3s ease;
-  color: #DA4C0F;
+  color: var(--primary-color);
 }
 
 @media (min-width: 490px) and (max-width: 620px) {
@@ -253,8 +257,8 @@ h1 {
 }
 
 .global-nav-items a:hover {
-  color: #ece8c4e9;
-  background: #DA4C0F;
+  color: var(--secondary-color);
+  background: var(--primary-color);
   box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
   transform: translateY(-3px); /* Légère élévation */
 }

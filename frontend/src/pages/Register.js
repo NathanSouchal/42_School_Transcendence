@@ -3,7 +3,6 @@ import axios from "axios";
 import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import {addCSS, removeCSS} from "../utils";
 
 export default class Register {
   constructor(state) {
@@ -154,11 +153,9 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
-    removeCSS(this.cssLink);
   }
 
   render(routeParams = {}) {
-    this.cssLink = addCSS("src/style/login-register.css");
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);

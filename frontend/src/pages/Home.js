@@ -1,7 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
 import state from "../app.js";
-import {addCSS, removeCSS} from "../utils";
 
 export default class Home {
   constructor(state) {
@@ -58,7 +57,6 @@ export default class Home {
       this.isSubscribed = false;
       console.log("Home page unsubscribed from state");
     }
-    removeCSS(this.cssLink);
   }
 
   render(routeParams = {}) {
@@ -66,7 +64,6 @@ export default class Home {
     const container = document.getElementById("app");
     if (container)
       container.className = "menu";
-    this.cssLink = addCSS("src/style/home.css");
     const { id } = routeParams;
     let links;
     if (this.state.isUserLoggedIn) {

@@ -4,8 +4,8 @@
 }
 
 .global-nav-items button:hover {
-    color: #ece8c4e9;
-    background: #DA4C0F;
+    color: var(--secondary-color);
+    background: var(--primary-color);
     box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
     transform: translateY(-3px); /* Légère élévation */
   }

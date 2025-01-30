@@ -1,6 +1,5 @@
 import DOMPurify from "dompurify";
 import { createBackArrow } from "../components/backArrow.js";
-import {addCSS, removeCSS} from "../utils";
 
 export default class GamePage {
   constructor(state) {
@@ -86,7 +85,6 @@ export default class GamePage {
     this.state.unsubscribe(this.handleStateChange);
     this.state.setGameEnded();
     this.container = null;
-    removeCSS(this.cssLink);
   }
 
   getGameMenuTemplate() {
@@ -177,7 +175,6 @@ export default class GamePage {
 
   render() {
     if (!this.container) return;
-    this.cssLink = addCSS("src/style/game.css");
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     this.container.className = "";
     let template;

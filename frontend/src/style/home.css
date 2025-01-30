@@ -5,7 +5,7 @@
     height: 80%;
     width: 100%;
     gap: 10%;
-    color: #DA4C0F;
+    color: var(--primary-color);
 }
 
 .home-title {
