@@ -5,8 +5,35 @@
   --orange: #ffcc00;
   --primary-color: #DA4C0F;
   --secondary-color: #ece8c4e9;
+  --tertiary-color: #5a2108;
+  --validate-color: #096d11;
+  --danger-color: #a71611;
   --primary-font: 'Dangrek', sans-serif;
   --secondary-font: 'Roboto', sans-serif;
+}
+
+/* Largeur de la barre de scroll */
+::-webkit-scrollbar {
+  width: 10px; /* Scroll vertical */
+  height: 10px; /* Scroll horizontal */
+}
+
+/* Fond de la scrollbar */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px; /* Coins arrondis */
+}
+
+/* Curseur (la partie qu'on déplace) */
+::-webkit-scrollbar-thumb {
+  background: #ff660081; /* Couleur de la barre */
+  border-radius: 10px;
+  border: 2px solid #f1f1f1; /* Effet d'encadrement */
+}
+
+/* Curseur au survol */
+::-webkit-scrollbar-thumb:hover {
+  background: #e65100;
 }
 
 body,
@@ -40,7 +67,6 @@ canvas#c {
   color: var(--blue);
   border-radius: 10px;
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-  font-size: 24px;
 
   display: flex;
   justify-content: center;
@@ -264,7 +290,7 @@ h1 {
 }
 
 .global-page-title {
-  font-size: 2.2em;
+  font-size: 3em;
   letter-spacing: 0.2em;
   padding: 0.5em;
   font-family: var(--primary-font);

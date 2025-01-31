@@ -215,51 +215,64 @@ export default class Social {
                   <div class="friends-and-invitations-social">
                     <div class="friends-div-social">
                       <h2>FRIENDS</h2>
-                      ${
-                        Object.keys(this.friends).length > 0
-                          ? `
-                        ${Object.values(this.friends)
-                          .map(
-                            (value) =>
-                              `<div class="friends-list-social">
-                                  <a href="/user/${this.search_result.id}/">${value.username}</a>
+                      <div class="friends-list-social">
+                        ${
+                          Object.keys(this.friends).length > 0
+                            ? `
+                          ${Object.values(this.friends)
+                            .map(
+                              (value) =>
+                                `<div class="friends-item-social">
+                                    <div class="friends-item-img-username">
+                                      <img width="50" height="50" src="https://t3.ftcdn.net/jpg/01/14/59/80/240_F_114598082_uu94hhsd7oM5ZetTUVYhQ6EINkrEn0qY.jpg" class="rounded-circle">
+                                      <a href="/user/${value.id}/">${value.username}</a>
+                                    </div>
+                                    <p>Online</p>
+                                </div>`
+                            )
+                            .join("")} `
+                            : `<div>
+                                <p>zero friend, sniff sniff</p>
                               </div>`
-                          )
-                          .join("")} `
-                          : `<div>
-                              <p>zero friend, sniff sniff</p>
-                            </div>`
-                      }
+                        }
+                      </div>
                     </div>
                     <div class="invitations-div-social">
                       <h2>INVITATIONS</h2>
-                      ${
-                        Object.keys(this.invitations).length > 0
-                          ? `
-                        ${Object.values(this.invitations)
-                          .map(
-                            (value) =>
-                              `<div class="invitations-list-div-social">
-                                  ${value.from_user.id == this.userId
-                                  ? `<div class="invitation-item-social">
-                                      <p>To ${value.to_user.username}, waiting for acceptation...</p>
-                                      <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">X</button>
-                                    </div>`
-                                  : `<div>
-                                      <p>From ${value.from_user.username}</p>
-                                      <div class="invitation-item-social">
-                                        <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">V</button>
-                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">X</button>
-                                      </div>
-                                    </div>`
-                                  }
+                      <div class="invitations-list-div-social">
+                        ${
+                          Object.keys(this.invitations).length > 0
+                            ? `
+                          ${Object.values(this.invitations)
+                            .map(
+                              (value) =>
+                                `
+                                    ${value.from_user.id == this.userId
+                                    ? `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://t3.ftcdn.net/jpg/01/14/59/80/240_F_114598082_uu94hhsd7oM5ZetTUVYhQ6EINkrEn0qY.jpg" class="rounded-circle">
+                                          <p>${value.to_user.username}, waiting for acceptation...</p>
+                                        </div>
+                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                      </div>`
+                                    : `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://t3.ftcdn.net/jpg/01/14/59/80/240_F_114598082_uu94hhsd7oM5ZetTUVYhQ6EINkrEn0qY.jpg" class="rounded-circle">
+                                          <p>${value.from_user.username}</p>
+                                        </div>
+                                        <div class="two-buttons-invitation-social">
+                                          <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
+                                          <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                        </div>
+                                      </div>`
+                                    }`
+                            )
+                            .join("")}`
+                            : `<div>
+                                <p>no pending invitations</p>
                               </div>`
-                          )
-                          .join("")}`
-                          : `<div>
-                              <p>no pending invitations</p>
-                            </div>`
-                      }
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
