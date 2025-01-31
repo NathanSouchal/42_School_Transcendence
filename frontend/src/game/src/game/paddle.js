@@ -37,6 +37,7 @@ class Paddle {
         ? -(zMax / 2) + this.size.paddle_depth / 2
         : zMax / 2 - this.size.paddle_depth / 2;
     this.pos.set(0, 2.5, z);
+    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
   }
 
   computeBoundingBoxes() {
@@ -102,7 +103,7 @@ class Paddle {
     const message = {
       type: `paddle_${this.side}`,
       pos: {
-        x: this.pos.x,
+        x: Number(this.pos.x).toFixed(4),
       },
     };
     ws.sendMessage(message);

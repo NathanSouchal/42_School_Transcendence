@@ -14,7 +14,7 @@ class Renderer {
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
-    this.ws = new ws(game.paddleLeft.obj, game.paddleRight.obj, game.ball.obj);
+    this.ws = new ws(game.paddleLeft, game.paddleRight, game.ball);
   }
 
   resizeRendererToDisplaySize() {
@@ -78,13 +78,13 @@ class Renderer {
     this.game.ball.update(deltaTime, this.scene, this);
     this.game.paddleRight.update(
       deltaTime,
-      this.game.ball.obj.position,
+      this.game.ball.pos,
       this.game.ball.velocity,
       this.ws,
     ),
       this.game.paddleLeft.update(
         deltaTime,
-        this.game.ball.obj.position,
+        this.game.ball.pos,
         this.game.ball.velocity,
         this.ws,
       );
@@ -112,9 +112,9 @@ class Renderer {
           this.game.paddleLeft.tap_animation(deltaTime);
         }
         const collisionPoint = new THREE.Vector3(
-          this.game.ball.obj.position.x,
-          this.game.ball.obj.position.y,
-          this.game.ball.obj.position.z,
+          this.game.ball.pos.x,
+          this.game.ball.pos.y,
+          this.game.ball.pos.z,
         );
         this.game.ball.spawn_sparks(collisionPoint);
         break;

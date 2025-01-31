@@ -20,7 +20,7 @@ class Robot {
   predictBallPosition(position, velocity) {
     const arenaWidth = this.size.arena_width - this.size.border_width * 2;
     const halfArenaWidth = arenaWidth / 2;
-    const paddleZ = this.paddle.obj.position.z;
+    const paddleZ = this.paddle.pos.z;
     const timeToReach = (paddleZ - position.z) / velocity.z;
 
     let predictedX = position.x + velocity.x * timeToReach;
@@ -38,7 +38,7 @@ class Robot {
   }
 
   moveTowardsTarget(deltaTime) {
-    const currentX = this.paddle.obj.position.x;
+    const currentX = this.paddle.pos.x;
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
@@ -67,9 +67,11 @@ class Robot {
     //}
     if (this.state.bottom) {
       this.paddle.pos.x -= deltaTime * this.deltaFactor;
+      //console.log(this.paddle.pos.x);
     }
     if (this.state.top) {
       this.paddle.pos.x += deltaTime * this.deltaFactor;
+      //console.log(this.paddle.pos.x);
     }
   }
 
@@ -79,8 +81,8 @@ class Robot {
     const halfArenaWidth = arenaWidth / 2;
     const halfPaddleWidth = paddleWidth / 2;
 
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
+    this.paddle.pos.x = THREE.MathUtils.clamp(
+      this.paddle.pos.x,
       -halfArenaWidth + halfPaddleWidth,
       halfArenaWidth - halfPaddleWidth,
     );

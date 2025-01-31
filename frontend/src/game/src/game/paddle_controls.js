@@ -12,6 +12,7 @@ class PaddleControls {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.paddle.needsRemoving = true;
+    this.deltaFactor = 30;
     this.setupEventListeners();
   }
 
@@ -46,13 +47,6 @@ class PaddleControls {
 
   update(deltaTime) {
     if (this.controls.keyboardControl) {
-      //if (this.state.bottom) {
-      //  this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
-      //}
-      //if (this.state.top) {
-      //  this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
-      //}
-
       if (this.state.bottom) {
         this.paddle.pos.x -= deltaTime * this.deltaFactor;
       }
@@ -69,8 +63,8 @@ class PaddleControls {
     const halfArenaWidth = arenaWidth / 2;
     const halfPaddleWidth = paddleWidth / 2;
 
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
+    this.paddle.pos.x = THREE.MathUtils.clamp(
+      this.paddle.pos.x,
       -halfArenaWidth + halfPaddleWidth,
       halfArenaWidth - halfPaddleWidth,
     );

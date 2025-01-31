@@ -19,18 +19,20 @@ class Ball {
     this.isFalling = false;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
     this.pos = new position();
+    this.lastCollision = {
+      side: null,
+      time: 0,
+    };
+    this.collisionCooldown = 0.1;
   }
 
   computeBoundingBoxes() {
     this.box = new THREE.Box3().setFromObject(this.obj, true);
     this.velocity = this.random_initial_velocity();
-    this.pos.set(this.setPosition());
+    this.pos.set(0, 2.7, 0);
+    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
     this.make_sparks();
     //this.boxHelper.box.copy(this.box);
-  }
-
-  setPosition() {
-    return new THREE.Vector3(0, 2.7, 0);
   }
 
   async init() {
@@ -63,8 +65,18 @@ class Ball {
   }
 
   bounce(bbox) {
-    const normal = this.reflectionNormals[bbox.side];
+    const currentTime = performance.now() / 1000;
+    if (
+      bbox.side === this.lastCollision.side &&
+      currentTime - this.lastCollision.time < this.collisionCooldown
+    ) {
+      return;
+    }
 
+    this.lastCollision.side = bbox.side;
+    this.lastCollision.time = currentTime;
+
+    const normal = this.reflectionNormals[bbox.side];
     if (bbox.side === "right" || bbox.side === "left") {
       const ballCenter = this.pos.clone();
       const paddleCenter = bbox.box.getCenter(new THREE.Vector3());
@@ -125,12 +137,12 @@ class Ball {
     renderer.ws.sendMessage({
       type: "ball",
       pos: {
-        x: this.pos.x,
-        y: this.pos.y,
-        z: this.pos.z,
-        vel_x: this.velocity.x,
-        vel_y: this.velocity.y,
-        vel_z: this.velocity.z,
+        x: Number(this.pos.x).toFixed(4),
+        y: Number(this.pos.y).toFixed(4),
+        z: Number(this.pos.z).toFixed(4),
+        vel_x: Number(this.velocity.x).toFixed(4),
+        vel_y: Number(this.velocity.y).toFixed(4),
+        vel_z: Number(this.velocity.z).toFixed(4),
       },
     });
   }
@@ -177,7 +189,7 @@ class Ball {
   reset() {
     this.elapsedTime = 0;
     this.isFalling = false;
-    this.pos.copy(this.setPosition());
+    this.pos.set(0, 2.7, 0);
     this.velocity = this.random_initial_velocity();
   }
 

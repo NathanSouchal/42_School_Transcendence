@@ -6,7 +6,7 @@ export class ws {
 
   connect() {
     this.socket = new WebSocket(
-      "ws://" + window.location.hostname + ":8080" + "/ws/pong/room1/",
+      "ws://" + window.location.hostname + ":8000" + "/ws/pong/room1/",
     );
 
     this.socket.onopen = () => {
@@ -16,6 +16,7 @@ export class ws {
     this.socket.onmessage = (event) => {
       try {
         const state = JSON.parse(event.data);
+        //console.log(state);
         this.updateState(state);
         // console.log("WebSocket Message:", event.data);
       } catch (error) {
@@ -28,22 +29,24 @@ export class ws {
     };
 
     this.socket.onclose = () => {
-      // console.log("WebSocket Disconnected");
       setTimeout(() => this.reconnect(), 1000);
     };
   }
 
   updateState(state) {
     if (state.paddle_left) {
-      this.game.paddleLeft.position.x = state.paddle_left.x;
+      this.game.paddleLeft.obj.position.x = state.paddle_left.x;
     }
     if (state.paddle_right) {
-      this.game.paddleRight.position.x = state.paddle_right.x;
+      this.game.paddleRight.obj.position.x = state.paddle_right.x;
     }
     if (state.ball) {
-      this.game.ball.position.x = state.ball.x;
-      this.game.ball.position.y = state.ball.y;
-      this.game.ball.position.z = state.ball.z;
+      this.game.ball.obj.position.x = state.ball.x;
+      this.game.ball.obj.position.y = state.ball.y;
+      this.game.ball.obj.position.z = state.ball.z;
+      this.game.ball.velocity.x = state.ball.vel_x;
+      this.game.ball.velocity.y = state.ball.vel_y;
+      this.game.ball.velocity.z = state.ball.vel_z;
     }
   }
 
@@ -54,8 +57,6 @@ export class ws {
   }
 
   sendMessage(data) {
-    // console.log("Attempting to send message:", data);
-    // console.log("WebSocket readyState:", this.socket.readyState);
     if (this.socket.readyState === 1) {
       this.socket.send(JSON.stringify(data));
     } else {
