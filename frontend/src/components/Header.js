@@ -125,6 +125,9 @@ export class Header {
                       <li class="navbar-link global-nav-items">
                           <a class="nav-link" href="/social">Social</a>
                       </li>
+					  <li class="navbar-link global-nav-items">
+                          <a class="nav-link" href="/">Logout</a>
+                      </li>
                     </ul>
                     </nav>`;
     const sanitizedData = DOMPurify.sanitize(header);

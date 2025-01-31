@@ -37,3 +37,5 @@ export function handleHeader(isUserLoggedIn, needsToDestroy) {
     header.renderGuestUser();
   }
 }
+
+export function logout() {}

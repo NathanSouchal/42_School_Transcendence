@@ -13,29 +13,13 @@ body,
 html {
   height: 100%;
   width: 100%;
-  margin: 0;
+  max-width: 2000px;
+  margin: 0 auto;
   overflow-x: hidden;
 }
 
 .body-container {
   margin: 0 auto;
-}
-
-#header {
-  position: absolute;
-  font-family: var(--secondary-font);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -45%); /* Conserve le centrage */
-  height: 60vh;
-  width: 60%;
-  max-width: 1200px;
-  min-width: 320px;
-  padding: 20px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Positionner le canvas en arrière-plan */
@@ -52,7 +36,6 @@ canvas#c {
   display: flex;
   height: 60vh;
   width: 60%;
-  max-width: 1200px;
   min-width: 320px;
 }
 
@@ -62,9 +45,8 @@ canvas#c {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -45%);
-  height: 60vh;
+  height: 70vh;
   width: 60%;
-  max-width: 1200px;
   min-width: 320px;
   background: var(--secondary-color);
   padding: 20px;
