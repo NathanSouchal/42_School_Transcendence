@@ -131,7 +131,7 @@ export default class Login {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `
+    return `${backArrow}
         <form id="login-form" class="form-div-login-register">
           <h1 class="form-title-login-register">Login</h1>
           <div class="inputs-button-form-login-register">

@@ -351,6 +351,7 @@ export default class Account {
 
   render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
+
     // if (this.isLoading) {
     //   return "<p>Loading...</p>";
     // }

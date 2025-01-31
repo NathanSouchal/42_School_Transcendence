@@ -24,7 +24,7 @@ export function handleHeader(isUserLoggedIn, needsToDestroy) {
   if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
     header.destroy();
   } else if (needsToDestroy) {
-    return;
+    header.destroy();
   } else if (isUserLoggedIn && !header.isUserRendered) {
     if (header.isGuestRendered) {
       header.destroy();

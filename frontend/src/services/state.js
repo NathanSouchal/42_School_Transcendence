@@ -22,8 +22,8 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    this.gamePoints = 10;
-    // this.gamePoints = 1;
+    // this.gamePoints = 10;
+    this.gamePoints = 1;
 
     this.player_types = {
       default: {
@@ -101,7 +101,6 @@ export default class State {
     if (gameMode && gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
-    this.notifyListeners();
   }
 
   setGameEnded() {
@@ -109,7 +108,6 @@ export default class State {
     this.scores.push(this.score);
     this.state.gameStarted = false;
     this.setGameNeedsReset(true);
-    this.notifyListeners();
   }
 
   backToBackgroundPlay() {

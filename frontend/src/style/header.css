@@ -19,6 +19,11 @@
   border-radius: 10px;
 }
 
+header .global-nav-section {
+  font-size: 3em;
+  white-space: nowrap;
+}
+
 /* Lorsque le menu est ouvert, les liens prennent toute la largeur */
 .navbar.show-nav .navbar-links {
   width: 100%;
@@ -40,7 +45,8 @@
   left: 83%;
   transform: translate(-50%, -45%);
   height: 5vh;
-  width: 95%;
+  width: 75%;
+  margin-left: 10%;
   max-width: 1200px;
   min-width: 320px;
   display: flex;

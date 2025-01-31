@@ -40,7 +40,7 @@ export class Header {
   }
 
   handleToggleButton() {
-    console.log("click");
+    console.log("click burger");
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
@@ -50,7 +50,6 @@ export class Header {
     if (toggleButton && navBar && navbarLinks && header) {
       const isOpen = navBar.classList.toggle("show-nav");
       navbarLinks.classList.toggle("show-nav");
-
       if (isOpen) {
         toggleButton.classList.add("open");
         navBar.classList.remove("closed");
@@ -97,15 +96,17 @@ export class Header {
     this.isUserRendered = false;
     this.isGuestRendered = false;
     const container = document.getElementById("header");
+    const toggleButton = document.getElementById("toggle-button-container");
     if (container) container.style.display = "none";
+    if (toggleButton) toggleButton.style.display = "none";
   }
 
   renderUserLoggedIn() {
     console.log("renderUserLoggedIn Header");
     this.isUserRendered = true;
     this.isGuestRendered = false;
-    const header = `<nav class="navbar-links">
-                    <ul>
+    const header = `<nav class="navbar">
+                    <ul class="navbar-links global-nav-section">
                       <li class="navbar-link global-nav-items">
                           <a class="nav-link" href="/">Home</a>
                       </li>
@@ -128,6 +129,8 @@ export class Header {
                     </nav>`;
     const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
+    const toggleButton = document.getElementById("toggle-button-container");
+    if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
       container.innerHTML = sanitizedData; // Insérer le rendu dans le container
@@ -141,7 +144,7 @@ export class Header {
     this.isUserRendered = false;
     this.isGuestRendered = true;
     const header = `<nav class="navbar">
-                    <ul class="navbar-links">
+                    <ul class="navbar-links global-nav-section">
                       <li class="navbar-link global-nav-items">
                           <a class="nav-link" href="/">Home</a>
                       </li>
@@ -158,6 +161,8 @@ export class Header {
                     </nav>`;
     const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
+    const toggleButton = document.getElementById("toggle-button-container");
+    if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
       container.innerHTML = sanitizedData; // Insérer le rendu dans le container

@@ -1,4 +1,5 @@
 import { createBackArrow } from "../components/backArrow.js";
+import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import { handleHeader } from "../utils";
 
@@ -12,27 +13,25 @@ export default class MatchHistory {
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Match_history page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
 
     const userId = Number(localStorage.getItem("id"));
     if (userId) {
       await this.getMatchHistory(userId);
     }
-    // Appeler render pour obtenir le contenu HTML
+
     const content = this.render();
-    // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content;
     }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
   }
 
   attachEventListeners() {}
@@ -56,13 +55,20 @@ export default class MatchHistory {
     }
   }
 
-  destroy() {}
+  destroy() {
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+      console.log("Match history page unsubscribed from state");
+    }
+  }
 
   render(routeParams = {}) {
     let template;
     handleHeader(this.state.isUserLoggedIn, false);
+    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
-      template = `${Object.values(this.matchHistory)
+      template = `${backArrow}${Object.values(this.matchHistory)
         .map(
           (value) =>
             `<div class="d-flex flex-column m-3"><h3>Game n°${value.id}</h3>
@@ -79,13 +85,9 @@ export default class MatchHistory {
         )
         .join("")}`;
     } else {
-      template = `<h1>No data</h1>`;
+      template = `${backArrow}<h1>No data</h1>`;
     }
-
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate;
   }
 }
