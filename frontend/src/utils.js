@@ -1,4 +1,5 @@
 import { header } from "./app";
+import API from "./services/api";
 
 export function resetZIndex() {
   const canvas = document.querySelector("#c");
@@ -38,4 +39,11 @@ export function handleHeader(isUserLoggedIn, needsToDestroy) {
   }
 }
 
-export function logout() {}
+export async function logout() {
+  try {
+    await API.post(`/user/logout/`);
+    window.location.href = "/";
+  } catch (error) {
+    console.error(`Error while trying to logout : ${error}`);
+  }
+}

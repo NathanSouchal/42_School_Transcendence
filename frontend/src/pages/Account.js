@@ -285,7 +285,7 @@ export default class Account {
     console.log("Updating data...");
     try {
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res + "ICI");
+      console.log(res);
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }

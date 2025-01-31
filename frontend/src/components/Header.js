@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import { logout } from "../utils";
 
 export class Header {
   constructor() {
@@ -37,6 +38,21 @@ export class Header {
         });
       }
     });
+
+    const logoutButton = document.getElementById("logout-button");
+    if (logoutButton) {
+      if (!this.eventListeners.some((e) => e.name === "logoutButton")) {
+        logoutButton.addEventListener("click", async () => {
+          await logout();
+        });
+        this.eventListeners.push({
+          name: "logoutButton",
+          type: "click",
+          element: logoutButton,
+          listener: logout(),
+        });
+      }
+    }
   }
 
   handleToggleButton() {
@@ -125,8 +141,8 @@ export class Header {
                       <li class="navbar-link global-nav-items">
                           <a class="nav-link" href="/social">Social</a>
                       </li>
-					  <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/">Logout</a>
+					            <li class="navbar-link global-nav-items">
+                          <h1 class="nav-link" id="logout-button">Logout</h1>
                       </li>
                     </ul>
                     </nav>`;
