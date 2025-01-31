@@ -11,9 +11,13 @@ import State from "./services/state.js";
 import MatchHistory from "./pages/MatchHistory.js";
 import Social from "./pages/Social.js";
 import LocalTournament from "./pages/LocalTournament.js";
+import { Header } from "./components/Header.js";
 
 const state = new State();
 export default state;
+
+const header = new Header();
+export { header };
 
 const routes = {
   "/": new Home(state),

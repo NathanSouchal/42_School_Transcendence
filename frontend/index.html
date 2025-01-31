@@ -10,17 +10,36 @@
     <link rel="stylesheet" href="./src/style/game.css" />
     <link rel="stylesheet" href="./src/style/local-tournament.css" />
     <link rel="stylesheet" href="./src/style/home.css" />
+    <link rel="stylesheet" href="./src/style/header.css" />
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦀</text></svg>"
     />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Modak&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Oi&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Dangrek&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Modak&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Oi&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dangrek&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -28,17 +47,30 @@
     <script type="module" src="src/game/src/main.js"></script>
   </head>
   <body>
-    <div id="loading-overlay" class="loading-overlay">
-      <div class="loading-content">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Loading...</span>
+    <div class="body-container">
+      <!-- <div class="toggle-button">
+      <span class="bar2"></span>
+    </div> -->
+      <header id="header" class="" style="display: none"></header>
+      <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <h2>Loading Game...</h2>
         </div>
-        <h2>Loading Game...</h2>
       </div>
+      <canvas id="c"></canvas>
+      <main id="main" class="main">
+        <div class="toggle-button-container" id="toggle-button-container">
+          <div class="toggle-button" id="toggle-button">
+            <span class="bar2"></span>
+          </div>
+        </div>
+        <div id="app" class="app"></div>
+      </main>
+      <footer></footer>
+      <script type="module" src="/src/app.js"></script>
     </div>
-    <canvas id="c"></canvas>
-    <main id="app" class="menu"></main>
-    <footer></footer>
-    <script type="module" src="/src/app.js"></script>
   </body>
 </html>

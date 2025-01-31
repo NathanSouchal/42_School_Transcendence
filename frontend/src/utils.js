@@ -1,3 +1,5 @@
+import { header } from "./app";
+
 export function resetZIndex() {
   const canvas = document.querySelector("#c");
   const app = document.querySelector("#app");
@@ -15,5 +17,23 @@ export function updateView(context) {
     container.innerHTML = context.render();
     context.removeEventListeners();
     context.attachEventListeners();
+  }
+}
+
+export function handleHeader(isUserLoggedIn, needsToDestroy) {
+  if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
+    header.destroy();
+  } else if (needsToDestroy) {
+    header.destroy();
+  } else if (isUserLoggedIn && !header.isUserRendered) {
+    if (header.isGuestRendered) {
+      header.destroy();
+    }
+    header.renderUserLoggedIn();
+  } else if (!isUserLoggedIn && !header.isGuestRendered) {
+    if (header.isUserRendered) {
+      header.destroy();
+    }
+    header.renderGuestUser();
   }
 }

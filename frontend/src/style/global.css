@@ -3,17 +3,39 @@
   --blue: rgba(10, 68, 120);
   --beige: rgba(222, 212, 184);
   --orange: #ffcc00;
-  --primary-color: #DA4C0F;
+  --primary-color: #da4c0f;
   --secondary-color: #ece8c4e9;
-  --primary-font: 'Dangrek', sans-serif;
-  --secondary-font: 'Roboto', sans-serif;
+  --primary-font: "Dangrek", sans-serif;
+  --secondary-font: "Roboto", sans-serif;
 }
 
 body,
 html {
   height: 100%;
+  width: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.body-container {
+  margin: 0 auto;
+}
+
+#header {
+  position: absolute;
+  font-family: var(--secondary-font);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%); /* Conserve le centrage */
+  height: 60vh;
+  width: 60%;
+  max-width: 1200px;
+  min-width: 320px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Positionner le canvas en arrière-plan */
@@ -22,15 +44,24 @@ canvas#c {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1; /* Place le canvas derrière les autres éléments */ 
+  min-width: 320px;
+  z-index: -1; /* Place le canvas derrière les autres éléments */
+}
+
+.main {
+  display: flex;
+  height: 60vh;
+  width: 60%;
+  max-width: 1200px;
+  min-width: 320px;
 }
 
 /* Appliquer un positionnement relatif pour le contenu */
-.menu {
+.app {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -45%); /* Conserve le centrage */
+  transform: translate(-50%, -45%);
   height: 60vh;
   width: 60%;
   max-width: 1200px;
@@ -40,12 +71,14 @@ canvas#c {
   color: var(--blue);
   border-radius: 10px;
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-  font-size: 24px;
-
   display: flex;
   justify-content: center;
   align-items: center;
+}
 
+.app,
+#header,
+.toggle-button-container {
   animation: floating 3s ease-in-out infinite;
 }
 
@@ -53,15 +86,12 @@ canvas#c {
 @keyframes floating {
   0% {
     transform: translate(-50%, -45%) translateY(0) rotate(0deg);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
   }
   50% {
     transform: translate(-50%, -45%) translateY(-10px) rotate(1deg);
-    box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.25);
   }
   100% {
     transform: translate(-50%, -45%) translateY(0) rotate(0deg);
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
   }
 }
 
@@ -81,42 +111,6 @@ canvas#c {
   .menu {
     width: 90%;
   }
-}
-
-.view2 {
-  position: absolute;
-  top: 12%; /* Positionner l'élément 50% du haut de l'écran */
-  left: 50%; /* Positionner l'élément 50% du côté gauche de l'écran */
-  transform: translate(
-    -50%,
-    -50%
-  ); /* Centre l'élément par rapport à son point de départ */
-  height: 10vh; /* Prend toute la hauteur de la fenêtre sauf la hauteur du header */
-  width: 40%; /* Définir une largeur (ou un max-width) pour #app */
-  max-width: 1200px; /* Optionnel : limiter la largeur maximale */
-  background: rgba(
-    175,
-    60,
-    60,
-    0
-  ); /* Fond semi-transparent (si vous le souhaitez) */
-  padding: 20px;
-  color: white; /* Choisir une couleur de texte adaptée */
-  border-radius: 10px;
-  z-index: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-header {
-  height: 60px; /* Définir la hauteur du header si nécessaire */
-  z-index: 0;
-}
-
-h1 {
-  font-size: large;
-  color: brown;
 }
 
 .back-arrow {
@@ -155,6 +149,9 @@ h1 {
 .game-hud {
   position: absolute;
   display: flex;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -230,13 +227,20 @@ h1 {
 
 @media (min-width: 490px) and (max-width: 620px) {
   .global-nav-section {
-      font-size: 1.8em;
+    font-size: 1.8em;
   }
 }
 
 @media (max-width: 489px) {
   .global-nav-section {
-      font-size: 1.3em;
+    font-size: 1.3em;
+  }
+}
+
+@media (max-width: 900px) {
+  .app {
+    width: 90%;
+    min-width: 320px;
   }
 }
 
@@ -246,7 +250,6 @@ h1 {
   justify-content: center;
   margin: 0.7em;
   text-align: center;
-
 }
 
 .global-nav-items a {

@@ -26,7 +26,9 @@ export class Router {
     });
 
     // Charge la route initiale
-    this.navigate(this.currentPath, false);
+    if (this.currentPath !== window.location.pathname) {
+      this.navigate(this.currentPath, false);
+    }
   }
 
   matchRoute(path) {
@@ -53,8 +55,8 @@ export class Router {
   }
 
   async navigate(path, shouldPushState = true) {
-    console.log("Navigating to:", path); // Log ajouté pour vérifier l'appel
     if (this.currentPath === path) return; // Éviter de naviguer vers la même route
+    console.log("Navigating to:", path); // Log ajouté pour vérifier l'appel
 
     state.state.lastRoute = this.currentPath;
     const view = this.matchRoute(path) || this.routes["/404"];

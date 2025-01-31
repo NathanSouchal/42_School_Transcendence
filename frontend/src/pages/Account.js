@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader } from "../utils";
 
 export default class Account {
   constructor(state) {
@@ -350,6 +350,8 @@ export default class Account {
   }
 
   render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
+
     // if (this.isLoading) {
     //   return "<p>Loading...</p>";
     // }

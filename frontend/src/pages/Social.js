@@ -1,4 +1,5 @@
 import API from "../services/api.js";
+import { handleHeader } from "../utils.js";
 
 export default class Social {
   constructor(state) {
@@ -203,7 +204,8 @@ export default class Social {
     }
   }
 
-  render() {
+  render(userId) {
+    handleHeader(this.state.isUserLoggedIn, false);
     if (this.friends && this.invitations) {
       return `<div class="main-div-social">
                 <h1>Social</h1>
@@ -239,9 +241,10 @@ export default class Social {
                         .map(
                           (value) =>
                             `<div class="invitations-list-div-social">
-                                ${value.from_user.id == this.userId
-                                ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
-                                : `<div>
+                                ${
+                                  value.from_user.id == this.userId
+                                    ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
+                                    : `<div>
                                     <p>From ${value.from_user.username}</p>
                                     <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
                                   </div>`

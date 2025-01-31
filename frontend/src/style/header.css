@@ -1,0 +1,110 @@
+/* Style des liens de la navbar */
+.navbar-links {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 0%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(222, 212, 184, 1);
+  transition:
+    width 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  z-index: 0;
+  border-radius: 10px;
+}
+
+header .global-nav-section {
+  font-size: 3em;
+  white-space: nowrap;
+}
+
+/* Lorsque le menu est ouvert, les liens prennent toute la largeur */
+.navbar.show-nav .navbar-links {
+  width: 100%;
+  opacity: 1;
+}
+
+/* Liens dans la navbar */
+.navbar-links li {
+  list-style: none;
+  margin: 1.5rem 0;
+  color: var(--primary-color);
+}
+
+/* Bouton burger */
+
+.toggle-button-container {
+  position: relative;
+  top: 45%;
+  left: 83%;
+  transform: translate(-50%, -45%);
+  height: 5vh;
+  width: 75%;
+  margin-left: 10%;
+  max-width: 1200px;
+  min-width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.toggle-button {
+  position: absolute;
+  top: 5%;
+  left: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 25px;
+  cursor: pointer;
+  justify-content: space-between;
+}
+
+.toggle-button .bar2 {
+  height: 5px;
+  width: 100%;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  transition: 0.5s ease-in-out;
+  position: relative;
+}
+
+.toggle-button .bar2::before,
+.toggle-button .bar2::after {
+  content: "";
+  position: absolute;
+  height: 5px;
+  width: 100%;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.toggle-button .bar2::before {
+  transform: translateY(-10px);
+}
+
+.toggle-button .bar2::after {
+  transform: translateY(10px);
+}
+
+.toggle-button.open .bar2 {
+  background: transparent;
+}
+
+.toggle-button.open .bar2::before {
+  transform: rotate(45deg);
+}
+
+.toggle-button.open .bar2::after {
+  transform: rotate(-45deg);
+}

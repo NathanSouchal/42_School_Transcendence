@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import { handleHeader } from "../utils.js";
 
 export default class page404 {
   constructor(state) {
@@ -12,6 +13,7 @@ export default class page404 {
     }
   }
   render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     return `<div class="container mt-5">
