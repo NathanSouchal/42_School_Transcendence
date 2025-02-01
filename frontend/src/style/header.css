@@ -125,23 +125,49 @@ header .global-nav-section {
   transform: rotate(-45deg);
 }
 
-@media (max-width: 900px) {
+@media (min-width: 400px) and (max-width: 900px) {
   #header {
     width: 90%;
     min-width: 320px;
   }
   .toggle-button-container {
-    left: 65%;
+    left: 100%;
   }
 }
 
-@media (max-width: 400px) {
+@media (max-width: 540px) {
   .toggle-button-container {
-    width: 20%;
-    left: 65%;
+    width: 80%;
+    left: 80%;
   }
   .navbar-links {
-    padding-top: 200px;
-    padding-bottom: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 460px) {
+  .toggle-button-container {
+    width: 50%;
+    left: 70%;
+  }
+}
+
+@media (max-width: 390px) {
+  .toggle-button-container {
+    width: 0%;
+    left: 70%;
+  }
+}
+
+@media (max-width: 340px) {
+  .toggle-button-container {
+    left: 60%;
+  }
+}
+
+@media (max-height: 700px) {
+  .navbar-links {
+    padding-top: 150px;
   }
 }
