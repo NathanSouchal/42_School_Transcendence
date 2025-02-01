@@ -49,7 +49,7 @@ export class Header {
           name: "logoutButton",
           type: "click",
           element: logoutButton,
-          listener: logout(),
+          listener: logout,
         });
       }
     }
