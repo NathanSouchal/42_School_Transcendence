@@ -101,7 +101,8 @@ class Paddle {
     this.player.update(deltaTime, ballPosition, ballVelocity);
 
     const message = {
-      type: `paddle_${this.side}`,
+      type: "state",
+      element: `paddle_${this.side}`,
       pos: {
         x: Number(this.pos.x).toFixed(4),
       },

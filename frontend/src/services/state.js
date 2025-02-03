@@ -1,7 +1,7 @@
 export default class State {
   constructor() {
     if (State.instance) {
-      return State.instance; // Retourner l'instance existante si elle existe déjà
+      return State.instance;
     }
 
     this.state = {
@@ -16,6 +16,7 @@ export default class State {
       gameIsPaused: false,
       gameHasBeenWon: false,
     };
+    this.gameMode = "default";
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
@@ -67,10 +68,6 @@ export default class State {
     this.notifyListeners();
   }
 
-  startOnlinePVP() {
-    let isFirstToJoinOnTheLeft = Math.random() > 0.5 ? true : false;
-  }
-
   setGameStarted(gameMode) {
     if (gameMode) {
       this.gameMode = gameMode;
@@ -82,7 +79,7 @@ export default class State {
           this.players = this.player_types.PVP;
           break;
         case "OnlinePVP":
-          startOnlinePVP();
+          this.players = this.player_types.PVP;
           break;
         case "default":
           this.players = this.player_types.default;

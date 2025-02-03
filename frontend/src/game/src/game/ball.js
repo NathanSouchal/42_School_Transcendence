@@ -135,7 +135,8 @@ class Ball {
     }
 
     renderer.gameManager.sendMessage({
-      type: "ball",
+      type: "state",
+      element: "ball",
       pos: {
         x: Number(this.pos.x).toFixed(4),
         y: Number(this.pos.y).toFixed(4),

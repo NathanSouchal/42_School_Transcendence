@@ -43,8 +43,18 @@ class Game {
   handleStateChange(newState) {
     if (this.state.state.gameNeedsReset === true) {
       this.ball.reset();
-      this.paddleLeft.choosePlayer(state.players.left);
-      this.paddleRight.choosePlayer(state.players.right);
+      if (this.state.gameMode === "OnlinePVP") {
+        console.log(`Starting game on the ${state.side} side`);
+        if (state.side === "right") {
+          this.paddleRight.choosePlayer("player");
+        } else {
+          this.paddleLeft.choosePlayer("player");
+        }
+      } else {
+        this.paddleLeft.choosePlayer(state.players.left);
+        this.paddleRight.choosePlayer(state.players.right);
+      }
+
       this.paddleLeft.setInitialPos();
       this.paddleRight.setInitialPos();
       this.state.setGameNeedsReset(false);

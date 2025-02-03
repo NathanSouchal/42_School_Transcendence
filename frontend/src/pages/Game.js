@@ -77,7 +77,7 @@ export default class GamePage {
     }
   };
 
-  handleStateChange(newState) {
+  handleStateChange() {
     this.render();
     this.attachEventListeners();
   }

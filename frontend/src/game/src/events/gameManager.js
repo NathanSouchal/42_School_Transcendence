@@ -1,48 +1,89 @@
+import state from "../../../app";
+
 export class GameManager {
-  constructor(paddleLeft, paddleRight, ball) {
+  constructor(game) {
+    this.game = game;
+    this.roomId = null;
+    this.side = null;
+    this.isConnected = false;
+    this.createRoom();
+  }
+
+  createRoom() {
+    this.roomId = this.generateRoomId();
     this.connect();
-    this.game = { paddleLeft, paddleRight, ball };
+    return this.roomId;
+  }
+
+  generateRoomId() {
+    return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
   connect() {
-    this.socket = new WebSocket(
-      "ws://" + window.location.hostname + ":8000" + "/ws/pong/room1/",
-    );
+    if (!this.roomId) {
+      throw new Error("No room ID specified. Create or join a room first.");
+    }
+    switch (state.gameMode) {
+      case "PVP":
+      case "PVR":
+        this.socket = new WebSocket(
+          `ws://${window.location.hostname}/ws/pong/local/?local=true`,
+        );
+        break;
+      case "OnlinePVP":
+        this.socket = new WebSocket(
+          `ws://${window.location.hostname}/ws/pong/online/${this.roomId}/`,
+        );
+        break;
+      case "default":
+        console.log("Choosing defalt");
+        this.socket = new WebSocket(
+          `ws://${window.location.hostname}/ws/pong/bg/`,
+        );
+        break;
+    }
 
     this.socket.onopen = () => {
-      console.log("WebSocket Connected");
+      this.isConnected = true;
     };
 
     this.socket.onmessage = (event) => {
-      try {
-        const state = JSON.parse(event.data);
-        this.updateState(state);
-      } catch (error) {}
+      const data = JSON.parse(event.data);
+
+      if (data.type === "game_start") {
+        let side = data.side;
+        this.state.side = side;
+      } else if (data.type === "game_state") {
+        this.updateState(data.state);
+      }
     };
 
     this.socket.onerror = (error) => {
       console.error("WebSocket Error:", error);
+      this.isConnected = false;
     };
 
     this.socket.onclose = () => {
+      console.log("WebSocket Closed");
+      this.isConnected = false;
       setTimeout(() => this.reconnect(), 1000);
     };
   }
 
   updateState(state) {
     if (state.paddle_left) {
-      this.game.paddleLeft.obj.position.x = state.paddle_left.x;
+      this.game.paddleLeft.position.x = state.paddle_left.x;
     }
     if (state.paddle_right) {
-      this.game.paddleRight.obj.position.x = state.paddle_right.x;
+      this.game.paddleRight.position.x = state.paddle_right.x;
     }
     if (state.ball) {
-      this.game.ball.obj.position.x = state.ball.x;
-      this.game.ball.obj.position.y = state.ball.y;
-      this.game.ball.obj.position.z = state.ball.z;
-      this.game.ball.velocity.x = state.ball.vel_x;
-      this.game.ball.velocity.y = state.ball.vel_y;
-      this.game.ball.velocity.z = state.ball.vel_z;
+      this.game.ball.position.set(state.ball.x, state.ball.y, state.ball.z);
+      this.game.ball.velocity.set(
+        state.ball.vel_x,
+        state.ball.vel_y,
+        state.ball.vel_z,
+      );
     }
   }
 
@@ -53,7 +94,7 @@ export class GameManager {
   }
 
   sendMessage(data) {
-    if (this.socket.readyState === 1) {
+    if (this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(data));
     } else {
       console.warn("WebSocket is not in OPEN state");
