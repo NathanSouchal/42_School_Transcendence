@@ -150,7 +150,7 @@ export default class LocalTournament {
       const content = this.render();
       const container = document.getElementById("app");
       if (container) {
-        container.className = "menu";
+        container.className = "app";
         container.innerHTML = content;
 
         this.removeEventListeners();
@@ -227,64 +227,81 @@ export default class LocalTournament {
   }
 
   renderSelectNbPlayers() {
-    return `<div class="d-flex justify-content-center align-items-center m-5">
-                      <select id="select-nb-players" class="form-control">
-                        <option value="" disabled selected>Select number of players</option>
-                        ${this.possibleNbPlayers
-                          .map(
-                            (element) =>
-                              `<option value="${element}">${element}</option>`
-                          )
-                          .join("")}
-                      </select>
-                    </div>
-                `;
+    return `<div class="select-container">
+                <label for="select-nb-players">Number of Players</label>
+                <select id="select-nb-players">
+                  <option value="" disabled selected>Select...</option>
+                  ${this.possibleNbPlayers
+                    .map(
+                      (element) =>
+                        `<option value="${element}">${element}</option>`
+                    )
+                    .join("")}
+                </select>
+              </div>`;
   }
 
   renderInputPlayerName() {
-    return `<div class="d-flex justify-content-center align-items-center m-5">
+    return `<div class="input-player-name">
 					    <label>Player n°${this.inputCount + 1}</label>
-					      <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
-                placeholder="Enter player n°${this.inputCount + 1} name" required/>
+              <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
+              placeholder="Enter player n°${this.inputCount + 1} name" required/>
 				    </div>`;
   }
 
   renderTournament() {
-    return `<div class="matches-main-div">
-        ${
-          this.tournamentFinished
-            ? `<h1>Winner: ${this.tournamentWinner} !</h1>`
+    return `
+        ${this.tournamentFinished
+            ? `<h2>Winner: ${this.tournamentWinner} !</h2>`
             : !this.MatchToPlay.next_match
-              ? `<h1>FINAL</h1>`
-              : `<h1>Round n°${this.MatchToPlay.round_number}</h1>`
-        }
-				${this.currentRound
-          .map((element) =>
-            this.MatchToPlay.id === element.id && !this.tournamentWinner
-              ? `<div class="next-match-main-div">
-            <h1 class="me-3">${element.player1}</h1>
-            <h2>vs</h2>
-            <h1>${element.player2}</h1>
-            <button id="btn-start-match">PLAY</button>
-          </div>`
-              : !element.winner && !this.tournamentWinner
-                ? `<div class="upcoming-match-main-div">
-              <h1 class="me-3">${element.player1}</h1>
-              <h2>vs</h2>
-              <h1>${element.player2}</h1>
-              <h1>⏳</h1>
-            </div>`
-                : `<div class="passed-match-main-div">
-              <h1 class="me-3">${element.player1}</h1>
-              <h2>vs</h2>
-              <h1>${element.player2}</h1>
-              <h1>${this.tournamentWinner ? `${this.state.score.left}` : `${element.score_player1}`} - ${this.tournamentWinner ? `${this.state.score.right}` : `${element.score_player2}`}</h1>
-            </div>`
-          )
-          .join("")}
-        <button id="game-menu-button">${!this.MatchToPlay.next_match ? `Game Menu` : `Stop Tournament`}</button>
-			</div>`;
-  }
+                ? `<h2>FINAL</h2>`
+                : `<h2>Round n°${this.MatchToPlay.round_number}</h2>`
+        } 
+
+        <div class="matches-list">
+          ${this.currentRound
+            .map((element) =>
+              this.MatchToPlay.id === element.id && !this.tournamentWinner
+                ? `<div class="next-match-main-div">
+                    <div class="players-name-div">
+                      <p>${element.player1}</p>
+                      <p>vs</p>
+                      <p>${element.player2}</p>
+                    </div>
+                    <button id="btn-start-match">PLAY</button>
+                  </div>`
+                : !element.winner && !this.tournamentWinner
+                  ? `<div class="upcoming-match-main-div">
+                      <div class="players-name-div">
+                        <p>${element.player1}</p>
+                        <p>vs</p>
+                        <p>${element.player2}</p>
+                      </div>
+                      <p>⏳</p>
+                    </div>`
+                  : `<div class="passed-match-main-div">
+                      <div class="players-name-div">
+                        <p>${element.player1}</p>
+                        <p>vs</p>
+                        <p>${element.player2}</p>
+                      </div>
+                      <p>${this.tournamentWinner 
+                        ? this.state.score.left 
+                        : element.score_player1} - 
+                        ${this.tournamentWinner 
+                        ? this.state.score.right 
+                        : element.score_player2}</p>
+                    </div>`
+            )
+            .join("")}
+        </div>
+        <div class="stop-button-div">
+          <button id="game-menu-button">
+            ${!this.MatchToPlay.next_match ? `Game Menu` : `Stop Tournament`}
+          </button>
+        </div>
+    `;
+}
 
   getGameHUDTemplate() {
     const { left, right } = this.state.score;
@@ -309,14 +326,22 @@ export default class LocalTournament {
   render() {
     console.log(this.state.state.gameStarted);
     handleHeader(this.state.isUserLoggedIn, false);
-    return `${
-      this.state.state.gameStarted === true
-        ? `${this.getGameHUDTemplate()}`
-        : !this.nbPlayers
-          ? `${this.renderSelectNbPlayers()}`
-          : this.nbPlayers == this.inputCount
-            ? `${this.renderTournament()}`
-            : `${this.renderInputPlayerName()}`
-    }`;
-  }
+
+    return this.state.state.gameStarted === true
+        ? this.getGameHUDTemplate()
+        : `
+          <div class="main-div-tournament">
+              <h1 class="global-page-title">TOURNAMENT</h1>
+              <div class="content-page-tournament">
+                ${!this.nbPlayers
+                  ? this.renderSelectNbPlayers()
+                  : this.nbPlayers == this.inputCount
+                    ? this.renderTournament()
+                    : this.renderInputPlayerName()
+                }
+              </div>
+          </div>
+        `;
+}
+
 }

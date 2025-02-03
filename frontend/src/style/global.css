@@ -86,6 +86,7 @@ canvas#c {
 /* Appliquer un positionnement relatif pour le contenu */
 .app {
   position: absolute;
+  font-family: var(--secondary-font);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -45%);
@@ -294,6 +295,7 @@ canvas#c {
 }
 
 .global-page-title {
+  text-align: center;
   font-size: 3em;
   letter-spacing: 0.2em;
   padding: 0.5em;
