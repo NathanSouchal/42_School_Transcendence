@@ -98,10 +98,6 @@ canvas#c {
   color: var(--blue);
   border-radius: 10px;
   box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
-<<<<<<< HEAD
-
-=======
->>>>>>> dev
   display: flex;
   justify-content: center;
   align-items: center;
@@ -296,7 +292,6 @@ canvas#c {
   box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
   transform: translateY(-3px); /* Légère élévation */
 }
-<<<<<<< HEAD
 
 .global-page-title {
   font-size: 3em;
@@ -305,5 +300,3 @@ canvas#c {
   font-family: var(--primary-font);
   color: var(--primary-color);
 }
-=======
->>>>>>> dev
