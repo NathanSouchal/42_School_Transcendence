@@ -64,6 +64,8 @@ export default class GamePage {
       case "back-arrow":
         this.state.setGameEnded();
         break;
+      case "start-online-pvp-game":
+        this.state.setGameStarted("OnlinePVP");
     }
   };
 
@@ -100,9 +102,12 @@ export default class GamePage {
               <li id="start-pvr-game" class="nav-item my-2">
                 Player vs Robot
               </li>
-			  <li id="start-local-tournament" class="nav-item my-2">
-			  	<a class="nav-link" href="/local-tournament">Local tournament</a>
-			  </li>
+              <li id="start-local-tournament" class="nav-item my-2">
+                <a class="nav-link" href="/local-tournament">Local tournament</a>
+              </li>
+              <li id="start-online-pvp-game" class="nav-item my-2">
+                <a class="nav-link" href="/local-tournament">Online PVP</a>
+              </li>
             </ul>
           </div>
         </div>

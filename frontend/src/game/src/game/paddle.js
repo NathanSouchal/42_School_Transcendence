@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import PaddleControls from "./paddle_controls";
 import Robot from "./robot";
-import { position } from "../events/sockets_communication.js";
+import { position } from "../events/gameManager.js";
 
 class Paddle {
   constructor(arena, side, player_type, config) {
@@ -97,7 +97,7 @@ class Paddle {
     }
   }
 
-  update(deltaTime, ballPosition, ballVelocity, ws) {
+  update(deltaTime, ballPosition, ballVelocity, gameManager) {
     this.player.update(deltaTime, ballPosition, ballVelocity);
 
     const message = {
@@ -106,7 +106,7 @@ class Paddle {
         x: Number(this.pos.x).toFixed(4),
       },
     };
-    ws.sendMessage(message);
+    gameManager.sendMessage(message);
 
     const newBox = new THREE.Box3().setFromObject(this.obj, true);
     const paddleBoxIndex = this.arena.BBoxes.findIndex(

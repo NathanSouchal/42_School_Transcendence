@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import state from "../../../app.js";
 
-import { ws } from "../events/sockets_communication.js";
+import { GameManager } from "../events/gameManager.js";
 
 class Renderer {
   constructor(renderer, scene, camera, game, stat) {
@@ -14,7 +14,11 @@ class Renderer {
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
-    this.ws = new ws(game.paddleLeft, game.paddleRight, game.ball);
+    this.gameManager = new GameManager(
+      game.paddleLeft,
+      game.paddleRight,
+      game.ball,
+    );
   }
 
   resizeRendererToDisplaySize() {
@@ -80,13 +84,13 @@ class Renderer {
       deltaTime,
       this.game.ball.pos,
       this.game.ball.velocity,
-      this.ws,
+      this.gameManager,
     ),
       this.game.paddleLeft.update(
         deltaTime,
         this.game.ball.pos,
         this.game.ball.velocity,
-        this.ws,
+        this.gameManager,
       );
   }
 

@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { position } from "../events/sockets_communication.js";
+import { position } from "../events/gameManager.js";
 
 class Ball {
   constructor(size, conf) {
@@ -134,7 +134,7 @@ class Ball {
       }
     }
 
-    renderer.ws.sendMessage({
+    renderer.gameManager.sendMessage({
       type: "ball",
       pos: {
         x: Number(this.pos.x).toFixed(4),

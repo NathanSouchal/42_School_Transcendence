@@ -1,4 +1,4 @@
-export class ws {
+export class GameManager {
   constructor(paddleLeft, paddleRight, ball) {
     this.connect();
     this.game = { paddleLeft, paddleRight, ball };
@@ -16,12 +16,8 @@ export class ws {
     this.socket.onmessage = (event) => {
       try {
         const state = JSON.parse(event.data);
-        //console.log(state);
         this.updateState(state);
-        // console.log("WebSocket Message:", event.data);
-      } catch (error) {
-        // console.error("Error parsing state: ", error);
-      }
+      } catch (error) {}
     };
 
     this.socket.onerror = (error) => {
