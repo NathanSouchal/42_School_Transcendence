@@ -1,8 +1,7 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader } from "../utils.js";
 
 export default class Login {
   constructor(state) {
@@ -128,10 +127,11 @@ export default class Login {
   }
 
   render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `
+    return `${backArrow}
         <form id="login-form" class="form-div-login-register">
           <h1 class="global-page-title">Login</h1>
           <div class="inputs-button-form-login-register">

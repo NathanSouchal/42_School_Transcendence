@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import { resetZIndex } from "/src/utils.js";
-import state from "../app.js";
+import { handleHeader } from "../utils";
 
 export default class Home {
   constructor(state) {
@@ -51,6 +51,7 @@ export default class Home {
   removeEventListeners() {}
 
   destroy() {
+    this.removeEventListeners();
     console.log("Home destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
@@ -60,23 +61,19 @@ export default class Home {
   }
 
   render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
     const container = document.getElementById("app");
-    if (container)
-      container.className = "menu";
+    if (container) container.className = "app";
     const { id } = routeParams;
     let links;
     if (this.state.isUserLoggedIn) {
       links = [
         { href: "/game", text: "Play" },
-        { href: "/account", text: "Account" },
-        { href: "/stats", text: "Stats" },
-        { href: "/match-history", text: "MatchHistory" },
-        { href: "/social", text: "Social" },
-        { href: "/user/1", text: "User 1" },
-        { href: "/user/2", text: "User 2" },
-        { href: "/user/3", text: "User 3" },
-        { href: "/user/200", text: "User 200" },
+        // { href: "/user/1", text: "User 1" },
+        // { href: "/user/2", text: "User 2" },
+        // { href: "/user/3", text: "User 3" },
+        // { href: "/user/200", text: "User 200" },
       ];
     } else {
       links = [
@@ -95,7 +92,7 @@ export default class Home {
           ${links
             .map(
               (link) =>
-                `<div  class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
+                `<div class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
             )
             .join("")}
         </div>
