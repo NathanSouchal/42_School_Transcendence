@@ -81,6 +81,8 @@
 .friends-list-social {
     padding: 1em 1.2em 0 0;
     overflow-y: auto;
+    font-size: 1.3rem;
+    color: var(--tertiary-color);
 }
 
 .friends-list-social a {
@@ -91,6 +93,7 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-bottom: 0.5em;
 }
 
 .friends-item-img-username {
@@ -113,7 +116,7 @@
 .invitations-list-div-social {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: 0.5em;
     font-size: 1.3rem;
     color: var(--tertiary-color);
     padding: 1em 0 0 1.2em;

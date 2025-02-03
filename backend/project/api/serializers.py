@@ -22,7 +22,7 @@ class GameSerializer(serializers.ModelSerializer):
 class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['id', 'username', 'avatar']
 
 class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
