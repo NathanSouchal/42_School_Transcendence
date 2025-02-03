@@ -58,17 +58,34 @@ export default class Stats {
     let template;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.stats && Object.keys(this.stats).length > 0) {
-      template = `${backArrow}<div class="d-flex flex-column m-5">
-				<div class="d-flex justify-content-center" >
-	  				<h1 class="m-3 mb-5">User Statistics</h1>
-	  			</div>
-				<div class="mt-5">
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Wins</h1><h1>${this.stats.wins || 0}</h1></div>
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Losses</h1><h1>${this.stats.losses || 0}</h1></div>
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Win ratio</h1><h1>${this.stats.win_ratio || 0}</h1></div>
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Number of games</h1><h1>${this.stats.nb_games || 0}</h1></div>
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Average score</h1><h1>${this.stats.average_score || 0}</h1></div>
-					<div class="d-flex m-3"><h1 class="me-5 w-75">Last game</h1><h1>${this.stats.last_game || 0}</h1></div>
+      template = `${backArrow}
+      <div class="main-div-stats">
+        <h1 class="global-page-title">Stats</h1>
+				<div class="stats-list">
+					<div class="stats-item">
+            <h2>Wins</h2>
+            <p>${this.stats.wins || 0}</p>
+          </div>
+					<div class="stats-item">
+            <h2>Losses</h2>
+            <p>${this.stats.losses || 0}</p>
+          </div>
+					<div class="stats-item">
+            <h2>Win ratio</h2>
+            <p>${this.stats.win_ratio || 0}</p>
+          </div>
+					<div class="stats-item">
+            <h2>Number of games</h2>
+            <p>${this.stats.nb_games || 0}</p>
+          </div>
+					<div class="stats-item">
+            <h2>Average score</h2>
+            <p>${this.stats.average_score || 0}</p>
+          </div>
+					<div class="stats-item">
+            <h2>Last game</h2>
+            <p>${this.stats.last_game || 0}</p>
+          </div>
 				</div>
 			</div>`;
     } else {
