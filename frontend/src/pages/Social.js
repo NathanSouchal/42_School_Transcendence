@@ -208,54 +208,74 @@ export default class Social {
     handleHeader(this.state.isUserLoggedIn, false);
     if (this.friends && this.invitations) {
       return `<div class="main-div-social">
-                <h1>Social</h1>
+                <h1 class="global-page-title">Social</h1>
                 <div class="content-social">
                   <div class="search-bar-and-result-social">
                     <input type="text" id="search_bar_user" placeholder="Search..." />
                     <div id="search_result"></div>
                   </div>
-                  <div class="friends-div-social">
-                    <h2>FRIENDS</h2>
-                    ${
-                      Object.keys(this.friends).length > 0
-                        ? `
-                      ${Object.values(this.friends)
-                        .map(
-                          (value) =>
-                            `<div class="friends-list-social">
-                                <a href="/user/${this.search_result.id}/">${value.username}</a>
-                            </div>`
-                        )
-                        .join("")} `
-                        : `<div>
-                            <p>zero friend, sniff sniff</p>
-                          </div>`
-                    }
-                  </div>
-                  <div class="invitations-div-social">
-                    <h2>INVITATIONS</h2>
-                    ${
-                      Object.keys(this.invitations).length > 0
-                        ? `
-                      ${Object.values(this.invitations)
-                        .map(
-                          (value) =>
-                            `<div class="invitations-list-div-social">
-                                ${
-                                  value.from_user.id == this.userId
-                                    ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
-                                    : `<div>
-                                    <p>From ${value.from_user.username}</p>
-                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
-                                  </div>`
-                                }
-                                <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
-                            </div>`
-                        )
-                        .join("")}`
-                        : `
-                      <h4>no pending invitations</h4>`
-                    }
+                  <div class="friends-and-invitations-social">
+                    <div class="friends-div-social">
+                      <h2>FRIENDS</h2>
+                      <div class="friends-list-social">
+                        ${
+                          Object.keys(this.friends).length > 0
+                            ? `
+                          ${Object.values(this.friends)
+                            .map(
+                              (value) =>
+                                `<div class="friends-item-social">
+                                    <div class="friends-item-img-username">
+                                      <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+                                      <a href="/user/${value.id}/">${value.username}</a>
+                                    </div>
+                                    <p>Online</p>
+                                </div>`
+                            )
+                            .join("")} `
+                            : `<div>
+                                <p>zero friend, sniff sniff</p>
+                              </div>`
+                        }
+                      </div>
+                    </div>
+                    <div class="invitations-div-social">
+                      <h2>REQUESTS</h2>
+                      <div class="invitations-list-div-social">
+                        ${
+                          Object.keys(this.invitations).length > 0
+                            ? `
+                          ${Object.values(this.invitations)
+                            .map(
+                              (value) =>
+                                `
+                                    ${value.from_user.id == this.userId
+                                    ? `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                                          <p>${value.to_user.username}, waiting for acceptation...</p>
+                                        </div>
+                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                      </div>`
+                                    : `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                                          <p>${value.from_user.username}</p>
+                                        </div>
+                                        <div class="two-buttons-invitation-social">
+                                          <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
+                                          <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                        </div>
+                                      </div>`
+                                    }`
+                            )
+                            .join("")}`
+                            : `<div>
+                                <p>no pending invitations</p>
+                              </div>`
+                        }
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>`;

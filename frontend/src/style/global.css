@@ -5,8 +5,35 @@
   --orange: #ffcc00;
   --primary-color: #da4c0f;
   --secondary-color: #ece8c4e9;
-  --primary-font: "Dangrek", sans-serif;
-  --secondary-font: "Roboto", sans-serif;
+  --tertiary-color: #5a2108;
+  --validate-color: #096d11;
+  --danger-color: #a71611;
+  --primary-font: 'Dangrek', sans-serif;
+  --secondary-font: 'Roboto', sans-serif;
+}
+
+/* Largeur de la barre de scroll */
+::-webkit-scrollbar {
+  width: 10px; /* Scroll vertical */
+  height: 10px; /* Scroll horizontal */
+}
+
+/* Fond de la scrollbar */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px; /* Coins arrondis */
+}
+
+/* Curseur (la partie qu'on déplace) */
+::-webkit-scrollbar-thumb {
+  background: #ff660081; /* Couleur de la barre */
+  border-radius: 10px;
+  border: 2px solid #f1f1f1; /* Effet d'encadrement */
+}
+
+/* Curseur au survol */
+::-webkit-scrollbar-thumb:hover {
+  background: #e65100;
 }
 
 body,
@@ -264,4 +291,12 @@ canvas#c {
   background: var(--primary-color);
   box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
   transform: translateY(-3px); /* Légère élévation */
+}
+
+.global-page-title {
+  font-size: 3em;
+  letter-spacing: 0.2em;
+  padding: 0.5em;
+  font-family: var(--primary-font);
+  color: var(--primary-color);
 }

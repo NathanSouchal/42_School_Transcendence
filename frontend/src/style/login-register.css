@@ -7,14 +7,6 @@
     gap: 0.5em;
 }
 
-.form-title-login-register {
-    font-size: 2.2em;
-    letter-spacing: 0.2em;
-    padding: 1em;
-    font-family: var(--primary-font);
-    color: var(--primary-color);
-}
-
 .inputs-button-form-login-register {
     width: 80%;
     display: flex;
@@ -24,6 +16,7 @@
 
 .inputs-button-form-login-register input {
     width: 100%;
+    font-family: var(--secondary-font);
     padding: 12px;
     font-size: 16px;
     border: 2px solid #ddd;
