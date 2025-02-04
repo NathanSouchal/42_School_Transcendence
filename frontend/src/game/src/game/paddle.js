@@ -18,10 +18,11 @@ class Paddle {
   }
 
   choosePlayer(player_type) {
+    console.log(`Player type chosen on the ${this.side} side: ${player_type}`);
     if (player_type === "player") {
       this.player_type = player_type;
       this.player = new PaddleControls(this, this.controls, this.size);
-    } else {
+    } else if (player_type === "robot") {
       if (this.needsRemoving === true) {
         this.player.dispose();
         this.needsRemoving = false;

@@ -77,7 +77,7 @@ export default class GamePage {
     }
   };
 
-  handleStateChange() {
+  handleStateChange(newState) {
     this.render();
     this.attachEventListeners();
   }
@@ -89,6 +89,7 @@ export default class GamePage {
   }
 
   getGameMenuTemplate() {
+    const { isSearching } = this.state.state;
     return `
         <div class="menu">
         ${createBackArrow().outerHTML}
@@ -106,7 +107,11 @@ export default class GamePage {
                 <a class="nav-link" href="/local-tournament">Local tournament</a>
               </li>
               <li id="start-online-pvp-game" class="nav-item my-2">
-                <a class="nav-link" href="/local-tournament">Online PVP</a>
+                ${
+                  isSearching
+                    ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+                    : "Online PVP"
+                }
               </li>
             </ul>
           </div>

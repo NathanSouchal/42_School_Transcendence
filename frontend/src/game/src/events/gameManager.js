@@ -1,7 +1,7 @@
 import state from "../../../app";
 
 export class GameManager {
-  constructor(game) {
+  constructor(game = {}) {
     this.game = game;
     this.roomId = null;
     this.side = null;
@@ -9,10 +9,9 @@ export class GameManager {
     this.createRoom();
   }
 
-  createRoom() {
+  async createRoom() {
     this.roomId = this.generateRoomId();
     this.connect();
-    return this.roomId;
   }
 
   generateRoomId() {
@@ -27,21 +26,21 @@ export class GameManager {
       case "PVP":
       case "PVR":
         this.socket = new WebSocket(
-          `ws://${window.location.hostname}/ws/pong/local/?local=true`,
+          `ws://${window.location.hostname}:8000/ws/local/?local=true`,
         );
         break;
       case "OnlinePVP":
         this.socket = new WebSocket(
-          `ws://${window.location.hostname}/ws/pong/online/${this.roomId}/`,
+          `ws://${window.location.hostname}:8000/ws/online/?local=false`,
         );
         break;
       case "default":
-        console.log("Choosing defalt");
         this.socket = new WebSocket(
-          `ws://${window.location.hostname}/ws/pong/bg/`,
+          `ws://${window.location.hostname}:8000/ws/bg/?local=true`,
         );
         break;
     }
+    console.log(`Socket is : ${this.socket.url}`);
 
     this.socket.onopen = () => {
       this.isConnected = true;
@@ -51,13 +50,14 @@ export class GameManager {
       const data = JSON.parse(event.data);
 
       if (data.type === "game_start") {
-        let side = data.side;
-        this.state.side = side;
+        if (state.gameMode === "OnlinePVP") {
+          this.side = data.side;
+          state.isSearching = false;
+        }
       } else if (data.type === "game_state") {
         this.updateState(data.state);
       }
     };
-
     this.socket.onerror = (error) => {
       console.error("WebSocket Error:", error);
       this.isConnected = false;
@@ -66,19 +66,19 @@ export class GameManager {
     this.socket.onclose = () => {
       console.log("WebSocket Closed");
       this.isConnected = false;
-      setTimeout(() => this.reconnect(), 1000);
+      setTimeout(() => this.reconnect(), 2000);
     };
   }
 
   updateState(state) {
     if (state.paddle_left) {
-      this.game.paddleLeft.position.x = state.paddle_left.x;
+      this.game.paddleLeft.pos.x = state.paddle_left.x;
     }
     if (state.paddle_right) {
-      this.game.paddleRight.position.x = state.paddle_right.x;
+      this.game.paddleRight.pos.x = state.paddle_right.x;
     }
     if (state.ball) {
-      this.game.ball.position.set(state.ball.x, state.ball.y, state.ball.z);
+      this.game.ball.pos.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,

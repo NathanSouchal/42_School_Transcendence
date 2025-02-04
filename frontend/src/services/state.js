@@ -15,6 +15,7 @@ export default class State {
       gameNeedsReset: false,
       gameIsPaused: false,
       gameHasBeenWon: false,
+      isSearching: false,
     };
     this.gameMode = "default";
 

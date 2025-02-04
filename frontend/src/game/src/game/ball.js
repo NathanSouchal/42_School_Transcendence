@@ -103,7 +103,7 @@ class Ball {
     this.rotationSpeed *= -1;
   }
 
-  update(deltaTime, scene, renderer) {
+  update(deltaTime, scene, renderer, gameManager) {
     if (this.isFalling) {
       if (this.pos.y <= -1) {
         this.velocity.y *= 0.7;
@@ -134,7 +134,7 @@ class Ball {
       }
     }
 
-    renderer.gameManager.sendMessage({
+    gameManager.sendMessage({
       type: "state",
       element: "ball",
       pos: {

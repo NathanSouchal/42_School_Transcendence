@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import state from "../../../app.js";
 
-import { GameManager } from "../events/gameManager.js";
-
 class Renderer {
   constructor(renderer, scene, camera, game, stat) {
     this.renderer = renderer;
@@ -14,11 +12,6 @@ class Renderer {
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
-    this.gameManager = new GameManager(
-      game.paddleLeft,
-      game.paddleRight,
-      game.ball,
-    );
   }
 
   resizeRendererToDisplaySize() {
@@ -46,14 +39,14 @@ class Renderer {
     }
   }
 
-  animate() {
+  animate(gameManager) {
     const render = () => {
       const currentTime = performance.now();
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime);
+        this.gameElementsUpdate(deltaTime, gameManager);
         this.pivotUpdate(deltaTime);
         this.collisionsUpdate(deltaTime);
       }
@@ -78,19 +71,19 @@ class Renderer {
     this.game.pivot.rotation.z = rockingAngle;
   }
 
-  gameElementsUpdate(deltaTime) {
-    this.game.ball.update(deltaTime, this.scene, this);
+  gameElementsUpdate(deltaTime, gameManager) {
+    this.game.ball.update(deltaTime, this.scene, this, gameManager);
     this.game.paddleRight.update(
       deltaTime,
       this.game.ball.pos,
       this.game.ball.velocity,
-      this.gameManager,
+      gameManager,
     ),
       this.game.paddleLeft.update(
         deltaTime,
         this.game.ball.pos,
         this.game.ball.velocity,
-        this.gameManager,
+        gameManager,
       );
   }
 

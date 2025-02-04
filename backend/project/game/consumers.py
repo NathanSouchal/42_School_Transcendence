@@ -13,15 +13,31 @@ class NumericEncoder(json.JSONEncoder):
 
 class GameState(AsyncWebsocketConsumer):
     rooms = {}
+    pending_room = None
 
     async def connect(self):
-        self.room_name = self.scope["url_route"]["kwargs"]["room_id"]
-        self.room_group_name = f"pong_game_{self.room_name}"
         is_local_game = (
             self.scope.get("query_params", {}).get("local", "false") == "true"
         )
-        if self.room_group_name not in self.rooms:
-            self.rooms[self.room_group_name] = {
+
+        if is_local_game:
+            self.room_name = self.scope["url_route"]["kwargs"]["room_id"] + "local"
+            self.room_group_name = f"pong_game_{self.room_name}"
+        else:
+            self.room_name = self.scope["url_route"]["kwargs"].get("room_id")
+
+            if not self.room_name:
+                if GameState.pending_room:
+                    self.room_name = GameState.pending_room
+                    GameState.pending_room = None
+                else:
+                    self.room_name = f"room_{len(GameState.rooms) + 1}"
+                    GameState.pending_room = self.room_name
+
+            self.room_group_name = f"pong_game_{self.room_name}"
+
+        if self.room_group_name not in GameState.rooms:
+            GameState.rooms[self.room_group_name] = {
                 "players": [],
                 "score": {"left": 0, "right": 0},
                 "game_status": "waiting",
@@ -38,38 +54,45 @@ class GameState(AsyncWebsocketConsumer):
                     },
                 },
             }
-        if is_local_game:
-            self.rooms[self.room_group_name]["game_status"] = "playing"
 
-        if len(self.rooms[self.room_group_name]["players"]) < 2:
+        if len(GameState.rooms[self.room_group_name]["players"]) < 2:
+            print(f"< 2")
             self.player_side = (
                 "left"
-                if len(self.rooms[self.room_group_name]["players"]) == 0
+                if len(GameState.rooms[self.room_group_name]["players"]) == 0
                 else "right"
             )
-            self.rooms[self.room_group_name]["players"].append(self.channel_name)
+            GameState.rooms[self.room_group_name]["players"].append(self.channel_name)
+
             await self.channel_layer.group_add(self.room_group_name, self.channel_name)
             await self.accept()
+
             await self.send(
                 json.dumps({"type": "game_start", "side": self.player_side})
             )
-            if len(self.rooms[self.room_group_name]["players"]) == 2:
-                self.rooms[self.room_group_name]["game_status"] = "playing"
+
+            if len(GameState.rooms[self.room_group_name]["players"]) == 2:
+                print(f"Online pvp starting")
+                GameState.rooms[self.room_group_name]["game_status"] = "playing"
                 await self.start_game()
         else:
             await self.close()
 
     async def start_game(self):
+        print(f"calling start_game")
         await self.channel_layer.group_send(
             self.room_group_name,
-            {"type": "game_state", "state": self.rooms[self.room_group_name]["state"]},
+            {
+                "type": "game_state",
+                "state": GameState.rooms[self.room_group_name]["state"],
+            },
         )
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
             message_type = data.get("type")
-            room_state = self.rooms[self.room_group_name]["state"]  # Get room state
+            room_state = GameState.rooms[self.room_group_name]["state"]
 
             if message_type == "state":
                 message_element = data.get("element")
@@ -87,7 +110,7 @@ class GameState(AsyncWebsocketConsumer):
                 )
 
             elif message_type == "game_status":
-                game_status = self.rooms[self.room_group_name]["game_status"]
+                game_status = GameState.rooms[self.room_group_name]["game_status"]
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "game_status", "status": game_status}
                 )
@@ -103,19 +126,24 @@ class GameState(AsyncWebsocketConsumer):
         )
 
     async def game_status(self, event):
+        print(f"status: {GameState.rooms[self.room_group_name]}")
         await self.send(
             text_data=json.dumps({"type": "game_status", "status": event["status"]})
         )
 
     async def disconnect(self, close_code):
-        if hasattr(self, "room_group_name") and self.room_group_name in self.rooms:
-            if self.channel_name in self.rooms[self.room_group_name]["players"]:
-                self.rooms[self.room_group_name]["players"].remove(self.channel_name)
+        if hasattr(self, "room_group_name") and self.room_group_name in GameState.rooms:
+            if self.channel_name in GameState.rooms[self.room_group_name]["players"]:
+                GameState.rooms[self.room_group_name]["players"].remove(
+                    self.channel_name
+                )
 
-            if not self.rooms[self.room_group_name]["players"]:
-                del self.rooms[self.room_group_name]
+            if not GameState.rooms[self.room_group_name]["players"]:
+                del GameState.rooms[self.room_group_name]
+                if GameState.pending_room == self.room_name:
+                    GameState.pending_room = None
             else:
-                self.rooms[self.room_group_name]["game_status"] = "waiting"
+                GameState.rooms[self.room_group_name]["game_status"] = "waiting"
                 await self.channel_layer.group_send(
                     self.room_group_name, {"type": "game_status", "status": "waiting"}
                 )
