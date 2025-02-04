@@ -156,18 +156,22 @@ header .global-nav-section {
 @media (max-width: 390px) {
   .toggle-button-container {
     width: 0%;
-    left: 70%;
+    left: 75%;
   }
 }
 
 @media (max-width: 340px) {
   .toggle-button-container {
-    left: 60%;
+    left: 65%;
   }
 }
 
 @media (max-height: 700px) {
   .navbar-links {
     padding-top: 150px;
+  }
+  .app,
+  #header {
+    height: 80vh;
   }
 }

@@ -13,16 +13,16 @@ export function resetZIndex() {
   }
 }
 
-export function updateView(context) {
+export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    container.innerHTML = context.render();
+    container.innerHTML = await context.render();
     context.removeEventListeners();
     context.attachEventListeners();
   }
 }
 
-export function handleHeader(isUserLoggedIn, needsToDestroy) {
+export async function handleHeader(isUserLoggedIn, needsToDestroy) {
   if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
     header.destroy();
   } else if (needsToDestroy) {
@@ -42,7 +42,7 @@ export function handleHeader(isUserLoggedIn, needsToDestroy) {
 
 export async function logout() {
   try {
-    await API.post(`/user/logout/`);
+    await API.post(`/auth/logout/`);
     state.setIsUserLoggedIn(false);
     //remove user id also
     window.location.href = "/";

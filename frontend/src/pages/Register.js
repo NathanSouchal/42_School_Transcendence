@@ -30,7 +30,7 @@ export default class Register {
     }
     if (!this.state.state.gameHasLoaded) return;
     else {
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -112,7 +112,7 @@ export default class Register {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await API.post("/user/register/", this.formState);
+      const response = await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
       console.error(`Error while trying to post data : ${error}`);
@@ -123,11 +123,11 @@ export default class Register {
     }
   }
 
-  handleStateChange(newState) {
+  async handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Register page");
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -154,7 +154,7 @@ export default class Register {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");

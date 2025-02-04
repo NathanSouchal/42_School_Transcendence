@@ -29,7 +29,7 @@ export default class Social {
       await this.getInvitations(this.userId);
     }
     // Appeler render pour obtenir le contenu HTML
-    const content = this.render();
+    const content = await this.render();
     // Insérer le contenu dans le conteneur dédié
     const container = document.getElementById("app");
     if (container) {
@@ -171,11 +171,11 @@ export default class Social {
     }
   }
 
-  handleStateChange(newState) {
+  async handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Social page");
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -204,7 +204,7 @@ export default class Social {
     }
   }
 
-  render(userId) {
+  async render(userId) {
     handleHeader(this.state.isUserLoggedIn, false);
     if (this.friends && this.invitations) {
       return `<div class="main-div-social">

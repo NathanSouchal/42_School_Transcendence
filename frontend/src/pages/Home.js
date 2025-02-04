@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
-import { resetZIndex } from "/src/utils.js";
 import { handleHeader } from "../utils";
+import API from "../services/api.js";
 
 export default class Home {
   constructor(state) {
@@ -20,9 +20,9 @@ export default class Home {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    if (!this.state.state.gameHasLoaded) return;
+    if (!this.state.gameHasLoaded) return;
     else {
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -34,11 +34,11 @@ export default class Home {
 
   attachEventListeners() {}
 
-  handleStateChange(newState) {
+  async handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -60,7 +60,18 @@ export default class Home {
     }
   }
 
-  render(routeParams = {}) {
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      this.state.setIsUserLoggedIn(false);
+    } catch (error) {
+      console.error(`Error while trying to check user status : ${error}`);
+    }
+  }
+
+  async render(routeParams = {}) {
+    await this.checkUserStatus();
     handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
     const container = document.getElementById("app");

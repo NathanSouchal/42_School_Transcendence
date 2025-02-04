@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import { handleHeader, updateView } from "../utils";
 
 export default class Account {
   constructor(state) {
@@ -17,7 +17,6 @@ export default class Account {
     };
     this.lastDeleted = 0;
     this.isForm = false;
-    this.isLoading = true;
     this.eventListeners = [];
   }
 
@@ -30,35 +29,14 @@ export default class Account {
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-
-    // Récupérer l'ID utilisateur depuis le stockage local
-    const userId = Number(localStorage.getItem("id"));
-
-    // Charger les données utilisateur si un ID existe
-    try {
-      await this.fetchData(userId);
-      this.isLoading = false;
-      this.formData.username = this.userData.username;
-      this.formData.alias = this.userData.alias;
-      if (!this.state.state.gameHasLoaded) return;
-      else {
-        const content = this.render();
-        const container = document.getElementById("app");
-        if (container) {
-          container.innerHTML = content;
-          this.removeEventListeners();
-          this.attachEventListeners();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    else await this.updateView();
   }
 
-  updateView() {
+  async updateView() {
     const container = document.getElementById("app");
     if (container) {
-      container.innerHTML = this.render();
+      container.innerHTML = await this.render();
       this.removeEventListeners();
       this.attachEventListeners();
     }
@@ -199,18 +177,12 @@ export default class Account {
     });
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Account page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+  async handleStateChange(newState) {
+    // console.log("GameHasLoaded : " + newState.gameHasLoaded);
+    // if (newState.gameHasLoaded) {
+    //   console.log("GameHasLoaded state changed, rendering Account page");
+    //   await updateView();
+    // }
   }
 
   handleChangeInput(key, value, inputElement) {
@@ -273,6 +245,8 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
+      this.formData.username = data.user.username;
+      this.formData.alias = data.user.alias;
       if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
@@ -295,10 +269,10 @@ export default class Account {
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
-      this.render();
+      await this.updateView();
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
-      this.render();
+      await this.updateView();
     }
   }
 
@@ -349,9 +323,10 @@ export default class Account {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
-
+    const userId = Number(localStorage.getItem("id"));
+    await this.fetchData(userId);
     // if (this.isLoading) {
     //   return "<p>Loading...</p>";
     // }

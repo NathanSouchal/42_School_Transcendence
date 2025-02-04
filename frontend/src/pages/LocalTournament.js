@@ -138,7 +138,7 @@ export default class LocalTournament {
       const container = document.getElementById("app");
       if (container) {
         container.className = "";
-        const content = this.render();
+        const content = await this.render();
         container.innerHTML = content;
 
         this.removeEventListeners();
@@ -147,7 +147,7 @@ export default class LocalTournament {
     }
     if (newState.gameHasBeenWon) {
       await this.matchFinished();
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.className = "menu";
@@ -306,7 +306,7 @@ export default class LocalTournament {
           `;
   }
 
-  render() {
+  async render() {
     console.log(this.state.state.gameStarted);
     handleHeader(this.state.isUserLoggedIn, false);
     return `${

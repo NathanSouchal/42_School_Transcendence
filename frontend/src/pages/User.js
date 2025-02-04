@@ -43,21 +43,13 @@ export default class User {
     }
     await this.getMyFriends();
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    else await this.updateView()
   }
 
-  updateView() {
+  async updateView() {
     const container = document.getElementById("app");
     if (container) {
-      container.innerHTML = this.render();
+      container.innerHTML = await this.render();
       this.removeEventListeners();
       this.attachEventListeners();
     }
@@ -309,11 +301,11 @@ export default class User {
     console.log(this.friendStatus);
   }
 
-  handleStateChange(newState) {
+  async handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering User page");
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -353,7 +345,7 @@ export default class User {
     this.friendRequestId = null;
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     const { id } = routeParams;
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);

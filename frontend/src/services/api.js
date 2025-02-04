@@ -27,7 +27,7 @@ API.interceptors.response.use(
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
       if (isRetrying || !state.isUserLoggedIn) {
-        window.location.href = "/login"; // Rediriger vers la page de connexion
+        if (window.location.pathname !== "/") window.location.href = "/login"; // Rediriger vers la page de connexion
         return Promise.reject(error);
       }
       isRetrying = true;

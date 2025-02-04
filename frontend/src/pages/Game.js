@@ -24,10 +24,10 @@ export default class GamePage {
     this.updateView();
   }
 
-  updateView() {
+  async updateView() {
     const container = document.getElementById("app");
     if (container) {
-      container.innerHTML = this.render();
+      container.innerHTML = await this.render();
       this.removeEventListeners();
       this.attachEventListeners();
     }
@@ -291,7 +291,7 @@ export default class GamePage {
     return sanitizedTemplate;
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");

@@ -29,7 +29,7 @@ export default class Login {
     }
     if (!this.state.state.gameHasLoaded) return;
     else {
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -75,7 +75,7 @@ export default class Login {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await API.post("/user/login/", this.formState);
+      const response = await API.post("/auth/login/", this.formState);
       const { id } = response.data.user;
       console.log(response.data);
       localStorage.setItem("id", id);
@@ -95,11 +95,11 @@ export default class Login {
     }
   }
 
-  handleStateChange(newState) {
+  async handleStateChange(newState) {
     console.log("GameHasLoaded : " + newState.gameHasLoaded);
     if (newState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Login page");
-      const content = this.render();
+      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.innerHTML = content;
@@ -126,7 +126,7 @@ export default class Login {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);

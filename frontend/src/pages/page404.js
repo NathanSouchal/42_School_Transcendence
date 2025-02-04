@@ -6,13 +6,13 @@ export default class page404 {
     this.state = state;
   }
   async initialize(routeParams = {}) {
-    const content = this.render();
+    const content = await this.render();
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content;
     }
   }
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);

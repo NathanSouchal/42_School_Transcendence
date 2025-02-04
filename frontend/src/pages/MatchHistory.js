@@ -27,7 +27,7 @@ export default class MatchHistory {
       await this.getMatchHistory(userId);
     }
 
-    const content = this.render();
+    const content = await this.render();
     const container = document.getElementById("app");
     if (container) {
       container.innerHTML = content;
@@ -63,7 +63,7 @@ export default class MatchHistory {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     let template;
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
