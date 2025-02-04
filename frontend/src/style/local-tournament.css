@@ -17,11 +17,30 @@
     border-bottom: 2px solid var(--tertiary-color);
 }
 
+@keyframes shine {
+    0% { background-position: -200%; }
+    100% { background-position: 200%; }
+}
+  
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+  
 .main-div-tournament h2.winner-announce {
     width: 100%;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
     text-align: center;
-    color: #ff4d00;
-    letter-spacing: 0.1em;
+    color: #b8860b;
+    background: linear-gradient(90deg, #c79700, #ffdb58, #c79700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite, flicker 1.5s infinite alternate;
+    border: 0;
+    display: inline-block;
 }
 
 .main-div-tournament p {
