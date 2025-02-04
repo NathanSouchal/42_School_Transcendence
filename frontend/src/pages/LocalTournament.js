@@ -252,7 +252,7 @@ export default class LocalTournament {
   renderTournament() {
     return `
         ${this.tournamentFinished
-            ? `<h2>Winner: ${this.tournamentWinner} !</h2>`
+            ? `<h2 class="winner-announce">Winner: ${this.tournamentWinner} !</h2>`
             : !this.MatchToPlay.next_match
                 ? `<h2>FINAL</h2>`
                 : `<h2>Round n°${this.MatchToPlay.round_number}</h2>`
@@ -325,8 +325,10 @@ export default class LocalTournament {
 
   render() {
     console.log(this.state.state.gameStarted);
-    handleHeader(this.state.isUserLoggedIn, false);
-
+    if (this.state.state.gameStarted === true)
+      handleHeader(this.state.isUserLoggedIn, true);
+    else
+      handleHeader(this.state.isUserLoggedIn, false);
     return this.state.state.gameStarted === true
         ? this.getGameHUDTemplate()
         : `
