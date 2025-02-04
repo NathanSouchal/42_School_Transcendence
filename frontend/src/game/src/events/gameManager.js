@@ -72,13 +72,13 @@ export class GameManager {
 
   updateState(state) {
     if (state.paddle_left) {
-      this.game.paddleLeft.pos.x = state.paddle_left.x;
+      this.game.paddleLeft.obj.position.x = state.paddle_left.x;
     }
     if (state.paddle_right) {
-      this.game.paddleRight.pos.x = state.paddle_right.x;
+      this.game.paddleRight.obj.position.x = state.paddle_right.x;
     }
     if (state.ball) {
-      this.game.ball.pos.set(state.ball.x, state.ball.y, state.ball.z);
+      this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,

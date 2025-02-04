@@ -48,7 +48,7 @@ class Renderer {
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime, gameManager);
         this.pivotUpdate(deltaTime);
-        this.collisionsUpdate(deltaTime);
+        this.collisionsUpdate(deltaTime, gameManager);
       }
 
       this.terrainElementsUpdate(deltaTime);
@@ -94,11 +94,11 @@ class Renderer {
     }
   }
 
-  collisionsUpdate(deltaTime) {
+  collisionsUpdate(deltaTime, gameManager) {
     for (const bbox of this.game.arena.BBoxes) {
       if (this.game.ball.box.intersectsBox(bbox.box)) {
         this.game.ball.bounce(bbox);
-        this.game.ball.update(deltaTime, this.scene, this);
+        this.game.ball.update(deltaTime, this.scene, this, gameManager);
         if (bbox.side === "right") {
           this.game.paddleLeft.controls.other_has_hit = true;
           this.game.paddleRight.controls.other_has_hit = false;
