@@ -23,24 +23,18 @@ let isRetrying = false;
 API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
-    console.log("passage");
     const originalRequest = error.config;
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
-      const currentPath = window.location.pathname;
-      const requestedURL = error.config?.url;
-
       if (isRetrying || !state.isUserLoggedIn) {
-        if (
-          currentPath !== "/" &&
-          requestedURL !== "/" &&
-          currentPath !== "/login" &&
-          requestedURL !== "/login"
-        ) {
-          console.log("requestedURL : " + requestedURL);
-          alert("HOOO");
-          window.location.href = "/login";
-        } // Rediriger vers la page de connexion
+        setTimeout(() => {
+          if (
+            window.location.pathname !== "/" &&
+            window.location.pathname !== "/login"
+          ) {
+            window.location.href = "/login";
+          }
+        }, 500);
         return Promise.reject(error);
       }
       isRetrying = true;
