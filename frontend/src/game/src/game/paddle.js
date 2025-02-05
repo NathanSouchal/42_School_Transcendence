@@ -28,6 +28,11 @@ class Paddle {
         this.needsRemoving = false;
       }
       this.player = new Robot(this, this.size);
+    } else if (player_type === "none") {
+      if (this.needsRemoving === true) {
+        this.player.dispose();
+        this.needsRemoving = false;
+      }
     }
   }
 
@@ -101,9 +106,11 @@ class Paddle {
   update(deltaTime, ballPosition, ballVelocity, gameManager) {
     this.player.update(deltaTime, ballPosition, ballVelocity);
 
+    // console.log("sending message with gamemanager on side", gameManager.side);
     const message = {
-      type: "state",
+      type: "positions",
       element: `paddle_${this.side}`,
+      origin: gameManager.side,
       pos: {
         x: Number(this.pos.x).toFixed(4),
       },

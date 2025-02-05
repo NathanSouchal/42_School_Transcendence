@@ -134,9 +134,12 @@ class Ball {
       }
     }
 
+    // console.log("sending message with gamemanager on side", gameManager.side)
+
     gameManager.sendMessage({
-      type: "state",
+      type: "positions",
       element: "ball",
+      origin: gameManager.side,
       pos: {
         x: Number(this.pos.x).toFixed(4),
         y: Number(this.pos.y).toFixed(4),

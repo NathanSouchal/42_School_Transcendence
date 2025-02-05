@@ -1,8 +1,9 @@
 import state from "../../../app";
 
 export class GameManager {
-  constructor(game = {}) {
+  constructor(game = {}, gameScene) {
     this.game = game;
+    this.gameScene = gameScene;
     this.roomId = null;
     this.side = null;
     this.isConnected = false;
@@ -48,16 +49,17 @@ export class GameManager {
 
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-
-      if (data.type === "game_start") {
-        if (state.gameMode === "OnlinePVP") {
-          this.side = data.side;
-          state.isSearching = false;
-        }
-      } else if (data.type === "game_state") {
-        this.updateState(data.state);
+      switch (data.type) {
+        case "positions":
+          this.updatePositions(data.data);
+          break;
+        case "startOnlineGame":
+          console.log("startOnlineGame (frontend)");
+          this.startOnlineGame(data.data);
+          break;
       }
     };
+
     this.socket.onerror = (error) => {
       console.error("WebSocket Error:", error);
       this.isConnected = false;
@@ -70,7 +72,25 @@ export class GameManager {
     };
   }
 
-  updateState(state) {
+  startOnlineGame(status) {
+    this.side = status.side;
+    const gameMode = status.game_mode;
+
+    if (gameMode === "OnlinePVP") {
+      if (this.side === "right") {
+        console.log("side is right");
+        state.players = state.player_types.OnlineRight;
+        state.side = this.side;
+      } else if (this.side === "left") {
+        console.log("side is left");
+        state.players = state.player_types.OnlineLeft;
+        state.side = this.side;
+      }
+    }
+    state.setGameStarted(gameMode);
+  }
+
+  updatePositions(state) {
     if (state.paddle_left) {
       this.game.paddleLeft.obj.position.x = state.paddle_left.x;
     }

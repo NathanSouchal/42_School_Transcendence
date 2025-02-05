@@ -17,8 +17,8 @@ class GameState(AsyncWebsocketConsumer):
     local_state = {
         "players": [],
         "score": {"left": 0, "right": 0},
-        "game_status": "waiting",
-        "state": {
+        "status": "waiting",
+        "positions": {
             "paddle_left": {"x": 0},
             "paddle_right": {"x": 0},
             "ball": {
@@ -38,40 +38,40 @@ class GameState(AsyncWebsocketConsumer):
         )
         print(f"Connecting to {'local' if is_local_game else 'online'} game")
 
-        if is_local_game:
-            await self.setup_local_room()
-        else:
-            await self.setup_online_rooms()
+        # if is_local_game:
+        #     await self.setup_local_room()
+        # else:
+        await self.setup_online_rooms()
 
     async def setup_local_room(self):
-        self.room_name = "local_game_room"
-        self.room_group_name = "pong_game_local"
+        self.session = "local_session"
+        self.room = "local_room"
         self.is_local = True
 
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_add(self.room, self.channel_name)
         await self.accept()
-        print("Local game consumer connected")
+        # print("Local game consumer connected on ", self.channel)
 
     async def setup_online_rooms(self):
-        self.room_name = self.scope["url_route"]["kwargs"].get("room_id")
+        self.session = self.scope["url_route"]["kwargs"].get("room_id")
         self.is_local = False
 
-        if not self.room_name:
+        if not self.session:
             if GameState.pending_room:
-                self.room_name = GameState.pending_room
+                self.session = GameState.pending_room
                 GameState.pending_room = None
             else:
-                self.room_name = f"room_{len(GameState.rooms) + 1}"
-                GameState.pending_room = self.room_name
+                self.session = f"room_{len(GameState.rooms) + 1}"
+                GameState.pending_room = self.session
 
-        self.room_group_name = f"pong_game_{self.room_name}"
+        self.room = f"pong_game_{self.session}"
 
-        if self.room_group_name not in GameState.rooms:
-            GameState.rooms[self.room_group_name] = {
+        if self.room not in GameState.rooms:
+            GameState.rooms[self.room] = {
                 "players": [],
                 "score": {"left": 0, "right": 0},
-                "game_status": "waiting",
-                "state": {
+                "status": "waiting",
+                "positions": {
                     "paddle_left": {"x": 0},
                     "paddle_right": {"x": 0},
                     "ball": {
@@ -85,27 +85,57 @@ class GameState(AsyncWebsocketConsumer):
                 },
             }
 
-        if len(GameState.rooms[self.room_group_name]["players"]) < 2:
+        if len(GameState.rooms[self.room]["players"]) < 2:
             self.player_side = (
-                "left"
-                if len(GameState.rooms[self.room_group_name]["players"]) == 0
-                else "right"
+                "left" if len(GameState.rooms[self.room]["players"]) == 0 else "right"
             )
-            GameState.rooms[self.room_group_name]["players"].append(self.channel_name)
+            print(f"{self.player_side}")
+            GameState.rooms[self.room]["players"].append(self.channel_name)
 
-            await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            await self.channel_layer.group_add(self.room, self.channel_name)
             await self.accept()
 
             await self.send(
-                json.dumps({"type": "game_start", "side": self.player_side})
+                json.dumps(
+                    {
+                        "type": "startOnlineGame",
+                        "data": {"side": self.player_side, "game_mode": "OnlinePVP"},
+                    }
+                )
             )
 
-            if len(GameState.rooms[self.room_group_name]["players"]) == 2:
-                print("Online PvP game starting")
-                GameState.rooms[self.room_group_name]["game_status"] = "playing"
+            if len(GameState.rooms[self.room]["players"]) == 2:
+                print(f"room is {GameState.rooms[self.room]}")
+                print(f"Number of instantiated rooms: {len(GameState.rooms)}")
+                GameState.rooms[self.room]["status"] = "playing"
                 await self.start_game()
         else:
             await self.close()
+
+    async def start_game(self):
+        print(f"starting online game")
+        await self.channel_layer.group_send(
+            self.room, {"type": "status", "status": "startOnlineGame"}
+        )
+
+    async def positions(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "positions",
+                    "data": event["positions"],
+                },
+                cls=NumericEncoder,
+            )
+        )
+
+    async def status(self, event):
+        # print(f"Sending status: {event}")
+        if not self.is_local:
+            # print(f"Status update for room: {GameState.rooms[self.room]}")
+            await self.send(
+                text_data=json.dumps({"type": "status", "data": event["status"]})
+            )
 
     async def receive(self, text_data):
         try:
@@ -113,69 +143,59 @@ class GameState(AsyncWebsocketConsumer):
             message_type = data.get("type")
 
             if self.is_local:
-                room_state = self.local_state["state"]
+                positions = self.local_state["positions"]
             else:
-                room_state = GameState.rooms[self.room_group_name]["state"]
+                positions = GameState.rooms[self.room]["positions"]
 
-            if message_type == "state":
+            if message_type == "positions":
                 message_element = data.get("element")
-                if message_element == "paddle_left":
-                    room_state["paddle_left"]["x"] = float(data["pos"]["x"])
-                elif message_element == "paddle_right":
-                    room_state["paddle_right"]["x"] = float(data["pos"]["x"])
-                elif message_element == "ball":
+                message_origin = data.get("origin")
+                if message_element == "paddle_left" and message_origin == "left":
+                    positions["paddle_left"]["x"] = float(data["pos"]["x"])
+                elif message_element == "paddle_right" and message_origin == "right":
+                    positions["paddle_right"]["x"] = float(data["pos"]["x"])
+                elif message_element == "ball" and message_origin == "left":
                     ball_pos = data.get("pos", {})
                     for key, value in ball_pos.items():
-                        room_state["ball"][key] = float(value)
+                        positions["ball"][key] = float(value)
 
                 await self.channel_layer.group_send(
-                    self.room_group_name, {"type": "game_state", "state": room_state}
+                    self.room,
+                    {
+                        "type": "positions",
+                        "positions": positions,
+                    },
                 )
 
-            elif message_type == "game_status" and not self.is_local:
-                game_status = GameState.rooms[self.room_group_name]["game_status"]
+            elif message_type == "status" and not self.is_local:
+                status = GameState.rooms[self.room]["status"]
                 await self.channel_layer.group_send(
-                    self.room_group_name, {"type": "game_status", "status": game_status}
+                    self.room,
+                    {
+                        "type": "status",
+                        "status": status,
+                    },
                 )
 
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
 
-    async def game_state(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {"type": "game_state", "state": event["state"]}, cls=NumericEncoder
-            )
-        )
-
-    async def game_status(self, event):
-        if not self.is_local:
-            print(f"Status update for room: {GameState.rooms[self.room_group_name]}")
-        await self.send(
-            text_data=json.dumps({"type": "game_status", "status": event["status"]})
-        )
-
     async def disconnect(self, close_code):
-        if not self.is_local and hasattr(self, "room_group_name"):
-            if self.room_group_name in GameState.rooms:
-                if (
-                    self.channel_name
-                    in GameState.rooms[self.room_group_name]["players"]
-                ):
-                    GameState.rooms[self.room_group_name]["players"].remove(
-                        self.channel_name
-                    )
+        if not self.is_local and hasattr(self, "room"):
+            if self.room in GameState.rooms:
+                if self.channel_name in GameState.rooms[self.room]["players"]:
+                    GameState.rooms[self.room]["players"].remove(self.channel_name)
 
-                if not GameState.rooms[self.room_group_name]["players"]:
-                    del GameState.rooms[self.room_group_name]
-                    if GameState.pending_room == self.room_name:
+                if not GameState.rooms[self.room]["players"]:
+                    del GameState.rooms[self.room]
+                    if GameState.pending_room == self.session:
                         GameState.pending_room = None
                 else:
-                    GameState.rooms[self.room_group_name]["game_status"] = "waiting"
+                    GameState.rooms[self.room]["status"] = "waiting"
                     await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {"type": "game_status", "status": "waiting"},
+                        self.room,
+                        {"type": "status", "data": "waiting"},
                     )
 
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        await self.channel_layer.group_discard(self.room, self.channel_name)

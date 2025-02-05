@@ -37,6 +37,14 @@ export default class State {
         left: "robot",
         right: "player",
       },
+      OnlineLeft: {
+        left: "player",
+        right: "none",
+      },
+      OnlineRight: {
+        left: "none",
+        right: "player",
+      },
     };
 
     this.players = this.player_types.default;
@@ -71,19 +79,18 @@ export default class State {
   setGameStarted(gameMode) {
     if (gameMode) {
       this.gameMode = gameMode;
-      switch (gameMode) {
-        case "PVR":
-          this.players = this.player_types.PVR;
-          break;
-        case "PVP":
-          this.players = this.player_types.PVP;
-          break;
-        case "OnlinePVP":
-          this.players = this.player_types.PVP;
-          break;
-        case "default":
-          this.players = this.player_types.default;
-          break;
+      if (gameMode != "OnlinePVP") {
+        switch (gameMode) {
+          case "PVR":
+            this.players = this.player_types.PVR;
+            break;
+          case "PVP":
+            this.players = this.player_types.PVP;
+            break;
+          case "default":
+            this.players = this.player_types.default;
+            break;
+        }
       }
     }
     this.state.gameIsPaused = false;

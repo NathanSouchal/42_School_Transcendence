@@ -4,11 +4,14 @@ import { GameManager } from "./events/gameManager.js";
 const gameScene = new GameScene();
 await gameScene.init();
 
-let gameManager = new GameManager({
-  paddleLeft: gameScene.paddleLeft,
-  paddleRight: gameScene.paddleRight,
-  ball: gameScene.ball,
-});
+let gameManager = new GameManager(
+  {
+    paddleLeft: gameScene.paddleLeft,
+    paddleRight: gameScene.paddleRight,
+    ball: gameScene.ball,
+  },
+  gameScene,
+);
 
 while (!gameManager.isConnected) {
   await new Promise((resolve) => setTimeout(resolve, 300));
