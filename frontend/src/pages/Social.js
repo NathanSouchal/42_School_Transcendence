@@ -1,5 +1,6 @@
 import API from "../services/api.js";
-import { handleHeader, updateView } from "../utils.js";
+import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { router } from "../app.js";
 
 export default class Social {
   constructor(state) {
@@ -68,6 +69,20 @@ export default class Social {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const validate_button = document.getElementById("validate_invit");
     if (validate_button) {
       const validate_btn_fctn = this.validate_btn_fctn.bind(this);
@@ -155,6 +170,15 @@ export default class Social {
     console.log(this.search_result);
   }
 
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
   updateSearchResult() {
     const searchResultDiv = document.getElementById("search_result");
     if (this.search_result.username) {
@@ -196,8 +220,9 @@ export default class Social {
 
   async render(userId) {
     handleHeader(this.state.isUserLoggedIn, false);
+    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.friends && this.invitations) {
-      return `<div class="main-div-social">
+      return `${backArrow}<div class="main-div-social">
                 <h1>Social</h1>
                 <div class="content-social">
                   <div class="search-bar-and-result-social">

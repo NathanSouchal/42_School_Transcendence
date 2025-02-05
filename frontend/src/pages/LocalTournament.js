@@ -1,6 +1,7 @@
 import { updateView } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
+import { router } from "../app.js";
 
 export default class LocalTournament {
   constructor(state) {
@@ -47,6 +48,20 @@ export default class LocalTournament {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const selectNbPlayers = document.getElementById("select-nb-players");
     if (selectNbPlayers) {
       const handleNbPlayersChange = this.handleNbPlayersChange.bind(this);
@@ -101,6 +116,15 @@ export default class LocalTournament {
         element: gameMenueButton,
         listener: handleGameMenuButton,
       });
+    }
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 

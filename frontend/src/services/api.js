@@ -23,6 +23,7 @@ let isRetrying = false;
 API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
+    console.log("passage");
     const originalRequest = error.config;
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
@@ -36,6 +37,7 @@ API.interceptors.response.use(
           currentPath !== "/login" &&
           requestedURL !== "/login"
         ) {
+          console.log("requestedURL : " + requestedURL);
           alert("HOOO");
           window.location.href = "/login";
         } // Rediriger vers la page de connexion
@@ -51,6 +53,7 @@ API.interceptors.response.use(
 
         // Relancer la requête originale avec le nouveau token
         state.setIsUserLoggedIn(true);
+        isRetrying = false;
         return API(originalRequest);
       } catch (tokenError) {
         // Si l'obtention d'un nouveau token échoue, gérer l'erreur (ex : déconnexion)

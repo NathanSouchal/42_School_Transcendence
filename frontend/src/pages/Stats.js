@@ -1,15 +1,16 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView } from "../utils";
-import { createBackArrow } from "../utils";
+import { handleHeader, updateView, createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Stats {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
+    this.eventListeners = [];
     this.stats = {};
   }
 
@@ -31,7 +32,30 @@ export default class Stats {
     else await updateView(this);
   }
 
-  attachEventListeners() {}
+  attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
 
   async handleStateChange(newState) {
     console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
@@ -53,7 +77,25 @@ export default class Stats {
     }
   }
 
-  destroy() {}
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
+
+  destroy() {
+    this.removeEventListeners();
+    console.log("Stats destroy");
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+      console.log("Home page unsubscribed from state");
+    }
+  }
 
   render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);

@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import { handleHeader, updateView } from "../utils";
 import { createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Account {
   constructor(state) {
@@ -35,6 +36,20 @@ export default class Account {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
@@ -167,6 +182,15 @@ export default class Account {
         });
       }
     });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
   }
 
   async handleStateChange(newState) {

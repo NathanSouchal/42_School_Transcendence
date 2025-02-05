@@ -2,6 +2,7 @@ import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import { handleHeader, updateView } from "../utils.js";
 import { createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Login {
   constructor(state) {
@@ -33,6 +34,20 @@ export default class Login {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const loginForm = document.getElementById("login-form");
     if (loginForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
@@ -56,6 +71,15 @@ export default class Login {
         listener: handleChangeBound,
       });
     });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
   }
 
   handleChange(key, value, inputElement) {
