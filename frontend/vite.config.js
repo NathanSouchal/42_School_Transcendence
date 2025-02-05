@@ -5,9 +5,11 @@ export default defineConfig({
   server: {
     historyApiFallback: true,
     port: 3000,
-    https: {
-      key: fs.readFileSync("./ssl/key.pem"),
-      cert: fs.readFileSync("./ssl/cert.pem"),
-    },
+    host: true,  // ✅ Permet d'écouter sur 0.0.0.0
+    strictPort: true,  // Assure que Vite ne change pas de port
+    https: false,  // ✅ Désactive HTTPS (Nginx gérera SSL)
   },
+  build: {
+    target: "esnext"  // Permet d'utiliser top-level await
+  }
 });
