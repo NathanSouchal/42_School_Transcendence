@@ -34,16 +34,18 @@ const routes = {
 };
 
 const router = new Router(routes);
+export { router };
 
 // Gestion des clics sur les liens
-document.addEventListener("click", (event) => {
-  const target = event.target.closest("a");
-  if (target && target.href.startsWith(window.location.origin)) {
-    event.preventDefault();
-    const path = target.getAttribute("href");
-    router.navigate(path);
-  }
-});
+// document.addEventListener("click", (event) => {
+//   const target = event.target.closest("a");
+//   if (target && target.href.startsWith(window.location.origin)) {
+//     console.log("ICI");
+//     event.preventDefault();
+//     const path = target.getAttribute("href");
+//     router.navigate(path);
+//   }
+// });
 
 // Exemple d'utilisation de l'état
 state.subscribe((data) => {

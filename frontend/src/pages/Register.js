@@ -1,15 +1,15 @@
 import DOMPurify from "dompurify";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
+import { createBackArrow } from "../utils";
 
 export default class Register {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
-
     this.formState = {
       username: "",
       password: "",
@@ -29,15 +29,7 @@ export default class Register {
       console.log("Register page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
@@ -124,17 +116,13 @@ export default class Register {
   }
 
   async handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Register page");
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Home page");
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -159,7 +147,7 @@ export default class Register {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `
+    return `${backArrow}
         <form id="register-form" class="form-div-login-register">
           <h1 class="form-title-login-register">Register</h1>
           <div class="inputs-button-form-login-register">

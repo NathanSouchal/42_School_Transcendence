@@ -1,11 +1,11 @@
-import { createBackArrow } from "../components/backArrow.js";
-import { Router } from "../router.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import { handleHeader, updateView } from "../utils";
+import { createBackArrow } from "../utils";
 
 export default class User {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.pageId = null;
     this.isInitialized = false;
     this.isRouteId = false;
@@ -43,16 +43,7 @@ export default class User {
     }
     await this.getMyFriends();
     if (!this.state.state.gameHasLoaded) return;
-    else await this.updateView()
-  }
-
-  async updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = await this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
@@ -302,17 +293,13 @@ export default class User {
   }
 
   async handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering User page");
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {

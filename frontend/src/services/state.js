@@ -10,7 +10,7 @@ export default class State {
       isGamePage: false,
       gameStarted: false,
       gameModeHasChanged: false,
-      gameHasLoaded: true,
+      gameHasLoaded: false,
       gameLoadPercentage: 0,
       lastRoute: null,
       lastLastRoute: null,
@@ -69,6 +69,7 @@ export default class State {
 
   setGameHasLoaded() {
     this.state.gameHasLoaded = true;
+    console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
 
     document.getElementById("loading-overlay").classList.add("hidden");

@@ -5,9 +5,9 @@ import { handleHeader } from "../utils";
 export default class LocalTournament {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.updateView = updateView.bind(this, this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
@@ -34,7 +34,7 @@ export default class LocalTournament {
 
     const userId = Number(localStorage.getItem("id"));
     this.getUserAlias(userId);
-    this.updateView();
+    await updateView(this);
   }
 
   async getUserAlias(id) {
@@ -51,9 +51,7 @@ export default class LocalTournament {
     if (selectNbPlayers) {
       const handleNbPlayersChange = this.handleNbPlayersChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "selectNbPlayersEvent")) {
-        selectNbPlayers.addEventListener("change", (e) =>
-          handleNbPlayersChange(e.target.value)
-        );
+        selectNbPlayers.addEventListener("change", handleNbPlayersChange);
       }
       this.eventListeners.push({
         name: "selectNbPlayersEvent",
@@ -67,12 +65,7 @@ export default class LocalTournament {
     if (inputPlayerName) {
       const handlePlayersName = this.handlePlayersName.bind(this);
       if (!this.eventListeners.some((e) => e.name === "inputPlayerName")) {
-        inputPlayerName.addEventListener("keydown", async (event) => {
-          if (event.key === "Enter") {
-            const playerName = inputPlayerName.value;
-            if (playerName) await handlePlayersName(playerName);
-          }
-        });
+        inputPlayerName.addEventListener("keydown", handlePlayersName);
       }
       this.eventListeners.push({
         name: "inputPlayerName",
@@ -86,9 +79,7 @@ export default class LocalTournament {
     if (btnToStartMatch) {
       const handleStartButton = this.handleStartButton.bind(this);
       if (!this.eventListeners.some((e) => e.name === "btnToStartMatch")) {
-        btnToStartMatch.addEventListener("click", (e) =>
-          handleStartButton(e.target.value)
-        );
+        btnToStartMatch.addEventListener("click", handleStartButton);
       }
       this.eventListeners.push({
         name: "btnToStartMatch",
@@ -102,9 +93,7 @@ export default class LocalTournament {
     if (gameMenueButton) {
       const handleGameMenuButton = this.handleGameMenuButton.bind(this);
       if (!this.eventListeners.some((e) => e.name === "gameMenueButton")) {
-        gameMenueButton.addEventListener("click", (e) =>
-          handleGameMenuButton(e.target.value)
-        );
+        gameMenueButton.addEventListener("click", handleGameMenuButton);
       }
       this.eventListeners.push({
         name: "gameMenueButton",
@@ -115,24 +104,38 @@ export default class LocalTournament {
     }
   }
 
-  handleNbPlayersChange(selectedValue) {
-    this.nbPlayers = parseInt(selectedValue, 10);
-    console.log(this.nbPlayers);
-    this.updateView();
+  async handleNbPlayersChange(e) {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      this.nbPlayers = parseInt(selectedValue, 10);
+      console.log(this.nbPlayers);
+      await updateView(this);
+    }
   }
 
-  async handlePlayersName(playerName) {
-    this.playerList.push(playerName);
-    this.inputCount++;
-    console.log(this.inputCount);
-    console.log(this.playerList.map((el) => el));
-    if (this.inputCount == this.nbPlayers) await this.createLocalTournament();
-    this.updateView();
+  async handlePlayersName(e) {
+    const enterKey = e.key;
+    if (enterKey && enterKey === "Enter") {
+      const playerName = e.target.value;
+      if (playerName) {
+        this.playerList.push(playerName);
+        this.inputCount++;
+        console.log(this.inputCount);
+        console.log(this.playerList.map((el) => el));
+        if (this.inputCount == this.nbPlayers)
+          await this.createLocalTournament();
+        await updateView(this);
+      }
+    }
   }
 
   async handleStateChange(newState) {
-    console.log("gameHasBeenWon : " + newState.gameHasBeenWon);
-    if (newState.gameStarted) {
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log(
+        "GameHasLoaded state changed, rendering LocalTournament page"
+      );
+      await updateView(this);
+    } else if (newState.gameStarted && !this.previousState.gameStarted) {
       console.log("Game has started");
 
       const container = document.getElementById("app");
@@ -140,23 +143,21 @@ export default class LocalTournament {
         container.className = "";
         const content = await this.render();
         container.innerHTML = content;
-
         this.removeEventListeners();
         this.attachEventListeners();
       }
-    }
-    if (newState.gameHasBeenWon) {
+    } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.matchFinished();
-      const content = await this.render();
       const container = document.getElementById("app");
       if (container) {
         container.className = "menu";
+        const content = await this.render();
         container.innerHTML = content;
-
         this.removeEventListeners();
         this.attachEventListeners();
       }
     }
+    this.previousState = { ...newState };
   }
 
   handleStartButton() {

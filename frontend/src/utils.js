@@ -16,8 +16,8 @@ export function resetZIndex() {
 export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    container.innerHTML = await context.render();
     context.removeEventListeners();
+    container.innerHTML = await context.render();
     context.attachEventListeners();
   }
 }
@@ -49,4 +49,8 @@ export async function logout() {
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);
   }
+}
+
+export function createBackArrow(route) {
+  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

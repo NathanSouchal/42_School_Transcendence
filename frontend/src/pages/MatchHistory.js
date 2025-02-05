@@ -1,11 +1,12 @@
-import { createBackArrow } from "../components/backArrow.js";
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import { handleHeader, updateView } from "../utils";
+import { createBackArrow } from "../utils";
 
 export default class MatchHistory {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
@@ -26,17 +27,21 @@ export default class MatchHistory {
     if (userId) {
       await this.getMatchHistory(userId);
     }
-
-    const content = await this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    await updateView(this);
   }
 
   attachEventListeners() {}
 
-  handleStateChange() {}
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering MatchHistory page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
+  }
 
   async getMatchHistory(id) {
     try {

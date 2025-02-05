@@ -1,14 +1,17 @@
 import DOMPurify from "dompurify";
 import { handleHeader } from "../utils";
 import API from "../services/api.js";
+import { updateView } from "../utils";
+import { router } from "../app.js";
 
 export default class Home {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
-    this.cssLink;
+    this.eventListeners = [];
   }
   async initialize(routeParams = {}) {
     console.log("Home initialized");
@@ -19,36 +22,55 @@ export default class Home {
     }
     if (this.isInitialized) return;
     this.isInitialized = true;
-
-    if (!this.state.gameHasLoaded) return;
-    else {
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    console.log("PREVGameHasLoaded1 : " + this.previousState.gameHasLoaded);
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
-  attachEventListeners() {}
+  attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
 
   async handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
-  removeEventListeners() {}
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
 
   destroy() {
     this.removeEventListeners();
@@ -64,8 +86,9 @@ export default class Home {
     try {
       const response = await API.get("/auth/is-auth/");
       console.log(response.data + "COUCOU");
-      this.state.setIsUserLoggedIn(false);
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
       console.error(`Error while trying to check user status : ${error}`);
     }
   }

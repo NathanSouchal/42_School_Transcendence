@@ -1,11 +1,12 @@
 import DOMPurify from "dompurify";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
+import { createBackArrow } from "../utils";
 
 export default class Login {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -28,15 +29,7 @@ export default class Login {
       console.log("Login page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
@@ -96,17 +89,13 @@ export default class Login {
   }
 
   async handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Login page");
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {

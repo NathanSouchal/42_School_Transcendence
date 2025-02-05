@@ -26,8 +26,19 @@ API.interceptors.response.use(
     const originalRequest = error.config;
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
+      const currentPath = window.location.pathname;
+      const requestedURL = error.config?.url;
+
       if (isRetrying || !state.isUserLoggedIn) {
-        if (window.location.pathname !== "/") window.location.href = "/login"; // Rediriger vers la page de connexion
+        if (
+          currentPath !== "/" &&
+          requestedURL !== "/" &&
+          currentPath !== "/login" &&
+          requestedURL !== "/login"
+        ) {
+          alert("HOOO");
+          window.location.href = "/login";
+        } // Rediriger vers la page de connexion
         return Promise.reject(error);
       }
       isRetrying = true;

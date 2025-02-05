@@ -1,5 +1,6 @@
 import DOMPurify from "dompurify";
 import { logout } from "../utils";
+import { router } from "../app";
 
 export class Header {
   constructor() {
@@ -9,6 +10,20 @@ export class Header {
   }
 
   attachEventListeners() {
+    const naviguateLinks = document.querySelectorAll("a");
+    naviguateLinks.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     if (toggleButton) {
       const handleToggleButton = this.handleToggleButton.bind(this);
@@ -52,6 +67,15 @@ export class Header {
           listener: logout,
         });
       }
+    }
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 

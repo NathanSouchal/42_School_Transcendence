@@ -1,9 +1,10 @@
 import API from "../services/api.js";
-import { handleHeader } from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
 
 export default class Social {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
@@ -28,15 +29,8 @@ export default class Social {
       await this.getFriends(this.userId);
       await this.getInvitations(this.userId);
     }
-    // Appeler render pour obtenir le contenu HTML
-    const content = await this.render();
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-    }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
   async getFriends(id) {
@@ -172,17 +166,13 @@ export default class Social {
   }
 
   async handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Social page");
-      const content = await this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {

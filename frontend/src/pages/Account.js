@@ -1,11 +1,12 @@
 import DOMPurify from "dompurify";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
 import { handleHeader, updateView } from "../utils";
+import { createBackArrow } from "../utils";
 
 export default class Account {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -30,16 +31,7 @@ export default class Account {
       console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await this.updateView();
-  }
-
-  async updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = await this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
@@ -178,11 +170,13 @@ export default class Account {
   }
 
   async handleStateChange(newState) {
-    // console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    // if (newState.gameHasLoaded) {
-    //   console.log("GameHasLoaded state changed, rendering Account page");
-    //   await updateView();
-    // }
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Account page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
   }
 
   handleChangeInput(key, value, inputElement) {
@@ -207,13 +201,13 @@ export default class Account {
       }
     } else if (key == "form-button") {
       this.isForm = !this.isForm;
-      this.updateView();
+      await updateView(this);
     } else if (key == "update-user-info") {
       try {
         await this.updateUserInfo(this.userData.id);
         await this.fetchData(this.userData.id);
         this.isForm = !this.isForm;
-        this.updateView();
+        await updateView(this);
       } catch (error) {
         console.error(error);
       }
@@ -269,10 +263,10 @@ export default class Account {
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
-      await this.updateView();
+      await updateView(this);
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
-      await this.updateView();
+      await updateView(this);
     }
   }
 
@@ -327,9 +321,6 @@ export default class Account {
     handleHeader(this.state.isUserLoggedIn, false);
     const userId = Number(localStorage.getItem("id"));
     await this.fetchData(userId);
-    // if (this.isLoading) {
-    //   return "<p>Loading...</p>";
-    // }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
     const hasUsername =
