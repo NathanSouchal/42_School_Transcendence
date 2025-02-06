@@ -24,10 +24,7 @@ export default class Stats {
       console.log("Stats page subscribed to state");
     }
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getStats(userId);
-    }
+    await this.getStats(this.state.state.userId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }

@@ -24,10 +24,6 @@ export default class MatchHistory {
       console.log("Match_history page subscribed to state");
     }
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getMatchHistory(userId);
-    }
     if (!this.state.state.gameHasLoaded) return;
     await updateView(this);
   }
@@ -105,6 +101,7 @@ export default class MatchHistory {
   async render(routeParams = {}) {
     let template;
     handleHeader(this.state.isUserLoggedIn, false);
+    await this.getMatchHistory(this.state.state.userId);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
       template = `${backArrow}${Object.values(this.matchHistory)

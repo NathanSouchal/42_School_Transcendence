@@ -13,7 +13,6 @@ export default class Social {
     this.invitations = {};
     this.eventListeners = [];
     this.search_result = {};
-    this.userId;
   }
 
   async initialize() {
@@ -25,11 +24,9 @@ export default class Social {
     if (this.isInitialized) return;
     this.isInitialized = true;
 
-    this.userId = Number(localStorage.getItem("id"));
-    if (this.userId) {
-      await this.getFriends(this.userId);
-      await this.getInvitations(this.userId);
-    }
+    await this.getFriends(this.state.state.userId);
+    await this.getInvitations(this.state.state.userId);
+
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -257,7 +254,7 @@ export default class Social {
                           (value) =>
                             `<div class="invitations-list-div-social">
                                 ${
-                                  value.from_user.id == this.userId
+                                  value.from_user.id == this.state.state.userId
                                     ? `<p>To ${value.to_user.username}, waiting for acceptation...</p>`
                                     : `<div>
                                     <p>From ${value.from_user.username}</p>

@@ -12,11 +12,9 @@ export default class User {
     this.isSubscribed = false;
     this.errorCode = null;
     this.eventListeners = [];
-
     this.publicUserData = {};
     this.friends = [];
     this.friendRequests = [];
-    this.userId = null;
     this.friendStatus = "";
     this.friendRequestId = null;
   }
@@ -34,7 +32,6 @@ export default class User {
     }
 
     this.pageId = routeParams.id;
-    this.userId = Number(localStorage.getItem("id"));
 
     await this.getPublicUserInfo();
     if (this.errorCode === 404) {
@@ -183,7 +180,9 @@ export default class User {
 
   async getMyFriends() {
     try {
-      const response = await API.get(`/friend-requests/byuser/${this.userId}/`);
+      const response = await API.get(
+        `/friend-requests/byuser/${this.state.state.userId}/`
+      );
       const data = response.data;
       this.friends = response.data.friends;
       this.friendRequests = response.data.pending_friend_requests;
@@ -197,7 +196,7 @@ export default class User {
   async sendFriendRequest() {
     try {
       const res = await API.post("/friend-requests/create/", {
-        from_user: this.userId.toString(),
+        from_user: this.state.state.userId.toString(),
         to_user: this.pageId,
       });
       console.log(res);
@@ -283,7 +282,7 @@ export default class User {
         (el) =>
           !el.accepted &&
           el.to_user?.id.toString() === this.pageId &&
-          this.pageId.toString() !== this.userId.toString()
+          this.pageId.toString() !== this.state.state.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(
@@ -298,7 +297,7 @@ export default class User {
         (el) =>
           !el.accepted &&
           el.from_user?.id.toString() === this.pageId &&
-          this.pageId.toString() !== this.userId.toString()
+          this.pageId.toString() !== this.state.state.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(
@@ -309,7 +308,7 @@ export default class User {
         this.friendStatus = "recieved";
       }
     } else {
-      if (this.pageId.toString() === this.userId.toString())
+      if (this.pageId.toString() === this.state.state.userId.toString())
         this.friendStatus = "me";
       else this.friendStatus = "free";
     }
@@ -351,7 +350,6 @@ export default class User {
     this.publicUserData = {};
     this.friends = [];
     this.friendRequests = [];
-    this.userId = null;
     this.friendStatus = "";
     this.friendRequestId = null;
   }

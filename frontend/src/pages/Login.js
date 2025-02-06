@@ -95,8 +95,9 @@ export default class Login {
       const response = await API.post("/auth/login/", this.formState);
       const { id } = response.data.user;
       console.log(response.data);
-      localStorage.setItem("id", id);
-      window.app.router.navigate("/account");
+      this.state.state.userId = id;
+      this.state.saveState();
+      router.navigate("/account");
     } catch (error) {
       if (error.response) {
         const status = error.response.status;

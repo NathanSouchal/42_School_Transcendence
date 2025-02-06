@@ -33,8 +33,7 @@ export default class LocalTournament {
       console.log("LocalTournament page subscribed to state");
     }
 
-    const userId = Number(localStorage.getItem("id"));
-    this.getUserAlias(userId);
+    this.getUserAlias(this.state.state.userId);
     await updateView(this);
   }
 

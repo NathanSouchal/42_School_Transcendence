@@ -344,9 +344,8 @@ export default class Account {
 
   async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
-    const userId = Number(localStorage.getItem("id"));
     try {
-      await this.fetchData(userId);
+      await this.fetchData(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";
     }

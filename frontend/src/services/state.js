@@ -17,9 +17,12 @@ export default class State {
       gameNeedsReset: false,
       gameIsPaused: false,
       gameHasBeenWon: false,
+      userId: 0,
     };
+    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
+    this.state.userId = savedState?.id || 0;
 
-    document.getElementById("app").classList.add("hidden");
+    this.state.userId = document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
     // this.gamePoints = 10;
@@ -46,13 +49,15 @@ export default class State {
     this.scores = [];
     this.data = {};
     this.listeners = [];
-    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
 
     State.instance = this;
   }
 
   saveState() {
-    const stateToSave = { isUserLoggedIn: this.isUserLoggedIn };
+    const stateToSave = {
+      isUserLoggedIn: this.isUserLoggedIn,
+      userId: this.state.userId,
+    };
     localStorage.setItem("pongState", JSON.stringify(stateToSave));
   }
 
