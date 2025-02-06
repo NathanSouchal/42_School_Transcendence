@@ -10,7 +10,6 @@ export default class User {
     this.isInitialized = false;
     this.isRouteId = false;
     this.isSubscribed = false;
-    this.errorCode = null;
     this.eventListeners = [];
     this.publicUserData = {};
     this.friends = [];
@@ -33,13 +32,6 @@ export default class User {
 
     this.pageId = routeParams.id;
 
-    await this.getPublicUserInfo();
-    if (this.errorCode === 404) {
-      this.state.state.lastLastRoute = this.state.state.lastRoute;
-      router.navigate("/404");
-      return;
-    }
-    await this.getMyFriends();
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -166,15 +158,7 @@ export default class User {
       this.publicUserData = data.user;
       console.log(data);
     } catch (error) {
-      if (error.response) {
-        const status = error.response.status;
-        if (status === 404) {
-          this.errorCode = 404;
-          console.error(`Error while trying to get PublicUserInfo : ${error}`);
-        }
-      } else {
-        console.error(`Error while trying to get PublicUserInfo : ${error}`);
-      }
+      console.error(`Error while trying to get PublicUserInfo : ${error}`);
     }
   }
 
@@ -271,7 +255,7 @@ export default class User {
       await this.deleteRecievedFriendRequest();
     }
     await this.getMyFriends();
-    this.updateView();
+    updateView(this);
   }
 
   async checkFriendStatus() {
@@ -325,6 +309,18 @@ export default class User {
     this.previousState = { ...newState };
   }
 
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+    } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      console.error(`Error while trying to check user status : ${error}`);
+      throw error;
+    }
+  }
+
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
@@ -346,7 +342,6 @@ export default class User {
     this.isInitialized = false;
     this.isRouteId = false;
     this.isSubscribed = false;
-    this.errorCode = null;
     this.publicUserData = {};
     this.friends = [];
     this.friendRequests = [];
@@ -357,18 +352,22 @@ export default class User {
   async render(routeParams = {}) {
     const { id } = routeParams;
     handleHeader(this.state.isUserLoggedIn, false);
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    // if (this.errorCode === 404) {
-    //   return setTimeout(() => {
-    //     this.errorCode = null;
-    //     window.app.router.navigate(this.state.state.lastLastRoute);
-    //   }, 100);
-    // }
-    if (this.errorCode === 404) {
-      this.errorCode = null;
-      router.navigate("/404");
-      return;
+    try {
+      await this.checkUserStatus();
+      await this.getPublicUserInfo();
+      await this.getMyFriends();
+    } catch (error) {
+      if (error.response.status === 401) {
+        this.state.state.lastLastRoute = this.state.state.lastRoute;
+        return "";
+      }
+      if (error.response.status === 404) {
+        this.state.state.lastLastRoute = this.state.state.lastRoute;
+        router.navigate("/404");
+        return;
+      }
     }
+    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
 			<div class="d-flex flex-column justify-content-center align-items-center h-100">

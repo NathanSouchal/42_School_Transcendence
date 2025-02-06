@@ -4,8 +4,6 @@ export default class State {
       return State.instance; // Retourner l'instance existante si elle existe déjà
     }
 
-    const savedState = JSON.parse(localStorage.getItem("pongState"));
-
     this.state = {
       isGamePage: false,
       gameStarted: false,
@@ -19,10 +17,17 @@ export default class State {
       gameHasBeenWon: false,
       userId: 0,
     };
-    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
-    this.state.userId = savedState?.id || 0;
+    this.isUserLoggedIn = false;
 
-    this.state.userId = document.getElementById("app").classList.add("hidden");
+    let savedState = JSON.parse(localStorage.getItem("pongState"));
+    if (!savedState || !savedState?.isUserLoggedIn || !savedState.id) {
+      this.saveState();
+      savedState = JSON.parse(localStorage.getItem("pongState"));
+    }
+    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
+    this.state.userId = parseInt(savedState?.id) || 0;
+
+    document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
     // this.gamePoints = 10;

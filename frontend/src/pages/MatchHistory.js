@@ -80,6 +80,17 @@ export default class MatchHistory {
     }
   }
 
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+    } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      console.error(`Error while trying to check user status : ${error}`);
+    }
+  }
+
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
@@ -101,7 +112,16 @@ export default class MatchHistory {
   async render(routeParams = {}) {
     let template;
     handleHeader(this.state.isUserLoggedIn, false);
-    await this.getMatchHistory(this.state.state.userId);
+    try {
+      await this.checkUserStatus();
+      await this.getMatchHistory(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
       template = `${backArrow}${Object.values(this.matchHistory)

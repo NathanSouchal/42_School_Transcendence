@@ -16,16 +16,14 @@ export default class Social {
   }
 
   async initialize() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
-    await this.getFriends(this.state.state.userId);
-    await this.getInvitations(this.state.state.userId);
 
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
@@ -196,6 +194,28 @@ export default class Social {
     this.previousState = { ...newState };
   }
 
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+    } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      console.error(`Error while trying to check user status : ${error}`);
+    }
+  }
+
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+    } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      console.error(`Error while trying to check user status : ${error}`);
+    }
+  }
+
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
@@ -217,6 +237,17 @@ export default class Social {
 
   async render(userId) {
     handleHeader(this.state.isUserLoggedIn, false);
+    try {
+      await this.checkUserStatus();
+      await this.getFriends(this.state.state.userId);
+      await this.getInvitations(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.friends && this.invitations) {
       return `${backArrow}<div class="main-div-social">

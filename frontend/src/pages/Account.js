@@ -348,6 +348,10 @@ export default class Account {
       await this.fetchData(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
     }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);

@@ -33,7 +33,8 @@ export default class LocalTournament {
       console.log("LocalTournament page subscribed to state");
     }
 
-    this.getUserAlias(this.state.state.userId);
+    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
+    else this.userAlias = "Guest";
     await updateView(this);
   }
 

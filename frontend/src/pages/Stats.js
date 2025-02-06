@@ -24,7 +24,6 @@ export default class Stats {
       console.log("Stats page subscribed to state");
     }
 
-    await this.getStats(this.state.state.userId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -74,6 +73,17 @@ export default class Stats {
     }
   }
 
+  async checkUserStatus() {
+    try {
+      const response = await API.get("/auth/is-auth/");
+      console.log(response.data + "COUCOU");
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+    } catch (error) {
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      console.error(`Error while trying to check user status : ${error}`);
+    }
+  }
+
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
@@ -94,8 +104,18 @@ export default class Stats {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
+    try {
+      await this.checkUserStatus();
+      await this.getStats(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
