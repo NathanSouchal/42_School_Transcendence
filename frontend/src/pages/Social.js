@@ -226,7 +226,7 @@ export default class Social {
                               (value) =>
                                 `<div class="friends-item-social">
                                     <div class="friends-item-img-username">
-                                      <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+                                      <img width="50" height="50" src="https://localhost:8443/${value.avatar}" class="rounded-circle">
                                       <a href="/user/${value.id}/">${value.username}</a>
                                     </div>
                                     <p>Online</p>
@@ -252,14 +252,14 @@ export default class Social {
                                     ${value.from_user.id == this.userId
                                     ? `<div class="invitation-item-social">
                                         <div class="invitation-item-img-username">
-                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                                          <img width="50" height="50" src="https://localhost:8443/${value.to_user.avatar}" class="rounded-circle">
                                           <p>${value.to_user.username}, waiting for acceptation...</p>
                                         </div>
                                         <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
                                       </div>`
                                     : `<div class="invitation-item-social">
                                         <div class="invitation-item-img-username">
-                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                                          <img width="50" height="50" src="https://localhost:8443/${value.from_user.avatar}" class="rounded-circle">
                                           <p>${value.from_user.username}</p>
                                         </div>
                                         <div class="two-buttons-invitation-social">

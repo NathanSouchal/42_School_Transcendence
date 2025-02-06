@@ -1,13 +1,4 @@
 services:
-  frontend:
-    container_name: frontend
-    networks:
-      - transcendence
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    env_file: .env
-    restart: unless-stopped
 
   backend:
     container_name: backend
@@ -38,14 +29,13 @@ services:
     networks:
       - transcendence
     build:
-      context: ./nginx
-      dockerfile: Dockerfile
+      context: .          # Contexte racine du projet pour englober aussi le dossier frontend 
+      dockerfile: nginx/Dockerfile  # Spécifie le Dockerfile dans le dossier nginx
     ports:
       - "8080:80"    # HTTP redirigé vers HTTPS
       - "8443:443"   # HTTPS sur 8443 pour éviter le besoin de sudo
     depends_on:
       - backend
-      - frontend
     volumes:
       - ./nginx/certs/selfsigned.crt:/etc/nginx/selfsigned.crt
       - ./nginx/certs/selfsigned.key:/etc/nginx/selfsigned.key

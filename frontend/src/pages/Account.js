@@ -373,7 +373,7 @@ export default class Account {
             ? `<div id="user-main-div">
 				<form id="user-form">
 			 	<div id="avatar-main-div">
-					<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">
+					<img width="200" height="200" src="https://localhost:8443/${this.userData.avatar}" class="rounded-circle">
 					<div class="custom-file m-2">
 						<label class="form-label" for="avatar">
 							Avatar
@@ -424,7 +424,7 @@ export default class Account {
             : `
 			  <div id="user-main-div">
 			 	<div id="avatar-main-div">
-				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+				${this.userData.avatar ? `<img width="200" height="200" src="https://localhost:8443/${this.userData.avatar}" class="rounded-circle">` : ``}
 				</div>
 				<div id="username-main-div">
 					<h2 class="text-capitalize">

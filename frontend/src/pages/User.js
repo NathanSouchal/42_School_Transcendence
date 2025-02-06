@@ -375,7 +375,7 @@ export default class User {
 				</div>
 				<div id="user-main-div">
 					<div id="avatar-main-div">
-					${this.publicUserData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000${this.publicUserData.avatar}" class="rounded-circle">` : ``}
+					${this.publicUserData.avatar ? `<img width="200" height="200" src="https://localhost:8443${this.publicUserData.avatar}" class="rounded-circle">` : ``}
 					</div>
 					<div id="username-main-div">
 						<h2 class="text-capitalize">
