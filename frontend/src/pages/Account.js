@@ -270,6 +270,7 @@ export default class Account {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = {};
       if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      throw error;
     }
   }
 
@@ -344,7 +345,11 @@ export default class Account {
   async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const userId = Number(localStorage.getItem("id"));
-    await this.fetchData(userId);
+    try {
+      await this.fetchData(userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+    }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
     const hasUsername =

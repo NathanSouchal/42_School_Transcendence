@@ -1,5 +1,6 @@
 import axios from "axios";
 import state from "../app.js";
+import { router } from "../app.js";
 
 const API = axios.create({
   baseURL: "https://localhost:8000",
@@ -32,9 +33,9 @@ API.interceptors.response.use(
             window.location.pathname !== "/" &&
             window.location.pathname !== "/login"
           ) {
-            window.location.href = "/login";
+            router.navigate("/login");
           }
-        }, 500);
+        }, 100);
         return Promise.reject(error);
       }
       isRetrying = true;

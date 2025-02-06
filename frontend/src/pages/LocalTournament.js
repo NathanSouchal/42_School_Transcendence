@@ -189,7 +189,7 @@ export default class LocalTournament {
   }
 
   handleGameMenuButton() {
-    window.location.href = "https://localhost:3000/game";
+    router.navigate("/game");
   }
 
   async matchFinished() {

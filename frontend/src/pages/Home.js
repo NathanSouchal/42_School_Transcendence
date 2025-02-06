@@ -113,6 +113,7 @@ export default class Home {
       links = [
         { href: "/login", text: "Login" },
         { href: "/game", text: "Guest Mode" },
+        { href: "/user/200", text: "User 200" },
       ];
     }
     return `

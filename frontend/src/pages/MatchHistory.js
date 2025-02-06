@@ -8,7 +8,7 @@ export default class MatchHistory {
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
     this.matchHistory = {};
     this.eventListeners = [];

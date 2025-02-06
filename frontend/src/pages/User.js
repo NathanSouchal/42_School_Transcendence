@@ -35,11 +35,12 @@ export default class User {
 
     this.pageId = routeParams.id;
     this.userId = Number(localStorage.getItem("id"));
-    console.log("INITIALIZE ON USER");
+
     await this.getPublicUserInfo();
     if (this.errorCode === 404) {
       this.state.state.lastLastRoute = this.state.state.lastRoute;
-      window.location.href = "/404";
+      router.navigate("/404");
+      return;
     }
     await this.getMyFriends();
     if (!this.state.state.gameHasLoaded) return;
@@ -358,7 +359,7 @@ export default class User {
   async render(routeParams = {}) {
     const { id } = routeParams;
     handleHeader(this.state.isUserLoggedIn, false);
-    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     // if (this.errorCode === 404) {
     //   return setTimeout(() => {
     //     this.errorCode = null;
@@ -367,7 +368,8 @@ export default class User {
     // }
     if (this.errorCode === 404) {
       this.errorCode = null;
-      window.location.href = `/404`;
+      router.navigate("/404");
+      return;
     }
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
