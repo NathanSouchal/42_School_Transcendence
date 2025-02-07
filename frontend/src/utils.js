@@ -1,3 +1,8 @@
+import { header } from "./app";
+import API from "./services/api";
+import state from "./app";
+import { router } from "./app";
+
 export function resetZIndex() {
   const canvas = document.querySelector("#c");
   const app = document.querySelector("#app");
@@ -9,28 +14,55 @@ export function resetZIndex() {
   }
 }
 
-export function updateView(context) {
+export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    container.innerHTML = context.render();
     context.removeEventListeners();
+    container.innerHTML = await context.render();
     context.attachEventListeners();
   }
 }
 
-
-export function addCSS(path) {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.type = 'text/css';
-  link.href = path;
-  document.head.appendChild(link);
-
-  console.log("CSS ajouté");
-  return link;
+export async function handleHeader(isUserLoggedIn, needsToDestroy) {
+  if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
+    header.destroy();
+  } else if (needsToDestroy) {
+    header.destroy();
+  } else if (isUserLoggedIn && !header.isUserRendered) {
+    if (header.isGuestRendered) {
+      header.destroy();
+    }
+    header.renderUserLoggedIn();
+  } else if (!isUserLoggedIn && !header.isGuestRendered) {
+    if (header.isUserRendered) {
+      header.destroy();
+    }
+    header.renderGuestUser();
+  }
 }
 
-export function removeCSS(link) {
-  document.head.removeChild(link);
-  console.log("CSS supprimé");
+export async function logout() {
+  try {
+    await API.post(`/auth/logout/`);
+    state.setIsUserLoggedIn(false);
+    //remove user id also
+    router.navigate("/");
+  } catch (error) {
+    console.error(`Error while trying to logout : ${error}`);
+  }
+}
+
+export async function checkUserStatus() {
+  try {
+    await API.get("/auth/is-auth/");
+    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+  } catch (error) {
+    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
+    console.error(`Error while trying to check user status : ${error}`);
+    throw error;
+  }
+}
+
+export function createBackArrow(route) {
+  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

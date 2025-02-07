@@ -17,7 +17,7 @@ class FriendListView(APIView):
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			return Response({'friend list': UserSerializer(user).data['friends']}, status=status.HTTP_200_OK)
+			return Response({'friend_list': UserSerializer(user).data['friends']}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'Match history not found.'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:

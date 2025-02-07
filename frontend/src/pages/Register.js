@@ -1,22 +1,22 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { router } from "../app.js";
 
 export default class Register {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
-
     this.formState = {
       username: "",
       password: "",
       passwordConfirmation: "",
     };
     this.eventListeners = [];
+    this.cssLink;
   }
 
   async initialize(routeParams = {}) {
@@ -29,18 +29,24 @@ export default class Register {
       console.log("Register page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const registerForm = document.getElementById("register-form");
     if (registerForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
@@ -64,6 +70,15 @@ export default class Register {
         listener: handleChangeBound,
       });
     });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
   }
 
   handleChange(key, value, inputElement) {
@@ -112,7 +127,7 @@ export default class Register {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await API.post("/user/register/", this.formState);
+      const response = await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
       console.error(`Error while trying to post data : ${error}`);
@@ -123,18 +138,14 @@ export default class Register {
     }
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Register page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Home page");
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -154,15 +165,15 @@ export default class Register {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="register-form">
-          <h3 class="text-center">Register</h3>
-          <div class="mb-3">
-            <label>Username</label>
+    return `${backArrow}
+        <form id="register-form" class="form-div-login-register">
+          <h1 class="global-page-title">Register</h1>
+          <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
@@ -171,40 +182,31 @@ export default class Register {
               maxLength="10"
               value="${this.formState.username}"
               name="username"
+              aria-label="Username"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
               name="password"
+              aria-label="Password"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Confirm password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Confirm password"
               value="${this.formState.passwordConfirmation}"
               name="passwordConfirmation"
+              aria-label="Confirm Password"
               required
             />
-          </div>
-          <div class="d-grid">
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Submit
+            <button type="submit" class="form-button-login-register">
+              Sign up
             </button>
           </div>
-        </form>
-      </div>`;
+        </form>`;
   }
 }

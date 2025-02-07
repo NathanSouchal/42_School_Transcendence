@@ -8,7 +8,7 @@ export default class State {
       isGamePage: false,
       gameStarted: false,
       gameModeHasChanged: false,
-      gameHasLoaded: true,
+      gameHasLoaded: false,
       gameLoadPercentage: 0,
       lastRoute: null,
       lastLastRoute: null,
@@ -18,11 +18,23 @@ export default class State {
       isSearching: false,
     };
     this.gameMode = "default";
+      userId: 0,
+    };
+    this.isUserLoggedIn = false;
+
+    let savedState = JSON.parse(localStorage.getItem("pongState"));
+    if (!savedState || !savedState?.isUserLoggedIn || !savedState.id) {
+      this.saveState();
+      savedState = JSON.parse(localStorage.getItem("pongState"));
+    }
+    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
+    this.state.userId = parseInt(savedState?.id) || 0;
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    this.gamePoints = 10;
+    // this.gamePoints = 10;
+    this.gamePoints = 1;
 
     this.player_types = {
       default: {
@@ -53,21 +65,36 @@ export default class State {
     this.scores = [];
     this.data = {};
     this.listeners = [];
+
     State.instance = this;
+  }
+
+  saveState() {
+    const stateToSave = {
+      isUserLoggedIn: this.isUserLoggedIn,
+      userId: this.state.userId,
+    };
+    localStorage.setItem("pongState", JSON.stringify(stateToSave));
+  }
+
+  resetState() {
+    localStorage.removeItem("pongState");
     this.isUserLoggedIn = false;
   }
 
-  updateData(newData) {
-    this.data = { ...this.data, ...newData };
+  setIsUserLoggedIn(value) {
+    this.isUserLoggedIn = value;
+    this.saveState();
     this.notifyListeners();
   }
 
   setGameHasLoaded() {
     this.state.gameHasLoaded = true;
+    console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
 
     document.getElementById("loading-overlay").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
+    document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
   }
 
@@ -106,7 +133,6 @@ export default class State {
     if (gameMode && gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
-    this.notifyListeners();
   }
 
   async startMatchmaking() {
@@ -183,7 +209,6 @@ export default class State {
   }
 
   notifyListeners() {
-    if (this.state.gameHasLoaded)
-      this.listeners.forEach((listener) => listener(this.state));
+    this.listeners.forEach((listener) => listener(this.state));
   }
 }

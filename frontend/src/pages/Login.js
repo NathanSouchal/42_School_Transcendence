@@ -1,12 +1,13 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
-import { resetZIndex } from "/src/utils.js";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader, updateView } from "../utils.js";
+import { createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Login {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -16,6 +17,7 @@ export default class Login {
       password: "",
     };
     this.eventListeners = [];
+    this.cssLink;
   }
 
   async initialize(routeParams = {}) {
@@ -28,18 +30,24 @@ export default class Login {
       console.log("Login page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
+    else await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const loginForm = document.getElementById("login-form");
     if (loginForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
@@ -65,6 +73,15 @@ export default class Login {
     });
   }
 
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
   handleChange(key, value, inputElement) {
     this.formState[key] = value;
   }
@@ -75,11 +92,12 @@ export default class Login {
       return console.error("Please complete all fields");
     }
     try {
-      const response = await API.post("/user/login/", this.formState);
+      const response = await API.post("/auth/login/", this.formState);
       const { id } = response.data.user;
       console.log(response.data);
-      localStorage.setItem("id", id);
-      window.app.router.navigate("/account");
+      this.state.state.userId = id;
+      this.state.saveState();
+      router.navigate("/account");
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
@@ -95,18 +113,14 @@ export default class Login {
     }
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Login page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -126,15 +140,15 @@ export default class Login {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex justify-content-center align-items-center h-100">
-        <form id="login-form">
-          <h3 class="text-center">Login</h3>
-          <div class="mb-3">
-            <label>Username</label>
+    return `${backArrow}
+        <form id="login-form" class="form-div-login-register">
+          <h1 class="global-page-title">Login</h1>
+          <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
@@ -143,29 +157,25 @@ export default class Login {
               maxLength="10"
               value="${this.formState.username}"
               name="username"
+              aria-label="Username"
               required
             />
-          </div>
-          <div class="mb-3">
-            <label>Password</label>
             <input
               type="password"
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
               name="password"
+              aria-label="Password"
               required
             />
-          </div>
-          <div class="d-grid">
-            <button
-              type="submit"
-              class="btn btn-primary"
-            >
-              Submit
+            <button type="submit" class="form-button-login-register">
+              Sign in
             </button>
+            <div class="link-to-register">
+              <a class="nav-link" href="/register">No account? Create one here</a>
+            </div>
           </div>
-        </form>
-      </div>`;
+        </form>`;
   }
 }

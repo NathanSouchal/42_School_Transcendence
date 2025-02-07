@@ -1,11 +1,13 @@
 import DOMPurify from "dompurify";
-import axios from "axios";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
+import { createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Account {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -17,7 +19,6 @@ export default class Account {
     };
     this.lastDeleted = 0;
     this.isForm = false;
-    this.isLoading = true;
     this.eventListeners = [];
   }
 
@@ -30,41 +31,25 @@ export default class Account {
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-
-    // Récupérer l'ID utilisateur depuis le stockage local
-    const userId = Number(localStorage.getItem("id"));
-
-    // Charger les données utilisateur si un ID existe
-    try {
-      await this.fetchData(userId);
-      this.isLoading = false;
-      this.formData.username = this.userData.username;
-      this.formData.alias = this.userData.alias;
-      if (!this.state.state.gameHasLoaded) return;
-      else {
-        const content = this.render();
-        const container = document.getElementById("app");
-        if (container) {
-          container.innerHTML = content;
-          this.removeEventListeners();
-          this.attachEventListeners();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
       const handleChangeBound = this.handleChange.bind(this);
@@ -199,18 +184,23 @@ export default class Account {
     });
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Account page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
+  }
+
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Account page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
   }
 
   handleChangeInput(key, value, inputElement) {
@@ -235,13 +225,13 @@ export default class Account {
       }
     } else if (key == "form-button") {
       this.isForm = !this.isForm;
-      this.updateView();
+      await updateView(this);
     } else if (key == "update-user-info") {
       try {
         await this.updateUserInfo(this.userData.id);
         await this.fetchData(this.userData.id);
         this.isForm = !this.isForm;
-        this.updateView();
+        await updateView(this);
       } catch (error) {
         console.error(error);
       }
@@ -273,11 +263,14 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
-      if (!this.state.isUserLoggedIn) this.state.isUserLoggedIn = true;
+      this.formData.username = data.user.username;
+      this.formData.alias = data.user.alias;
+      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = {};
-      if (this.state.isUserLoggedIn) this.state.isUserLoggedIn = false;
+      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      throw error;
     }
   }
 
@@ -285,7 +278,7 @@ export default class Account {
     console.log("Updating data...");
     try {
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res + "ICI");
+      console.log(res);
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }
@@ -295,10 +288,10 @@ export default class Account {
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
-      this.render();
+      await updateView(this);
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
-      this.render();
+      await updateView(this);
     }
   }
 
@@ -349,10 +342,18 @@ export default class Account {
     }
   }
 
-  render(routeParams = {}) {
-    // if (this.isLoading) {
-    //   return "<p>Loading...</p>";
-    // }
+  async render(routeParams = {}) {
+    handleHeader(this.state.isUserLoggedIn, false);
+    try {
+      await checkUserStatus();
+      await this.fetchData(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
     const hasUsername =

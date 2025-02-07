@@ -1,5 +1,6 @@
 import axios from "axios";
 import state from "../app.js";
+import { router } from "../app.js";
 
 const API = axios.create({
   baseURL: "https://localhost:8000",
@@ -12,6 +13,7 @@ async function getNewAccessToken() {
   try {
     await API.post(`/auth/custom-token/access/`);
   } catch (error) {
+    state.setIsUserLoggedIn(false);
     console.error(`Error while trying to get new access token : ${error}`);
     throw error;
   }
@@ -23,10 +25,20 @@ API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
     const originalRequest = error.config;
+    if (!error.response) {
+      router.navigate("/500");
+    }
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
       if (isRetrying || !state.isUserLoggedIn) {
-        window.location.href = "/login"; // Rediriger vers la page de connexion
+        setTimeout(() => {
+          if (
+            window.location.pathname !== "/" &&
+            window.location.pathname !== "/login"
+          ) {
+            router.navigate("/login");
+          }
+        }, 100);
         return Promise.reject(error);
       }
       isRetrying = true;
@@ -38,6 +50,8 @@ API.interceptors.response.use(
         await getNewAccessToken();
 
         // Relancer la requête originale avec le nouveau token
+        state.setIsUserLoggedIn(true);
+        isRetrying = false;
         return API(originalRequest);
       } catch (tokenError) {
         // Si l'obtention d'un nouveau token échoue, gérer l'erreur (ex : déconnexion)

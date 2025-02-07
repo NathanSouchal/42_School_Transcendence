@@ -1,8 +1,16 @@
 import API from "../services/api.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils.js";
+import { router } from "../app.js";
 
 export default class Social {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false; // Eviter plusieurs abonnements
     this.isInitialized = false;
@@ -13,34 +21,23 @@ export default class Social {
   }
 
   async initialize() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getFriends(userId);
-      await this.getInvitations(userId);
-    }
-    // Appeler render pour obtenir le contenu HTML
-    const content = this.render(userId);
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-    }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
   async getFriends(id) {
     try {
-      const res = await API.get(`/friends/${id}/`);
-      const data = res.data.friends;
+      const res = await API.get(`/friends/list/${id}/`);
+      const data = res.data.friend_list;
       this.friends = data;
       console.log(
         "Friends: " +
@@ -72,6 +69,20 @@ export default class Social {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const validate_button = document.getElementById("validate_invit");
     if (validate_button) {
       const validate_btn_fctn = this.validate_btn_fctn.bind(this);
@@ -159,28 +170,33 @@ export default class Social {
     console.log(this.search_result);
   }
 
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
   updateSearchResult() {
     const searchResultDiv = document.getElementById("search_result");
     if (this.search_result.username) {
       searchResultDiv.innerHTML = `
-          <a href="/user/${this.search_result.id}/">
-            <h6>${this.search_result.username}</h6>
+          <a href="/user/${this.search_result.id}/" class="user-search-result-social">
+            ${this.search_result.username}
           </a>`;
     }
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Account page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Social page");
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -198,65 +214,100 @@ export default class Social {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Account page unsubscribed from state");
+      console.log("Social page unsubscribed from state");
     }
   }
 
-  render(userId) {
+  async render(userId) {
+    handleHeader(this.state.isUserLoggedIn, false);
+    try {
+      await checkUserStatus();
+      await this.getFriends(this.state.state.userId);
+      await this.getInvitations(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
+    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.friends && this.invitations) {
-      return `<div class="d-flex flex-column m-5">
-                      <div class="m-3">
-                        <input type="text" id="search_bar_user" placeholder="Search..." />
-                        <div id="search_result"></div>
-                      </div>
-                      <div class="m-3">
-                        <h3>FRIENDS</h3>
+      return `${backArrow}<div class="main-div-social">
+                <h1 class="global-page-title">Social</h1>
+                <div class="content-social">
+                  <div class="search-bar-and-result-social">
+                    <input type="text" id="search_bar_user" placeholder="Search..." />
+                    <div id="search_result"></div>
+                  </div>
+                  <div class="friends-and-invitations-social">
+                    <div class="friends-div-social">
+                      <h2>FRIENDS</h2>
+                      <div class="friends-list-social">
                         ${
                           Object.keys(this.friends).length > 0
                             ? `
                           ${Object.values(this.friends)
                             .map(
                               (value) =>
-                                `<div class="d-flex gap-3 align-items-center">
-                                    <h3>${value.username}</h3>
-                                    <h4>Id: ${value.id}</h4>
+                                `<div class="friends-item-social">
+                                    <div class="friends-item-img-username">
+                                      <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+                                      <a href="/user/${value.id}/">${value.username}</a>
+                                    </div>
+                                    <p>Online</p>
                                 </div>`
                             )
                             .join("")} `
-                            : `
-                          <h4>zero friend, sniff sniff</h4>`
+                            : `<div>
+                                <p>zero friend, sniff sniff</p>
+                              </div>`
                         }
                       </div>
-                      <div class="m-3">
-                        <h3>INVITATIONS</h3>
+                    </div>
+                    <div class="invitations-div-social">
+                      <h2>REQUESTS</h2>
+                      <div class="invitations-list-div-social">
                         ${
                           Object.keys(this.invitations).length > 0
                             ? `
                           ${Object.values(this.invitations)
                             .map(
                               (value) =>
-                                `<div class="d-flex gap-3 align-items-center">
+                                `
                                     ${
-                                      value.from_user.id == userId
-                                        ? `
-                                    <h3>To ${value.to_user.username}, waiting for acceptation...</h3>
-                                    `
-                                        : `
-                                    <h3>From ${value.from_user.username}</h3>
-                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="validate_invit">V</button>
-                                    `
-                                    }
-                                    <button class="btn border-0 bg-transparent" value="${value.id}" id="cancel_decline_invit">X</button>
-                                </div>`
+                                      value.from_user.id == this.userId
+                                        ? `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                                          <p>${value.to_user.username}, waiting for acceptation...</p>
+                                        </div>
+                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                      </div>`
+                                        : `<div class="invitation-item-social">
+                                        <div class="invitation-item-img-username">
+                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                                          <p>${value.from_user.username}</p>
+                                        </div>
+                                        <div class="two-buttons-invitation-social">
+                                          <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
+                                          <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                                        </div>
+                                      </div>`
+                                    }`
                             )
                             .join("")}`
-                            : `
-                          <h4>no pending invitations</h4>`
+                            : `<div>
+                                <p>no pending invitations</p>
+                              </div>`
                         }
                       </div>
-                    </div>`;
+                    </div>
+                  </div>
+                </div>
+              </div>`;
     } else {
-      return `<h1>No data</h1>`;
+      return `${backArrow}<h1>No data</h1>`;
     }
   }
 }

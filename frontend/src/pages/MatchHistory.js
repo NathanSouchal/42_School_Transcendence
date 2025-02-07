@@ -1,43 +1,72 @@
-import axios from "axios";
-import { createBackArrow } from "../components/backArrow.js";
+import DOMPurify from "dompurify";
 import API from "../services/api.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils";
+import { router } from "../app.js";
 
 export default class MatchHistory {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
     this.matchHistory = {};
+    this.eventListeners = [];
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Match_history page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getMatchHistory(userId);
-    }
-    // Appeler render pour obtenir le contenu HTML
-    const content = this.render();
-    // Insérer le contenu dans le conteneur dédié
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
-    }
-    // Ajouter les écouteurs d'événements après avoir rendu le contenu
-    this.attachEventListeners();
+    if (!this.state.state.gameHasLoaded) return;
+    await updateView(this);
   }
 
-  attachEventListeners() {}
+  attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+  }
 
-  handleStateChange() {}
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering MatchHistory page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
+  }
 
   async getMatchHistory(id) {
     try {
@@ -56,12 +85,40 @@ export default class MatchHistory {
     }
   }
 
-  destroy() {}
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
 
-  render(routeParams = {}) {
+  destroy() {
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+      console.log("Match history page unsubscribed from state");
+    }
+  }
+
+  async render(routeParams = {}) {
     let template;
+    handleHeader(this.state.isUserLoggedIn, false);
+    try {
+      await checkUserStatus();
+      await this.getMatchHistory(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
+    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
-      template = `${Object.values(this.matchHistory)
+      template = `${backArrow}${Object.values(this.matchHistory)
         .map(
           (value) =>
             `<div class="d-flex flex-column m-3"><h3>Game n°${value.id}</h3>
@@ -78,13 +135,9 @@ export default class MatchHistory {
         )
         .join("")}`;
     } else {
-      template = `<h1>No data</h1>`;
+      template = `${backArrow}<h1>No data</h1>`;
     }
-
-    const tmpContainer = document.createElement("div");
-    tmpContainer.innerHTML = template;
-    const backArrow = createBackArrow();
-    tmpContainer.insertBefore(backArrow, tmpContainer.firstChild);
-    return tmpContainer.innerHTML;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate;
   }
 }
