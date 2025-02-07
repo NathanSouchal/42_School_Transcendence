@@ -42,11 +42,9 @@ export default class GamePage {
 
     const togglePause = document.getElementById("toggle-pause");
     if (togglePause) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "toggle-pause");
       if (!this.eventListeners.some((e) => e.name === "toggle-pause")) {
-        togglePause.addEventListener("click", (e) =>
-          handleClick("toggle-pause")
-        );
+        togglePause.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "toggle-pause",
           type: "click",
@@ -58,12 +56,9 @@ export default class GamePage {
 
     const pvpButton = document.getElementById("start-pvp-game");
     if (pvpButton) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "start-pvp-game");
       if (!this.eventListeners.some((e) => e.name === "start-pvp-game")) {
-        pvpButton.addEventListener("click", (e) =>
-          handleClick("start-pvp-game")
-        );
-
+        pvpButton.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "start-pvp-game",
           type: "click",
@@ -75,11 +70,9 @@ export default class GamePage {
 
     const pvrButton = document.getElementById("start-pvr-game");
     if (pvrButton) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "start-pvr-game");
       if (!this.eventListeners.some((e) => e.name === "start-pvr-game")) {
-        pvrButton.addEventListener("click", (e) =>
-          handleClick("start-pvr-game")
-        );
+        pvrButton.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "start-pvr-game",
           type: "click",
@@ -91,11 +84,9 @@ export default class GamePage {
 
     const restartGameButton = document.getElementById("restart-game");
     if (restartGameButton) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "restart-game");
       if (!this.eventListeners.some((e) => e.name === "restart-game")) {
-        restartGameButton.addEventListener("click", (e) =>
-          handleClick("restart-game")
-        );
+        restartGameButton.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "restart-game",
           type: "click",
@@ -107,11 +98,9 @@ export default class GamePage {
 
     const resumeGameButton = document.getElementById("resume-game");
     if (resumeGameButton) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "resume-game");
       if (!this.eventListeners.some((e) => e.name === "resume-game")) {
-        resumeGameButton.addEventListener("click", (e) =>
-          handleClick("resume-game")
-        );
+        resumeGameButton.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "resume-game",
           type: "click",
@@ -123,11 +112,9 @@ export default class GamePage {
 
     const exitGameButton = document.getElementById("exit-game");
     if (exitGameButton) {
-      const handleClick = this.handleClick.bind(this);
+      const handleClick = this.handleClick.bind(this, "exit-game");
       if (!this.eventListeners.some((e) => e.name === "exit-game")) {
-        exitGameButton.addEventListener("click", (e) =>
-          handleClick("exit-game")
-        );
+        exitGameButton.addEventListener("click", handleClick);
         this.eventListeners.push({
           name: "exit-game",
           type: "click",
