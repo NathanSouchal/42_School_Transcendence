@@ -1,7 +1,7 @@
 import DOMPurify from "dompurify";
 import { handleHeader } from "../utils";
 import API from "../services/api.js";
-import { updateView } from "../utils";
+import { updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
 
 export default class Home {
@@ -82,19 +82,12 @@ export default class Home {
     }
   }
 
-  async checkUserStatus() {
-    try {
-      const response = await API.get("/auth/is-auth/");
-      console.log(response.data + "COUCOU");
-      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
-    } catch (error) {
-      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
-      console.error(`Error while trying to check user status : ${error}`);
-    }
-  }
-
   async render(routeParams = {}) {
-    await this.checkUserStatus();
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      throw error;
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
     const container = document.getElementById("app");

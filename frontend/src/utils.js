@@ -52,6 +52,17 @@ export async function logout() {
   }
 }
 
+export async function checkUserStatus() {
+  try {
+    await API.get("/auth/is-auth/");
+    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+  } catch (error) {
+    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
+    console.error(`Error while trying to check user status : ${error}`);
+    throw error;
+  }
+}
+
 export function createBackArrow(route) {
   return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

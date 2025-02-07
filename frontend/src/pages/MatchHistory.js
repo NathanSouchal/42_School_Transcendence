@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils";
 import { router } from "../app.js";
 
 export default class MatchHistory {
@@ -80,17 +85,6 @@ export default class MatchHistory {
     }
   }
 
-  async checkUserStatus() {
-    try {
-      const response = await API.get("/auth/is-auth/");
-      console.log(response.data + "COUCOU");
-      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
-    } catch (error) {
-      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
-      console.error(`Error while trying to check user status : ${error}`);
-    }
-  }
-
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
@@ -113,7 +107,7 @@ export default class MatchHistory {
     let template;
     handleHeader(this.state.isUserLoggedIn, false);
     try {
-      await this.checkUserStatus();
+      await checkUserStatus();
       await this.getMatchHistory(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";

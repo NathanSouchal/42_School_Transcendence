@@ -25,6 +25,9 @@ API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
     const originalRequest = error.config;
+    if (!error.response) {
+      router.navigate("/500");
+    }
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
       if (isRetrying || !state.isUserLoggedIn) {
