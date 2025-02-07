@@ -4,41 +4,23 @@ export class GameManager {
   constructor(game = {}, gameScene) {
     this.game = game;
     this.gameScene = gameScene;
-    this.roomId = null;
     this.side = null;
     this.isConnected = false;
-    this.createRoom();
-  }
-
-  async createRoom() {
-    this.roomId = this.generateRoomId();
-    this.connect();
-  }
-
-  generateRoomId() {
-    return `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
   connect() {
-    if (!this.roomId) {
-      throw new Error("No room ID specified. Create or join a room first.");
-    }
+    const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
+
     switch (state.gameMode) {
       case "PVP":
       case "PVR":
-        this.socket = new WebSocket(
-          `ws://${window.location.hostname}:8000/ws/local/?local=true`,
-        );
+        this.socket = new WebSocket(`${baseUrl}game/?type=local`);
         break;
-      case "OnlinePVP":
-        this.socket = new WebSocket(
-          `ws://${window.location.hostname}:8000/ws/online/?local=false`,
-        );
+      case "Online":
+        this.socket = new WebSocket(`${baseUrl}game/?type=online`);
         break;
       case "default":
-        this.socket = new WebSocket(
-          `ws://${window.location.hostname}:8000/ws/bg/?local=true`,
-        );
+        this.socket = new WebSocket(`${baseUrl}game/?type=bg`);
         break;
     }
     console.log(`Socket is : ${this.socket.url}`);
@@ -53,10 +35,10 @@ export class GameManager {
         case "positions":
           this.updatePositions(data.data);
           break;
-        case "startOnlineGame":
-          console.log("startOnlineGame (frontend)");
-          this.startOnlineGame(data.data);
-          break;
+        case "hasFoundOpponent":
+          console.log("gameManager caught 'hasFoundOpponent'");
+          state.gameMode = data.data === "left" ? "OnlineLeft" : "OnlineRight";
+          state.setIsSearching(false);
       }
     };
 
@@ -70,24 +52,6 @@ export class GameManager {
       this.isConnected = false;
       setTimeout(() => this.reconnect(), 2000);
     };
-  }
-
-  startOnlineGame(status) {
-    this.side = status.side;
-    const gameMode = status.game_mode;
-
-    if (gameMode === "OnlinePVP") {
-      if (this.side === "right") {
-        console.log("side is right");
-        state.players = state.player_types.OnlineRight;
-        state.side = this.side;
-      } else if (this.side === "left") {
-        console.log("side is left");
-        state.players = state.player_types.OnlineLeft;
-        state.side = this.side;
-      }
-    }
-    state.setGameStarted(gameMode);
   }
 
   updatePositions(state) {
@@ -114,6 +78,7 @@ export class GameManager {
   }
 
   sendMessage(data) {
+    if (!this.socket.readyState) return;
     if (this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(data));
     } else {

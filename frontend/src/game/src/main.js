@@ -1,4 +1,5 @@
 import { GameScene } from "./gameScene.js";
+import state from "../../app.js";
 import { GameManager } from "./events/gameManager.js";
 
 const gameScene = new GameScene();
@@ -12,6 +13,9 @@ let gameManager = new GameManager(
   },
   gameScene,
 );
+
+state.gameManager = gameManager;
+state.setGameStarted("default");
 
 while (!gameManager.isConnected) {
   await new Promise((resolve) => setTimeout(resolve, 300));

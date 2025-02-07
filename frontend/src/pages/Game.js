@@ -6,6 +6,7 @@ export default class GamePage {
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.container = null;
+    this.isMatchmaking = false;
   }
 
   async initialize() {
@@ -51,6 +52,11 @@ export default class GamePage {
       case "start-pvr-game":
         this.state.setGameStarted("PVR");
         break;
+      case "start-online-pvp-game":
+        if (!this.isMatchmaking) this.state.startMatchmaking();
+        else this.state.cancelMatchmaking();
+        this.isMatchmaking = !this.isMatchmaking;
+        break;
       case "resume-game":
         this.state.togglePause();
         break;
@@ -64,8 +70,6 @@ export default class GamePage {
       case "back-arrow":
         this.state.setGameEnded();
         break;
-      case "start-online-pvp-game":
-        this.state.setGameStarted("OnlinePVP");
     }
   };
 
@@ -109,7 +113,7 @@ export default class GamePage {
               <li id="start-online-pvp-game" class="nav-item my-2">
                 ${
                   isSearching
-                    ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>'
+                    ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
                     : "Online PVP"
                 }
               </li>

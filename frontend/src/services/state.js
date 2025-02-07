@@ -22,7 +22,7 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    this.gamePoints = 1;
+    this.gamePoints = 10;
 
     this.player_types = {
       default: {
@@ -77,21 +77,29 @@ export default class State {
   }
 
   setGameStarted(gameMode) {
+    console.log(`setGameStarted called with ${gameMode}`);
     if (gameMode) {
       this.gameMode = gameMode;
-      if (gameMode != "OnlinePVP") {
-        switch (gameMode) {
-          case "PVR":
-            this.players = this.player_types.PVR;
-            break;
-          case "PVP":
-            this.players = this.player_types.PVP;
-            break;
-          case "default":
-            this.players = this.player_types.default;
-            break;
-        }
+      switch (gameMode) {
+        case "PVR":
+          this.players = this.player_types.PVR;
+          break;
+        case "PVP":
+          this.players = this.player_types.PVP;
+          break;
+        case "OnlineLeft":
+          this.players = this.player_types.OnlineLeft;
+          break;
+        case "OnlineRight":
+          this.players = this.player_types.OnlineRight;
+          break;
+        case "default":
+          this.players = this.player_types.default;
+          break;
       }
+    }
+    if (this.gameMode != "OnlineLeft" && this.gameMode != "OnlineRight") {
+      this.gameManager.connect();
     }
     this.state.gameIsPaused = false;
     this.resetScore();
@@ -101,12 +109,36 @@ export default class State {
     this.notifyListeners();
   }
 
+  async startMatchmaking() {
+    this.gameMode = "Online";
+    console.log("Starting Machmaking");
+    this.setIsSearching(true);
+    this.gameManager.connect();
+    while (this.state.isSearching) {
+      console.log("searching");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    this.setGameStarted(this.gameMode);
+  }
+
+  cancelMatchmaking() {
+    this.gameMode = "default";
+    console.log("Cancelled Matchmaking");
+    this.setIsSearching(false);
+  }
+
+  setIsSearching(bool) {
+    this.state.isSearching = bool;
+    this.notifyListeners();
+  }
+
   setGameEnded() {
     this.state.gameIsPaused = false;
     this.scores.push(this.score);
     this.state.gameStarted = false;
     this.setGameNeedsReset(true);
     this.notifyListeners();
+    this.gameManager.socket = null;
   }
 
   backToBackgroundPlay() {
