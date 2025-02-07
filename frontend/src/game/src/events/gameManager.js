@@ -9,7 +9,7 @@ export class GameManager {
   }
 
   connect() {
-    const baseUrl = `wss://${window.location.hostname}:8000/wss/`;
+    const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
 
     switch (state.gameMode) {
       case "PVP":

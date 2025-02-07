@@ -16,10 +16,9 @@ export default class State {
       gameIsPaused: false,
       gameHasBeenWon: false,
       isSearching: false,
-    };
-    this.gameMode = "default";
       userId: 0,
     };
+    this.gameMode = "default";
     this.isUserLoggedIn = false;
 
     let savedState = JSON.parse(localStorage.getItem("pongState"));

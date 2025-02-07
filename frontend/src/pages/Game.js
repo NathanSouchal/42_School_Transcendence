@@ -47,7 +47,7 @@ export default class GamePage {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "toggle-pause")) {
         togglePause.addEventListener("click", (e) =>
-          handleClick("toggle-pause")
+          handleClick("toggle-pause"),
         );
         this.eventListeners.push({
           name: "toggle-pause",
@@ -63,7 +63,7 @@ export default class GamePage {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "start-pvp-game")) {
         pvpButton.addEventListener("click", (e) =>
-          handleClick("start-pvp-game")
+          handleClick("start-pvp-game"),
         );
 
         this.eventListeners.push({
@@ -80,7 +80,7 @@ export default class GamePage {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "start-pvr-game")) {
         pvrButton.addEventListener("click", (e) =>
-          handleClick("start-pvr-game")
+          handleClick("start-pvr-game"),
         );
         this.eventListeners.push({
           name: "start-pvr-game",
@@ -91,12 +91,30 @@ export default class GamePage {
       }
     }
 
+    const onlinePvpButton = document.getElementById("start-online-pvp-game");
+    if (onlinePvpButton) {
+      const handleClick = this.handleClick.bind(this);
+      if (
+        !this.eventListeners.some((e) => e.name === "start-online-pvp-game")
+      ) {
+        onlinePvpButton.addEventListener("click", (e) =>
+          handleClick("start-online-pvp-game"),
+        );
+        this.eventListeners.push({
+          name: "start-online-pvp-game",
+          type: "click",
+          element: onlinePvpButton,
+          listener: handleClick,
+        });
+      }
+    }
+
     const restartGameButton = document.getElementById("restart-game");
     if (restartGameButton) {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "restart-game")) {
         restartGameButton.addEventListener("click", (e) =>
-          handleClick("restart-game")
+          handleClick("restart-game"),
         );
         this.eventListeners.push({
           name: "restart-game",
@@ -112,7 +130,7 @@ export default class GamePage {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "resume-game")) {
         resumeGameButton.addEventListener("click", (e) =>
-          handleClick("resume-game")
+          handleClick("resume-game"),
         );
         this.eventListeners.push({
           name: "resume-game",
@@ -128,7 +146,7 @@ export default class GamePage {
       const handleClick = this.handleClick.bind(this);
       if (!this.eventListeners.some((e) => e.name === "exit-game")) {
         exitGameButton.addEventListener("click", (e) =>
-          handleClick("exit-game")
+          handleClick("exit-game"),
         );
         this.eventListeners.push({
           name: "exit-game",
@@ -150,6 +168,7 @@ export default class GamePage {
   }
 
   handleClick(param) {
+    console.log(param);
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
@@ -214,32 +233,34 @@ export default class GamePage {
     }
   }
 
-  getGameMenuTemplate() {
+  renderGameMenu() {
     const { isSearching } = this.state.state;
-    return `
-        <div class="menu">
-        ${createBackArrow().outerHTML}
-        <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-          <div class="text-center">
-            <h2 class="mb-4">Choose Game Mode</h2>
-            <ul class="h3 navbar-nav mr-auto mt-2 mb-4 mt-lg-4">
-              <li id="start-pvp-game" class="nav-item my-2">
-                Player vs Player
-              </li>
-              <li id="start-pvr-game" class="nav-item my-2">
-                Player vs Robot
-              </li>
-              <li id="start-local-tournament" class="nav-item my-2">
-                <a class="nav-link" href="/local-tournament">Local tournament</a>
-              </li>
-              <li id="start-online-pvp-game" class="nav-item my-2">
-                ${
-                  isSearching
-                    ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
-                    : "Online PVP"
-                }
-              </li>
-            </ul>
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const template = `${backArrow}
+            <div>
+            <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+              <div class="global-nav-section nav-section-game">
+                  <div class="global-nav-items">
+                    <button id="start-pvp-game">Player vs Player</button>
+                  </div>
+                  <div class="global-nav-items">
+                    <button id="start-pvr-game">Player vs Robot</button>
+                  </div>
+                  <div id="start-local-tournament" class="global-nav-items">
+                     <a class="nav-link" href="/local-tournament">Local tournament</a>
+                  </div>
+
+                  <div class="global-nav-items">
+                    <button id="start-online-pvp-game">
+                      ${
+                        isSearching
+                          ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
+                          : "Online PVP"
+                      }
+                    </button>
+                  </div>
+              </div>
+            </div>
           </div>
         `;
     const sanitizedTemplate = DOMPurify.sanitize(template);
