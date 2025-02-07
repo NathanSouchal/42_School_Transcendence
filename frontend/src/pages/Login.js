@@ -1,7 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView } from "../utils.js";
-import { createBackArrow } from "../utils";
+import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
 
 export default class Login {
@@ -134,7 +133,7 @@ export default class Login {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }

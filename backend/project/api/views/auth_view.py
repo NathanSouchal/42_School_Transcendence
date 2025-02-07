@@ -11,6 +11,7 @@ from api.authentication import CookieJWTAuthentication
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken, TokenError
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 class RegisterView(APIView):
 	serializer_class = UserSerializer
@@ -47,26 +48,20 @@ class LoginView(APIView):
             user = authenticate(username=username, password=password)
             if user:
                 try:
-                    old_refresh_token = user.refresh_token  # Peut lever une exception si inexistant
-                    if old_refresh_token:
-                    # Si le token n'est pas déjà blacklisté, le blacklister
-                      if not old_refresh_token.blacklisted:
-                        old_refresh_token.blacklist()
-                        print("Old refresh token blacklisted.")
-                    # Supprimer l'ancien refresh token
-                    old_refresh_token.delete()
+                    refresh_token = user.refresh_token
+                    print(f"Existing refresh token: {refresh_token.token}")
                 except UserRefreshToken.DoesNotExist:
-                # Aucun ancien refresh token n'existe, rien à faire
-                    pass
+                    refresh_token = UserRefreshToken.objects.create(user=user)
+                    print(f"New refresh token created for user {user.username}")
+                if refresh_token and refresh_token.token:
+                   old_refresh_token = refresh_token.token
+                   if not BlacklistedToken.objects.filter(token=old_refresh_token).exists():
+                      refresh_token_instance = SimpleJWTRefreshToken(old_refresh_token)
+                      refresh_token_instance.blacklist()
+                      print("Old refresh token blacklisted.")
 
                 # Créer un nouveau refresh token pour l'utilisateur
                 new_refresh_token = SimpleJWTRefreshToken.for_user(user)
-
-                # Sauvegarder (ou mettre à jour) le refresh token dans la base de données
-                refresh_token, created = UserRefreshToken.objects.get_or_create(
-                    user=user, 
-                    defaults={'token': str(new_refresh_token)}
-                )
                 refresh_token.token = str(new_refresh_token)
                 refresh_token.save()
 
@@ -108,7 +103,6 @@ class LogoutView(APIView):
             try:
                 old_refresh_token = user.refresh_token
                 if old_refresh_token:
-					# Mettre l'ancien refresh token en blacklist
                     refresh_token = SimpleJWTRefreshToken(old_refresh_token.token)
                     refresh_token.blacklist()
                     print("Old refresh token blacklisted.")
@@ -117,8 +111,8 @@ class LogoutView(APIView):
                 pass
 
             response = Response({'message': 'User disconnected'}, status=status.HTTP_200_OK)
-            response.delete_cookie('access_token')
-            response.delete_cookie('refresh_token')
+            response.delete_cookie('access_token', httponly=True, secure=True, samesite='None')
+            response.delete_cookie('refresh_token', httponly=True, secure=True, samesite='None')
             return response
         except Exception as e:
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -132,26 +126,27 @@ class RefreshTokenView(APIView):
 		print(f"Cookies reçus : {request.COOKIES}")
 		# here check if user ?
 		user = request.user
-
 		old_refresh_token = request.COOKIES.get('refresh_token')
 		if not old_refresh_token:
 			return Response({'detail': 'Refresh token not found'}, status=status.HTTP_401_UNAUTHORIZED)
 		try:
 			stored_refresh_token = user.refresh_token.token
-
 			if old_refresh_token != stored_refresh_token:
 				return Response({'detail': 'Invalid refresh token (mismatch)'}, status=status.HTTP_401_UNAUTHORIZED)
-			# Valider et révoquer l'ancien token
+
+            # Vérification et blacklisting de l'ancien token
 			try:
-				refresh_token_instance = SimpleJWTRefreshToken(old_refresh_token)
-				if refresh_token_instance.blacklisted:
+				outstanding_token = OutstandingToken.objects.get(token=user.refresh_token.token)
+				if not outstanding_token:
+					return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
+				if BlacklistedToken.objects.filter(token=outstanding_token).exists():
 					return Response({'error': 'Token is already blacklisted'}, status=status.HTTP_401_UNAUTHORIZED)
-				refresh_token_instance.blacklist()
+
+					# Blacklister et supprimer l'ancien refresh token
+				SimpleJWTRefreshToken(user.refresh_token.token).blacklist()
 				print("Old refresh token blacklisted.")
-				# Supprimer l'ancien token de la base
 				user.refresh_token.delete()
 			except AttributeError:
-				# Gestion d'erreur au cas où la vérification de blacklist échoue
 				return Response({'error': 'Error checking token blacklist'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 			# Générer un nouveau token

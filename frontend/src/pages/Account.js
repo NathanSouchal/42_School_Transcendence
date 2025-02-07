@@ -228,7 +228,7 @@ export default class Account {
       await updateView(this);
     } else if (key == "update-user-info") {
       try {
-        await this.updateUserInfo(this.userData.id);
+        await this.updateUserInfo(this.state.state.userId);
         await this.fetchData(this.userData.id);
         this.isForm = !this.isForm;
         await updateView(this);
@@ -237,19 +237,19 @@ export default class Account {
       }
     } else if (key == "refresh-token-button") {
       try {
-        await this.getNewRefreshToken(this.userData.id);
+        await this.getNewRefreshToken(this.state.state.userId);
       } catch (error) {
         console.error(error);
       }
     } else if (key == "access-token-button") {
       try {
-        await this.getNewAccessToken(this.userData.id);
+        await this.getNewAccessToken(this.state.state.userId);
       } catch (error) {
         console.error(error);
       }
     } else if (key == "delete-user-button") {
       try {
-        await this.deleteUser(this.userData.id);
+        await this.deleteUser(this.state.state.userId);
       } catch (error) {
         console.error(error);
       }
@@ -363,9 +363,6 @@ export default class Account {
           <div class="title-div mb-4">
             <h1 class="text-capitalize w-100 text-center">Account</h1>
           </div>
-            ${
-              this.state.isUserLoggedIn
-                ? `
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
@@ -461,19 +458,6 @@ export default class Account {
 					Get New Refresh Token
 				</button>
                 </div>
-            `
-                : `
-              <div class="text-center">
-                <h1>No info, please log in</h1>
-                <button
-                  class="btn btn-danger mb-2"
-				  id="refresh-token-button"
-                >
-                  Get New Refresh Token
-                </button>
-              </div>
-            `
-            }
-      </div>`;
+            `;
   }
 }
