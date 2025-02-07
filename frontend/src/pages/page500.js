@@ -2,7 +2,7 @@ import DOMPurify from "dompurify";
 import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
 
-export default class page404 {
+export default class page500 {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
@@ -65,11 +65,11 @@ export default class page404 {
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     let template = `${backArrow}<div class="main-error-container">
 				<div class="error-title-container">
-					<h1>Error 404</h1>
-					<h2>Woooops this page could not be found...</h2>
+				<h1>Error 500</h1>
+				<h2>Internal server error</h2>
 				</div>
-				<img src="src/assets/img/404.jpg" alt="404img" class="img404">
-				</div>`;
+				<img src="src/assets/img/500.jpg" alt="500img" class="img500">
+			</div>`;
     const sanitizedData = DOMPurify.sanitize(template);
     return sanitizedData;
   }

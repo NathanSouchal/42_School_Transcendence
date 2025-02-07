@@ -8,8 +8,8 @@
   --tertiary-color: #5a2108;
   --validate-color: #096d11;
   --danger-color: #a71611;
-  --primary-font: 'Dangrek', sans-serif;
-  --secondary-font: 'Roboto', sans-serif;
+  --primary-font: "Dangrek", sans-serif;
+  --secondary-font: "Roboto", sans-serif;
 }
 
 /* Largeur de la barre de scroll */
@@ -40,7 +40,8 @@ body,
 html {
   height: 100%;
   width: 100%;
-  margin: 0;
+  max-width: 2000px;
+  margin: 0 auto;
   overflow-x: hidden;
 }
 
@@ -48,29 +49,12 @@ html {
   margin: 0 auto;
 }
 
-#header {
-  position: absolute;
-  font-family: var(--secondary-font);
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -45%); /* Conserve le centrage */
-  height: 60vh;
-  width: 60%;
-  max-width: 1200px;
-  min-width: 320px;
-  padding: 20px;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 /* Positionner le canvas en arrière-plan */
 canvas#c {
   position: absolute;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   min-width: 320px;
   z-index: -1; /* Place le canvas derrière les autres éléments */
 }
@@ -79,7 +63,6 @@ canvas#c {
   display: flex;
   height: 60vh;
   width: 60%;
-  max-width: 1200px;
   min-width: 320px;
 }
 
@@ -90,9 +73,8 @@ canvas#c {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -45%);
-  height: 60vh;
+  height: 70vh;
   width: 60%;
-  max-width: 1200px;
   min-width: 320px;
   background: var(--secondary-color);
   padding: 20px;

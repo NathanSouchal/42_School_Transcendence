@@ -1,4 +1,20 @@
 /* Style des liens de la navbar */
+#header {
+  position: absolute;
+  font-family: var(--secondary-font);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%); /* Conserve le centrage */
+  height: 70vh;
+  width: 60%;
+  min-width: 320px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .navbar-links {
   position: fixed;
   top: 0;
@@ -17,10 +33,11 @@
     opacity 0.5s ease-in-out;
   z-index: 0;
   border-radius: 10px;
+  overflow-y: auto;
 }
 
 header .global-nav-section {
-  font-size: 3em;
+  font-size: 2em;
   white-space: nowrap;
 }
 
@@ -33,7 +50,7 @@ header .global-nav-section {
 /* Liens dans la navbar */
 .navbar-links li {
   list-style: none;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   color: var(--primary-color);
 }
 
@@ -47,8 +64,7 @@ header .global-nav-section {
   height: 5vh;
   width: 75%;
   margin-left: 10%;
-  max-width: 1200px;
-  min-width: 320px;
+  min-width: 50px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -107,4 +123,55 @@ header .global-nav-section {
 
 .toggle-button.open .bar2::after {
   transform: rotate(-45deg);
+}
+
+@media (min-width: 400px) and (max-width: 900px) {
+  #header {
+    width: 90%;
+    min-width: 320px;
+  }
+  .toggle-button-container {
+    left: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .toggle-button-container {
+    width: 80%;
+    left: 80%;
+  }
+  .navbar-links {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 460px) {
+  .toggle-button-container {
+    width: 50%;
+    left: 70%;
+  }
+}
+
+@media (max-width: 390px) {
+  .toggle-button-container {
+    width: 0%;
+    left: 75%;
+  }
+}
+
+@media (max-width: 340px) {
+  .toggle-button-container {
+    left: 65%;
+  }
+}
+
+@media (max-height: 700px) {
+  .navbar-links {
+    padding-top: 150px;
+  }
+  .app,
+  #header {
+    height: 80vh;
+  }
 }

@@ -1,6 +1,7 @@
-import { handleHeader } from "../utils";
-import { createBackArrow } from "../components/backArrow.js";
+import { handleHeader, updateView } from "../utils";
 import DOMPurify from "dompurify";
+import { router } from "../app.js";
+import { createBackArrow } from "../utils";
 
 export default class GamePage {
   constructor(state) {
@@ -21,19 +22,24 @@ export default class GamePage {
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
-    this.updateView();
-  }
-
-  updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const togglePause = document.getElementById("toggle-pause");
     if (togglePause) {
       const handleClick = this.handleClick.bind(this);
@@ -132,6 +138,15 @@ export default class GamePage {
     }
   }
 
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
   handleClick(param) {
     switch (param) {
       case "start-pvp-game":
@@ -160,23 +175,17 @@ export default class GamePage {
     }
   }
 
-  handleStateChange(newState) {
-    console.log(
-      "handlechange : newState.gameIsPaused->" +
-        newState.gameIsPaused +
-        "newState.gameStarted->" +
-        newState.gameStarted +
-        "newState.gameHasBeenWon->" +
-        newState.gameHasBeenWon
-    );
+  async handleStateChange(newState) {
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
-      newState.gameHasBeenWon !== this.previousState.gameHasBeenWon
+      newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
+      newState.gameHasLoaded !== this.previousState.gameHasLoaded
     ) {
-      this.previousState = { ...newState };
-      this.updateView();
+      console.log("State changed, rendering Game page");
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -291,7 +300,7 @@ export default class GamePage {
     return sanitizedTemplate;
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");

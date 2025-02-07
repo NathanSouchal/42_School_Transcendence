@@ -1,8 +1,7 @@
 import state from "../app.js";
 
 export default class LoadingPage {
-  constructor(state) {
-    this.state = state;
+  constructor() {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;

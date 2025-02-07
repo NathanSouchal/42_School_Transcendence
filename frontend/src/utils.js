@@ -1,4 +1,7 @@
 import { header } from "./app";
+import API from "./services/api";
+import state from "./app";
+import { router } from "./app";
 
 export function resetZIndex() {
   const canvas = document.querySelector("#c");
@@ -11,16 +14,16 @@ export function resetZIndex() {
   }
 }
 
-export function updateView(context) {
+export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    container.innerHTML = context.render();
     context.removeEventListeners();
+    container.innerHTML = await context.render();
     context.attachEventListeners();
   }
 }
 
-export function handleHeader(isUserLoggedIn, needsToDestroy) {
+export async function handleHeader(isUserLoggedIn, needsToDestroy) {
   if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
     header.destroy();
   } else if (needsToDestroy) {
@@ -36,4 +39,30 @@ export function handleHeader(isUserLoggedIn, needsToDestroy) {
     }
     header.renderGuestUser();
   }
+}
+
+export async function logout() {
+  try {
+    await API.post(`/auth/logout/`);
+    state.setIsUserLoggedIn(false);
+    //remove user id also
+    router.navigate("/");
+  } catch (error) {
+    console.error(`Error while trying to logout : ${error}`);
+  }
+}
+
+export async function checkUserStatus() {
+  try {
+    await API.get("/auth/is-auth/");
+    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+  } catch (error) {
+    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
+    console.error(`Error while trying to check user status : ${error}`);
+    throw error;
+  }
+}
+
+export function createBackArrow(route) {
+  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }
