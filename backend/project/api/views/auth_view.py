@@ -46,58 +46,57 @@ class LoginView(APIView):
             print(f"Authenticating password: {password}")
             user = authenticate(username=username, password=password)
             if user:
-                    try:
-                        old_refresh_token = user.refresh_token
-                        if old_refresh_token:
+                try:
+                    old_refresh_token = user.refresh_token  # Peut lever une exception si inexistant
+                    if old_refresh_token:
+                    # Si le token n'est pas déjà blacklisté, le blacklister
+                      if not old_refresh_token.blacklisted:
+                        old_refresh_token.blacklist()
+                        print("Old refresh token blacklisted.")
+                    # Supprimer l'ancien refresh token
+                    old_refresh_token.delete()
+                except UserRefreshToken.DoesNotExist:
+                # Aucun ancien refresh token n'existe, rien à faire
+                    pass
 
-                            refresh_token = SimpleJWTRefreshToken(old_refresh_token.token)
+                # Créer un nouveau refresh token pour l'utilisateur
+                new_refresh_token = SimpleJWTRefreshToken.for_user(user)
 
-                            # Vérifier s'il est blacklisté avant de le blacklister
-                            if not refresh_token.blacklisted:
-                                refresh_token.blacklist()
-                                print("Old refresh token blacklisted.")
+                # Sauvegarder (ou mettre à jour) le refresh token dans la base de données
+                refresh_token, created = UserRefreshToken.objects.get_or_create(
+                    user=user, 
+                    defaults={'token': str(new_refresh_token)}
+                )
+                refresh_token.token = str(new_refresh_token)
+                refresh_token.save()
 
-							# Supprimer l'ancien refresh token de la base
-                            old_refresh_token.delete()
+                # Construire la réponse de succès
+                response = Response({
+                    'user': UserSerializer(user).data,
+                    'message': 'Authentification complète'
+                }, status=status.HTTP_200_OK)
 
-                    except UserRefreshToken.DoesNotExist:
-						# Aucun ancien refresh token à mettre en blacklist
-                        pass
+                # Ajouter les cookies sécurisés
+                response.set_cookie(
+                key='access_token',
+                value=str(new_refresh_token.access_token),
+                httponly=True,
+                secure=True,
+                samesite='None',
+                max_age=10 * 60  # 10 minutes
+                )
+                response.set_cookie(
+                key='refresh_token',
+                value=str(new_refresh_token),
+                httponly=True,
+                secure=True,
+                samesite='None',
+                max_age=7 * 24 * 60 * 60  # 7 jours
+                )
+                return response
 
-						# Créer un nouveau refresh token
-                        new_refresh_token = SimpleJWTRefreshToken.for_user(user)
-
-						# Stocker le nouveau refresh token dans la base
-                        refresh_token, created = UserRefreshToken.objects.get_or_create(
-							user=user, defaults={'token': str(new_refresh_token)}
-						)
-                        refresh_token.token = str(new_refresh_token)
-                        refresh_token.save()
-
-                        response = Response({
-							'user': UserSerializer(user).data,
-							'message': 'Authentification complete'
-						}, status=status.HTTP_200_OK)
-
-						# Ajouter les cookies sécurisés
-                        response.set_cookie(
-							key='access_token',
-							value=str(new_refresh_token.access_token),
-							httponly=True,
-							secure=True,
-							samesite='None',
-							max_age=10 * 60
-						)
-                        response.set_cookie(
-							key='refresh_token',
-							value=str(new_refresh_token),
-							httponly=True,
-							secure=True,
-							samesite='None',
-							max_age=7 * 24 * 60 * 60
-						)
-                        return response
-                    return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+        # Si l'authentification échoue
+            return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]

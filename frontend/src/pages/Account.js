@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView } from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import { createBackArrow } from "../utils";
 import { router } from "../app.js";
 
@@ -345,6 +345,7 @@ export default class Account {
   async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     try {
+      await checkUserStatus();
       await this.fetchData(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";
