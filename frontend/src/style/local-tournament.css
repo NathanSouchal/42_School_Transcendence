@@ -1,26 +1,166 @@
-.matches-main-div {
+.main-div-tournament {
     height: 100%;
-    width: 100%;
+    max-height: 100%;
+    width: 80%;
     display: flex;
     flex-direction: column;
-    gap: 3%;
     justify-content: flex-start;
+    gap: 1em;
+}
+
+.main-div-tournament h2 {
+    width: 50%;
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight:700;
+    color: var(--tertiary-color);
+    border-bottom: 2px solid var(--tertiary-color);
+}
+
+@keyframes shine {
+    0% { background-position: -200%; }
+    100% { background-position: 200%; }
+}
+  
+@keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+}
+  
+.main-div-tournament h2.winner-announce {
+    width: 100%;
+    font-size: 2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    color: #b8860b;
+    background: linear-gradient(90deg, #c79700, #ffdb58, #c79700);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 3s linear infinite, flicker 1.5s infinite alternate;
+    border: 0;
+    display: inline-block;
+}
+
+.main-div-tournament p {
+    margin: 0;
+    color: var(--tertiary-color);
+}
+
+.content-page-tournament {
+    height: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.select-container {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 3%;
+    justify-content: center;
+    height: 50%;
+    width: 100%;
+    max-width: 300px;
+    margin: 1em auto;
+    position: relative;
+  }
+  
+.select-container label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.5em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.matches-main-div h1 {
-    font-size: 170%;
+.select-container select {
+    appearance: none;
+    width: 100%;
+    padding: 0.5em;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: var(--secondary-color);
+    color: var(--tertiary-color);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.matches-main-div h2 {
-    font-size: 140%;
+.select-container::after {
+    content: "▼";
+    font-size: 1rem;
+    color: var(--primary-color);
+    position: absolute;
+    right: 15px;
+    top: 59%;
+    transform: translateY(-50%);
+    pointer-events: none;
 }
 
-.matches-main-div button {
-    background-color: #5560db;
+.select-container select:hover {
+    background-color: #ffddaa;
+    border-color: #ff6600;
+}
+
+.select-container select option {
+    background: var(--secondary-color);
+    color: var(--tertiary-color);
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.input-player-name {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 50%;
+    gap: 2em;
+}
+
+.input-player-name label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tertiary-color);
+    font-size: 1.4rem;
+    font-weight: 600;
+    height: fit-content;
+}
+
+.input-player-name input {
+    width: 60%;
+    height: fit-content;
+    color: var(--tertiary-color);
+    font-family: var(--secondary-font);
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    outline: none;
+    background: white;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.input-player-name input::placeholder {
+    opacity: 0.5;
+}
+
+.input-player-name input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+}
+
+.main-div-tournament button {
+    background-color: #bd352e;
+    width: fit-content;
     color: #fff; /* Couleur du texte */
     font-family: 'Press Start 2P', cursive;
     font-size: 1.2rem; /* Taille du texte */
@@ -32,32 +172,55 @@
     cursor: pointer; /* Curseur au survol */
     transition: all 0.3s ease; /*Transition pour un effet fluide */
     letter-spacing: 1px; /* Espacement des lettres */
-    margin-top: 10%;
 }
 
-.matches-main-div button:hover {
-    background-color: #4b55c2;
+.main-div-tournament button:hover {
+    background-color: #a13331;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Augmentation de l'ombre */
     transform: translateY(-2px); /* Légère élévation */
 }
 
-.matches-main-div button:active {
-    background-color: #3f47a3;
+.main-div-tournament button:active {
+    background-color: #792525;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduction de l'ombre */
     transform: translateY(0); /* Annule l'élévation */
 }
 
+.stop-button-div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.matches-list {
+    width: 100%;
+    max-height: 60%;
+    display: flex;
+    flex-direction: column;
+    /* gap: 1em; */
+    justify-content: flex-start;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: clip;
+}
+
+.players-name-div {
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+}
 
 .next-match-main-div {
-    width: 60%;
-    height: 25%;
+    width: 80%;
     display: flex;
     justify-content: space-between;
     align-items: center; 
     border-radius: 15px;
-    background-color: rgba(226, 82, 82, 0.397); 
+    background-color: #ec7441d0; 
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.747);
-    padding: 20px;
+    padding: 1em;
+    margin: 0.3em 0 1em 0;
 }
 
 .next-match-main-div button {
@@ -74,30 +237,33 @@
 }
 
 .upcoming-match-main-div {
-    width: 60%;
-    height: 25%;
+    width: 80%;
     display: flex;
     justify-content: space-between;
     align-items: center; 
     border-radius: 15px;
-    background-color: rgba(204, 130, 120, 0.397); 
-    padding: 20px;
+    background-color: #e498787c; 
+    padding: 1em;
+    margin: 0.5em 0 0.5em 0;
 }
 
 .passed-match-main-div {
-    width: 60%;
-    height: 25%;
+    width: 80%;
     display: flex;
     justify-content: space-between;
     align-items: center; 
     border-radius: 15px;
     background-color: rgba(135, 143, 229, 0.397); 
     padding: 20px;
+    margin: 0.5em 0 0.5em 0;
 }
 
 .tournament-game-hud {
     position: absolute;
     display: flex;
+    top: 5%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     justify-content: center;
     align-items: center;
     width: 100%;
@@ -125,4 +291,17 @@
     display: flex;
     justify-content: center;
 }
-    
+
+@media (max-width: 600px) {
+    .main-div-tournament {
+        width: 140%;
+        scale: 0.8;
+    }
+    .content-page-tournament {
+        width: 100%;
+    }
+
+    .next-match-main-div button {
+        scale: 0.8;
+    }
+}

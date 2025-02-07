@@ -63,9 +63,12 @@ export default class page500 {
   async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    let template = `${backArrow}<div class="container mt-5">
-				<h1 class="text-capitalize w-100 text-center">Error 500</h1>
-				<h2 class="text-center mt-4">Internal server error</h2>
+    let template = `${backArrow}<div class="main-error-container">
+				<div class="error-title-container">
+				<h1>Error 500</h1>
+				<h2>Internal server error</h2>
+				</div>
+				<img src="src/assets/img/500.jpg" alt="500img" class="img500">
 			</div>`;
     const sanitizedData = DOMPurify.sanitize(template);
     return sanitizedData;

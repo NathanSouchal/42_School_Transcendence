@@ -86,7 +86,7 @@ export default class Home {
     try {
       await checkUserStatus();
     } catch (error) {
-      throw error;
+      console.error(error);
     }
     handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");

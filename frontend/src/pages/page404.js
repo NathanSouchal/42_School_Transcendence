@@ -63,10 +63,13 @@ export default class page404 {
   async render(routeParams = {}) {
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    let template = `${backArrow}<div class="container mt-5">
-				<h1 class="text-capitalize w-100 text-center">Error 404</h1>
-				<h2 class="text-center mt-4">woooops this page was not found</h2>
-			</div>`;
+    let template = `${backArrow}<div class="main-error-container">
+				<div class="error-title-container">
+					<h1>Error 404</h1>
+					<h2>Woooops this page could not be found...</h2>
+				</div>
+				<img src="src/assets/img/404.jpg" alt="404img" class="img404">
+				</div>`;
     const sanitizedData = DOMPurify.sanitize(template);
     return sanitizedData;
   }

@@ -172,7 +172,7 @@ export default class Register {
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}
         <form id="register-form" class="form-div-login-register">
-          <h1 class="form-title-login-register">Register</h1>
+          <h1 class="global-page-title">Register</h1>
           <div class="inputs-button-form-login-register">
             <input
               type="text"
