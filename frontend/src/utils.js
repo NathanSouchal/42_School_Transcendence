@@ -20,6 +20,7 @@ export async function updateView(context) {
     context.removeEventListeners();
     container.innerHTML = await context.render();
     context.attachEventListeners();
+    console.log("Updated View and reattached event listeners");
   }
 }
 

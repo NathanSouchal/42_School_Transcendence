@@ -106,6 +106,7 @@ export default class GamePage {
           element: onlinePvpButton,
           listener: handleClick,
         });
+        console.log("attached onlinepvp event listener");
       }
     }
 
@@ -202,11 +203,13 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
+    console.log("Checking if state has changed");
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
-      newState.gameHasLoaded !== this.previousState.gameHasLoaded
+      newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
+      newState.isSearching !== this.previousState.isSearching
     ) {
       console.log("State changed, rendering Game page");
       await updateView(this);
