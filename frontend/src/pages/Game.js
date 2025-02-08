@@ -42,121 +42,30 @@ export default class GamePage {
       }
     });
 
-    const togglePause = document.getElementById("toggle-pause");
-    if (togglePause) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "toggle-pause")) {
-        togglePause.addEventListener("click", (e) =>
-          handleClick("toggle-pause"),
-        );
-        this.eventListeners.push({
-          name: "toggle-pause",
-          type: "click",
-          element: togglePause,
-          listener: handleClick,
-        });
-      }
-    }
+    const buttons = [
+      { id: "toggle-pause", action: "toggle-pause" },
+      { id: "start-pvp-game", action: "start-pvp-game" },
+      { id: "start-pvr-game", action: "start-pvr-game" },
+      { id: "restart-game", action: "restart-game" },
+      { id: "resume-game", action: "resume-game" },
+      { id: "exit-game", action: "exit-game" },
+    ];
 
-    const pvpButton = document.getElementById("start-pvp-game");
-    if (pvpButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "start-pvp-game")) {
-        pvpButton.addEventListener("click", (e) =>
-          handleClick("start-pvp-game"),
-        );
-
-        this.eventListeners.push({
-          name: "start-pvp-game",
-          type: "click",
-          element: pvpButton,
-          listener: handleClick,
-        });
+    buttons.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleClick = this.handleClick.bind(this, action);
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          button.addEventListener("click", handleClick);
+          this.eventListeners.push({
+            name: action,
+            type: "click",
+            element: button,
+            listener: handleClick,
+          });
+        }
       }
-    }
-
-    const pvrButton = document.getElementById("start-pvr-game");
-    if (pvrButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "start-pvr-game")) {
-        pvrButton.addEventListener("click", (e) =>
-          handleClick("start-pvr-game"),
-        );
-        this.eventListeners.push({
-          name: "start-pvr-game",
-          type: "click",
-          element: pvrButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const onlinePvpButton = document.getElementById("start-online-pvp-game");
-    if (onlinePvpButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (
-        !this.eventListeners.some((e) => e.name === "start-online-pvp-game")
-      ) {
-        onlinePvpButton.addEventListener("click", (e) =>
-          handleClick("start-online-pvp-game"),
-        );
-        this.eventListeners.push({
-          name: "start-online-pvp-game",
-          type: "click",
-          element: onlinePvpButton,
-          listener: handleClick,
-        });
-        console.log("attached onlinepvp event listener");
-      }
-    }
-
-    const restartGameButton = document.getElementById("restart-game");
-    if (restartGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "restart-game")) {
-        restartGameButton.addEventListener("click", (e) =>
-          handleClick("restart-game"),
-        );
-        this.eventListeners.push({
-          name: "restart-game",
-          type: "click",
-          element: restartGameButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const resumeGameButton = document.getElementById("resume-game");
-    if (resumeGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "resume-game")) {
-        resumeGameButton.addEventListener("click", (e) =>
-          handleClick("resume-game"),
-        );
-        this.eventListeners.push({
-          name: "resume-game",
-          type: "click",
-          element: resumeGameButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const exitGameButton = document.getElementById("exit-game");
-    if (exitGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "exit-game")) {
-        exitGameButton.addEventListener("click", (e) =>
-          handleClick("exit-game"),
-        );
-        this.eventListeners.push({
-          name: "exit-game",
-          type: "click",
-          element: exitGameButton,
-          listener: handleClick,
-        });
-      }
-    }
+    });
   }
 
   handleNavigation(e) {
@@ -273,10 +182,8 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    const template = `${backArrow}
-			<div class="game-hud">
+    const template = `<div class="game-hud">
 				<div class="game-score">
 					<h1 class="display-4 mb-0">${left} - ${right}</h1>
 				</div>
@@ -290,9 +197,7 @@ export default class GamePage {
   }
 
   renderPauseMenu() {
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    const template = `${backArrow}
-			<div>
+    const template = `<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
