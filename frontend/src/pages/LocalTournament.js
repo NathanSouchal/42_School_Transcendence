@@ -165,20 +165,14 @@ export default class LocalTournament {
       const container = document.getElementById("app");
       if (container) {
         container.className = "";
-        const content = await this.render();
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
+        await updateView(this);
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.matchFinished();
       const container = document.getElementById("app");
       if (container) {
         container.className = "app";
-        const content = await this.render();
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
+        await updateView(this);
       }
     }
     this.previousState = { ...newState };
@@ -249,6 +243,17 @@ export default class LocalTournament {
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
     }
+    this.isSubscribed = false;
+    this.isInitialized = false;
+    this.playerList = [];
+    this.nbPlayers = 0;
+    this.inputCount = 0;
+    this.currentRound = [];
+    this.MatchToPlay = {};
+    this.cssLink;
+    this.tournamentFinished = false;
+    this.tournamentWinner = null;
+    this.userAlias = "";
   }
 
   renderSelectNbPlayers() {
