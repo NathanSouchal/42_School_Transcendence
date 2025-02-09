@@ -46,6 +46,7 @@ export default class GamePage {
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },
       { id: "start-pvr-game", action: "start-pvr-game" },
+      { id: "start-online-pvp-game", action: "start-online-pvp-game" },
       { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },

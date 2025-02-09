@@ -161,8 +161,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = [
-    # "http://frontend:3000",
-    # "http://localhost:3000",
+    "http://frontend:3000",
+    "http://localhost:3000",
     "https://frontend:3000",
     "https://localhost:3000",
 ]
@@ -172,6 +172,8 @@ CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
 CSRF_COOKIE_SECURE = True  # Envoie le cookie CSRF uniquement via HTTPS
 SESSION_COOKIE_SECURE = True  # Envoie le cookie de session uniquement via HTTPS
 CSRF_TRUSTED_ORIGINS = [
+    "http://frontend:3000",
+    "http://localhost:3000",
     "https://localhost:3000",  # Frontend sécurisé
     "https://frontend:3000",
 ]
@@ -188,5 +190,5 @@ CHANNEL_LAYERS = {
     },
 }
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+# SECURE_SSL_REDIRECT = True
