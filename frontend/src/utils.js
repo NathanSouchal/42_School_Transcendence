@@ -19,7 +19,10 @@ export async function updateView(context) {
   if (container) {
     context.removeEventListeners();
     container.innerHTML = await context.render();
-    context.attachEventListeners();
+    // Attendre que le DOM soit mis a jour de façon asynchrone
+    requestAnimationFrame(() => {
+      context.attachEventListeners();
+    });
   }
 }
 
