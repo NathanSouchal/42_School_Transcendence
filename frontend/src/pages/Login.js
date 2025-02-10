@@ -97,7 +97,6 @@ export default class Login {
       console.log(response.data.user.id.toString());
       this.state.state.userId = id.toString();
       this.state.saveState();
-      alert("");
       router.navigate("/account");
     } catch (error) {
       if (error.response) {

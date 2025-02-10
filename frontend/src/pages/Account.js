@@ -52,133 +52,91 @@ export default class Account {
 
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
-      const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", async (e) => {
+        const handleChange = (e) => {
           const file = e.target.files[0];
-          await handleChangeBound("avatar", file);
-        });
+          if (file) this.handleChange("avatar", file);
+        };
+        avatarInput.addEventListener("change", handleChange);
         this.eventListeners.push({
           name: "avatar",
           type: "change",
           element: avatarInput,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const updateButton = document.getElementById("update-user-info");
     if (updateButton) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(this, "update-user-info", "");
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", async (e) => {
-          await handleChangeBound("update-user-info", "");
-        });
+        updateButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "updateUserInfo",
           type: "click",
           element: updateButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const refreshButton = document.getElementById("refresh-token-button");
-    if (refreshButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
-        refreshButton.addEventListener("click", async () => {
-          await handleChangeBound("refresh-token-button", "");
-        });
-        this.eventListeners.push({
-          name: "refreshButton",
-          type: "click",
-          element: refreshButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const accessButton = document.getElementById("access-token-button");
-    if (accessButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      console.log("checking if accessButton object exists");
-      if (!this.eventListeners.some((e) => e.name === "accessButton")) {
-        accessButton.addEventListener("click", async () => {
-          await handleChangeBound("access-token-button", "");
-        });
-        console.log("pushing accessButton object");
-        this.eventListeners.push({
-          name: "accessButton",
-          type: "click",
-          element: accessButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteUserButton) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(
+        this,
+        "delete-user-button",
+        ""
+      );
       if (!this.eventListeners.some((e) => e.name === "deleteUserButton")) {
-        deleteUserButton.addEventListener("click", async () => {
-          await handleChangeBound("delete-user-button", "");
-        });
+        deleteUserButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "deleteUserButton",
           type: "click",
           element: deleteUserButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const formButton = document.getElementById("form-button");
     if (formButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      // Vérifie si le gestionnaire d'événements a déjà été ajouté
+      const handleChange = this.handleChange.bind(this, "form-button", "");
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", async () => {
-          await handleChangeBound("form-button", "");
-        });
+        formButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "formButton",
           type: "click",
           element: formButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const formSubmit = document.getElementById("user-form");
     if (formSubmit) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(this, "form-submit", "");
       if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
-        formButton.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          await handleChangeBound("form-submit", "");
-        });
+        formButton.addEventListener("submit", handleChange);
         this.eventListeners.push({
           name: "formSubmit",
           type: "form-submit",
           element: formSubmit,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeInputBound = this.handleChangeInput.bind(this);
+      const handleChangeInput = this.handleChangeInput.bind(this);
       if (!this.eventListeners.some((e) => e.name === input.name)) {
-        input.addEventListener("input", (e) => {
-          handleChangeInputBound(e.target.name, e.target.value, e.target);
-        });
+        input.addEventListener("input", handleChangeInput);
         this.eventListeners.push({
           name: input.name,
           type: "input",
           element: input,
-          listener: handleChangeInputBound,
+          listener: handleChangeInput,
         });
       }
     });
@@ -203,8 +161,8 @@ export default class Account {
     this.previousState = { ...newState };
   }
 
-  handleChangeInput(key, value, inputElement) {
-    this.formData[key] = value;
+  handleChangeInput(e) {
+    this.formData[e.target.name] = e.target.value;
     console.log(this.formData.alias);
     console.log(this.formData.username);
     console.log(this.formData.avatar);
@@ -235,18 +193,6 @@ export default class Account {
       } catch (error) {
         console.error(error);
       }
-    } else if (key == "refresh-token-button") {
-      try {
-        await this.getNewRefreshToken(this.state.state.userId);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (key == "access-token-button") {
-      try {
-        await this.getNewAccessToken(this.state.state.userId);
-      } catch (error) {
-        console.error(error);
-      }
     } else if (key == "delete-user-button") {
       try {
         await this.deleteUser(this.state.state.userId);
@@ -257,7 +203,7 @@ export default class Account {
   }
 
   async fetchData(id) {
-    console.log("Fetchind data...");
+    console.log("Fetching data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
@@ -291,23 +237,6 @@ export default class Account {
       await updateView(this);
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
-      await updateView(this);
-    }
-  }
-
-  async getNewAccessToken(id) {
-    try {
-      await API.post(`/auth/custom-token/access/`);
-    } catch (error) {
-      console.error(`Error while trying to get new access token : ${error}`);
-    }
-  }
-
-  async getNewRefreshToken(id) {
-    try {
-      await API.post(`/auth/custom-token/refresh/`);
-    } catch (error) {
-      console.error(`Error while trying to get new refresh token : ${error}`);
     }
   }
 
@@ -356,19 +285,17 @@ export default class Account {
     }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
-    const hasUsername =
-      this.userData.username && this.userData.username.length > 0;
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex flex-column justify-content-center align-items-center h-100">
-          <div class="title-div mb-4">
-            <h1 class="text-capitalize w-100 text-center">Account</h1>
-          </div>
+    return `${backArrow}<div class="user-main-div">
+                          <div class="title-div">
+                            <h1>Account</h1>
+                          </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
             ? `<div id="user-main-div">
 				<form id="user-form">
-			 	<div id="avatar-main-div">
+			 	<div class="avatar-main-div" id="avatar-main-div">
 					<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">
 					<div class="custom-file m-2">
 						<label class="form-label" for="avatar">
@@ -419,17 +346,17 @@ export default class Account {
               </div>`
             : `
 			  <div id="user-main-div">
-			 	<div id="avatar-main-div">
+			 	<div class="avatar-main-div" id="avatar-main-div">
 				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
 				</div>
 				<div id="username-main-div">
-					<h2 class="text-capitalize">
+					<h2>
 					Username : ${this.userData.username ? `${this.userData.username}` : ""}
 					</h2>
 				</div>
 				</div>
 				<div id="alias-main-div">
-					<h2 class="text-capitalize">
+					<h2>
 					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
 					</h2>
 				</div>
@@ -444,18 +371,6 @@ export default class Account {
 					id="delete-user-button"
 				>
 					Delete Account
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="access-token-button"
-				>
-					Get New Access Token
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="refresh-token-button"
-				>
-					Get New Refresh Token
 				</button>
                 </div>
             `;

@@ -58,10 +58,14 @@ export async function logout() {
 export async function checkUserStatus() {
   try {
     const res = await API.get("/auth/is-auth/");
-    console.log(res);
+    const id = res.data.user_id.toString();
+    console.log(id);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+    if (id !== state.state.userId) {
+      state.state.userId = id;
+      state.saveState();
+    }
   } catch (error) {
-    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
     console.error(`Error while trying to check user status : ${error}`);
     throw error;
   }

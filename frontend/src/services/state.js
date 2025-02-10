@@ -59,7 +59,7 @@ export default class State {
   }
 
   saveState() {
-    console.log(this.state.userId + "AAAh");
+    console.log(this.state.userId + "saving state...");
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,

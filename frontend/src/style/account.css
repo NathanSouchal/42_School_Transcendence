@@ -1,0 +1,30 @@
+.user-main-div {
+  margin: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--primary-color);
+}
+
+.user-main-div h1 {
+  font-family: var(--primary-font);
+  font-size: 3rem;
+  margin: 10px;
+}
+
+.user-main-div h2,
+label {
+  font-family: var(--secondary-font);
+  font-weight: 100;
+  letter-spacing: 0.1rem;
+  font-size: 2rem;
+}
+
+.avatar-main-div,
+.username-main-div,
+.alias-main-div {
+  margin: 20px;
+}
