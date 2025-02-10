@@ -92,10 +92,12 @@ export default class Login {
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
-      const { id } = response.data.user;
+      const id = response.data.user.id;
       console.log(response.data);
-      this.state.state.userId = id;
+      console.log(response.data.user.id.toString());
+      this.state.state.userId = id.toString();
       this.state.saveState();
+      alert("");
       router.navigate("/account");
     } catch (error) {
       if (error.response) {

@@ -54,7 +54,8 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
-    await API.get("/auth/is-auth/");
+    const res = await API.get("/auth/is-auth/");
+    console.log(res);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
   } catch (error) {
     if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);

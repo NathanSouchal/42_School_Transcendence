@@ -15,7 +15,7 @@ export default class State {
       gameNeedsReset: false,
       gameIsPaused: false,
       gameHasBeenWon: false,
-      userId: 0,
+      userId: "0",
     };
     this.isUserLoggedIn = false;
 
@@ -25,7 +25,7 @@ export default class State {
       savedState = JSON.parse(localStorage.getItem("pongState"));
     }
     this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
-    this.state.userId = parseInt(savedState?.id) || 0;
+    this.state.userId = parseInt(savedState?.id) || "0";
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
