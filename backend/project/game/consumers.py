@@ -1,4 +1,5 @@
 import json
+import uuid
 from decimal import Decimal
 from enum import Enum, auto
 from urllib.parse import parse_qs
@@ -41,10 +42,8 @@ class GameState(AsyncWebsocketConsumer):
     }
 
     async def connect(self):
-        # Parse the query string from the scope
         query_params = parse_qs(self.scope["query_string"].decode("utf-8"))
 
-        # Retrieve the 'type' parameter from the query string
         room_type = query_params.get("type", [None])[0]
 
         print(f"Launching consumer: room_type is {room_type}")
@@ -56,7 +55,6 @@ class GameState(AsyncWebsocketConsumer):
         else:
             self.game_mode = GameMode.LOCAL
 
-        # Assign room and setup connection
         await self.setup_room()
 
     async def setup_room(self):
@@ -64,39 +62,37 @@ class GameState(AsyncWebsocketConsumer):
             await self.setup_online_room()
         elif self.game_mode == GameMode.BACKGROUND:
             await self.setup_background_room()
-        else:  # Local mode
+        else:
             await self.setup_local_room()
 
     async def setup_local_room(self):
-        self.room = f"local_game_{id(self)}"
+        self.room = f"local_game_{uuid.uuid4()}"
 
         await self.accept()
         await self.initialize_room(self.room)
 
     async def setup_online_room(self):
         await self.accept()
-
-        # Use room_id from URL if provided, else match or create
-        self.session = self.scope["url_route"]["kwargs"].get("room_id")
-        if not self.session:
-            self.session = self.match_or_create_online_room()
-
+        self.session = self.match_or_create_online_room()
         self.room = f"online_game_{self.session}"
 
         await self.initialize_room(self.room)
         await self.manage_online_players()
 
     async def setup_background_room(self):
-        self.room = "background_game"
+        self.room = f"background_game_{uuid.uuid4()}"
+        print(f"room id is {self.room}")
 
         await self.accept()
+        await self.send(json.dumps({"type": "room_id", "data": self.room}))
         await self.initialize_room(self.room)
 
     def match_or_create_online_room(self):
         for room_name, room_data in self.rooms.items():
             if len(room_data["players"]) < 2:
                 return room_name.split("_")[-1]
-        return f"room_{len(self.rooms) + 1}"
+
+        return str(uuid.uuid4())
 
     async def initialize_room(self, room_name):
         if room_name not in self.rooms:
@@ -122,7 +118,16 @@ class GameState(AsyncWebsocketConsumer):
             await self.close()
 
     async def match_found(self, event):
-        await self.send(json.dumps({"type": "hasFoundOpponent", "data": event["side"]}))
+        isSourceOfTruth = event["side"] == "left"
+        await self.send(
+            json.dumps(
+                {
+                    "type": "hasFoundOpponent",
+                    "side": event["side"],
+                    "isSourceOfTruth": isSourceOfTruth,
+                }
+            )
+        )
 
     async def positions(self, event):
         await self.send(
@@ -149,11 +154,6 @@ class GameState(AsyncWebsocketConsumer):
 
             positions = self.rooms[self.room]["positions"]
 
-            if self.game_mode == GameMode.ONLINE:
-                message_origin = data.get("origin")
-                if not message_origin or message_origin not in ["left", "right"]:
-                    return
-
             if message_type == "positions":
                 message_element = data.get("element")
                 if message_element == "paddle_left":
@@ -165,12 +165,14 @@ class GameState(AsyncWebsocketConsumer):
                     for key, value in ball_pos.items():
                         positions["ball"][key] = float(value)
 
-                await self.channel_layer.group_send(
-                    self.room,
-                    {
-                        "type": "positions",
-                        "positions": positions,
-                    },
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "positions",
+                            "positions": positions,
+                        },
+                        cls=NumericEncoder,
+                    )
                 )
 
         except Exception as e:
@@ -178,16 +180,13 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Exception details: {str(e)}")
 
     async def disconnect(self, close_code):
-        # Remove player from room
         if self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
 
-            # Clean up room if empty
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
             else:
                 self.rooms[self.room]["status"] = "waiting"
 
-        # Discard from channel layer
         await self.channel_layer.group_discard(self.room, self.channel_name)

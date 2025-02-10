@@ -46,9 +46,16 @@ class Renderer {
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime, gameManager);
+        if (
+          state.gameMode == "default" ||
+          state.gameMode == "PVP" ||
+          state.gameMode == "PVR" ||
+          state.isSourceOfTruth
+        ) {
+          this.gameElementsUpdate(deltaTime, gameManager);
+          this.collisionsUpdate(deltaTime, gameManager);
+        }
         this.pivotUpdate(deltaTime);
-        this.collisionsUpdate(deltaTime, gameManager);
       }
 
       this.terrainElementsUpdate(deltaTime);

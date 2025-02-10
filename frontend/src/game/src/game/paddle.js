@@ -110,7 +110,6 @@ class Paddle {
     const message = {
       type: "positions",
       element: `paddle_${this.side}`,
-      origin: gameManager.side,
       pos: {
         x: Number(this.pos.x).toFixed(4),
       },

@@ -33,11 +33,13 @@ export class GameManager {
       const data = JSON.parse(event.data);
       switch (data.type) {
         case "positions":
-          this.updatePositions(data.data);
+          this.updatePositions(data);
           break;
         case "hasFoundOpponent":
           console.log("gameManager caught 'hasFoundOpponent'");
-          state.gameMode = data.data === "left" ? "OnlineLeft" : "OnlineRight";
+          state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
+          state.isSourceOfTruth = data.isSourceOfTruth;
+          console.log(`isSourceOfTruth: ${state.isSourceOfTruth}`);
           state.setIsSearching(false);
       }
     };

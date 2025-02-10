@@ -139,7 +139,6 @@ class Ball {
     gameManager.sendMessage({
       type: "positions",
       element: "ball",
-      origin: gameManager.side,
       pos: {
         x: Number(this.pos.x).toFixed(4),
         y: Number(this.pos.y).toFixed(4),
