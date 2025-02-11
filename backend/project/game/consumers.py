@@ -59,46 +59,21 @@ class GameState(AsyncWebsocketConsumer):
 
     async def setup_room(self):
         if self.game_mode == GameMode.ONLINE:
-            await self.setup_online_room()
-        elif self.game_mode == GameMode.BACKGROUND:
-            await self.setup_background_room()
+            for room_name, room_data in self.rooms.items():
+                if len(room_data["players"]) < 2:
+                    self.room = room_name.split("_")[-1]
+            self.room = uuid.uuid4()
         else:
-            await self.setup_local_room()
-
-    async def setup_local_room(self):
-        self.room = f"local_game_{uuid.uuid4()}"
+            self.room = uuid.uuid4()
 
         await self.accept()
-        await self.initialize_room(self.room)
 
-    async def setup_online_room(self):
-        await self.accept()
-        self.session = self.match_or_create_online_room()
-        self.room = f"online_game_{self.session}"
+        if self.room not in self.rooms:
+            self.rooms[self.room] = self.DEFAULT_STATE.copy()
+        await self.channel_layer.group_add(self.room, self.channel_name)
 
-        await self.initialize_room(self.room)
-        await self.manage_online_players()
-
-    async def setup_background_room(self):
-        self.room = f"background_game_{uuid.uuid4()}"
-        print(f"room id is {self.room}")
-
-        await self.accept()
-        await self.send(json.dumps({"type": "room_id", "data": self.room}))
-        await self.initialize_room(self.room)
-
-    def match_or_create_online_room(self):
-        for room_name, room_data in self.rooms.items():
-            if len(room_data["players"]) < 2:
-                return room_name.split("_")[-1]
-
-        return str(uuid.uuid4())
-
-    async def initialize_room(self, room_name):
-        if room_name not in self.rooms:
-            self.rooms[room_name] = self.DEFAULT_STATE.copy()
-
-        await self.channel_layer.group_add(room_name, self.channel_name)
+        if self.game_mode == GameMode.ONLINE:
+            await self.manage_online_players()
 
     async def manage_online_players(self):
         if len(self.rooms[self.room]["players"]) < 2:

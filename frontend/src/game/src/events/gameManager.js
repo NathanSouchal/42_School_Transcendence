@@ -33,7 +33,7 @@ export class GameManager {
       const data = JSON.parse(event.data);
       switch (data.type) {
         case "positions":
-          this.updatePositions(data);
+          this.updatePositions(data.positions);
           break;
         case "hasFoundOpponent":
           console.log("gameManager caught 'hasFoundOpponent'");
