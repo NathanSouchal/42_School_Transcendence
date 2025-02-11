@@ -10,6 +10,7 @@ from api.serializers import UserSerializer, PublicUserSerializer, SimpleUserSeri
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
+import uuid
 
 
 class UserView(APIView):
@@ -22,11 +23,14 @@ class UserView(APIView):
 			# if request.user != user and not request.user.is_superuser:
 			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
+		except ValueError:
+			return Response({'error': 'Invalid UUID format'}, status=status.HTTP_400_BAD_REQUEST)
 		except Http404:
 			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
+			print(f"Get User error: {e}")
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def delete(self, request, id=None):
@@ -34,22 +38,27 @@ class UserView(APIView):
 			user = get_object_or_404(User, id=id)
 			if request.user != user and not request.user.is_superuser:
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			user.friends.clear()
+			user.match_history.clear()
 			user.delete()
-			return Response({'user': UserSerializer(user).data, 'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
+			return Response({'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
+			print(f"Delete user error: {e}")
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def put(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
+			print(f"User ID before update: {user.id}")
 			if request.user != user and not request.user.is_superuser:
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			print(f"Data: {request.data}")
 			serializer = UserSerializer(user, data=request.data, partial=True)
 			if serializer.is_valid():
 				user = serializer.save()
+				print(f"User ID after update: {user.id}")
 				return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:

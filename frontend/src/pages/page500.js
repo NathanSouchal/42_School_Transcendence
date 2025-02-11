@@ -68,7 +68,7 @@ export default class page500 {
 				<h1>Error 500</h1>
 				<h2>Internal server error</h2>
 				</div>
-				<img src="src/assets/img/500.jpg" alt="500img" class="img500">
+				<img src="/error/img/500.jpg" alt="500img" class="img500">
 			</div>`;
     const sanitizedData = DOMPurify.sanitize(template);
     return sanitizedData;

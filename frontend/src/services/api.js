@@ -30,7 +30,7 @@ API.interceptors.response.use(
     }
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
-      if (isRetrying || !state.isUserLoggedIn) {
+      if (isRetrying) {
         setTimeout(() => {
           if (
             window.location.pathname !== "/" &&

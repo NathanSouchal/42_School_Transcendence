@@ -54,7 +54,7 @@ class Paddle {
 
   async init() {
     await this.loadModel(
-      "src/game/assets/crab.glb",
+      "/game/assets/crab.glb",
       new THREE.Vector3(1.5, 1.3, 1.5),
     );
     this.obj.add(this.asset);

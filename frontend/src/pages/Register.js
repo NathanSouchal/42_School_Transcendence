@@ -120,9 +120,9 @@ export default class Register {
   async handleSubmit(e) {
     e.preventDefault();
     if (
-      !this.formState.username.length ||
-      !this.formState.password.length ||
-      !this.formState.passwordConfirmation.length
+      this.formState.username.length < 4 ||
+      this.formState.password.length < 4 ||
+      this.formState.passwordConfirmation.length < 4
     ) {
       return console.error("Please complete all fields");
     }
@@ -190,6 +190,8 @@ export default class Register {
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
+			  minLength="4"
+			  maxLength="20"
               name="password"
               aria-label="Password"
               required
@@ -199,6 +201,8 @@ export default class Register {
               class="form-control"
               placeholder="Confirm password"
               value="${this.formState.passwordConfirmation}"
+			  minLength="4"
+			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
               required

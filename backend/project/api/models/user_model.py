@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.apps import apps
 from django.conf import settings
+import uuid
 import os
 
 """
@@ -45,6 +46,7 @@ def file_location(instance, filename, **kwargs):
 	return file_path
 
 class User(AbstractBaseUser, PermissionsMixin):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	user_stats = models.OneToOneField('api.Stats', on_delete=models.CASCADE, null=True, blank=True, related_name='stats_user')
 	username = models.CharField(max_length=100, unique=True)
 	alias = models.CharField(max_length=100, unique=True, null=True)

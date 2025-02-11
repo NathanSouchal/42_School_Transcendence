@@ -43,6 +43,7 @@ html {
   max-width: 2000px;
   margin: 0 auto;
   overflow-x: hidden;
+  cursor: pointer;
 }
 
 .body-container {
