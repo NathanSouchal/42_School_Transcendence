@@ -99,7 +99,6 @@ export default class Stats {
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.getStats(this.state.state.userId);
@@ -110,6 +109,7 @@ export default class Stats {
         return;
       }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)

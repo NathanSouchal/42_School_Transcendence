@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { handleHeader, updateView, createBackArrow, checkUserStatus } from "../utils.js";
 import { router } from "../app.js";
 
 export default class Register {
@@ -166,6 +166,11 @@ export default class Register {
   }
 
   async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      console.error(error);
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
