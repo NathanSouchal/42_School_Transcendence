@@ -255,7 +255,6 @@ export default class Account {
     if (event) {
       event.element.removeEventListener(event.type, event.listener);
       console.log("Removed unique eventListener from input");
-      // Supprimez l'événement de la liste
       this.eventListeners = this.eventListeners.filter(
         (el) => el.name !== name
       );
@@ -287,6 +286,7 @@ export default class Account {
     // const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}<div class="user-main-div">
+						<div class="user-main-content">
                           <div class="title-div">
                             <h1>Account</h1>
                           </div>
@@ -359,6 +359,7 @@ export default class Account {
 					<h2>
 					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
 					</h2>
+				</div>
 				</div>
               </div>`
         }

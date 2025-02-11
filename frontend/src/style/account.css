@@ -9,6 +9,12 @@
   color: var(--primary-color);
 }
 
+.user-main-content {
+  overflow-y: scroll;
+  scrollbar-width: none;
+  flex-grow: 1;
+}
+
 .user-main-div h1 {
   font-family: var(--primary-font);
   font-size: 3rem;
