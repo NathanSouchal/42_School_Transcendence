@@ -345,7 +345,6 @@ export default class User {
 
   async render(routeParams = {}) {
     const { id } = routeParams;
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.getPublicUserInfo();
@@ -361,6 +360,7 @@ export default class User {
         return;
       }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}

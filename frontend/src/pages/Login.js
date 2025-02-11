@@ -1,6 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { handleHeader, updateView, createBackArrow, checkUserStatus } from "../utils.js";
 import { router } from "../app.js";
 
 export default class Login {
@@ -141,6 +141,14 @@ export default class Login {
   }
 
   async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);

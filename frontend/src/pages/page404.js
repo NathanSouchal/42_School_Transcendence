@@ -68,7 +68,7 @@ export default class page404 {
 					<h1>Error 404</h1>
 					<h2>Woooops this page could not be found...</h2>
 				</div>
-				<img src="/error/img/404.jpg" alt="404img" class="img404">
+				<img src="/error/404.jpg" alt="404img" class="img404">
 				</div>`;
     const sanitizedData = DOMPurify.sanitize(template);
     return sanitizedData;

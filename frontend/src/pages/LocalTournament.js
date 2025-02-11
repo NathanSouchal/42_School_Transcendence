@@ -1,4 +1,4 @@
-import { updateView } from "../utils";
+import { updateView, checkUserStatus } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -360,6 +360,14 @@ export default class LocalTournament {
 
   async render() {
     console.log(this.state.state.gameStarted);
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     if (this.state.state.gameStarted === true)
       handleHeader(this.state.isUserLoggedIn, true);
     else handleHeader(this.state.isUserLoggedIn, false);
