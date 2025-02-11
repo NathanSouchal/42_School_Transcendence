@@ -295,7 +295,6 @@ export default class Account {
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.fetchData(this.state.state.userId);
@@ -306,6 +305,7 @@ export default class Account {
         return;
       }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
