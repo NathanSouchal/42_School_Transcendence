@@ -20,7 +20,7 @@ export default class State {
     };
 
     document.getElementById("app").classList.add("hidden");
-    // document.getElementById("c").classList.add("hidden");
+    document.getElementById("c").classList.add("hidden");
 
     // this.gamePoints = 10;
     this.gamePoints = 1;
@@ -73,7 +73,7 @@ export default class State {
 
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
-    // document.getElementById("c").classList.remove("hidden");
+    document.getElementById("c").classList.remove("hidden");
   }
 
   setGameNeedsReset(bool) {
