@@ -165,6 +165,8 @@ export default class Login {
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
+			  minLength="4"
+			  maxLength="20"
               name="password"
               aria-label="Password"
               required

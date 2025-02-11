@@ -38,8 +38,10 @@ class UserView(APIView):
 			user = get_object_or_404(User, id=id)
 			if request.user != user and not request.user.is_superuser:
 				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			user.friends.clear()
+			user.match_history.clear()
 			user.delete()
-			return Response({'user': UserSerializer(user).data, 'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
+			return Response({'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

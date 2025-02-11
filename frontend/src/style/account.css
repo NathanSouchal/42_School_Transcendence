@@ -1,5 +1,5 @@
 .user-main-div {
-  margin: 20%;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -7,6 +7,7 @@
   height: 100%;
   text-align: center;
   color: var(--primary-color);
+  width: 80%;
 }
 
 .user-main-content {
@@ -18,13 +19,11 @@
 .user-main-div h1 {
   font-family: var(--primary-font);
   font-size: 3rem;
-  margin: 10px;
 }
 
 .user-main-div h2,
 label {
   font-family: var(--secondary-font);
-  font-weight: 100;
   letter-spacing: 0.1rem;
   font-size: 2rem;
 }
@@ -33,4 +32,90 @@ label {
 .username-main-div,
 .alias-main-div {
   margin: 20px;
+}
+
+.username-title-div,
+.alias-title-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.form-username-title-div,
+.form-alias-title-div {
+  flex-direction: column;
+  line-height: 2;
+}
+
+.username-title,
+.alias-title,
+label {
+  font-weight: 300;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.user-main-div input {
+  color: var(--tertiary-color);
+  text-align: center;
+  font-size: 1.3em;
+  padding: 0.4em;
+}
+
+.username-title-value,
+.alias-title-value {
+  font-weight: 800;
+  font-style: var(--primary-font);
+}
+
+img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.file-label {
+  width: 100%;
+  font-family: var(--secondary-font);
+  margin-top: 1rem;
+  padding: 0.8em;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  background: white;
+  display: inline-block;
+  text-align: center;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.file-label:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+}
+
+.file-input:focus + .file-label,
+.file-input:valid + .file-label {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+  background-color: var(--primary-light);
+}
+
+@media (max-width: 800px) {
+  .user-main-div h2 {
+    font-size: 1.5em;
+  }
 }

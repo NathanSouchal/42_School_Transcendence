@@ -106,11 +106,13 @@ class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stats
         fields = '__all__'
+        read_only_fields = ['id']
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = '__all__'
+        read_only_fields = ['id']
 
     def to_representation(self, instance):
         """

@@ -17,10 +17,10 @@ export function resetZIndex() {
 export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    context.removeEventListeners();
     container.innerHTML = await context.render();
     // Attendre que le DOM soit mis a jour de façon asynchrone
     requestAnimationFrame(() => {
+      context.removeEventListeners();
       context.attachEventListeners();
     });
   }

@@ -171,8 +171,29 @@ export default class Account {
   async handleChange(key, value) {
     console.log("handlechange");
     if (key == "avatar") {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
       const fileInput = value;
+      const label = document.querySelector(".file-label");
       if (fileInput) {
+        if (!allowedTypes.includes(fileInput.type)) {
+          alert("Only JPG and PNG files are allowed");
+          value = "";
+          label.textContent = "Upload file";
+          return;
+        }
+        if (fileInput.size > maxSize) {
+          alert("File size can't exceed 5MB");
+          value = "";
+          label.textContent = "Upload file";
+          return;
+        }
+        let filename = fileInput.name;
+        if (fileInput.name.length > 10)
+          filename = fileInput.name
+            .slice(0, 7)
+            .concat(`...${fileInput.type.slice(6)}`);
+        label.textContent = filename;
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64String = e.target.result;
@@ -180,7 +201,7 @@ export default class Account {
           this.formData.avatar = base64String;
         };
         reader.readAsDataURL(fileInput);
-      }
+      } else label.textContent = "Upload file";
     } else if (key == "form-button") {
       this.isForm = !this.isForm;
       await updateView(this);
@@ -222,6 +243,9 @@ export default class Account {
 
   async updateUserInfo(id) {
     console.log("Updating data...");
+    if (this.formData.username.length < 4 || this.formData.alias.length < 4) {
+      return console.error("Please complete all fields");
+    }
     try {
       const res = await API.put(`/user/${id}/`, this.formData);
       console.log(res);
@@ -293,30 +317,29 @@ export default class Account {
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
-            ? `<div id="user-main-div">
+            ? `<div id="userinfo-main-div">
 				<form id="user-form">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-					<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">
-					<div class="custom-file m-2">
-						<label class="form-label" for="avatar">
-							Avatar
+					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					<div class="search-bar-and-result-social">
+						<label class="file-label" for="avatar">
+							Upload file
 						</label>
 						<input
 						type="file"
-						class="form-control"
+						class="file-input"
 						name="avatar"
 						id="avatar"
 						/>
 					</div>
 				</div>
-				<div id="username-main-div">
-					<label class="text-capitalize">
-						Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="form-username-title-div search-bar-and-result-social" id="username-main-div">
+					<label for="username">
+						Username
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.username}"
 					minLength="4"
 					maxLength="10"
 					value="${this.formData.username}"
@@ -324,14 +347,13 @@ export default class Account {
 					required
 					/>
 				</div>
-				<div id="alias-main-div">
-					<label class="text-capitalize">
-						Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="form-alias-title-div search-bar-and-result-social" id="alias-main-div">
+					<label for="alias">
+						Alias
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.alias}"
 					minLength="4"
 					maxLength="10"
 					value="${this.formData.alias}"
@@ -345,21 +367,25 @@ export default class Account {
 				</form>
               </div>`
             : `
-			  <div id="user-main-div">
+			  <div id="userinfo-main-div">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+				${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 				</div>
-				<div id="username-main-div">
-					<h2>
-					Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="username-title-div" id="username-main-div">
+					<h2 class="username-title">
+					Username :
+					</h2>
+					<h2 class="username-title-value">
+					${this.userData.username ? `${this.userData.username}` : ""}
 					</h2>
 				</div>
-				</div>
-				<div id="alias-main-div">
-					<h2>
-					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="alias-title-div" id="alias-main-div">
+					<h2 class="alias-title">
+					Alias :
 					</h2>
-				</div>
+					<h2 class="alias-title-value">
+					${this.userData.alias ? `${this.userData.alias}` : ""}
+					</h2>
 				</div>
               </div>`
         }
@@ -373,7 +399,8 @@ export default class Account {
 				>
 					Delete Account
 				</button>
-                </div>
-            `;
+            </div>
+			</div>
+			</div>`;
   }
 }
