@@ -26,6 +26,7 @@ export default class User {
 
   async initialize(routeParams = {}) {
     const newPageId = routeParams.id;
+
     if (this.pageId === newPageId) this.isRouteId = true;
     if (this.isRouteId && this.isInitialized) return;
     if (!this.isInitialized) this.isInitialized = true;
@@ -37,7 +38,8 @@ export default class User {
     }
 
     this.pageId = routeParams.id;
-
+    console.log("Newage id : " + newPageId);
+    console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -165,6 +167,7 @@ export default class User {
       console.log(data);
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
+      throw error;
     }
   }
 
@@ -180,6 +183,7 @@ export default class User {
       console.log(this.friends, this.friendRequests);
     } catch (error) {
       console.error(`Error while trying to get MyFriends : ${error}`);
+      throw error;
     }
   }
 
@@ -192,6 +196,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
+      throw error;
     }
   }
 
@@ -201,6 +206,7 @@ export default class User {
       console.log(res.data);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
+      throw error;
     }
   }
 
@@ -212,6 +218,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to cancel friend request : ${error}`);
+      throw error;
     }
   }
 
@@ -223,6 +230,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
+      throw error;
     }
   }
 
@@ -236,6 +244,7 @@ export default class User {
       console.error(
         `Error while trying to delete recieved friend request : ${error}`
       );
+      throw error;
     }
   }
 
@@ -310,9 +319,9 @@ export default class User {
     console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering User page");
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -356,31 +365,39 @@ export default class User {
       }
       if (error.response.status === 404) {
         this.state.state.lastLastRoute = this.state.state.lastRoute;
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
-			<div class="d-flex flex-column justify-content-center align-items-center h-100">
-				<div class="title-div mb-4">
-					<h1 class="text-capitalize w-100 text-center">Public user page</h1>
+			<div class="user-main-div">
+			<div class="user-main-content">
+				<div class="title-div">
+				<h1>${this.publicUserData.username ? `${this.publicUserData.username}` : "User"}</h1>
 				</div>
 				<div id="user-main-div">
-					<div id="avatar-main-div">
-					${this.publicUserData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000${this.publicUserData.avatar}" class="rounded-circle">` : ``}
+					<div class="avatar-main-div" id="avatar-main-div">
+					${this.publicUserData.avatar ? `<img src="https://127.0.0.1:8000${this.publicUserData.avatar}">` : `<img src="/profile.jpeg">`}
 					</div>
-					<div id="username-main-div">
-						<h2 class="text-capitalize">
-						Username : ${this.publicUserData.username ? `${this.publicUserData.username}` : ""}
+					<div class="username-title-div" id="username-main-div">
+						<h2 class="username-title">
+						Username :
+						</h2>
+						<h2 class="username-title-value">
+						${this.publicUserData.username ? `${this.publicUserData.username}` : ""}
 						</h2>
 					</div>
-					</div>
-					<div id="alias-main-div">
-						<h2 class="text-capitalize">
-						Alias : ${this.publicUserData.alias ? `${this.publicUserData.alias}` : ""}
+					<div class="alias-title-div" id="alias-main-div">
+						<h2 class="alias-title">
+						Alias :
+						</h2>
+						<h2 class="alias-title-value">
+						${this.publicUserData.alias ? `${this.publicUserData.alias}` : ""}
 						</h2>
 					</div>
 					${
@@ -405,6 +422,7 @@ export default class User {
                     : ``
           }
 				</div>
+			</div>
 			</div>
 	`;
   }

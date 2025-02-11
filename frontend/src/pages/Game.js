@@ -111,9 +111,9 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded
     ) {
       console.log("State changed, rendering Game page");
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -229,14 +229,16 @@ export default class GamePage {
       await checkUserStatus();
     } catch (error) {
       if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
-    
+
     if (!gameStarted && !gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

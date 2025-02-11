@@ -34,7 +34,10 @@ API.interceptors.response.use(
         setTimeout(() => {
           if (
             window.location.pathname !== "/" &&
-            window.location.pathname !== "/login"
+            window.location.pathname !== "/login" &&
+            window.location.pathname !== "/register" &&
+            window.location.pathname !== "/game" &&
+            window.location.pathname !== "/local-tournament"
           ) {
             router.navigate("/login");
           }
