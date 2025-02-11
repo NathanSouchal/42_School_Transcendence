@@ -25,6 +25,7 @@ class SimpleUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'avatar']
 
 class UserSerializer(serializers.ModelSerializer):
+    # id = serializers.UUIDField(format='hex')
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
@@ -105,11 +106,13 @@ class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stats
         fields = '__all__'
+        read_only_fields = ['id']
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = '__all__'
+        read_only_fields = ['id']
 
     def to_representation(self, instance):
         """

@@ -17,10 +17,10 @@ export function resetZIndex() {
 export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    context.removeEventListeners();
     container.innerHTML = await context.render();
     // Attendre que le DOM soit mis a jour de façon asynchrone
     requestAnimationFrame(() => {
+      context.removeEventListeners();
       context.attachEventListeners();
     });
   }
@@ -57,10 +57,15 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
-    await API.get("/auth/is-auth/");
+    const res = await API.get("/auth/is-auth/");
+    const id = res.data.user_id.toString();
+    console.log(id);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+    if (id !== state.state.userId) {
+      state.state.userId = id;
+      state.saveState();
+    }
   } catch (error) {
-    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
     console.error(`Error while trying to check user status : ${error}`);
     throw error;
   }

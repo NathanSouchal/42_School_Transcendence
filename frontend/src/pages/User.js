@@ -11,6 +11,7 @@ export default class User {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.pageId = null;
     this.isInitialized = false;
     this.isRouteId = false;
@@ -327,7 +328,7 @@ export default class User {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("User page unsubscribed from state");
     }

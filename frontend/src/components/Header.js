@@ -166,9 +166,9 @@ export class Header {
                           <a class="nav-link" href="/social">Social</a>
                       </li>
                       <li class="navbar-link">
-                        <button type="button" class="btn btn-danger mb-2" id="logout-button">
+                        <a><button type="button" class="btn btn-danger mb-2" id="logout-button">
                           Logout
-                        </button>
+                        </button></a>
                       </li>
                     </ul>
                     </nav>`;

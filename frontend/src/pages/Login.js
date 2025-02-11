@@ -1,7 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView } from "../utils.js";
-import { createBackArrow } from "../utils";
+import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
 
 export default class Login {
@@ -93,9 +92,10 @@ export default class Login {
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
-      const { id } = response.data.user;
+      const id = response.data.user.id;
       console.log(response.data);
-      this.state.state.userId = id;
+      console.log(response.data.user.id.toString());
+      this.state.state.userId = id.toString();
       this.state.saveState();
       router.navigate("/account");
     } catch (error) {
@@ -134,7 +134,7 @@ export default class Login {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
@@ -165,6 +165,8 @@ export default class Login {
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password}"
+			  minLength="4"
+			  maxLength="20"
               name="password"
               aria-label="Password"
               required
