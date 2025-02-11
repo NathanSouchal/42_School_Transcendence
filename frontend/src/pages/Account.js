@@ -320,7 +320,7 @@ export default class Account {
             ? `<div id="userinfo-main-div">
 				<form id="user-form">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					${this.userData.avatar ? `<img src="https://localhost:8443/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 					<div class="search-bar-and-result-social">
 						<label class="file-label" for="avatar">
 							Upload file
@@ -367,15 +367,9 @@ export default class Account {
 				</form>
               </div>`
             : `
-<<<<<<< HEAD
-			  <div id="user-main-div">
-			 	<div id="avatar-main-div">
-				${this.userData.avatar ? `<img width="200" height="200" src="https://localhost:8443/${this.userData.avatar}" class="rounded-circle">` : ``}
-=======
 			  <div id="userinfo-main-div">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-				${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
->>>>>>> dev
+				${this.userData.avatar ? `<img src="https://localhost:8443/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">

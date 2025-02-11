@@ -14,26 +14,27 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
 
 class RegisterView(APIView):
-	serializer_class = UserSerializer
-	permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
-	def post(self, request):
-		serializer = UserSerializer(data=request.data)
-		username = request.data.get('username')
-		password = request.data.get('password')
-		print(f"Registering user: {username}, Password: {password}")
-		if serializer.is_valid():
-			try:
-				serializer.save()
-				return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
-			except IntegrityError:
-				return Response(
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        print(f"Registering user: {username}, Password: {password}")
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
+            except IntegrityError:
+                return Response(
                     {'error': 'Username is already taken.'},
                     status=status.HTTP_409_CONFLICT
                 )
-			except Exception as e:
-				return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                print(f"Register error: {e}")
+                return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     serializer_class = UserSerializer
