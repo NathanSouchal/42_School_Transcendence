@@ -186,6 +186,8 @@ export default class Social {
           <a href="/user/${this.search_result.id}/" class="user-search-result-social">
             ${this.search_result.username}
           </a>`;
+      this.removeEventListeners();
+      this.attachEventListeners();
     }
   }
 
@@ -254,12 +256,14 @@ export default class Social {
                             .map(
                               (value) =>
                                 `<div class="friends-item-social">
+							  <a href="/user/${value.id}/">
                                     <div class="friends-item-img-username">
-                                      <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
-                                      <a href="/user/${value.id}/">${value.username}</a>
+											<img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+											<p>${value.username}</p>
                                     </div>
                                     <p>Online</p>
-                                </div>`
+                                </div>
+								</a>`
                             )
                             .join("")} `
                             : `<div>
@@ -281,17 +285,21 @@ export default class Social {
                                     ${
                                       value.from_user.id == this.userId
                                         ? `<div class="invitation-item-social">
+										<a href="/user/${value.to_user.id}/">
                                         <div class="invitation-item-img-username">
-                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
-                                          <p>${value.to_user.username}, waiting for acceptation...</p>
+                                         		<img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                                          	<p>${value.to_user.username}, waiting for acceptation...</p>
                                         </div>
+										</a>
                                         <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
                                       </div>`
                                         : `<div class="invitation-item-social">
-                                        <div class="invitation-item-img-username">
-                                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
-                                          <p>${value.from_user.username}</p>
+                                        <a href="/user/${value.from_user.id}/">
+										<div class="invitation-item-img-username">
+                                          		<img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                                          		<p>${value.from_user.username}</p>
                                         </div>
+										</a>
                                         <div class="two-buttons-invitation-social">
                                           <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
                                           <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>

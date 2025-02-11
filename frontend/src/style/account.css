@@ -69,7 +69,7 @@ label {
   font-style: var(--primary-font);
 }
 
-img {
+.user-main-div img {
   width: 200px;
   height: 200px;
   border-radius: 50%;
