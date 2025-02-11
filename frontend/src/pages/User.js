@@ -1,22 +1,25 @@
-import { createBackArrow } from "../components/backArrow.js";
-import { Router } from "../router.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils";
+import { router } from "../app.js";
 
 export default class User {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.pageId = null;
     this.isInitialized = false;
     this.isRouteId = false;
     this.isSubscribed = false;
-    this.errorCode = null;
     this.eventListeners = [];
-
     this.publicUserData = {};
     this.friends = [];
     this.friendRequests = [];
-    this.userId = null;
     this.friendStatus = "";
     this.friendRequestId = null;
   }
@@ -34,36 +37,26 @@ export default class User {
     }
 
     this.pageId = routeParams.id;
-    this.userId = Number(localStorage.getItem("id"));
-    console.log("INITIALIZE ON USER");
-    await this.getPublicUserInfo();
-    if (this.errorCode === 404) {
-      this.state.state.lastLastRoute = this.state.state.lastRoute;
-      window.location.href = "/404";
-    }
-    await this.getMyFriends();
-    if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
-    }
-  }
 
-  updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const cancelFriendRequestButton = document.getElementById(
       "cancel-friend-request"
     );
@@ -171,21 +164,15 @@ export default class User {
       this.publicUserData = data.user;
       console.log(data);
     } catch (error) {
-      if (error.response) {
-        const status = error.response.status;
-        if (status === 404) {
-          this.errorCode = 404;
-          console.error(`Error while trying to get PublicUserInfo : ${error}`);
-        }
-      } else {
-        console.error(`Error while trying to get PublicUserInfo : ${error}`);
-      }
+      console.error(`Error while trying to get PublicUserInfo : ${error}`);
     }
   }
 
   async getMyFriends() {
     try {
-      const response = await API.get(`/friend-requests/byuser/${this.userId}/`);
+      const response = await API.get(
+        `/friend-requests/byuser/${this.state.state.userId}/`
+      );
       const data = response.data;
       this.friends = response.data.friends;
       this.friendRequests = response.data.pending_friend_requests;
@@ -199,7 +186,7 @@ export default class User {
   async sendFriendRequest() {
     try {
       const res = await API.post("/friend-requests/create/", {
-        from_user: this.userId.toString(),
+        from_user: this.state.state.userId.toString(),
         to_user: this.pageId,
       });
       console.log(res);
@@ -252,6 +239,15 @@ export default class User {
     }
   }
 
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
+    }
+  }
+
   async handleFriend(key, value) {
     if (key === "cancel-friend-request") {
       await this.cancelFriendRequest();
@@ -265,7 +261,7 @@ export default class User {
       await this.deleteRecievedFriendRequest();
     }
     await this.getMyFriends();
-    this.updateView();
+    updateView(this);
   }
 
   async checkFriendStatus() {
@@ -276,7 +272,7 @@ export default class User {
         (el) =>
           !el.accepted &&
           el.to_user?.id.toString() === this.pageId &&
-          this.pageId.toString() !== this.userId.toString()
+          this.pageId.toString() !== this.state.state.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(
@@ -291,7 +287,7 @@ export default class User {
         (el) =>
           !el.accepted &&
           el.from_user?.id.toString() === this.pageId &&
-          this.pageId.toString() !== this.userId.toString()
+          this.pageId.toString() !== this.state.state.userId.toString()
       )
     ) {
       const matchingRequest = this.friendRequests.find(
@@ -302,25 +298,21 @@ export default class User {
         this.friendStatus = "recieved";
       }
     } else {
-      if (this.pageId.toString() === this.userId.toString())
+      if (this.pageId.toString() === this.state.state.userId.toString())
         this.friendStatus = "me";
       else this.friendStatus = "free";
     }
     console.log(this.friendStatus);
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering User page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -336,7 +328,7 @@ export default class User {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("User page unsubscribed from state");
     }
@@ -344,29 +336,32 @@ export default class User {
     this.isInitialized = false;
     this.isRouteId = false;
     this.isSubscribed = false;
-    this.errorCode = null;
     this.publicUserData = {};
     this.friends = [];
     this.friendRequests = [];
-    this.userId = null;
     this.friendStatus = "";
     this.friendRequestId = null;
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     const { id } = routeParams;
-    handleHeader(this.state.isUserLoggedIn, false);
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    // if (this.errorCode === 404) {
-    //   return setTimeout(() => {
-    //     this.errorCode = null;
-    //     window.app.router.navigate(this.state.state.lastLastRoute);
-    //   }, 100);
-    // }
-    if (this.errorCode === 404) {
-      this.errorCode = null;
-      window.location.href = `/404`;
+    try {
+      await checkUserStatus();
+      await this.getPublicUserInfo();
+      await this.getMyFriends();
+    } catch (error) {
+      if (error.response.status === 401) {
+        this.state.state.lastLastRoute = this.state.state.lastRoute;
+        return "";
+      }
+      if (error.response.status === 404) {
+        this.state.state.lastLastRoute = this.state.state.lastRoute;
+        router.navigate("/404");
+        return;
+      }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
+    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
 			<div class="d-flex flex-column justify-content-center align-items-center h-100">

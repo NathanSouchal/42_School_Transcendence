@@ -1,15 +1,22 @@
-import { createBackArrow } from "../components/backArrow.js";
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils";
+import { router } from "../app.js";
 
 export default class MatchHistory {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
     this.matchHistory = {};
+    this.eventListeners = [];
   }
 
   async initialize(routeParams = {}) {
@@ -22,21 +29,44 @@ export default class MatchHistory {
       console.log("Match_history page subscribed to state");
     }
 
-    const userId = Number(localStorage.getItem("id"));
-    if (userId) {
-      await this.getMatchHistory(userId);
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    await updateView(this);
+  }
 
-    const content = this.render();
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = content;
+  attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 
-  attachEventListeners() {}
-
-  handleStateChange() {}
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering MatchHistory page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
+  }
 
   async getMatchHistory(id) {
     try {
@@ -55,6 +85,16 @@ export default class MatchHistory {
     }
   }
 
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
+
   destroy() {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
@@ -63,8 +103,18 @@ export default class MatchHistory {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
     let template;
+    try {
+      await checkUserStatus();
+      await this.getMatchHistory(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {

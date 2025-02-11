@@ -1,6 +1,7 @@
-import { handleHeader } from "../utils";
-import { createBackArrow } from "../components/backArrow.js";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import DOMPurify from "dompurify";
+import { router } from "../app.js";
+import { createBackArrow } from "../utils";
 
 export default class GamePage {
   constructor(state) {
@@ -21,114 +22,56 @@ export default class GamePage {
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
-    this.updateView();
-  }
-
-  updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    await updateView(this);
   }
 
   attachEventListeners() {
-    const togglePause = document.getElementById("toggle-pause");
-    if (togglePause) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "toggle-pause")) {
-        togglePause.addEventListener("click", (e) =>
-          handleClick("toggle-pause")
-        );
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
         this.eventListeners.push({
-          name: "toggle-pause",
+          name: link.getAttribute("href") || "unknown-link",
           type: "click",
-          element: togglePause,
-          listener: handleClick,
+          element: link,
+          listener: handleNavigation,
         });
       }
-    }
+    });
 
-    const pvpButton = document.getElementById("start-pvp-game");
-    if (pvpButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "start-pvp-game")) {
-        pvpButton.addEventListener("click", (e) =>
-          handleClick("start-pvp-game")
-        );
+    const buttons = [
+      { id: "toggle-pause", action: "toggle-pause" },
+      { id: "start-pvp-game", action: "start-pvp-game" },
+      { id: "start-pvr-game", action: "start-pvr-game" },
+      { id: "restart-game", action: "restart-game" },
+      { id: "resume-game", action: "resume-game" },
+      { id: "exit-game", action: "exit-game" },
+    ];
 
-        this.eventListeners.push({
-          name: "start-pvp-game",
-          type: "click",
-          element: pvpButton,
-          listener: handleClick,
-        });
+    buttons.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleClick = this.handleClick.bind(this, action);
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          button.addEventListener("click", handleClick);
+          this.eventListeners.push({
+            name: action,
+            type: "click",
+            element: button,
+            listener: handleClick,
+          });
+        }
       }
-    }
+    });
+  }
 
-    const pvrButton = document.getElementById("start-pvr-game");
-    if (pvrButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "start-pvr-game")) {
-        pvrButton.addEventListener("click", (e) =>
-          handleClick("start-pvr-game")
-        );
-        this.eventListeners.push({
-          name: "start-pvr-game",
-          type: "click",
-          element: pvrButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const restartGameButton = document.getElementById("restart-game");
-    if (restartGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "restart-game")) {
-        restartGameButton.addEventListener("click", (e) =>
-          handleClick("restart-game")
-        );
-        this.eventListeners.push({
-          name: "restart-game",
-          type: "click",
-          element: restartGameButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const resumeGameButton = document.getElementById("resume-game");
-    if (resumeGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "resume-game")) {
-        resumeGameButton.addEventListener("click", (e) =>
-          handleClick("resume-game")
-        );
-        this.eventListeners.push({
-          name: "resume-game",
-          type: "click",
-          element: resumeGameButton,
-          listener: handleClick,
-        });
-      }
-    }
-
-    const exitGameButton = document.getElementById("exit-game");
-    if (exitGameButton) {
-      const handleClick = this.handleClick.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "exit-game")) {
-        exitGameButton.addEventListener("click", (e) =>
-          handleClick("exit-game")
-        );
-        this.eventListeners.push({
-          name: "exit-game",
-          type: "click",
-          element: exitGameButton,
-          listener: handleClick,
-        });
-      }
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 
@@ -160,23 +103,17 @@ export default class GamePage {
     }
   }
 
-  handleStateChange(newState) {
-    console.log(
-      "handlechange : newState.gameIsPaused->" +
-        newState.gameIsPaused +
-        "newState.gameStarted->" +
-        newState.gameStarted +
-        "newState.gameHasBeenWon->" +
-        newState.gameHasBeenWon
-    );
+  async handleStateChange(newState) {
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
-      newState.gameHasBeenWon !== this.previousState.gameHasBeenWon
+      newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
+      newState.gameHasLoaded !== this.previousState.gameHasLoaded
     ) {
-      this.previousState = { ...newState };
-      this.updateView();
+      console.log("State changed, rendering Game page");
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -224,10 +161,8 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    const template = `${backArrow}
-			<div class="game-hud">
+    const template = `<div class="game-hud">
 				<div class="game-score">
 					<h1 class="display-4 mb-0">${left} - ${right}</h1>
 				</div>
@@ -241,9 +176,7 @@ export default class GamePage {
   }
 
   renderPauseMenu() {
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    const template = `${backArrow}
-			<div>
+    const template = `<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
@@ -291,11 +224,19 @@ export default class GamePage {
     return sanitizedTemplate;
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
-
+    
     if (!gameStarted && !gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

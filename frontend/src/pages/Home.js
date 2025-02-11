@@ -1,14 +1,17 @@
 import DOMPurify from "dompurify";
-import { resetZIndex } from "/src/utils.js";
 import { handleHeader } from "../utils";
+import API from "../services/api.js";
+import { updateView, checkUserStatus } from "../utils";
+import { router } from "../app.js";
 
 export default class Home {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
-    this.cssLink;
+    this.eventListeners = [];
   }
   async initialize(routeParams = {}) {
     console.log("Home initialized");
@@ -19,36 +22,55 @@ export default class Home {
     }
     if (this.isInitialized) return;
     this.isInitialized = true;
-
+    console.log("PREVGameHasLoaded1 : " + this.previousState.gameHasLoaded);
     if (!this.state.state.gameHasLoaded) return;
-    else {
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
+    else await updateView(this);
+  }
+
+  attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
       }
+    });
+  }
+
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 
-  attachEventListeners() {}
-
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+      await updateView(this);
     }
+    this.previousState = { ...newState };
   }
 
-  removeEventListeners() {}
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
+    });
+    this.eventListeners = [];
+  }
 
   destroy() {
     this.removeEventListeners();
@@ -60,7 +82,12 @@ export default class Home {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      console.error(error);
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
     const container = document.getElementById("app");
@@ -79,6 +106,7 @@ export default class Home {
       links = [
         { href: "/login", text: "Login" },
         { href: "/game", text: "Guest Mode" },
+        // { href: "/user/200", text: "User 200" },
       ];
     }
     return `

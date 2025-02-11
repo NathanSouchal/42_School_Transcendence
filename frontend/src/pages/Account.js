@@ -1,11 +1,13 @@
 import DOMPurify from "dompurify";
-import { createBackArrow } from "../components/backArrow.js";
 import API from "../services/api.js";
-import { handleHeader } from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
+import { createBackArrow } from "../utils";
+import { router } from "../app.js";
 
 export default class Account {
   constructor(state) {
     this.state = state;
+    this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -17,7 +19,6 @@ export default class Account {
     };
     this.lastDeleted = 0;
     this.isForm = false;
-    this.isLoading = true;
     this.eventListeners = [];
   }
 
@@ -30,191 +31,138 @@ export default class Account {
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-
-    // Récupérer l'ID utilisateur depuis le stockage local
-    const userId = Number(localStorage.getItem("id"));
-
-    // Charger les données utilisateur si un ID existe
-    try {
-      await this.fetchData(userId);
-      this.isLoading = false;
-      this.formData.username = this.userData.username;
-      this.formData.alias = this.userData.alias;
-      if (!this.state.state.gameHasLoaded) return;
-      else {
-        const content = this.render();
-        const container = document.getElementById("app");
-        if (container) {
-          container.innerHTML = content;
-          this.removeEventListeners();
-          this.attachEventListeners();
-        }
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  updateView() {
-    const container = document.getElementById("app");
-    if (container) {
-      container.innerHTML = this.render();
-      this.removeEventListeners();
-      this.attachEventListeners();
-    }
+    if (!this.state.state.gameHasLoaded) return;
+    else await updateView(this);
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
-      const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", async (e) => {
+        const handleChange = (e) => {
           const file = e.target.files[0];
-          await handleChangeBound("avatar", file);
-        });
+          if (file) this.handleChange("avatar", file);
+        };
+        avatarInput.addEventListener("change", handleChange);
         this.eventListeners.push({
           name: "avatar",
           type: "change",
           element: avatarInput,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const updateButton = document.getElementById("update-user-info");
     if (updateButton) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(this, "update-user-info", "");
       if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", async (e) => {
-          await handleChangeBound("update-user-info", "");
-        });
+        updateButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "updateUserInfo",
           type: "click",
           element: updateButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const refreshButton = document.getElementById("refresh-token-button");
-    if (refreshButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
-        refreshButton.addEventListener("click", async () => {
-          await handleChangeBound("refresh-token-button", "");
-        });
-        this.eventListeners.push({
-          name: "refreshButton",
-          type: "click",
-          element: refreshButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const accessButton = document.getElementById("access-token-button");
-    if (accessButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      console.log("checking if accessButton object exists");
-      if (!this.eventListeners.some((e) => e.name === "accessButton")) {
-        accessButton.addEventListener("click", async () => {
-          await handleChangeBound("access-token-button", "");
-        });
-        console.log("pushing accessButton object");
-        this.eventListeners.push({
-          name: "accessButton",
-          type: "click",
-          element: accessButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteUserButton) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(
+        this,
+        "delete-user-button",
+        ""
+      );
       if (!this.eventListeners.some((e) => e.name === "deleteUserButton")) {
-        deleteUserButton.addEventListener("click", async () => {
-          await handleChangeBound("delete-user-button", "");
-        });
+        deleteUserButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "deleteUserButton",
           type: "click",
           element: deleteUserButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const formButton = document.getElementById("form-button");
     if (formButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      // Vérifie si le gestionnaire d'événements a déjà été ajouté
+      const handleChange = this.handleChange.bind(this, "form-button", "");
       if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", async () => {
-          await handleChangeBound("form-button", "");
-        });
+        formButton.addEventListener("click", handleChange);
         this.eventListeners.push({
           name: "formButton",
           type: "click",
           element: formButton,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const formSubmit = document.getElementById("user-form");
     if (formSubmit) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleChange = this.handleChange.bind(this, "form-submit", "");
       if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
-        formButton.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          await handleChangeBound("form-submit", "");
-        });
+        formButton.addEventListener("submit", handleChange);
         this.eventListeners.push({
           name: "formSubmit",
           type: "form-submit",
           element: formSubmit,
-          listener: handleChangeBound,
+          listener: handleChange,
         });
       }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeInputBound = this.handleChangeInput.bind(this);
+      const handleChangeInput = this.handleChangeInput.bind(this);
       if (!this.eventListeners.some((e) => e.name === input.name)) {
-        input.addEventListener("input", (e) => {
-          handleChangeInputBound(e.target.name, e.target.value, e.target);
-        });
+        input.addEventListener("input", handleChangeInput);
         this.eventListeners.push({
           name: input.name,
           type: "input",
           element: input,
-          listener: handleChangeInputBound,
+          listener: handleChangeInput,
         });
       }
     });
   }
 
-  handleStateChange(newState) {
-    console.log("GameHasLoaded : " + newState.gameHasLoaded);
-    if (newState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Account page");
-      const content = this.render();
-      const container = document.getElementById("app");
-      if (container) {
-        container.innerHTML = content;
-        this.removeEventListeners();
-        this.attachEventListeners();
-      }
+  handleNavigation(e) {
+    const target = e.target.closest("a");
+    if (target && target.href.startsWith(window.location.origin)) {
+      e.preventDefault();
+      const path = target.getAttribute("href");
+      router.navigate(path);
     }
   }
 
-  handleChangeInput(key, value, inputElement) {
-    this.formData[key] = value;
+  async handleStateChange(newState) {
+    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+      console.log("GameHasLoaded state changed, rendering Account page");
+      await updateView(this);
+    }
+    this.previousState = { ...newState };
+  }
+
+  handleChangeInput(e) {
+    this.formData[e.target.name] = e.target.value;
     console.log(this.formData.alias);
     console.log(this.formData.username);
     console.log(this.formData.avatar);
@@ -223,8 +171,29 @@ export default class Account {
   async handleChange(key, value) {
     console.log("handlechange");
     if (key == "avatar") {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
       const fileInput = value;
+      const label = document.querySelector(".file-label");
       if (fileInput) {
+        if (!allowedTypes.includes(fileInput.type)) {
+          alert("Only JPG and PNG files are allowed");
+          value = "";
+          label.textContent = "Upload file";
+          return;
+        }
+        if (fileInput.size > maxSize) {
+          alert("File size can't exceed 5MB");
+          value = "";
+          label.textContent = "Upload file";
+          return;
+        }
+        let filename = fileInput.name;
+        if (fileInput.name.length > 10)
+          filename = fileInput.name
+            .slice(0, 7)
+            .concat(`...${fileInput.type.slice(6)}`);
+        label.textContent = filename;
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64String = e.target.result;
@@ -232,34 +201,22 @@ export default class Account {
           this.formData.avatar = base64String;
         };
         reader.readAsDataURL(fileInput);
-      }
+      } else label.textContent = "Upload file";
     } else if (key == "form-button") {
       this.isForm = !this.isForm;
-      this.updateView();
+      await updateView(this);
     } else if (key == "update-user-info") {
       try {
-        await this.updateUserInfo(this.userData.id);
+        await this.updateUserInfo(this.state.state.userId);
         await this.fetchData(this.userData.id);
         this.isForm = !this.isForm;
-        this.updateView();
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (key == "refresh-token-button") {
-      try {
-        await this.getNewRefreshToken(this.userData.id);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (key == "access-token-button") {
-      try {
-        await this.getNewAccessToken(this.userData.id);
+        await updateView(this);
       } catch (error) {
         console.error(error);
       }
     } else if (key == "delete-user-button") {
       try {
-        await this.deleteUser(this.userData.id);
+        await this.deleteUser(this.state.state.userId);
       } catch (error) {
         console.error(error);
       }
@@ -267,25 +224,31 @@ export default class Account {
   }
 
   async fetchData(id) {
-    console.log("Fetchind data...");
+    console.log("Fetching data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
       console.log(data);
       this.userData = data.user;
+      this.formData.username = data.user.username;
+      this.formData.alias = data.user.alias;
       if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = {};
       if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      throw error;
     }
   }
 
   async updateUserInfo(id) {
     console.log("Updating data...");
+    if (this.formData.username.length < 4 || this.formData.alias.length < 4) {
+      return console.error("Please complete all fields");
+    }
     try {
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res + "ICI");
+      console.log(res);
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
     }
@@ -295,26 +258,9 @@ export default class Account {
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
-      this.render();
+      await updateView(this);
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
-      this.render();
-    }
-  }
-
-  async getNewAccessToken(id) {
-    try {
-      await API.post(`/auth/custom-token/access/`);
-    } catch (error) {
-      console.error(`Error while trying to get new access token : ${error}`);
-    }
-  }
-
-  async getNewRefreshToken(id) {
-    try {
-      await API.post(`/auth/custom-token/refresh/`);
-    } catch (error) {
-      console.error(`Error while trying to get new refresh token : ${error}`);
     }
   }
 
@@ -333,7 +279,6 @@ export default class Account {
     if (event) {
       event.element.removeEventListener(event.type, event.listener);
       console.log("Removed unique eventListener from input");
-      // Supprimez l'événement de la liste
       this.eventListeners = this.eventListeners.filter(
         (el) => el.name !== name
       );
@@ -349,51 +294,52 @@ export default class Account {
     }
   }
 
-  render(routeParams = {}) {
+  async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+      await this.fetchData(this.state.state.userId);
+    } catch (error) {
+      if (error.response.status === 401) return "";
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     handleHeader(this.state.isUserLoggedIn, false);
-
-    // if (this.isLoading) {
-    //   return "<p>Loading...</p>";
-    // }
     // const userData = this.state.data.username;
     // const sanitizedData = DOMPurify.sanitize(userData);
-    const hasUsername =
-      this.userData.username && this.userData.username.length > 0;
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex flex-column justify-content-center align-items-center h-100">
-          <div class="title-div mb-4">
-            <h1 class="text-capitalize w-100 text-center">Account</h1>
-          </div>
-            ${
-              this.state.isUserLoggedIn
-                ? `
+    return `${backArrow}<div class="user-main-div">
+						<div class="user-main-content">
+                          <div class="title-div">
+                            <h1>Account</h1>
+                          </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
-            ? `<div id="user-main-div">
+            ? `<div id="userinfo-main-div">
 				<form id="user-form">
-			 	<div id="avatar-main-div">
-					<img width="200" height="200" src="https://localhost:8443/${this.userData.avatar}" class="rounded-circle">
-					<div class="custom-file m-2">
-						<label class="form-label" for="avatar">
-							Avatar
+			 	<div class="avatar-main-div" id="avatar-main-div">
+					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					<div class="search-bar-and-result-social">
+						<label class="file-label" for="avatar">
+							Upload file
 						</label>
 						<input
 						type="file"
-						class="form-control"
+						class="file-input"
 						name="avatar"
 						id="avatar"
 						/>
 					</div>
 				</div>
-				<div id="username-main-div">
-					<label class="text-capitalize">
-						Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="form-username-title-div search-bar-and-result-social" id="username-main-div">
+					<label for="username">
+						Username
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.username}"
 					minLength="4"
 					maxLength="10"
 					value="${this.formData.username}"
@@ -401,14 +347,13 @@ export default class Account {
 					required
 					/>
 				</div>
-				<div id="alias-main-div">
-					<label class="text-capitalize">
-						Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="form-alias-title-div search-bar-and-result-social" id="alias-main-div">
+					<label for="alias">
+						Alias
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.alias}"
 					minLength="4"
 					maxLength="10"
 					value="${this.formData.alias}"
@@ -422,19 +367,30 @@ export default class Account {
 				</form>
               </div>`
             : `
+<<<<<<< HEAD
 			  <div id="user-main-div">
 			 	<div id="avatar-main-div">
 				${this.userData.avatar ? `<img width="200" height="200" src="https://localhost:8443/${this.userData.avatar}" class="rounded-circle">` : ``}
+=======
+			  <div id="userinfo-main-div">
+			 	<div class="avatar-main-div" id="avatar-main-div">
+				${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+>>>>>>> dev
 				</div>
-				<div id="username-main-div">
-					<h2 class="text-capitalize">
-					Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="username-title-div" id="username-main-div">
+					<h2 class="username-title">
+					Username :
+					</h2>
+					<h2 class="username-title-value">
+					${this.userData.username ? `${this.userData.username}` : ""}
 					</h2>
 				</div>
-				</div>
-				<div id="alias-main-div">
-					<h2 class="text-capitalize">
-					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="alias-title-div" id="alias-main-div">
+					<h2 class="alias-title">
+					Alias :
+					</h2>
+					<h2 class="alias-title-value">
+					${this.userData.alias ? `${this.userData.alias}` : ""}
 					</h2>
 				</div>
               </div>`
@@ -449,32 +405,8 @@ export default class Account {
 				>
 					Delete Account
 				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="access-token-button"
-				>
-					Get New Access Token
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="refresh-token-button"
-				>
-					Get New Refresh Token
-				</button>
-                </div>
-            `
-                : `
-              <div class="text-center">
-                <h1>No info, please log in</h1>
-                <button
-                  class="btn btn-danger mb-2"
-				  id="refresh-token-button"
-                >
-                  Get New Refresh Token
-                </button>
-              </div>
-            `
-            }
-      </div>`;
+            </div>
+			</div>
+			</div>`;
   }
 }

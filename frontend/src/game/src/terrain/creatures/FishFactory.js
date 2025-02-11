@@ -16,13 +16,13 @@ class FishFactory {
         "Terrain",
         "Fish1",
         async () => this.loadObjects(),
-        7,
+        7
       );
       await updateLoadingTime(
         "Terrain",
         "Fish2",
         async () => this.init(terrain_geometry, terrain_obj),
-        8,
+        8
       );
     } catch (error) {
       console.error("Error initializing FishFactory:", error);
@@ -31,19 +31,16 @@ class FishFactory {
 
   async loadObjects() {
     try {
-      this.fishScene = await this.loadModel("src/game/assets/guppy_fish.glb", {
+      this.fishScene = await this.loadModel("/game/assets/guppy_fish.glb", {
         x: 0.5,
         y: 0.5,
         z: 0.5,
       });
-      this.jellyfishScene = await this.loadModel(
-        "src/game/assets/jellyfish.glb",
-        {
-          x: 4,
-          y: 4,
-          z: 4,
-        },
-      );
+      this.jellyfishScene = await this.loadModel("/game/assets/jellyfish.glb", {
+        x: 4,
+        y: 4,
+        z: 4,
+      });
     } catch (error) {
       console.error("Error loading fish objects:", error);
       throw error;
@@ -55,7 +52,7 @@ class FishFactory {
       let fish = new Fish(
         terrain_geometry,
         terrain_obj,
-        this.cloneScene(this.fishScene),
+        this.cloneScene(this.fishScene)
       );
       this.creatures.push(fish);
     }
@@ -64,7 +61,7 @@ class FishFactory {
       let jellyfish = new JellyFish(
         terrain_geometry,
         terrain_obj,
-        this.cloneScene(this.jellyfishScene),
+        this.cloneScene(this.jellyfishScene)
       );
       this.creatures.push(jellyfish);
     }
@@ -105,7 +102,7 @@ class FishFactory {
         (error) => {
           console.error(error);
           reject(error);
-        },
+        }
       );
     });
   }

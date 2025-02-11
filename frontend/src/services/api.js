@@ -1,5 +1,6 @@
 import axios from "axios";
 import state from "../app.js";
+import { router } from "../app.js";
 
 const API = axios.create({
   baseURL: "https://localhost:8443/api",
@@ -24,10 +25,20 @@ API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
     const originalRequest = error.config;
+    if (!error.response) {
+      router.navigate("/500");
+    }
     // Vérifier si l'erreur est une 401 (Unauthorized)
     if (error.response && error.response.status === 401) {
-      if (isRetrying || !state.isUserLoggedIn) {
-        window.location.href = "/login"; // Rediriger vers la page de connexion
+      if (isRetrying) {
+        setTimeout(() => {
+          if (
+            window.location.pathname !== "/" &&
+            window.location.pathname !== "/login"
+          ) {
+            router.navigate("/login");
+          }
+        }, 100);
         return Promise.reject(error);
       }
       isRetrying = true;
@@ -40,6 +51,7 @@ API.interceptors.response.use(
 
         // Relancer la requête originale avec le nouveau token
         state.setIsUserLoggedIn(true);
+        isRetrying = false;
         return API(originalRequest);
       } catch (tokenError) {
         // Si l'obtention d'un nouveau token échoue, gérer l'erreur (ex : déconnexion)

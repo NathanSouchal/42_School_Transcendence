@@ -20,14 +20,14 @@ class Arena {
   async init() {
     try {
       const raftModel = await this.loadModel(
-        "src/game/assets/raft.glb",
-        new THREE.Vector3(11, 10, 10),
+        "/game/assets/raft.glb",
+        new THREE.Vector3(11, 10, 10)
       );
       this.raft.add(raftModel);
 
       const barrel = await this.loadModel(
-        "src/game/assets/barril.glb",
-        new THREE.Vector3(3, 3, 3),
+        "/game/assets/barril.glb",
+        new THREE.Vector3(3, 3, 3)
       );
 
       await Promise.all([
@@ -85,7 +85,7 @@ class Arena {
         (error) => {
           console.error(error);
           reject(error);
-        },
+        }
       );
     });
   }
