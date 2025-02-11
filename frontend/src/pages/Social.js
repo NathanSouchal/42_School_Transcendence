@@ -140,9 +140,16 @@ export default class Social {
   }
 
   async validate_invit_request(invit_id) {
-    const res = await API.put(`/friend-requests/${invit_id}/`, {
-      accepted: "true",
-    });
+    try {
+      await API.put(`/friend-requests/${invit_id}/`, {
+        accepted: "true",
+      });
+      await updateView(this);
+    }
+    catch (error) {
+      console.error(`Error while trying to accept friend request : ${error}`)
+    }
+    
   }
 
   async cancel_btn_fctn(invit_id) {
@@ -151,9 +158,15 @@ export default class Social {
   }
 
   async cancel_invit_request(invit_id) {
-    const res = await API.put(`/friend-requests/${invit_id}/`, {
-      accepted: "false",
-    });
+    try {
+      await API.put(`/friend-requests/${invit_id}/`, {
+        accepted: "false",
+      });
+      await updateView(this);
+    }
+    catch (error) {
+      console.error(`Error while trying to cancel or denie friend request : ${error}`)
+    }
   }
 
   async search_bar_user_fctn(username_to_search) {
