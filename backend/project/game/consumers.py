@@ -3,6 +3,7 @@ import uuid
 from decimal import Decimal
 from enum import Enum, auto
 from urllib.parse import parse_qs
+import copy
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -27,6 +28,7 @@ class GameState(AsyncWebsocketConsumer):
         "players": [],
         "score": {"left": 0, "right": 0},
         "status": "waiting",
+        "game_mode": "null",
         "positions": {
             "paddle_left": {"x": 0},
             "paddle_right": {"x": 0},
@@ -58,22 +60,31 @@ class GameState(AsyncWebsocketConsumer):
         await self.setup_room()
 
     async def setup_room(self):
+        roomFound = False
         if self.game_mode == GameMode.ONLINE:
             for room_name, room_data in self.rooms.items():
-                if len(room_data["players"]) < 2:
-                    self.room = room_name.split("_")[-1]
-            self.room = uuid.uuid4()
-        else:
-            self.room = uuid.uuid4()
-
+                if len(room_data["players"]) < 2 and room_data["game_mode"] == GameMode.ONLINE : 
+                    self.room = room_name
+                    roomFound = True
+        if roomFound is False or self.game_mode is not GameMode.ONLINE : 
+            self.room = str(uuid.uuid4())
         await self.accept()
 
         if self.room not in self.rooms:
-            self.rooms[self.room] = self.DEFAULT_STATE.copy()
-        await self.channel_layer.group_add(self.room, self.channel_name)
+            self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
+            self.rooms[self.room]["game_mode"] = self.game_mode
+            print(f"Default state for room {self.room}: {self.rooms[self.room]}")
 
         if self.game_mode == GameMode.ONLINE:
             await self.manage_online_players()
+        else:
+            self.rooms[self.room]['players'].append(self.channel_name)
+        await self.channel_layer.group_add(self.room, self.channel_name)
+            
+        # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
+        # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
+        # print(f"Default state2 for room {self.room}: {self.rooms[self.room]}")
+
 
     async def manage_online_players(self):
         if len(self.rooms[self.room]["players"]) < 2:
@@ -93,14 +104,16 @@ class GameState(AsyncWebsocketConsumer):
             await self.close()
 
     async def match_found(self, event):
+        print("hey")
         isSourceOfTruth = event["side"] == "left"
         await self.send(
-            json.dumps(
+            text_data=json.dumps(
                 {
                     "type": "hasFoundOpponent",
                     "side": event["side"],
                     "isSourceOfTruth": isSourceOfTruth,
-                }
+                },
+                cls=NumericEncoder,
             )
         )
 
