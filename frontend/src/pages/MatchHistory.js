@@ -105,7 +105,6 @@ export default class MatchHistory {
   }
 
   async render(routeParams = {}) {
-    let template;
     try {
       await checkUserStatus();
       await this.getMatchHistory(this.state.state.userId);
@@ -120,26 +119,38 @@ export default class MatchHistory {
     }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
-      template = `${backArrow}${Object.values(this.matchHistory)
-        .map(
-          (value) =>
-            `<div class="d-flex flex-column m-3"><h3>Game n°${value.id}</h3>
-                <div class="d-flex gap-3 align-items-center">
-                    <h5>${value.created_at.split("T")[0]}</h5>
-                    <h4>${value.player1}</h4>
-                    <h5>${value.score_player1}</h5>
-                    <span>-</span>
-                    <h5>${value.score_player2}</h5>
-                    <h4>${value.player2}</h4>
-                </div>
-
-            </div>`
-        )
-        .join("")}`;
-    } else {
-      template = `${backArrow}<h1>No data</h1>`;
-    }
+    const template = `${backArrow}<div class="user-main-div">
+						<div class="user-main-content">
+							<div class="title-div match-history-title-div">
+								<h1>Match History</h1>
+							</div>
+							<div class="match-history-main-div">
+							${
+                this.matchHistory && Object.keys(this.matchHistory).length
+                  ? Object.values(this.matchHistory)
+                      .map(
+                        (value) =>
+                          `<div class="match-history-main-game-div">
+								<div class="match-history-game-div ${value.score_player1 > value.score_player2 ? `won` : `lost`}">
+									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
+									<h3 class="mh-player">${value.player1}</h3>
+									<h3 class="mh-score">${value.score_player1}</h3>
+									<span>-</span>
+									<h3 class="mh-score">${value.score_player2}</h3>
+									<h3 class="mh-player">${value.player2}</h3>
+								</div>
+							</div>`
+                      )
+                      .join("")
+                  : `<div class="match-history-main-div">
+				  		<div class="match-history-main-game-div">
+							<h3>No match history</h3>
+						</div>
+					</div>`
+              }
+						</div>
+						</div>
+					</div>`;
     const sanitizedTemplate = DOMPurify.sanitize(template);
     return sanitizedTemplate;
   }
