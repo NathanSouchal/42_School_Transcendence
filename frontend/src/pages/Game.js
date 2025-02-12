@@ -1,4 +1,4 @@
-import { handleHeader, updateView } from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import DOMPurify from "dompurify";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
@@ -225,10 +225,18 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        router.navigate("/404");
+        return;
+      }
+    }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
-
+    
     if (!gameStarted && !gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

@@ -232,7 +232,6 @@ export default class Social {
   }
 
   async render(userId) {
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.getFriends(this.state.state.userId);
@@ -244,6 +243,7 @@ export default class Social {
         return;
       }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.friends && this.invitations) {
       return `${backArrow}<div class="main-div-social">

@@ -105,7 +105,6 @@ export default class MatchHistory {
 
   async render(routeParams = {}) {
     let template;
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.getMatchHistory(this.state.state.userId);
@@ -116,6 +115,7 @@ export default class MatchHistory {
         return;
       }
     }
+    handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
       template = `${backArrow}${Object.values(this.matchHistory)
