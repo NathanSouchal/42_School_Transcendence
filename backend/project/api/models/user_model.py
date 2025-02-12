@@ -56,6 +56,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
 
+	TWO_FACTOR_CHOICES = [
+		('email', 'Email'),
+		('sms', 'SMS'),
+		('TOTP', 'Google Authenticator'),
+	]
+
+	two_factor_method = models.CharField(
+		max_length=10,
+		choices=TWO_FACTOR_CHOICES,
+		null=True,
+		blank=True,
+		help_text="2FA method choosed by user"
+	)
+
+	email_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par email
+	sms_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par SMS
+	phone_number = models.CharField(max_length=15, null=True, blank=True, help_text="Required for SMS 2FA")
+	email = models.CharField(max_length=20, null=True, blank=True, help_text="Required for Email 2FA")
+	otp_created_at = models.DateTimeField(null=True, blank=True, help_text="Time when OTP was generated")
+
 	objects = UserManager()
 
 	USERNAME_FIELD = 'username'

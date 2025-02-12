@@ -1,4 +1,9 @@
 from rest_framework import status
+import random
+from django.utils.timezone import now
+from django.core.mail import send_mail
+from twilio.rest import Client
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
@@ -36,53 +41,88 @@ class RegisterView(APIView):
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
+	serializer_class = UserSerializer
+	permission_classes = [AllowAny]
 
-    def post(self, request):
-            username = request.data.get('username')
-            password = request.data.get('password')
-            print(f"Authenticating user: {username}")
-            print(f"Authenticating password: {password}")
-            user = authenticate(username=username, password=password)
-            if user:
-                try:
-                    refresh_token = user.refresh_token.token
-                    print(f"Existing refresh token: {refresh_token}")
-                    outstanding_token = OutstandingToken.objects.get(token=refresh_token)
-                    BlacklistedToken.objects.create(token=outstanding_token)
-                    print("Existing refresh token blacklisted.")
-                except (UserRefreshToken.DoesNotExist, OutstandingToken.DoesNotExist):
-                    pass
+	def post(self, request):
+		username = request.data.get('username')
+		password = request.data.get('password')
+		print(f"Authenticating user: {username}")
+		print(f"Authenticating password: {password}")
+		user = authenticate(username=username, password=password)
+		if user is None:
+			return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+		if user.two_factor_method:
+			request.session['pre_auth_user'] = user.id
 
-                new_refresh_token = SimpleJWTRefreshToken.for_user(user)
-                UserRefreshToken.objects.update_or_create(user=user, defaults={'token': str(new_refresh_token)})
+			if user.two_factor_method == "email":
+				self.send_email_otp(user)
+				return Response({"message": "2FA_REQUIRED", "method": "email"}, status=status.HTTP_200_OK)
 
-                response = Response({
-                    'user': UserSerializer(user).data,
-                    'message': 'Authentification complète'
-                }, status=status.HTTP_200_OK)
+			if user.two_factor_method == "sms":
+				if not user.phone_number:
+					return Response({"error": "No phone number associated with this account"}, status=status.HTTP_400_BAD_REQUEST)
+				self.send_sms_otp(user)
+				return Response({"message": "2FA_REQUIRED", "method": "sms"}, status=status.HTTP_200_OK)
 
-                # Ajouter les cookies sécurisés
-                response.set_cookie(
-                key='access_token',
-                value=str(new_refresh_token.access_token),
-                httponly=True,
-                secure=True,
-                samesite='None',
-                max_age=10 * 60  # 10 minutes
-                )
-                response.set_cookie(
-                key='refresh_token',
-                value=str(new_refresh_token),
-                httponly=True,
-                secure=True,
-                samesite='None',
-                max_age=7 * 24 * 60 * 60  # 7 jours
-                )
-                return response
+			if user.two_factor_method == "TOTP":
+				return Response({"message": "2FA_REQUIRED", "method": "TOTP"}, status=status.HTTP_200_OK)
 
-            return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+		return self.generate_jwt_response(user)
+
+	def send_email_otp(self, user):
+		code = random.randint(100000, 999999)
+		user.email_otp = code
+		user.otp_created_at = now()
+		user.save()
+
+		send_mail('Your 2FA verification code', f'Your 2FA verification code is : {code}', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False,)
+
+	def send_sms_otp(self, user):
+		code = random.randint(100000, 999999)
+		user.email_otp = code
+		user.otp_created_at = now()
+		user.save()
+
+		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+		client.message.create(body=f"Your 2FA code is : {code}", from_=settings.TWILIO_PHONE_NUMBER, to=user.phone_number,)
+
+	def generate_jwt_response(self, user):
+		try:
+			refresh_token = user.refresh_token.token
+			print(f"Existing refresh token: {refresh_token}")
+			outstanding_token = OutstandingToken.objects.get(token=refresh_token)
+			BlacklistedToken.objects.create(token=outstanding_token)
+			print("Existing refresh token blacklisted.")
+		except (UserRefreshToken.DoesNotExist, OutstandingToken.DoesNotExist):
+			pass
+
+		new_refresh_token = SimpleJWTRefreshToken.for_user(user)
+		UserRefreshToken.objects.update_or_create(user=user, defaults={'token': str(new_refresh_token)})
+
+		response = Response({
+			'user': UserSerializer(user).data,
+			'message': 'Authentification complète'
+		}, status=status.HTTP_200_OK)
+
+		# Ajouter les cookies sécurisés
+		response.set_cookie(
+		key='access_token',
+		value=str(new_refresh_token.access_token),
+		httponly=True,
+		secure=True,
+		samesite='None',
+		max_age=10 * 60  # 10 minutes
+		)
+		response.set_cookie(
+		key='refresh_token',
+		value=str(new_refresh_token),
+		httponly=True,
+		secure=True,
+		samesite='None',
+		max_age=7 * 24 * 60 * 60  # 7 jours
+		)
+		return response
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -129,10 +169,10 @@ class RefreshTokenView(APIView):
             outstanding_token = OutstandingToken.objects.get(token=stored_refresh_token)
             BlacklistedToken.objects.create(token=outstanding_token)
             user.refresh_token.delete()
-	
+
             new_refresh_token = SimpleJWTRefreshToken.for_user(user)
             UserRefreshToken.objects.create(user=user, token=str(new_refresh_token))
-	
+
             response = Response({
 				'user': UserSerializer(user).data,
 				'message': 'New refresh token generated'
@@ -164,7 +204,7 @@ class AccessTokenView(APIView):
         try:
             db_refresh_token = UserRefreshToken.objects.get(token=cookie_refresh_token)
             user = db_refresh_token.user
-            
+
             try:
                 token_instance = SimpleJWTRefreshToken(cookie_refresh_token)
             except TokenError:

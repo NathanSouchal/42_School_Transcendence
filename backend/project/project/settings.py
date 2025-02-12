@@ -34,6 +34,9 @@ INSTALLED_APPS = [
 	'rest_framework_simplejwt',
 	'rest_framework_simplejwt.token_blacklist',
 	'sslserver',
+	'django_otp',
+	'django_otp.plugins.otp_totp',
+	'django_otp.plugins.otp_static',
 ]
 
 REST_FRAMEWORK = {
@@ -174,3 +177,19 @@ CSRF_TRUSTED_ORIGINS = [
     'https://localhost:3000',  # Frontend sécurisé
     'https://frontend:3000',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'im.a.crab.42@gmail.com'
+EMAIL_HOST_PASSWORD = 'Qwerty1+'  # Généré depuis Google
+DEFAULT_FROM_EMAIL = 'im.a.crab.42@gmail.com'
+
+TWILIO_ACCOUNT_SID = "ACb264109e29cc01882c09e36faa1cb72e"
+TWILIO_AUTH_TOKEN = "85c5bb4188a88a3b6cc671928a2829da"
+TWILIO_PHONE_NUMBER = "+1234567890"
+
+OTP_TOTP_ISSUER = "YourAppName"
+OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
+OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
