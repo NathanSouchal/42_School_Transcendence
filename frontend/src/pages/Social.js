@@ -140,9 +140,16 @@ export default class Social {
   }
 
   async validate_invit_request(invit_id) {
-    const res = await API.put(`/friend-requests/${invit_id}/`, {
-      accepted: "true",
-    });
+    try {
+      await API.put(`/friend-requests/${invit_id}/`, {
+        accepted: "true",
+      });
+      await updateView(this);
+    }
+    catch (error) {
+      console.error(`Error while trying to accept friend request : ${error}`)
+    }
+    
   }
 
   async cancel_btn_fctn(invit_id) {
@@ -151,9 +158,15 @@ export default class Social {
   }
 
   async cancel_invit_request(invit_id) {
-    const res = await API.put(`/friend-requests/${invit_id}/`, {
-      accepted: "false",
-    });
+    try {
+      await API.put(`/friend-requests/${invit_id}/`, {
+        accepted: "false",
+      });
+      await updateView(this);
+    }
+    catch (error) {
+      console.error(`Error while trying to cancel or denie friend request : ${error}`)
+    }
   }
 
   async search_bar_user_fctn(username_to_search) {
@@ -276,7 +289,7 @@ export default class Social {
                               (value) =>
                                 `
                                     ${
-                                      value.from_user.id == this.userId
+                                      value.from_user.id == this.state.state.userId
                                         ? `<div class="invitation-item-social">
                                         <div class="invitation-item-img-username">
                                           <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
