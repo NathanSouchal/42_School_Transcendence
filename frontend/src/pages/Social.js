@@ -289,7 +289,7 @@ export default class Social {
                               (value) =>
                                 `
                                     ${
-                                      value.from_user.id == this.userId
+                                      value.from_user.id == this.state.state.userId
                                         ? `<div class="invitation-item-social">
                                         <div class="invitation-item-img-username">
                                           <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
