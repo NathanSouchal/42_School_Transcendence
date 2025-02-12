@@ -185,7 +185,7 @@ export class Header {
   }
 
   renderGuestUser() {
-    console.log("renderGuestUser Header");
+    // console.log("renderGuestUser Header");
     this.isUserRendered = false;
     this.isGuestRendered = true;
     const header = `<nav class="navbar">

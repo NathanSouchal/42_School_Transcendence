@@ -1,9 +1,10 @@
+import asyncio
+import copy
 import json
 import uuid
 from decimal import Decimal
 from enum import Enum, auto
 from urllib.parse import parse_qs
-import copy
 
 from channels.generic.websocket import AsyncWebsocketConsumer
 
@@ -63,36 +64,51 @@ class GameState(AsyncWebsocketConsumer):
         roomFound = False
         if self.game_mode == GameMode.ONLINE:
             for room_name, room_data in self.rooms.items():
-                if len(room_data["players"]) < 2 and room_data["game_mode"] == GameMode.ONLINE : 
+                if (
+                    len(room_data["players"]) < 2
+                    and room_data["game_mode"] == GameMode.ONLINE
+                ):
                     self.room = room_name
                     roomFound = True
-        if roomFound is False or self.game_mode is not GameMode.ONLINE : 
+                    break
+        if roomFound is False or self.game_mode is not GameMode.ONLINE:
             self.room = str(uuid.uuid4())
         await self.accept()
 
         if self.room not in self.rooms:
             self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
             self.rooms[self.room]["game_mode"] = self.game_mode
-            print(f"Default state for room {self.room}: {self.rooms[self.room]}")
 
+        await self.channel_layer.group_add(self.room, self.channel_name)
+        if self.channel_name not in self.rooms[self.room]["players"]:
+            self.rooms[self.room]["players"].append(self.channel_name)
         if self.game_mode == GameMode.ONLINE:
             await self.manage_online_players()
-        else:
-            self.rooms[self.room]['players'].append(self.channel_name)
-        await self.channel_layer.group_add(self.room, self.channel_name)
-            
+
         # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
         # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
         # print(f"Default state2 for room {self.room}: {self.rooms[self.room]}")
 
-
     async def manage_online_players(self):
-        if len(self.rooms[self.room]["players"]) < 2:
-            self.player_side = (
-                "left" if len(self.rooms[self.room]["players"]) == 0 else "right"
-            )
-            self.rooms[self.room]["players"].append(self.channel_name)
-            print(f"Waiting for second player")
+        print(
+            f"Going inside manage_online_players with {len(self.rooms[self.room]['players'])}"
+        )
+        if len(self.rooms[self.room]["players"]) <= 2:
+
+            if len(self.rooms[self.room]["players"]) == 1:
+                self.player_side = "left"
+                print(f"Assigned players to left side")
+            else:
+                self.player_side = "right"
+                print(f"Assigned players to right side")
+
+            while (
+                len(self.rooms[self.room]["players"]) < 2
+                and len(self.rooms[self.room]["players"]) > 0
+            ):
+                print(f"Waiting for second player, this is {self.channel_name}")
+                await asyncio.sleep(2)
+            print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
             if len(self.rooms[self.room]["players"]) == 2:
                 await self.channel_layer.group_send(
@@ -101,6 +117,7 @@ class GameState(AsyncWebsocketConsumer):
                 print(f"Second player has been found")
                 self.rooms[self.room]["status"] = "playing"
         else:
+            print("prout")
             await self.close()
 
     async def match_found(self, event):
@@ -168,6 +185,7 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Exception details: {str(e)}")
 
     async def disconnect(self, close_code):
+        print("Player disconnected")
         if self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)

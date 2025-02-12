@@ -22,7 +22,7 @@ export default class GamePage {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("GamePage subscribed to state");
+      // console.log("GamePage subscribed to state");
     }
     await updateView(this);
   }
@@ -79,7 +79,7 @@ export default class GamePage {
   }
 
   handleClick(param) {
-    console.log(param);
+    // console.log(param);
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
@@ -89,9 +89,12 @@ export default class GamePage {
         this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
-        if (!this.isMatchmaking) this.state.startMatchmaking();
-        else this.state.cancelMatchmaking();
-        this.isMatchmaking = !this.isMatchmaking;
+        if (!this.state.state.isSearching) {
+          this.state.startMatchmaking();
+        } else {
+          this.state.cancelMatchmaking();
+        }
+        console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
       case "resume-game":
         this.state.togglePause();
@@ -113,7 +116,7 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
-    console.log("Checking if state has changed");
+    // console.log("Checking if state has changed");
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
@@ -121,7 +124,7 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       newState.isSearching !== this.previousState.isSearching
     ) {
-      console.log("State changed, rendering Game page");
+      // console.log("State changed, rendering Game page");
       await updateView(this);
     }
     this.previousState = { ...newState };
@@ -131,7 +134,7 @@ export default class GamePage {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
+        // console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -142,7 +145,7 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Game page unsubscribed from state");
+      // console.log("Game page unsubscribed from state");
     }
   }
 

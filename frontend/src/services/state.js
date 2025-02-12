@@ -32,8 +32,8 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    // this.gamePoints = 10;
-    this.gamePoints = 1;
+    this.gamePoints = 10;
+    // this.gamePoints = 1;
 
     this.player_types = {
       default: {
@@ -103,7 +103,7 @@ export default class State {
   }
 
   setGameStarted(gameMode) {
-    console.log(`setGameStarted called with ${gameMode}`);
+    // console.log(`setGameStarted called with ${gameMode}`);
     if (gameMode) {
       this.gameMode = gameMode;
       switch (gameMode) {
@@ -135,21 +135,23 @@ export default class State {
   }
 
   async startMatchmaking() {
+    this.setIsSearching(true);
     this.gameMode = "Online";
     console.log("Starting Machmaking");
-    this.setIsSearching(true);
     this.gameManager.connect();
     while (this.state.isSearching) {
-      console.log("searching");
+      console.log("Searching for opponent...");
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     this.setGameStarted(this.gameMode);
   }
 
   cancelMatchmaking() {
+    this.setIsSearching(false);
+    this.gameManager.socket.close();
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
-    this.setIsSearching(false);
+    this.setGameStarted("default");
   }
 
   setIsSearching(bool) {
