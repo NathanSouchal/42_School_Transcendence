@@ -158,13 +158,14 @@ export default class LocalTournament {
       console.log(
         "GameHasLoaded state changed, rendering LocalTournament page"
       );
+      this.previousState = { ...newState };
       await updateView(this);
     } else if (newState.gameStarted && !this.previousState.gameStarted) {
       console.log("Game has started");
-
       const container = document.getElementById("app");
       if (container) {
         container.className = "";
+        this.previousState = { ...newState };
         await updateView(this);
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
@@ -172,10 +173,10 @@ export default class LocalTournament {
       const container = document.getElementById("app");
       if (container) {
         container.className = "app";
+        this.previousState = { ...newState };
         await updateView(this);
       }
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   handleStartButton() {
@@ -364,8 +365,10 @@ export default class LocalTournament {
       await checkUserStatus();
     } catch (error) {
       if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
     if (this.state.state.gameStarted === true)
