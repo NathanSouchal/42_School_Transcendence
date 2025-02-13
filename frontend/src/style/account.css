@@ -79,6 +79,7 @@ label {
   font-weight: 300;
   padding-right: 10px;
   padding-left: 10px;
+  font-size: 1.8rem;
 }
 
 .user-main-div input {
@@ -144,6 +145,7 @@ label {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin-top: 5rem;
 }
 
 .app2FA-div,
@@ -158,10 +160,14 @@ label {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .checkbox-div label {
+  display: block;
   font-size: 1.5em;
+  margin-bottom: 1rem;
 }
 
 .checkbox-div input {
@@ -178,60 +184,57 @@ label {
   }
 }
 
-/* <div class="checkbox-wrapper-22">
-  <label class="switch" for="checkbox">
-    <input type="checkbox" id="checkbox" />
-    <div class="slider round"></div>
-  </label>
-</div>
+.checkbox-div .switch {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
 
-<style>
-  .checkbox-wrapper-22 .switch {
-    display: inline-block;
-    height: 34px;
-    position: relative;
-    width: 60px;
-  }
+.checkbox-div .switch input {
+  display: none;
+}
 
-  .checkbox-wrapper-22 .switch input {
-    display:none;
-  }
+.checkbox-div .slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+}
 
-  .checkbox-wrapper-22 .slider {
-    background-color: #ccc;
-    bottom: 0;
-    cursor: pointer;
-    left: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transition: .4s;
-  }
+.checkbox-div .slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 26px;
+}
 
-  .checkbox-wrapper-22 .slider:before {
-    background-color: #fff;
-    bottom: 4px;
-    content: "";
-    height: 26px;
-    left: 4px;
-    position: absolute;
-    transition: .4s;
-    width: 26px;
-  }
+.checkbox-div input:checked + .slider {
+  background-color: #66bb6a;
+}
 
-  .checkbox-wrapper-22 input:checked + .slider {
-    background-color: #66bb6a;
-  }
+.checkbox-div input:checked + .slider:before {
+  transform: translateX(26px);
+}
 
-  .checkbox-wrapper-22 input:checked + .slider:before {
-    transform: translateX(26px);
-  }
+.checkbox-div .slider.round {
+  border-radius: 34px;
+}
 
-  .checkbox-wrapper-22 .slider.round {
-    border-radius: 34px;
-  }
+.checkbox-div .slider.round:before {
+  border-radius: 50%;
+}
 
-  .checkbox-wrapper-22 .slider.round:before {
-    border-radius: 50%;
-  }
-</style> */
+.email2FA-input-div,
+.sms2FA-input-div {
+  margin-top: -1rem;
+  margin-bottom: 4rem;
+}

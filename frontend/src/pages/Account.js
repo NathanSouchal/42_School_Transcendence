@@ -347,32 +347,35 @@ export default class Account {
 					<div class="app2FA-div" id="app2FA-div">
 						<div class="checkbox-div">
 						<label for="app2FA-checkbox" id="app2FA-checkbox-label">
-							Enable 2FA with phone application
+							2FA with Google Authenticator
 						</label>
+						<label class="switch">
 						<input
 						type="checkbox"
 						id="app2FA-checkbox"
 						name="app2FA-checkbox"
 						value=""
 						/>
+						<div class="slider round"></div>
+						</label>
 						</div>
 					</div>
 					<div class="email2FA-div" id="email2FA-div">
 						<div class="checkbox-div">
 						<label for="email2FA-checkbox" id="email2FA-checkbox-label">
-							Enable 2FA with e-mail
+							2FA with e-mail
 						</label>
+						<label class="switch">
 						<input
 						type="checkbox"
 						id="email2FA-checkbox"
 						name="email2FA-checkbox"
 						value=""
 						/>
-						</div>
-						<div class="input-div">
-						<label for="email2FA-input">
-							E-mail
+						<div class="slider round"></div>
 						</label>
+						</div>
+						<div class="input-div email2FA-input-div">
 						<input
 						type="email"
 						class="email2FA-input"
@@ -387,19 +390,19 @@ export default class Account {
 					<div class="sms2FA-div" id="sms2FA-div">
 						<div class="checkbox-div">
 						<label for="sms2FA-checkbox" id="sms2FA-checkbox-label">
-							Enable 2FA with SMS
+							2FA with SMS
 						</label>
+						<label class="switch">
 						<input
 						type="checkbox"
 						id="sms2FA-checkbox"
 						name="sms2FA-checkbox"
 						value=""
 						/>
-						</div>
-						<div class="input-div">
-						<label for="sms2FA-input">
-							Phone number
+						<div class="slider round"></div>
 						</label>
+						</div>
+						<div class="input-div sms2FA-input-div">
 						<input
 						type="text"
 						class="sms2FA-input"
