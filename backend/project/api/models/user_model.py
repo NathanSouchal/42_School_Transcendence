@@ -60,6 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		('email', 'Email'),
 		('sms', 'SMS'),
 		('TOTP', 'Google Authenticator'),
+		('none', 'None'),
 	]
 
 	two_factor_method = models.CharField(
@@ -73,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	email_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par email
 	sms_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par SMS
 	phone_number = models.CharField(max_length=15, null=True, blank=True, help_text="Required for SMS 2FA")
-	email = models.CharField(max_length=20, null=True, blank=True, help_text="Required for Email 2FA")
+	email = models.CharField(max_length=50, null=True, blank=True, help_text="Required for Email 2FA")
 	otp_created_at = models.DateTimeField(null=True, blank=True, help_text="Time when OTP was generated")
 
 	objects = UserManager()

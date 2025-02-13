@@ -250,16 +250,27 @@ export default class Account {
       .forEach((input) => {
         input.disabled = true;
         input.required = false;
-        if (input.name == "email2FA-input") {
+        console.log("input.name : " + input.name);
+        if (
+          input.classList.contains("email2FA-input") &&
+          !document.getElementById("email2FA-checkbox").checked
+        ) {
           this.formData.email = "";
           input.value = "E-mail";
+          console.log("ici1");
         }
-        if (input.name == "sms2FA-input") {
+        if (
+          input.classList.contains("sms2FA-input") &&
+          !document.getElementById("sms2FA-checkbox").checked
+        ) {
           this.formData.phone_number = "";
           input.value = "Phone";
+          console.log("ici2");
         }
       });
 
+    if (checkbox.checked) this.formData.two_factor_method = checkbox.value;
+    else this.formData.two_factor_method = "none";
     if (checkbox.checked && inputField) {
       inputField.disabled = false;
       inputField.required = true;
@@ -275,6 +286,9 @@ export default class Account {
       this.userData = data.user;
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
+      this.formData.email = data.user.email;
+      this.formData.phone_number = data.user.phone_number;
+      this.formData.two_factor_method = data.user.two_factor_method;
       if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
@@ -417,7 +431,8 @@ export default class Account {
 						type="checkbox"
 						id="app2FA-checkbox"
 						name="app2FA-checkbox"
-						value=""
+						value="TOTP"
+						${this.userData.two_factor_method == "TOTP" ? `checked` : ``}
 						/>
 						<div class="slider round"></div>
 						</label>
@@ -433,7 +448,8 @@ export default class Account {
 						type="checkbox"
 						id="email2FA-checkbox"
 						name="email2FA-checkbox"
-						value=""
+						value="email"
+						${this.userData.two_factor_method == "email" ? `checked` : ``}
 						/>
 						<div class="slider round"></div>
 						</label>
@@ -443,10 +459,10 @@ export default class Account {
 						type="email"
 						class="email2FA-input"
 						minLength="4"
-						maxLength="20"
+						maxLength="50"
 						value="${this.formData.email ? this.formData.email : `E-mail`}"
-						name="email2FA-input"
-						disabled
+						name="email"
+						${this.userData.two_factor_method == "email" ? `` : `disabled`}
 						/>
 						</div>
 					</div>
@@ -460,7 +476,8 @@ export default class Account {
 						type="checkbox"
 						id="sms2FA-checkbox"
 						name="sms2FA-checkbox"
-						value=""
+						value="sms"
+						${this.userData.two_factor_method == "sms" ? `checked` : ``}
 						/>
 						<div class="slider round"></div>
 						</label>
@@ -472,8 +489,8 @@ export default class Account {
 						minLength="4"
 						maxLength="12"
 						value="${this.formData.phone_number ? this.formData.phone_number : `Phone`}"
-						name="sms2FA-input"
-						disabled
+						name="phone_number"
+						${this.userData.two_factor_method == "sms" ? `` : `disabled`}
 						/>
 						</div>
 					</div>

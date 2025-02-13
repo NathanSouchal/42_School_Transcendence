@@ -182,8 +182,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 EMAIL_HOST_USER = 'im.a.crab.42@gmail.com'
-EMAIL_HOST_PASSWORD = 'Qwerty1+'  # Généré depuis Google
+EMAIL_HOST_PASSWORD = 'edqv qjcx stgz smwn'  # Généré depuis Google
 DEFAULT_FROM_EMAIL = 'im.a.crab.42@gmail.com'
 
 TWILIO_ACCOUNT_SID = "ACb264109e29cc01882c09e36faa1cb72e"
@@ -193,3 +194,5 @@ TWILIO_PHONE_NUMBER = "+18777804236"
 OTP_TOTP_ISSUER = "YourAppName"
 OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
 OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

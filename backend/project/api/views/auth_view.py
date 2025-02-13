@@ -52,9 +52,9 @@ class LoginView(APIView):
 		user = authenticate(username=username, password=password)
 		if user is None:
 			return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-		if user.two_factor_method:
-			request.session['pre_auth_user'] = user.id
-
+		print(f"coucou1")
+		if user.two_factor_method and user.two_factor_method != "none":
+			request.session['pre_auth_user'] = str(user.id)
 			if user.two_factor_method == "email":
 				self.send_email_otp(user)
 				return Response({"message": "2FA_REQUIRED", "method": "email"}, status=status.HTTP_200_OK)
@@ -75,7 +75,6 @@ class LoginView(APIView):
 		user.email_otp = code
 		user.otp_created_at = now()
 		user.save()
-
 		send_mail('Your 2FA verification code', f'Your 2FA verification code is : {code}', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False,)
 
 	def send_sms_otp(self, user):
@@ -83,9 +82,9 @@ class LoginView(APIView):
 		user.email_otp = code
 		user.otp_created_at = now()
 		user.save()
-
 		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
 		client.message.create(body=f"Your 2FA code is : {code}", from_=settings.TWILIO_PHONE_NUMBER, to=user.phone_number,)
+
 
 	def generate_jwt_response(self, user):
 		try:
