@@ -72,6 +72,42 @@ export default class Account {
       }
     });
 
+    const checkboxes = [
+      { id: "app2FA-checkbox", action: "app2FA-checkbox" },
+      {
+        id: "email2FA-checkbox",
+        action: "email2FA-checkbox",
+        input: ".email2FA-input",
+      },
+      {
+        id: "sms2FA-checkbox",
+        action: "sms2FA-checkbox",
+        input: ".sms2FA-input",
+      },
+    ];
+
+    checkboxes.forEach(({ id, action, input }) => {
+      const checkbox = document.getElementById(id);
+      const inputField = input ? document.querySelector(input) : null;
+      if (checkbox) {
+        const handleCheckBox = this.handleCheckBox.bind(
+          this,
+          checkbox,
+          inputField,
+          checkboxes
+        );
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          checkbox.addEventListener("click", handleCheckBox);
+          this.eventListeners.push({
+            name: action,
+            type: "change",
+            element: checkbox,
+            listener: handleCheckBox,
+          });
+        }
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
@@ -200,6 +236,25 @@ export default class Account {
       } catch (error) {
         console.error(error);
       }
+    }
+  }
+
+  async handleCheckBox(checkbox, input, checkboxes) {
+    checkboxes.forEach(({ id }) => {
+      const otherCheckbox = document.getElementById(id);
+      if (otherCheckbox !== checkbox) otherCheckbox.checked = false;
+    });
+
+    document
+      .querySelectorAll(".email2FA-input, .sms2FA-input")
+      .forEach((input) => {
+        input.disabled = true;
+        input.required = false;
+      });
+
+    if (checkbox.checked && inputField) {
+      inputField.disabled = false;
+      inputField.required = true;
     }
   }
 
