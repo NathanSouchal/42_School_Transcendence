@@ -52,11 +52,10 @@ class LoginView(APIView):
 		user = authenticate(username=username, password=password)
 		if user is None:
 			return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-		print(f"coucou1")
 		if user.two_factor_method and user.two_factor_method != "none":
 			request.session['pre_auth_user'] = str(user.id)
 			if user.two_factor_method == "email":
-				self.send_email_otp(user)
+				# self.send_email_otp(user)
 				return Response({"message": "2FA_REQUIRED", "method": "email"}, status=status.HTTP_200_OK)
 
 			if user.two_factor_method == "sms":

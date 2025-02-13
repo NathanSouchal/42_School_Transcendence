@@ -15,6 +15,7 @@ export default class Login {
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
+    this.is2FA = false;
 
     this.formState = {
       username: "",
@@ -97,6 +98,11 @@ export default class Login {
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
+      if (response.data.message == "2FA_REQUIRED") {
+        console.log("2FAAA");
+        this.is2FA = true;
+        return updateView(this);
+      }
       const id = response.data.user.id;
       console.log(response.data);
       console.log(response.data.user.id.toString());
@@ -146,6 +152,32 @@ export default class Login {
     }
   }
 
+  render2FA() {
+    return `
+		<form id="login-form" class="form-div-login-register">
+          <h1 class="global-page-title">Login</h1>
+          <div class="inputs-button-form-login-register">
+		  	<label>
+				We've sent a verification code to your email
+		  	</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter verification code"
+              minLength="6"
+              maxLength="6"
+              value="${this.formState.email_otp}"
+              name="email_otp"
+              aria-label="Username"
+              required
+            />
+            <button type="submit" class="form-button-login-register">
+              Sign in
+            </button>
+          </div>
+        </form>`;
+  }
+
   async render(routeParams = {}) {
     try {
       await checkUserStatus();
@@ -161,7 +193,9 @@ export default class Login {
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    if (this.is2FA) return this.render2FA();
+    else
+      return `${backArrow}
         <form id="login-form" class="form-div-login-register">
           <h1 class="global-page-title">Login</h1>
           <div class="inputs-button-form-login-register">
