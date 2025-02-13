@@ -8,6 +8,7 @@
   text-align: center;
   color: var(--primary-color);
   width: 80%;
+  margin: 0 auto;
 }
 
 .user-main-content {
@@ -28,12 +29,6 @@ label {
   font-size: 2rem;
 }
 
-.avatar-main-div,
-.username-main-div,
-.alias-main-div {
-  margin: 20px;
-}
-
 .username-title-div,
 .alias-title-div {
   display: flex;
@@ -42,10 +37,40 @@ label {
   width: 100%;
 }
 
-.form-username-title-div,
-.form-alias-title-div {
+.input-div {
+  display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   line-height: 2;
+  margin: 20px auto;
+  width: 100%;
+  max-width: 350px;
+}
+
+.input-div input {
+  text-align: center;
+  width: 100%;
+  max-width: 400px;
+  font-family: var(--secondary-font);
+  padding: 0.8em;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  background: white;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
+}
+
+.input-div input::placeholder {
+  opacity: 0.5;
+}
+
+.input-div input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
 }
 
 .username-title,
@@ -114,8 +139,99 @@ label {
   background-color: var(--primary-light);
 }
 
+.form-2FA-main-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.app2FA-div,
+.email2FA-div,
+.sms2FA-div {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.checkbox-div label {
+  font-size: 1.5em;
+}
+
+.checkbox-div input {
+  margin: 10px;
+}
+
 @media (max-width: 800px) {
   .user-main-div h2 {
     font-size: 1.5em;
   }
+
+  .input-div {
+    max-width: 300px;
+  }
 }
+
+/* <div class="checkbox-wrapper-22">
+  <label class="switch" for="checkbox">
+    <input type="checkbox" id="checkbox" />
+    <div class="slider round"></div>
+  </label>
+</div>
+
+<style>
+  .checkbox-wrapper-22 .switch {
+    display: inline-block;
+    height: 34px;
+    position: relative;
+    width: 60px;
+  }
+
+  .checkbox-wrapper-22 .switch input {
+    display:none;
+  }
+
+  .checkbox-wrapper-22 .slider {
+    background-color: #ccc;
+    bottom: 0;
+    cursor: pointer;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: .4s;
+  }
+
+  .checkbox-wrapper-22 .slider:before {
+    background-color: #fff;
+    bottom: 4px;
+    content: "";
+    height: 26px;
+    left: 4px;
+    position: absolute;
+    transition: .4s;
+    width: 26px;
+  }
+
+  .checkbox-wrapper-22 input:checked + .slider {
+    background-color: #66bb6a;
+  }
+
+  .checkbox-wrapper-22 input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+
+  .checkbox-wrapper-22 .slider.round {
+    border-radius: 34px;
+  }
+
+  .checkbox-wrapper-22 .slider.round:before {
+    border-radius: 50%;
+  }
+</style> */

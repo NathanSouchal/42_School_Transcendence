@@ -50,82 +50,58 @@ export default class Account {
       }
     });
 
+    const buttons = [
+      { id: "update-user-info", action: "update-user-info" },
+      { id: "delete-user-button", action: "delete-user-button" },
+      { id: "form-button", action: "form-button" },
+    ];
+
+    buttons.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleClick = this.handleClick.bind(this, action);
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          button.addEventListener("click", handleClick);
+          this.eventListeners.push({
+            name: action,
+            type: "click",
+            element: button,
+            listener: handleClick,
+          });
+        }
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        const handleChange = (e) => {
+        const handleFile = (e) => {
           const file = e.target.files[0];
-          if (file) this.handleChange("avatar", file);
+          if (file) this.handleFile("avatar", file);
         };
-        avatarInput.addEventListener("change", handleChange);
+        avatarInput.addEventListener("change", handleFile);
         this.eventListeners.push({
           name: "avatar",
           type: "change",
           element: avatarInput,
-          listener: handleChange,
+          listener: handleFile,
         });
       }
     }
 
-    const updateButton = document.getElementById("update-user-info");
-    if (updateButton) {
-      const handleChange = this.handleChange.bind(this, "update-user-info", "");
-      if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", handleChange);
-        this.eventListeners.push({
-          name: "updateUserInfo",
-          type: "click",
-          element: updateButton,
-          listener: handleChange,
-        });
-      }
-    }
-
-    const deleteUserButton = document.getElementById("delete-user-button");
-    if (deleteUserButton) {
-      const handleChange = this.handleChange.bind(
-        this,
-        "delete-user-button",
-        ""
-      );
-      if (!this.eventListeners.some((e) => e.name === "deleteUserButton")) {
-        deleteUserButton.addEventListener("click", handleChange);
-        this.eventListeners.push({
-          name: "deleteUserButton",
-          type: "click",
-          element: deleteUserButton,
-          listener: handleChange,
-        });
-      }
-    }
-
-    const formButton = document.getElementById("form-button");
-    if (formButton) {
-      const handleChange = this.handleChange.bind(this, "form-button", "");
-      if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", handleChange);
-        this.eventListeners.push({
-          name: "formButton",
-          type: "click",
-          element: formButton,
-          listener: handleChange,
-        });
-      }
-    }
-
-    const formSubmit = document.getElementById("user-form");
-    if (formSubmit) {
-      const handleChange = this.handleChange.bind(this, "form-submit", "");
-      if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
-        formButton.addEventListener("submit", handleChange);
-        this.eventListeners.push({
-          name: "formSubmit",
-          type: "form-submit",
-          element: formSubmit,
-          listener: handleChange,
-        });
-      }
-    }
+    // const formSubmit = document.getElementById("user-form");
+    // if (formSubmit) {
+    //   const handleChange = this.handleChange.bind(this, "form-submit", "");
+    //   if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
+    //     formButton.addEventListener("submit", handleChange);
+    //     this.eventListeners.push({
+    //       name: "formSubmit",
+    //       type: "form-submit",
+    //       element: formSubmit,
+    //       listener: handleChange,
+    //     });
+    //   }
+    // }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
@@ -168,8 +144,7 @@ export default class Account {
     console.log(this.formData.avatar);
   }
 
-  async handleChange(key, value) {
-    console.log("handlechange");
+  async handleFile(key, file) {
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const maxSize = 5 * 1024 * 1024; // 5MB
@@ -202,7 +177,12 @@ export default class Account {
         };
         reader.readAsDataURL(fileInput);
       } else label.textContent = "Upload file";
-    } else if (key == "form-button") {
+    }
+  }
+
+  async handleClick(key, value) {
+    console.log("handleClick");
+    if (key == "form-button") {
       this.isForm = !this.isForm;
       await updateView(this);
     } else if (key == "update-user-info") {
@@ -321,9 +301,9 @@ export default class Account {
           this.isForm
             ? `<div id="userinfo-main-div">
 				<form id="user-form">
-			 	<div class="avatar-main-div" id="avatar-main-div">
+			 	<div class="input-main-div" id="avatar-main-div">
 					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
-					<div class="search-bar-and-result-social">
+					<div class="input-div">
 						<label class="file-label" for="avatar">
 							Upload file
 						</label>
@@ -335,7 +315,7 @@ export default class Account {
 						/>
 					</div>
 				</div>
-				<div class="form-username-title-div search-bar-and-result-social" id="username-main-div">
+				<div class="input-div" id="username-main-div">
 					<label for="username">
 						Username
 					</label>
@@ -349,7 +329,7 @@ export default class Account {
 					required
 					/>
 				</div>
-				<div class="form-alias-title-div search-bar-and-result-social" id="alias-main-div">
+				<div class="input-div" id="alias-main-div">
 					<label for="alias">
 						Alias
 					</label>
@@ -362,6 +342,75 @@ export default class Account {
 					name="alias"
 					required
 					/>
+				</div>
+				<div class="form-2FA-main-div" id="form-2FA-main-div">
+					<div class="app2FA-div" id="app2FA-div">
+						<div class="checkbox-div">
+						<label for="app2FA-checkbox" id="app2FA-checkbox-label">
+							Enable 2FA with phone application
+						</label>
+						<input
+						type="checkbox"
+						id="app2FA-checkbox"
+						name="app2FA-checkbox"
+						value=""
+						/>
+						</div>
+					</div>
+					<div class="email2FA-div" id="email2FA-div">
+						<div class="checkbox-div">
+						<label for="email2FA-checkbox" id="email2FA-checkbox-label">
+							Enable 2FA with e-mail
+						</label>
+						<input
+						type="checkbox"
+						id="email2FA-checkbox"
+						name="email2FA-checkbox"
+						value=""
+						/>
+						</div>
+						<div class="input-div">
+						<label for="email2FA-input">
+							E-mail
+						</label>
+						<input
+						type="email"
+						class="email2FA-input"
+						minLength="4"
+						maxLength="20"
+						value="E-mail"
+						name="email2FA-input"
+						required
+						/>
+						</div>
+					</div>
+					<div class="sms2FA-div" id="sms2FA-div">
+						<div class="checkbox-div">
+						<label for="sms2FA-checkbox" id="sms2FA-checkbox-label">
+							Enable 2FA with SMS
+						</label>
+						<input
+						type="checkbox"
+						id="sms2FA-checkbox"
+						name="sms2FA-checkbox"
+						value=""
+						/>
+						</div>
+						<div class="input-div">
+						<label for="sms2FA-input">
+							Phone number
+						</label>
+						<input
+						type="text"
+						class="sms2FA-input"
+						minLength="4"
+						maxLength="12"
+						value="Phone number"
+						name="sms2FA-input"
+						required
+						/>
+						</div>
+					</div>
 				</div>
 				<button type="button" class="btn btn-success m-3" id="update-user-info">
 					Update my info
