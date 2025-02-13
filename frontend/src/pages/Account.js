@@ -239,7 +239,7 @@ export default class Account {
     }
   }
 
-  async handleCheckBox(checkbox, input, checkboxes) {
+  async handleCheckBox(checkbox, inputField, checkboxes) {
     checkboxes.forEach(({ id }) => {
       const otherCheckbox = document.getElementById(id);
       if (otherCheckbox !== checkbox) otherCheckbox.checked = false;
@@ -250,6 +250,14 @@ export default class Account {
       .forEach((input) => {
         input.disabled = true;
         input.required = false;
+        if (input.name == "email2FA-input") {
+          this.formData.email = "";
+          input.value = "E-mail";
+        }
+        if (input.name == "sms2FA-input") {
+          this.formData.phone_number = "";
+          input.value = "Phone";
+        }
       });
 
     if (checkbox.checked && inputField) {
@@ -436,9 +444,9 @@ export default class Account {
 						class="email2FA-input"
 						minLength="4"
 						maxLength="20"
-						value="E-mail"
+						value="${this.formData.email ? this.formData.email : `E-mail`}"
 						name="email2FA-input"
-						required
+						disabled
 						/>
 						</div>
 					</div>
@@ -463,9 +471,9 @@ export default class Account {
 						class="sms2FA-input"
 						minLength="4"
 						maxLength="12"
-						value="Phone number"
+						value="${this.formData.phone_number ? this.formData.phone_number : `Phone`}"
 						name="sms2FA-input"
-						required
+						disabled
 						/>
 						</div>
 					</div>
