@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow, checkUserStatus } from "../utils.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  checkUserStatus,
+} from "../utils.js";
 import { router } from "../app.js";
 
 export default class Login {
@@ -118,6 +123,7 @@ export default class Login {
     console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Login page");
+      this.previousState = { ...newState };
       await updateView(this);
     }
     this.previousState = { ...newState };
@@ -145,8 +151,10 @@ export default class Login {
       await checkUserStatus();
     } catch (error) {
       if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
     handleHeader(this.state.isUserLoggedIn, false);

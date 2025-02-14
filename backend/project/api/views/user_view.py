@@ -10,7 +10,6 @@ from api.serializers import UserSerializer, PublicUserSerializer, SimpleUserSeri
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
-import uuid
 
 
 class UserView(APIView):

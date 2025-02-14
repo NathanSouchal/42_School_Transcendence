@@ -57,9 +57,9 @@ export default class Home {
     console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {

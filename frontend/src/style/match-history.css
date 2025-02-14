@@ -1,0 +1,81 @@
+.match-history-title-div {
+  margin-bottom: 2em;
+}
+
+.match-history-main-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  width: 100%;
+  text-align: center;
+  color: var(--tertiary-color);
+  overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+.match-history-main-game-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  white-space: nowrap;
+  margin: 0.3em;
+}
+
+.match-history-game-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.won {
+  background-color: rgba(95, 158, 95, 0.2);
+}
+
+.lost {
+  background-color: rgba(186, 127, 127, 0.2);
+}
+
+.match-history-game-div h3,
+.match-history-game-div h4,
+.match-history-game-div span {
+  margin: 1rem;
+  text-align: center;
+}
+
+.match-history-game-div span {
+  font-weight: bold;
+  margin: 0, 1rem;
+}
+
+.mh-score {
+  font-size: 2em;
+  color: var(--primary-color);
+}
+
+@media (max-width: 1000px) {
+  .match-history-game-div h3 {
+    font-size: 1.2em;
+  }
+  .match-history-game-div h4 {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 500px) {
+  .match-history-game-div h3,
+  .match-history-game-div h4,
+  .match-history-game-div span {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .match-history-game-div h3 {
+    font-size: 1em;
+  }
+}

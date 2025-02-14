@@ -193,9 +193,9 @@ export default class Account {
     console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Account page");
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   handleChangeInput(e) {
@@ -364,8 +364,10 @@ export default class Account {
     } catch (error) {
       if (error.response.status === 401) return "";
       if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
     handleHeader(this.state.isUserLoggedIn, false);
