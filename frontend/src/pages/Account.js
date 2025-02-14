@@ -51,7 +51,6 @@ export default class Account {
     });
 
     const buttons = [
-      { id: "update-user-info", action: "update-user-info" },
       { id: "delete-user-button", action: "delete-user-button" },
       { id: "form-button", action: "form-button" },
     ];
@@ -125,19 +124,19 @@ export default class Account {
       }
     }
 
-    // const formSubmit = document.getElementById("user-form");
-    // if (formSubmit) {
-    //   const handleChange = this.handleChange.bind(this, "form-submit", "");
-    //   if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
-    //     formButton.addEventListener("submit", handleChange);
-    //     this.eventListeners.push({
-    //       name: "formSubmit",
-    //       type: "form-submit",
-    //       element: formSubmit,
-    //       listener: handleChange,
-    //     });
-    //   }
-    // }
+    const formSubmit = document.getElementById("user-form");
+    if (formSubmit) {
+      const handleSubmit = this.handleSubmit.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
+        formSubmit.addEventListener("submit", handleSubmit);
+        this.eventListeners.push({
+          name: "formSubmit",
+          type: "submit",
+          element: formSubmit,
+          listener: handleSubmit,
+        });
+      }
+    }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
@@ -216,26 +215,32 @@ export default class Account {
     }
   }
 
-  async handleClick(key, value) {
+  async handleClick(key) {
     console.log("handleClick");
     if (key == "form-button") {
       this.isForm = !this.isForm;
       await updateView(this);
-    } else if (key == "update-user-info") {
-      try {
-        await this.updateUserInfo(this.state.state.userId);
-        await this.fetchData(this.userData.id);
-        this.isForm = !this.isForm;
-        await updateView(this);
-      } catch (error) {
-        console.error(error);
-      }
     } else if (key == "delete-user-button") {
       try {
         await this.deleteUser(this.state.state.userId);
       } catch (error) {
         console.error(error);
+        throw error;
       }
+    }
+  }
+
+  async handleSubmit(e) {
+    alert();
+    e.preventDefault();
+    try {
+      await this.updateUserInfo(this.state.state.userId);
+      await this.fetchData(this.userData.id);
+      this.isForm = !this.isForm;
+      await updateView(this);
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   }
 
@@ -257,7 +262,6 @@ export default class Account {
         ) {
           this.formData.email = "";
           input.value = "E-mail";
-          console.log("ici1");
         }
         if (
           input.classList.contains("sms2FA-input") &&
@@ -265,7 +269,6 @@ export default class Account {
         ) {
           this.formData.phone_number = "";
           input.value = "Phone";
-          console.log("ici2");
         }
       });
 
@@ -274,6 +277,12 @@ export default class Account {
     if (checkbox.checked && inputField) {
       inputField.disabled = false;
       inputField.required = true;
+    }
+    if (document.getElementById("app2FA-checkbox").checked) {
+      await this.getQrcode();
+    }
+    if (!document.getElementById("app2FA-checkbox").checked) {
+      document.getElementById("totp-qr-code").style.display = "none";
     }
   }
 
@@ -289,11 +298,23 @@ export default class Account {
       this.formData.email = data.user.email;
       this.formData.phone_number = data.user.phone_number;
       this.formData.two_factor_method = data.user.two_factor_method;
-      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
     } catch (error) {
       console.error(`Error while trying to get data : ${error}`);
       this.userData = {};
-      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      throw error;
+    }
+  }
+
+  async getQrcode() {
+    try {
+      const response = await API.get(`/auth/generate-qrcode/`);
+      const data = response.data;
+      console.log(data);
+      document.getElementById("totp-qr-code").src =
+        `data:image/png;base64,${data.qr_code}`;
+      document.getElementById("totp-qr-code").style.display = "block";
+    } catch (error) {
+      console.error(`Error while trying to get qrcode : ${error}`);
       throw error;
     }
   }
@@ -380,7 +401,7 @@ export default class Account {
 				<form id="user-form">
 			 	<div class="input-main-div" id="avatar-main-div">
 					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
-					<div class="input-div">
+					<div class="input-div file-input-div">
 						<label class="file-label" for="avatar">
 							Upload file
 						</label>
@@ -401,7 +422,7 @@ export default class Account {
 					class="form-control"
 					minLength="4"
 					maxLength="10"
-					value="${this.formData.username}"
+					value="${this.formData.username ? this.formData.username : ``}"
 					name="username"
 					required
 					/>
@@ -415,7 +436,7 @@ export default class Account {
 					class="form-control"
 					minLength="4"
 					maxLength="10"
-					value="${this.formData.alias}"
+					value="${this.formData.alias ? this.formData.alias : ``}"
 					name="alias"
 					required
 					/>
@@ -436,6 +457,9 @@ export default class Account {
 						/>
 						<div class="slider round"></div>
 						</label>
+						<div class="totp-qr-code-div">
+							<img id="totp-qr-code" width=200 height=200 style="display: none" src="" alt="TOTP QR Code" />
+						<div>
 						</div>
 					</div>
 					<div class="email2FA-div" id="email2FA-div">
@@ -460,7 +484,8 @@ export default class Account {
 						class="email2FA-input"
 						minLength="4"
 						maxLength="50"
-						value="${this.formData.email ? this.formData.email : `E-mail`}"
+						placeholder="E-mail"
+						value="${this.formData.email ? this.formData.email : ``}"
 						name="email"
 						${this.userData.two_factor_method == "email" ? `` : `disabled`}
 						/>
@@ -488,14 +513,15 @@ export default class Account {
 						class="sms2FA-input"
 						minLength="4"
 						maxLength="12"
-						value="${this.formData.phone_number ? this.formData.phone_number : `Phone`}"
+						placeholder="Phone number"
+						value="${this.formData.phone_number ? this.formData.phone_number : ``}"
 						name="phone_number"
 						${this.userData.two_factor_method == "sms" ? `` : `disabled`}
 						/>
 						</div>
 					</div>
 				</div>
-				<button type="button" class="btn btn-success m-3" id="update-user-info">
+				<button type="submit" class="btn btn-success m-3" id="update-user-info">
 					Update my info
 				</button>
 				</form>

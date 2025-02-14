@@ -55,25 +55,29 @@ export default class Register {
     const registerForm = document.getElementById("register-form");
     if (registerForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
-      registerForm.addEventListener("submit", handleSubmitBound);
-      this.eventListeners.push({
-        name: "register-form",
-        element: registerForm,
-        listener: handleSubmitBound,
-      });
+      if (!this.eventListeners.some((e) => e.name === "register-form")) {
+        registerForm.addEventListener("submit", handleSubmitBound);
+        this.eventListeners.push({
+          name: "register-form",
+          type: "submit",
+          element: registerForm,
+          listener: handleSubmitBound,
+        });
+      }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeBound = (e) => {
-        this.handleChange(e.target.name, e.target.value, e.target);
-      };
-      input.addEventListener("input", handleChangeBound);
-      this.eventListeners.push({
-        name: input.name,
-        element: input,
-        listener: handleChangeBound,
-      });
+      if (!this.eventListeners.some((e) => e.element === input)) {
+        const handleChangeBound = this.handleChange.bind(this);
+        input.addEventListener("input", handleChangeBound);
+        this.eventListeners.push({
+          name: input.name,
+          type: "input",
+          element: input,
+          listener: handleChangeBound,
+        });
+      }
     });
   }
 
@@ -86,7 +90,11 @@ export default class Register {
     }
   }
 
-  handleChange(key, value, inputElement) {
+  handleChange(e) {
+    let key = e.target.name;
+    let value = e.target.value;
+    let inputElement = e.target;
+
     if (key === "username") {
       if (value.length < 4) {
         inputElement.classList.remove("is-valid");
@@ -155,9 +163,11 @@ export default class Register {
   }
 
   removeEventListeners() {
-    this.eventListeners.forEach(({ name, element, listener }) => {
-      element.removeEventListener(element, listener);
-      console.log("Removed eventListener fron input");
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
     });
     this.eventListeners = [];
   }
@@ -165,7 +175,7 @@ export default class Register {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }

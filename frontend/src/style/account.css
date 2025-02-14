@@ -45,13 +45,12 @@ label {
   line-height: 2;
   margin: 20px auto;
   width: 100%;
-  max-width: 350px;
 }
 
 .input-div input {
   text-align: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 350px;
   font-family: var(--secondary-font);
   padding: 0.8em;
   font-size: 1rem;
@@ -237,4 +236,16 @@ label {
 .sms2FA-input-div {
   margin-top: -1rem;
   margin-bottom: 4rem;
+}
+
+.totp-qr-code-div img {
+  border-radius: 0;
+  margin-bottom: 4rem;
+}
+
+.login-error-message {
+  text-align: center;
+  color: var(--danger-color);
+  font-size: 1.8em;
+  font-style: italic;
 }

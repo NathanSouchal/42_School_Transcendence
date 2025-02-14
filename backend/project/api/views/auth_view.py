@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from api.models import RefreshToken as UserRefreshToken
+from api.models import User
 from api.serializers import UserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
@@ -17,9 +18,16 @@ from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken, TokenError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from datetime import timedelta
+import qrcode
+import base64
+import pyotp
+from io import BytesIO
+from django.http import JsonResponse
 
 class RegisterView(APIView):
 	serializer_class = UserSerializer
+	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [AllowAny]
 
 	def post(self, request):
@@ -42,6 +50,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
 	serializer_class = UserSerializer
+	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [AllowAny]
 
 	def post(self, request):
@@ -79,7 +88,7 @@ class LoginView(APIView):
 
 	def send_sms_otp(self, user):
 		code = random.randint(100000, 999999)
-		user.email_otp = code
+		user.sms_otp = code
 		user.otp_created_at = now()
 		user.save()
 		print(f"code generated : {code}")
@@ -124,9 +133,80 @@ class LoginView(APIView):
 		)
 		return response
 
+class Verify2FAView(APIView):
+	serializer_class = UserSerializer
+	authentication_classes = [CookieJWTAuthentication]
+	permission_classes = [AllowAny]
+
+	def post(self, request):
+		code = request.data.get('code')
+		print(f"code : {code}")
+		session_user_id = request.session.get('pre_auth_user')
+
+		if not session_user_id:
+			return Response({"error": "Session expired or invalid"}, status=status.HTTP_400_BAD_REQUEST)
+
+		try:
+			user = User.objects.get(id=session_user_id)
+		except User.DoesNotExist:
+			return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+		# Vérification du code OTP en fonction de la méthode 2FA
+		print(f"user.two_factor_method : {user.two_factor_method}")
+		print(f"user.email_otp : {user.email_otp}")
+		print(f"user.sms_otp : {user.sms_otp}")
+		otp_valid = False
+		if user.two_factor_method == "email" and user.email_otp == code:
+			otp_valid = True
+		elif user.two_factor_method == "sms" and user.sms_otp == code:
+			otp_valid = True
+		elif user.two_factor_method == "TOTP":
+			totp = pyotp.TOTP(user.totp_secret)
+			if totp.verify(code):
+				otp_valid = True
+		else:
+			otp_valid = False
+
+		# Vérifier la validité du code OTP
+		if user.two_factor_method in ["email", "sms"]:
+			otp_expiration_time = user.otp_created_at + timedelta(minutes=5)  # Expiration après 5 minutes
+			if not otp_valid:
+				return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
+			if now() > otp_expiration_time:
+				return Response({"error": "Expired OTP"}, status=status.HTTP_400_BAD_REQUEST)
+
+		if not otp_valid:
+			return Response({"error": "Invalid OTP"}, status=400)
+
+		# Nettoyer la session et le code OTP
+		request.session.pop('pre_auth_user', None)
+		user.email_otp = None
+		user.sms_otp = None
+		user.save()
+
+		# Générer et retourner le JWT
+		return LoginView().generate_jwt_response(user)
+
+class GenerateTOTPQRCodeView(APIView):
+	authentication_classes = [CookieJWTAuthentication]
+	permission_classes = [IsAuthenticated]
+	""" Génère un QR Code pour l'authentification TOTP """
+	def get(self, request):
+		user = request.user
+		if not user.totp_secret:
+			user.generate_totp_secret()
+
+		totp_uri = user.get_totp_uri()
+		qr = qrcode.make(totp_uri)
+		buffer = BytesIO()
+		qr.save(buffer, format="PNG")
+		qr_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+		return JsonResponse({"qr_code": qr_base64})
+
 class LogoutView(APIView):
-    permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         try:
@@ -152,8 +232,8 @@ class LogoutView(APIView):
 
 
 class RefreshTokenView(APIView):
-    permission_classes = [IsAuthenticated]
     authentication_classes = [CookieJWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         print(f"Cookies reçus : {request.COOKIES}")
@@ -195,6 +275,7 @@ class RefreshTokenView(APIView):
 
 class AccessTokenView(APIView):
     serializer_class = UserSerializer
+    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -237,7 +318,8 @@ class AccessTokenView(APIView):
             print(f"Access Token error: {e}")
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-class IsAuth(APIView):
+class IsAuthView(APIView):
+	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):
