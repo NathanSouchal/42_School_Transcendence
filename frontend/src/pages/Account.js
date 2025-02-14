@@ -20,6 +20,7 @@ export default class Account {
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
+    this.deleteUserVerification = false;
   }
 
   async initialize(routeParams = {}) {
@@ -94,6 +95,42 @@ export default class Account {
           name: "deleteUserButton",
           type: "click",
           element: deleteUserButton,
+          listener: handleChange,
+        });
+      }
+    }
+
+    const ConfirmDeleteUserButton = document.getElementById("confirm-delete-user");
+    if (ConfirmDeleteUserButton) {
+      const handleChange = this.handleChange.bind(
+        this,
+        "confirm-delete-user",
+        ""
+      );
+      if (!this.eventListeners.some((e) => e.name === "ConfirmDeleteUserButton")) {
+        ConfirmDeleteUserButton.addEventListener("click", handleChange);
+        this.eventListeners.push({
+          name: "ConfirmDeleteUserButton",
+          type: "click",
+          element: ConfirmDeleteUserButton,
+          listener: handleChange,
+        });
+      }
+    }
+
+    const CancelDeleteUserButton = document.getElementById("cancel-delete-user");
+    if (CancelDeleteUserButton) {
+      const handleChange = this.handleChange.bind(
+        this,
+        "cancel-delete-user",
+        ""
+      );
+      if (!this.eventListeners.some((e) => e.name === "CancelDeleteUserButton")) {
+        CancelDeleteUserButton.addEventListener("click", handleChange);
+        this.eventListeners.push({
+          name: "CancelDeleteUserButton",
+          type: "click",
+          element: CancelDeleteUserButton,
           listener: handleChange,
         });
       }
@@ -216,7 +253,21 @@ export default class Account {
       }
     } else if (key == "delete-user-button") {
       try {
-        await this.deleteUser(this.state.state.userId);
+        await this.deleteUser();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    else if (key == "confirm-delete-user") {
+      try {
+        await this.confirmDeleteUser(this.state.state.userId);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    else if (key == "cancel-delete-user") {
+      try {
+        await this.cancelDeleteUser();
       } catch (error) {
         console.error(error);
       }
@@ -254,7 +305,15 @@ export default class Account {
     }
   }
 
-  async deleteUser(id) {
+  async deleteUser() {
+    this.deleteUserVerification = true;
+    await updateView(this);
+    this.deleteUserVerification = false;
+  }
+
+  async confirmDeleteUser(id)
+  {
+    this.deleteUserVerification = false;
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
@@ -262,6 +321,10 @@ export default class Account {
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
     }
+  }
+
+  async cancelDeleteUser() {
+    await updateView(this);
   }
 
   removeEventListeners() {
@@ -393,13 +456,19 @@ export default class Account {
 				<button class="btn btn-dark m-3" id="form-button">
 					${this.isForm ? `Cancel` : `Change my info`}
 				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="delete-user-button"
-				>
-					Delete Account
-				</button>
-            </div>
+        ${!this.deleteUserVerification
+          ? ` <button class="btn btn-danger mb-2" id="delete-user-button">
+					      Delete Account
+              </button>`
+          : ` <div>
+                <p class="text-danger">Are you sure ?</p>
+                <div>
+                  <button class="btn btn-danger mb-2" id="confirm-delete-user">Delete</button>
+                  <button class="btn btn-success mb-2" id="cancel-delete-user">Cancel</button>
+                </div>
+              </div>`
+        }
+        </div>
 			</div>
 			</div>`;
   }
