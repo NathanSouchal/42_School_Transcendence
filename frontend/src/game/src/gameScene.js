@@ -27,17 +27,18 @@ export class GameScene {
       canvas: this.canvas,
     });
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
     this.scene = new THREE.Scene();
     init_light(this.scene);
     this.state = state;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.players = state.players;
-    this.handleStateChange = this.handleStateChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.pauseButton = "Escape";
     this.initializeEventListener();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.handleResize = this.handleResize.bind(this);
+    window.addEventListener("resize", this.handleResize);
   }
 
   start() {
@@ -65,6 +66,16 @@ export class GameScene {
       this.start();
       this.state.setGameNeedsReset(false);
     }
+  }
+
+  handleResize() {
+    if (this.camera) {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+    }
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
   }
 
   initializeEventListener() {
