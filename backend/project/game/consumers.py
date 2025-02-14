@@ -9,6 +9,7 @@ from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
+
 class GameMode(Enum):
     LOCAL = auto()
     ONLINE = auto()
@@ -82,8 +83,10 @@ class GameState(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room, self.channel_name)
         if self.channel_name not in self.rooms[self.room]["players"]:
             self.rooms[self.room]["players"].append(self.channel_name)
+        
+        # Lancement en tâche de fond pour pouvoir l'annuler facilement en cas de déconnexion
         if self.game_mode == GameMode.ONLINE:
-            await self.manage_online_players()
+            self.manage_task = asyncio.create_task(self.manage_online_players())
 
         # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
         # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
@@ -110,12 +113,13 @@ class GameState(AsyncWebsocketConsumer):
                 await asyncio.sleep(2)
             print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
-            if len(self.rooms[self.room]["players"]) == 2:
-                await self.channel_layer.group_send(
-                    self.room, {"type": "match_found", "side": self.player_side}
-                )
-                print(f"Second player has been found")
-                self.rooms[self.room]["status"] = "playing"
+
+        if len(self.rooms[self.room]["players"]) == 2:
+            await self.channel_layer.group_send(
+                self.room, {"type": "match_found", "side": self.player_side}
+            )
+            print(f"Second player has been found")
+            self.rooms[self.room]["status"] = "playing"
         else:
             print("prout")
             await self.close()
@@ -185,14 +189,30 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Exception details: {str(e)}")
 
     async def disconnect(self, close_code):
-        print("Player disconnected")
+        print("      player disconnected !!")
+    
+        #termine proprement la tache manage_online_players qui tourne en arriere plan
+        if hasattr(self, "manage_task"):
+            self.manage_task.cancel()
+            try:
+                await self.manage_task
+            except asyncio.CancelledError:
+                print("manage_online_players cancelled properly")
+        
+        # Log avant nettoyage
+        print("Room state before disconnect:", self.rooms.get(self.room))
+        
         if self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
-
+        
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
             else:
                 self.rooms[self.room]["status"] = "waiting"
-
+        
+        # Log après nettoyage
+        print("Room state after disconnect:", self.rooms.get(self.room))
+        
         await self.channel_layer.group_discard(self.room, self.channel_name)
+
