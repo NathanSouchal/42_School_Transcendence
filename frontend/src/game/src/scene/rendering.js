@@ -46,15 +46,8 @@ class Renderer {
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        if (
-          state.gameMode == "default" ||
-          state.gameMode == "PVP" ||
-          state.gameMode == "PVR" ||
-          state.isSourceOfTruth
-        ) {
-          this.gameElementsUpdate(deltaTime, gameManager);
-          this.collisionsUpdate(deltaTime, gameManager);
-        }
+        this.gameElementsUpdate(deltaTime, gameManager);
+        this.collisionsUpdate(deltaTime, gameManager);
         this.pivotUpdate(deltaTime);
       }
 
@@ -79,13 +72,23 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime, gameManager) {
-    this.game.ball.update(deltaTime, this.scene, this, gameManager);
-    this.game.paddleRight.update(
-      deltaTime,
-      this.game.ball.pos,
-      this.game.ball.velocity,
-      gameManager,
-    ),
+    const isNotOnline =
+      state.gameMode == "default" ||
+      state.gameMode == "PVP" ||
+      state.gameMode == "PVR";
+
+    if (gameManager.side == "left" || isNotOnline)
+      this.game.ball.update(deltaTime, this.scene, this, gameManager);
+
+    if (gameManager.side == "right" || isNotOnline)
+      this.game.paddleRight.update(
+        deltaTime,
+        this.game.ball.pos,
+        this.game.ball.velocity,
+        gameManager,
+      );
+
+    if (gameManager.side == "left" || isNotOnline)
       this.game.paddleLeft.update(
         deltaTime,
         this.game.ball.pos,

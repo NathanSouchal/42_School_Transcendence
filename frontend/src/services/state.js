@@ -165,7 +165,7 @@ export default class State {
     this.state.gameStarted = false;
     this.setGameNeedsReset(true);
     this.notifyListeners();
-    this.gameManager.socket = null;
+    this.gameManager.socket.close();
   }
 
   backToBackgroundPlay() {

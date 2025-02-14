@@ -43,16 +43,14 @@ export class GameScene {
 
   start() {
     this.ball.reset();
-    if (this.state.gameMode === "OnlinePVP") {
-      if (state.side === "right") {
-        console.log(`Starting game on the ${state.side} side`);
-        this.paddleRight.choosePlayer("player");
-      } else if (state.side === "left") {
-        console.log(`Starting game on the ${state.side} side`);
-        this.paddleLeft.choosePlayer("player");
-      } else {
-        console.error(`state.side is ${state.side}`);
-      }
+    if (this.state.gameMode === "OnlineRight") {
+      console.log(`Starting game on the right side`);
+      this.paddleRight.choosePlayer("player");
+      this.paddleLeft.choosePlayer("none");
+    } else if (this.state.gameMode === "OnlineLeft") {
+      console.log(`Starting game on the left side`);
+      this.paddleLeft.choosePlayer("player");
+      this.paddleRight.choosePlayer("none");
     } else {
       this.paddleLeft.choosePlayer(state.players.left);
       this.paddleRight.choosePlayer(state.players.right);

@@ -9,7 +9,6 @@ from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-
 class GameMode(Enum):
     LOCAL = auto()
     ONLINE = auto()
@@ -29,7 +28,6 @@ class GameState(AsyncWebsocketConsumer):
     DEFAULT_STATE = {
         "players": [],
         "score": {"left": 0, "right": 0},
-        "status": "waiting",
         "game_mode": "null",
         "positions": {
             "paddle_left": {"x": 0},
@@ -83,10 +81,12 @@ class GameState(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.room, self.channel_name)
         if self.channel_name not in self.rooms[self.room]["players"]:
             self.rooms[self.room]["players"].append(self.channel_name)
-        
+
         # Lancement en tâche de fond pour pouvoir l'annuler facilement en cas de déconnexion
         if self.game_mode == GameMode.ONLINE:
             self.manage_task = asyncio.create_task(self.manage_online_players())
+        else:
+            self.isSourceOfTruth = False
 
         # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
         # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
@@ -97,12 +97,13 @@ class GameState(AsyncWebsocketConsumer):
             f"Going inside manage_online_players with {len(self.rooms[self.room]['players'])}"
         )
         if len(self.rooms[self.room]["players"]) <= 2:
-
             if len(self.rooms[self.room]["players"]) == 1:
                 self.player_side = "left"
+                self.isSourceOfTruth = True
                 print(f"Assigned players to left side")
             else:
                 self.player_side = "right"
+                self.isSourceOfTruth = False
                 print(f"Assigned players to right side")
 
             while (
@@ -113,76 +114,84 @@ class GameState(AsyncWebsocketConsumer):
                 await asyncio.sleep(2)
             print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
-
-        if len(self.rooms[self.room]["players"]) == 2:
-            await self.channel_layer.group_send(
-                self.room, {"type": "match_found", "side": self.player_side}
-            )
-            print(f"Second player has been found")
-            self.rooms[self.room]["status"] = "playing"
+            if len(self.rooms[self.room]["players"]) == 2:
+                # sending only to one player, as both of them will go through this function eventually
+                await self.send(
+                    text_data=json.dumps(
+                        {
+                            "type": "hasFoundOpponent",
+                            "side": self.player_side,
+                            "isSourceOfTruth": self.isSourceOfTruth,
+                        },
+                        cls=NumericEncoder,
+                    )
+                )
+                print(f"Second player has been found")
         else:
-            print("prout")
             await self.close()
-
-    async def match_found(self, event):
-        print("hey")
-        isSourceOfTruth = event["side"] == "left"
-        await self.send(
-            text_data=json.dumps(
-                {
-                    "type": "hasFoundOpponent",
-                    "side": event["side"],
-                    "isSourceOfTruth": isSourceOfTruth,
-                },
-                cls=NumericEncoder,
-            )
-        )
 
     async def positions(self, event):
         await self.send(
             text_data=json.dumps(
                 {
                     "type": "positions",
-                    "data": event["positions"],
+                    "positions": event["positions"],
                 },
                 cls=NumericEncoder,
-            )
-        )
-
-    async def status(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {"type": "status", "data": event.get("status", "waiting")}
             )
         )
 
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
-            message_type = data.get("type")
+            msg_type = data.get("type")
+            side = data.get("side")
+            if self.game_mode is not GameMode.ONLINE:
+                side = None
 
             positions = self.rooms[self.room]["positions"]
 
-            if message_type == "positions":
-                message_element = data.get("element")
-                if message_element == "paddle_left":
-                    positions["paddle_left"]["x"] = float(data["pos"]["x"])
-                elif message_element == "paddle_right":
-                    positions["paddle_right"]["x"] = float(data["pos"]["x"])
-                elif message_element == "ball":
-                    ball_pos = data.get("pos", {})
-                    for key, value in ball_pos.items():
-                        positions["ball"][key] = float(value)
+            if msg_type == "positions":
+                if self.game_mode is not GameMode.ONLINE:
+                    element = data.get("element")
+                    if element == "paddle_left":
+                        positions["paddle_left"]["x"] = float(data["pos"]["x"])
+                    elif element == "paddle_right":
+                        positions["paddle_right"]["x"] = float(data["pos"]["x"])
+                    elif element == "ball":
+                        ball_pos = data.get("pos", {})
+                        for key, value in ball_pos.items():
+                            positions["ball"][key] = float(value)
 
-                await self.send(
-                    text_data=json.dumps(
+                if self.game_mode == GameMode.ONLINE:
+                    element = data.get("element")
+                    if element == "paddle_left" and side == "left":
+                        positions["paddle_left"]["x"] = float(data["pos"]["x"])
+                    elif element == "paddle_right" and side == "right":
+                        positions["paddle_right"]["x"] = float(data["pos"]["x"])
+                    elif element == "ball" and side == "left":
+                        ball_pos = data.get("pos", {})
+                        for key, value in ball_pos.items():
+                            positions["ball"][key] = float(value)
+
+                if self.game_mode is not GameMode.ONLINE:
+                    await self.send(
+                        text_data=json.dumps(
+                            {
+                                "type": "positions",
+                                "positions": positions,
+                            },
+                            cls=NumericEncoder,
+                        )
+                    )
+                else:
+                    await self.channel_layer.group_send(
+                        self.room,
                         {
                             "type": "positions",
                             "positions": positions,
                         },
-                        cls=NumericEncoder,
                     )
-                )
 
         except Exception as e:
             print(f"Error processing message: {text_data}")
@@ -190,29 +199,26 @@ class GameState(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         print("      player disconnected !!")
-    
-        #termine proprement la tache manage_online_players qui tourne en arriere plan
+
+        # termine proprement la tache manage_online_players qui tourne en arriere plan
         if hasattr(self, "manage_task"):
             self.manage_task.cancel()
             try:
                 await self.manage_task
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
-        
+
         # Log avant nettoyage
         print("Room state before disconnect:", self.rooms.get(self.room))
-        
+
         if self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
-        
+
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
-            else:
-                self.rooms[self.room]["status"] = "waiting"
-        
+
         # Log après nettoyage
         print("Room state after disconnect:", self.rooms.get(self.room))
-        
-        await self.channel_layer.group_discard(self.room, self.channel_name)
 
+        await self.channel_layer.group_discard(self.room, self.channel_name)

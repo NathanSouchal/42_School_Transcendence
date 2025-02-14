@@ -8,8 +8,10 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        bottom: "x",
-        top: "c",
+        //bottom: "x",
+        //top: "c",
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
     },
     right: {
@@ -18,8 +20,10 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        bottom: ",",
-        top: ".",
+        //bottom: ",",
+        //top: ".",
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
     },
   },

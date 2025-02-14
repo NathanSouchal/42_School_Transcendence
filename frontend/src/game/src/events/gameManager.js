@@ -36,7 +36,11 @@ export class GameManager {
           this.updatePositions(data.positions);
           break;
         case "hasFoundOpponent":
-          console.log("gameManager caught 'hasFoundOpponent'");
+          console.log(
+            "gameManager caught 'hasFoundOpponent', assigned side is ",
+            data.side,
+          );
+          this.side = data.side;
           state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
           state.isSourceOfTruth = data.isSourceOfTruth;
           console.log(`isSourceOfTruth: ${state.isSourceOfTruth}`);

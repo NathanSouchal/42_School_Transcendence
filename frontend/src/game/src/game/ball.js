@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { position } from "../events/gameManager.js";
+import state from "../../../app";
 
 class Ball {
   constructor(size, conf) {
@@ -134,11 +135,10 @@ class Ball {
       }
     }
 
-    // console.log("sending message with gamemanager on side", gameManager.side)
-
     gameManager.sendMessage({
       type: "positions",
       element: "ball",
+      side: gameManager.side,
       pos: {
         x: Number(this.pos.x).toFixed(4),
         y: Number(this.pos.y).toFixed(4),
