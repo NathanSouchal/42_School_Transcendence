@@ -45,30 +45,29 @@ class PaddleControls {
     }
   }
 
-  update(deltaTime) {
+  update(deltaTime, gameManager) {
     if (this.controls.keyboardControl) {
       if (this.state.bottom) {
-        this.paddle.pos.x -= deltaTime * this.deltaFactor;
+        gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
       }
       if (this.state.top) {
-        this.paddle.pos.x += deltaTime * this.deltaFactor;
+        gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
       }
-      this.constrainPaddlePosition();
     }
   }
 
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.pos.x = THREE.MathUtils.clamp(
-      this.paddle.pos.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
-  }
+  //constrainPaddlePosition() {
+  //  const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+  //  const paddleWidth = this.size.paddle_width;
+  //  const halfArenaWidth = arenaWidth / 2;
+  //  const halfPaddleWidth = paddleWidth / 2;
+  //
+  //  this.paddle.pos.x = THREE.MathUtils.clamp(
+  //    this.paddle.pos.x,
+  //    -halfArenaWidth + halfPaddleWidth,
+  //    halfArenaWidth - halfPaddleWidth,
+  //  );
+  //}
 
   dispose() {
     window.removeEventListener("keydown", this.handleKeyDown);

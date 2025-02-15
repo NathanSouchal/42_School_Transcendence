@@ -47,18 +47,21 @@ class Renderer {
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime, gameManager);
-        this.collisionsUpdate(deltaTime, gameManager);
-        this.pivotUpdate(deltaTime);
+        //this.collisionsUpdate(deltaTime, gameManager);
       }
 
-      this.terrainElementsUpdate(deltaTime);
+      // Input handlers or Robot controls (still on the front)
 
+      // Terrain and arena updates
+      this.game.paddleRight.animation_update(deltaTime);
+      this.game.paddleLeft.animation_update(deltaTime);
+      this.pivotUpdate(deltaTime);
+      this.terrainElementsUpdate(deltaTime);
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
         this.camera.updateProjectionMatrix();
       }
-
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(render);
     };
@@ -72,28 +75,24 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime, gameManager) {
-    const shouldUpdate =
-      state.gameMode == "default" ||
-      state.gameMode == "PVP" ||
-      state.gameMode == "PVR" ||
-      gameManager.side == "left";
+    //this.game.ball.update(deltaTime, this.scene, this, gameManager);
 
-    if (shouldUpdate)
-      this.game.ball.update(deltaTime, this.scene, this, gameManager);
-
-    this.game.paddleRight.update(
-      deltaTime,
-      this.game.ball.pos,
-      this.game.ball.velocity,
-      gameManager,
-    );
-
-    this.game.paddleLeft.update(
-      deltaTime,
-      this.game.ball.pos,
-      this.game.ball.velocity,
-      gameManager,
-    );
+    if (this.game.paddleLeft.player != null) {
+      this.game.paddleRight.player.update(
+        deltaTime,
+        gameManager,
+        this.game.ball.pos,
+        this.game.ball.velocity,
+      );
+    }
+    if (this.game.paddleLeft.player != null) {
+      this.game.paddleLeft.player.update(
+        deltaTime,
+        gameManager,
+        this.game.ball.pos,
+        this.game.ball.velocity,
+      );
+    }
   }
 
   terrainElementsUpdate(deltaTime) {

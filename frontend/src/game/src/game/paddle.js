@@ -34,6 +34,7 @@ class Paddle {
       if (this.needsRemoving === true) {
         this.player.dispose();
         this.needsRemoving = false;
+        this.player = null;
       }
     }
   }
@@ -105,35 +106,7 @@ class Paddle {
     }
   }
 
-  update(deltaTime, ballPosition, ballVelocity, gameManager) {
-    const shouldUpdate =
-      this.side == gameManager.side ||
-      state.gameMode == "default" ||
-      state.gameMode == "PVP" ||
-      state.gameMode == "PVR";
-
-    if (shouldUpdate) {
-      this.player.update(deltaTime, ballPosition, ballVelocity);
-      gameManager.sendMessage({
-        type: "positions",
-        element: `paddle_${this.side}`,
-        side: `${this.side}`,
-        pos: {
-          x: Number(this.pos.x).toFixed(4),
-        },
-      });
-    }
-
-    const newBox = new THREE.Box3().setFromObject(this.obj, true);
-    const paddleBoxIndex = this.arena.BBoxes.findIndex(
-      (bbox) => bbox.side === this.side,
-    );
-    if (paddleBoxIndex !== -1) {
-      this.arena.BBoxes[paddleBoxIndex] = {
-        box: newBox,
-        side: this.side,
-      };
-    }
+  animation_update(deltaTime) {
     this.mixer.update(deltaTime);
 
     if (this.player.state.bottom) {

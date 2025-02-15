@@ -1,12 +1,16 @@
 import asyncio
 import copy
 import json
+import time
 import uuid
 from decimal import Decimal
 from enum import Enum, auto
 from urllib.parse import parse_qs
 
 from channels.generic.websocket import AsyncWebsocketConsumer
+
+from .ball import Ball
+from .paddle import Paddle
 
 
 class GameMode(Enum):
@@ -24,14 +28,15 @@ class NumericEncoder(json.JSONEncoder):
 
 class GameState(AsyncWebsocketConsumer):
     rooms = {}
+    game_loops = {}
 
     DEFAULT_STATE = {
         "players": [],
         "score": {"left": 0, "right": 0},
         "game_mode": "null",
         "positions": {
-            "paddle_left": {"x": 0},
-            "paddle_right": {"x": 0},
+            "paddle_left": 0,
+            "paddle_right": 0,
             "ball": {
                 "x": 0,
                 "y": 0,
@@ -41,6 +46,7 @@ class GameState(AsyncWebsocketConsumer):
                 "vel_z": 0,
             },
         },
+        "paddles": {},
     }
 
     async def connect(self):
@@ -75,8 +81,7 @@ class GameState(AsyncWebsocketConsumer):
         await self.accept()
 
         if self.room not in self.rooms:
-            self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
-            self.rooms[self.room]["game_mode"] = self.game_mode
+            await self.initializeRoom()
 
         await self.channel_layer.group_add(self.room, self.channel_name)
         if self.channel_name not in self.rooms[self.room]["players"]:
@@ -88,9 +93,20 @@ class GameState(AsyncWebsocketConsumer):
         else:
             self.isSourceOfTruth = False
 
+        self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
+
         # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
         # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
         # print(f"Default state2 for room {self.room}: {self.rooms[self.room]}")
+
+    async def initializeRoom(self):
+        self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
+        self.rooms[self.room]["game_mode"] = self.game_mode
+        self.rooms[self.room]["paddles"] = {
+            "left": Paddle(initial_x=0),
+            "right": Paddle(initial_x=0),
+        }
+        self.rooms[self.room]["ball"] = Ball()
 
     async def manage_online_players(self):
         print(
@@ -130,6 +146,86 @@ class GameState(AsyncWebsocketConsumer):
         else:
             await self.close()
 
+    async def game_loop(self, room):
+        try:
+            last_time = time.time()
+            while True:
+                if room in self.rooms:
+                    current_time = time.time()
+                    delta_time = current_time - last_time
+                    last_time = current_time
+
+                    ball = self.rooms[room]["ball"]
+                    left_paddle_pos = self.rooms[room]["positions"]["paddle_left"]
+                    right_paddle_pos = self.rooms[room]["positions"]["paddle_right"]
+                    # ball_pos = self.rooms[room]["positions"]["ball"]
+                    ball_state = ball.update(delta_time)
+
+                    if ball.check_paddle_collision(left_paddle_pos, "left"):
+                        print("collided")
+                        ball.bounce("left", left_paddle_pos)
+                    elif ball.check_paddle_collision(right_paddle_pos, "right"):
+                        print("collided")
+                        ball.bounce("right", right_paddle_pos)
+
+                    # TODO: collisions with top and bottom walls
+                    self.rooms[room]["positions"]["ball"] = ball.get_current_position()
+
+                    if ball_state == "point_scored":
+                        pass
+
+                    await self.sendPositions()
+
+                await asyncio.sleep(1 / 60)
+
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"Error in game loop: {e}")
+
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+
+            if data.get("type") != "paddle_move":
+                return
+            direction = data.get("direction")
+            side = data.get("side")
+            # print(f"Received data: {direction}, {side}")
+            positions = self.rooms[self.room]["positions"]
+            delta_time = float(data.get("deltaTime"))
+
+            positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][side].move(
+                direction, delta_time
+            )
+
+            # await self.sendPositions()
+
+        except Exception as e:
+            print(f"Error processing message: {text_data}")
+            print(f"Exception details: {str(e)}")
+
+    async def sendPositions(self):
+        positions = self.rooms[self.room]["positions"]
+        if self.game_mode is not GameMode.ONLINE:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "positions",
+                        "positions": positions,
+                    },
+                    cls=NumericEncoder,
+                )
+            )
+        else:
+            await self.channel_layer.group_send(
+                self.room,
+                {
+                    "type": "positions",
+                    "positions": positions,
+                },
+            )
+
     async def positions(self, event):
         await self.send(
             text_data=json.dumps(
@@ -140,62 +236,6 @@ class GameState(AsyncWebsocketConsumer):
                 cls=NumericEncoder,
             )
         )
-
-    async def receive(self, text_data):
-        try:
-            data = json.loads(text_data)
-            msg_type = data.get("type")
-            side = data.get("side")
-            if self.game_mode is not GameMode.ONLINE:
-                side = None
-
-            positions = self.rooms[self.room]["positions"]
-
-            if msg_type == "positions":
-                if self.game_mode is not GameMode.ONLINE:
-                    element = data.get("element")
-                    if element == "paddle_left":
-                        positions["paddle_left"]["x"] = float(data["pos"]["x"])
-                    elif element == "paddle_right":
-                        positions["paddle_right"]["x"] = float(data["pos"]["x"])
-                    elif element == "ball":
-                        ball_pos = data.get("pos", {})
-                        for key, value in ball_pos.items():
-                            positions["ball"][key] = float(value)
-
-                if self.game_mode == GameMode.ONLINE:
-                    element = data.get("element")
-                    if element == "paddle_left" and side == "left":
-                        positions["paddle_left"]["x"] = float(data["pos"]["x"])
-                    elif element == "paddle_right" and side == "right":
-                        positions["paddle_right"]["x"] = float(data["pos"]["x"])
-                    elif element == "ball" and side == "left":
-                        ball_pos = data.get("pos", {})
-                        for key, value in ball_pos.items():
-                            positions["ball"][key] = float(value)
-
-                if self.game_mode is not GameMode.ONLINE:
-                    await self.send(
-                        text_data=json.dumps(
-                            {
-                                "type": "positions",
-                                "positions": positions,
-                            },
-                            cls=NumericEncoder,
-                        )
-                    )
-                else:
-                    await self.channel_layer.group_send(
-                        self.room,
-                        {
-                            "type": "positions",
-                            "positions": positions,
-                        },
-                    )
-
-        except Exception as e:
-            print(f"Error processing message: {text_data}")
-            print(f"Exception details: {str(e)}")
 
     async def disconnect(self, close_code):
         print("      player disconnected !!")

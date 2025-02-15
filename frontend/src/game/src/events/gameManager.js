@@ -62,10 +62,10 @@ export class GameManager {
 
   updatePositions(state) {
     if (state.paddle_left) {
-      this.game.paddleLeft.obj.position.x = state.paddle_left.x;
+      this.game.paddleLeft.obj.position.x = state.paddle_left;
     }
     if (state.paddle_right) {
-      this.game.paddleRight.obj.position.x = state.paddle_right.x;
+      this.game.paddleRight.obj.position.x = state.paddle_right;
     }
     if (state.ball) {
       this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
@@ -91,6 +91,15 @@ export class GameManager {
       console.warn("WebSocket is not in OPEN state");
       this.reconnect();
     }
+  }
+
+  sendPaddleMove(direction, side, deltaTime) {
+    this.sendMessage({
+      type: "paddle_move",
+      side: side,
+      direction: direction,
+      deltaTime: deltaTime,
+    });
   }
 }
 

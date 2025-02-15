@@ -58,20 +58,12 @@ class Robot {
     }
   }
 
-  updatePaddlePosition(deltaTime, ballX) {
-    //if (this.state.bottom) {
-    //  this.paddle.obj.position.x -= deltaTime * this.deltaFactor;
-    //}
-    //if (this.state.top) {
-    //  this.paddle.obj.position.x += deltaTime * this.deltaFactor;
-    //}
+  updatePaddlePosition(deltaTime, gameManager) {
     if (this.state.bottom) {
-      this.paddle.pos.x -= deltaTime * this.deltaFactor;
-      //console.log(this.paddle.pos.x);
+      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
     }
     if (this.state.top) {
-      this.paddle.pos.x += deltaTime * this.deltaFactor;
-      //console.log(this.paddle.pos.x);
+      gameManager.sendMovingUp("up", this.paddle.side, deltaTime);
     }
   }
 
@@ -88,11 +80,11 @@ class Robot {
     );
   }
 
-  update(deltaTime, position, velocity) {
+  update(deltaTime, gameManager, position, velocity) {
     this.target_x = this.predictBallPosition(position, velocity);
     this.moveTowardsTarget(deltaTime);
-    this.updatePaddlePosition(deltaTime);
-    this.constrainPaddlePosition();
+    this.updatePaddlePosition(deltaTime, gameManager);
+    //this.constrainPaddlePosition();
   }
 }
 
