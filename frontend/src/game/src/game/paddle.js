@@ -3,6 +3,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import PaddleControls from "./paddle_controls";
 import Robot from "./robot";
 import { position } from "../events/gameManager.js";
+import state from "../../../app";
 
 class Paddle {
   constructor(arena, side, player_type, config) {
@@ -105,17 +106,23 @@ class Paddle {
   }
 
   update(deltaTime, ballPosition, ballVelocity, gameManager) {
-    this.player.update(deltaTime, ballPosition, ballVelocity);
+    const shouldUpdate =
+      this.side == gameManager.side ||
+      state.gameMode == "default" ||
+      state.gameMode == "PVP" ||
+      state.gameMode == "PVR";
 
-    const message = {
-      type: "positions",
-      element: `paddle_${this.side}`,
-      side: `${this.side}`,
-      pos: {
-        x: Number(this.pos.x).toFixed(4),
-      },
-    };
-    gameManager.sendMessage(message);
+    if (shouldUpdate) {
+      this.player.update(deltaTime, ballPosition, ballVelocity);
+      gameManager.sendMessage({
+        type: "positions",
+        element: `paddle_${this.side}`,
+        side: `${this.side}`,
+        pos: {
+          x: Number(this.pos.x).toFixed(4),
+        },
+      });
+    }
 
     const newBox = new THREE.Box3().setFromObject(this.obj, true);
     const paddleBoxIndex = this.arena.BBoxes.findIndex(

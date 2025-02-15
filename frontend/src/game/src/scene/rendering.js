@@ -72,29 +72,28 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime, gameManager) {
-    const isNotOnline =
+    const shouldUpdate =
       state.gameMode == "default" ||
       state.gameMode == "PVP" ||
-      state.gameMode == "PVR";
+      state.gameMode == "PVR" ||
+      gameManager.side == "left";
 
-    if (gameManager.side == "left" || isNotOnline)
+    if (shouldUpdate)
       this.game.ball.update(deltaTime, this.scene, this, gameManager);
 
-    if (gameManager.side == "right" || isNotOnline)
-      this.game.paddleRight.update(
-        deltaTime,
-        this.game.ball.pos,
-        this.game.ball.velocity,
-        gameManager,
-      );
+    this.game.paddleRight.update(
+      deltaTime,
+      this.game.ball.pos,
+      this.game.ball.velocity,
+      gameManager,
+    );
 
-    if (gameManager.side == "left" || isNotOnline)
-      this.game.paddleLeft.update(
-        deltaTime,
-        this.game.ball.pos,
-        this.game.ball.velocity,
-        gameManager,
-      );
+    this.game.paddleLeft.update(
+      deltaTime,
+      this.game.ball.pos,
+      this.game.ball.velocity,
+      gameManager,
+    );
   }
 
   terrainElementsUpdate(deltaTime) {
@@ -105,10 +104,17 @@ class Renderer {
   }
 
   collisionsUpdate(deltaTime, gameManager) {
+    const shouldUpdate =
+      state.gameMode == "default" ||
+      state.gameMode == "PVP" ||
+      state.gameMode == "PVR" ||
+      gameManager.side == "left";
     for (const bbox of this.game.arena.BBoxes) {
       if (this.game.ball.box.intersectsBox(bbox.box)) {
         this.game.ball.bounce(bbox);
-        this.game.ball.update(deltaTime, this.scene, this, gameManager);
+        if (shouldUpdate) {
+          this.game.ball.update(deltaTime, this.scene, this, gameManager);
+        }
         if (bbox.side === "right") {
           this.game.paddleLeft.controls.other_has_hit = true;
           this.game.paddleRight.controls.other_has_hit = false;
