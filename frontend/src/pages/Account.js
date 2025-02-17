@@ -52,7 +52,7 @@ export default class Account {
 
     const buttons = [
       { id: "delete-user-button", action: "delete-user-button" },
-      { id: "form-button", action: "form-button" },
+      { id: "update-user-info", action: "update-user-info" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -217,9 +217,15 @@ export default class Account {
 
   async handleClick(key) {
     console.log("handleClick");
-    if (key == "form-button") {
+    if (key == "cancel-button" || key == "update-user-info") {
       this.isForm = !this.isForm;
       await updateView(this);
+      if (this.isForm) {
+        const checked2fa = document.getElementById("app2FA-checkbox")?.checked;
+        if (checked2fa) {
+          await this.getQrcode();
+        }
+      }
     } else if (key == "delete-user-button") {
       try {
         await this.deleteUser(this.state.state.userId);
@@ -231,7 +237,6 @@ export default class Account {
   }
 
   async handleSubmit(e) {
-    alert();
     e.preventDefault();
     try {
       await this.updateUserInfo(this.state.state.userId);
@@ -261,14 +266,14 @@ export default class Account {
           !document.getElementById("email2FA-checkbox").checked
         ) {
           this.formData.email = "";
-          input.value = "E-mail";
+          input.value = "";
         }
         if (
           input.classList.contains("sms2FA-input") &&
           !document.getElementById("sms2FA-checkbox").checked
         ) {
           this.formData.phone_number = "";
-          input.value = "Phone";
+          input.value = "";
         }
       });
 
@@ -310,9 +315,11 @@ export default class Account {
       const response = await API.get(`/auth/generate-qrcode/`);
       const data = response.data;
       console.log(data);
-      document.getElementById("totp-qr-code").src =
-        `data:image/png;base64,${data.qr_code}`;
-      document.getElementById("totp-qr-code").style.display = "block";
+      const qrCode = document.getElementById("totp-qr-code");
+      if (qrCode) {
+        qrCode.src = `data:image/png;base64,${data.qr_code}`;
+        qrCode.style.display = "block";
+      }
     } catch (error) {
       console.error(`Error while trying to get qrcode : ${error}`);
       throw error;
@@ -378,12 +385,6 @@ export default class Account {
       await this.fetchData(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
     }
     handleHeader(this.state.isUserLoggedIn, false);
     // const userData = this.state.data.username;
@@ -521,9 +522,11 @@ export default class Account {
 						</div>
 					</div>
 				</div>
-				<button type="submit" class="btn btn-success m-3" id="update-user-info">
-					Update my info
-				</button>
+				<div class="d-flex flex-column align-items-center">
+					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
+						Update my info
+					</button>
+				</div>
 				</form>
               </div>`
             : `
@@ -549,12 +552,18 @@ export default class Account {
 				</div>
               </div>`
         }
-			  <div class="d-flex flex-column align-items-center">
-				<button class="btn btn-dark m-3" id="form-button">
-					${this.isForm ? `Cancel` : `Change my info`}
-				</button>
+			  <div class="d-flex justify-center flex-column align-items-center app2FA-div">
+				${
+          this.isForm
+            ? `<button class="btn btn-dark m-3 account-button" id="cancel-button">
+								Cancel
+								</button>`
+            : `<button class="btn btn-dark m-3 account-button" id="update-user-info">
+								Change my info
+								</button>`
+        }
 				<button
-					class="btn btn-danger mb-2"
+					class="btn btn-danger m-3 account-button"
 					id="delete-user-button"
 				>
 					Delete Account

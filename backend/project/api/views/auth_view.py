@@ -84,7 +84,7 @@ class LoginView(APIView):
 		user.otp_created_at = now()
 		user.save()
 		print(f"code generated : {code}")
-		# send_mail('Your 2FA verification code', f'Your 2FA verification code is : {code}', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False,)
+		send_mail('Your 2FA verification code', f'Your 2FA verification code is : {code}\nIt is valid for 5 minutes.', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False,)
 
 	def send_sms_otp(self, user):
 		code = random.randint(100000, 999999)
@@ -92,8 +92,8 @@ class LoginView(APIView):
 		user.otp_created_at = now()
 		user.save()
 		print(f"code generated : {code}")
-		# client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-		# client.message.create(body=f"Your 2FA code is : {code}", from_=settings.TWILIO_PHONE_NUMBER, to=user.phone_number,)
+		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+		client.messages.create(body=f"Your 2FA code is : {code}. It is valid for 5 minutes.", from_=settings.TWILIO_PHONE_NUMBER, to=user.phone_number,)
 
 
 	def generate_jwt_response(self, user):

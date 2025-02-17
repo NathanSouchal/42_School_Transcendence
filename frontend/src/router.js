@@ -11,23 +11,15 @@ export class Router {
 
     window.onpopstate = () => {
       const currentPath = window.location.pathname;
-      this.navigate(currentPath);
+      this.navigate(currentPath, false);
     };
-    // Gère les clics sur les liens
-    document.addEventListener("click", (e) => {
-      if (
-        (e.target.tagName === "A" && e.target.classList.contains("nav-link")) ||
-        e.target.classList.contains("link")
-      ) {
-        e.preventDefault();
-        const path = e.target.getAttribute("href");
-        this.navigate(path); // Maintenant, navigate est correctement lié
-      }
-    });
 
     // Charge la route initiale
-    if (this.currentPath !== window.location.pathname) {
-      this.navigate(this.currentPath, false);
+    // if (this.currentPath !== window.location.pathname) {
+    //   this.navigate(this.currentPath, false);
+    // }
+    if (!history.state) {
+      this.navigate(this.currentPage, false);
     }
   }
 
@@ -86,7 +78,11 @@ export class Router {
     }
 
     if (shouldPushState) {
-      window.history.pushState({}, "", path);
+      if (history.state) {
+        window.history.pushState({}, "", path);
+      } else {
+        window.history.replaceState({}, "", path);
+      }
     }
   }
 }

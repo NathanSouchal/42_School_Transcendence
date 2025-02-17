@@ -16,9 +16,7 @@ export default class Login {
     this.isSubscribed = false;
     this.isInitialized = false;
     this.is2fa = false;
-    this.is2faInvalid = false;
-    this.is2faExpired = false;
-    this.errorMessage = "";
+    this.method2fa = null;
     this.formState = {};
     this.eventListeners = [];
     this.cssLink;
@@ -93,6 +91,25 @@ export default class Login {
         });
       }
     });
+
+    const retryLink = document.getElementById("link-to-retry");
+    if (retryLink) {
+      const resetLoginPage = this.resetLoginPage.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "link-to-retry")) {
+        retryLink.addEventListener("click", resetLoginPage);
+        this.eventListeners.push({
+          name: "link-to-retry",
+          type: "click",
+          element: retryLink,
+          listener: resetLoginPage,
+        });
+      }
+    }
+  }
+
+  async resetLoginPage() {
+    this.is2fa = false;
+    await updateView(this);
   }
 
   handleNavigation(e) {
@@ -107,7 +124,6 @@ export default class Login {
   handleChange(e) {
     let key = e.target.name;
     let value = e.target.value;
-    let inputElement = e.target;
     this.formState[key] = value;
   }
 
@@ -119,8 +135,10 @@ export default class Login {
     try {
       const response = await API.post("/auth/login/", this.formState);
       if (response.data.message == "2FA_REQUIRED") {
-        console.log("2FAAA");
         this.is2fa = true;
+        if (response.data.method === "TOTP") this.method2fa = "Auth App";
+        if (response.data.method === "sms") this.method2fa = "phone";
+        if (response.data.method === "email") this.method2fa = "e-mail";
         return updateView(this);
       }
       const id = response.data.user.id;
@@ -131,12 +149,9 @@ export default class Login {
       router.navigate("/account");
     } catch (error) {
       if (error.response) {
-        const status = error.response.status;
-        if (status === 401) {
-          console.error(`Error 401 while trying to login ${error}`);
+        if (error.response.status === 401) {
+          this.displayLoginErrorMessage("Invalid credentials");
         }
-      } else {
-        console.error(`Error while trying to login ${error}`);
       }
     } finally {
       this.formState = {};
@@ -160,32 +175,18 @@ export default class Login {
       this.state.state.userId = id.toString();
       this.state.saveState();
       if (this.is2fa) this.is2fa = false;
-      if (this.is2faExpired) this.is2faExpired = false;
-      if (this.is2faInvalid) this.is2faInvalid = false;
       router.navigate("/account");
     } catch (error) {
       if (!this.is2fa) this.is2fa = true;
       if (error.response.data.error == "Invalid OTP") {
-        this.is2faInvalid = true;
-        this.errorMessage = "Code is invalid";
-        const errorTitle = document.getElementById("login-error-message");
-        if (errorTitle) errorTitle.textContent = "Code is invalid";
-        alert("Invalid OTP");
+        this.displayLoginErrorMessage("Code is invalid");
+      } else if (error.response.data.error == "Expired OTP") {
+        this.displayLoginErrorMessage("Code is expired");
+        const retry = document.getElementById("link-to-retry");
+        if (retry) retry.style.display = "block";
+        this.attachEventListeners();
       }
-      if (error.response.data.error == "Expired OTP") {
-        this.is2faExpired = true;
-        this.errorMessage = "Code is expired";
-        alert("Expired OTP");
-      }
-      if (error.response) {
-        const status = error.response.status;
-        if (status === 401) {
-          console.error(`Error 401 while trying to login ${error}`);
-        }
-      } else {
-        console.error(`Error while trying to login ${error}`);
-      }
-      this.handleServerErrors();
+      console.error(`Error while trying to login ${error}`);
     } finally {
       this.formState = {};
       const inputs = document.querySelectorAll("input");
@@ -193,6 +194,11 @@ export default class Login {
         input.value = "";
       });
     }
+  }
+
+  displayLoginErrorMessage(errorMsg) {
+    const errorTitle = document.getElementById("login-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
   async handleStateChange(newState) {
@@ -205,8 +211,6 @@ export default class Login {
     }
     this.previousState = { ...newState };
   }
-
-  handleServerErrors() {}
 
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
@@ -225,6 +229,7 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
+    this.is2fa = false;
   }
 
   render2FA() {
@@ -234,7 +239,7 @@ export default class Login {
           <h1 class="global-page-title">Login</h1>
           <div class="inputs-button-form-login-register">
 		  	<label>
-				We've sent a verification code to your email
+				We've sent a verification code to your ${this.method2fa}
 		  	</label>
             <input
               type="text"
@@ -250,21 +255,14 @@ export default class Login {
               Sign in
             </button>
 			<h2 class="login-error-message" id="login-error-message">${this.errorMessage ? this.errorMessage : ``}</h2>
+			<div class="link-to-register" id="link-to-retry" style="display: none">
+              <h2>Retry</h2>
+            </div>
           </div>
         </form>`;
   }
 
   async render(routeParams = {}) {
-    // try {
-    //   await checkUserStatus();
-    // } catch (error) {
-    //   if (error.response.status === 404) {
-    //     setTimeout(() => {
-    //       router.navigate("/404");
-    //     }, 50);
-    //     return "";
-    //   }
-    // }
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
@@ -303,6 +301,7 @@ export default class Login {
             <div class="link-to-register">
               <a class="nav-link" href="/register">No account? Create one here</a>
             </div>
+			<h2 class="login-error-message" id="login-error-message">${this.errorMessage ? this.errorMessage : ``}</h2>
           </div>
         </form>`;
   }
