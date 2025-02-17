@@ -99,10 +99,12 @@ label {
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 1rem;
 }
 
 .file-input-div {
   width: 50%;
+  margin-top: -1rem;
 }
 
 .file-input {

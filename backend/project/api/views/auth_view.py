@@ -22,6 +22,7 @@ from datetime import timedelta
 import qrcode
 import base64
 import pyotp
+import boto3
 from io import BytesIO
 from django.http import JsonResponse
 
@@ -92,8 +93,23 @@ class LoginView(APIView):
 		user.otp_created_at = now()
 		user.save()
 		print(f"code generated : {code}")
-		client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-		client.messages.create(body=f"Your 2FA code is : {code}. It is valid for 5 minutes.", from_=settings.TWILIO_PHONE_NUMBER, to=user.phone_number,)
+		client = boto3.client(
+		"sns",
+		aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+		aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+		region_name=settings.AWS_REGION)
+
+		phone_number = f"{user.phone_number}"
+		message = f"Your 2FA code is: {code}. It is valid for 5 minutes."
+
+		try:
+			response = client.publish(
+				PhoneNumber=phone_number,
+				Message=message
+			)
+			print(f"SMS sent successfully: {response}")
+		except Exception as e:
+			print(f"Error sending SMS: {e}")
 
 
 	def generate_jwt_response(self, user):

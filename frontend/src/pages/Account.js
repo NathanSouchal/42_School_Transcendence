@@ -183,18 +183,18 @@ export default class Account {
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const maxSize = 5 * 1024 * 1024; // 5MB
-      const fileInput = value;
+      const fileInput = file;
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
           alert("Only JPG and PNG files are allowed");
-          value = "";
+          file = "";
           label.textContent = "Upload file";
           return;
         }
         if (fileInput.size > maxSize) {
           alert("File size can't exceed 5MB");
-          value = "";
+          file = "";
           label.textContent = "Upload file";
           return;
         }

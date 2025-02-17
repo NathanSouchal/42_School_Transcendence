@@ -2,6 +2,9 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -183,13 +186,17 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'im.a.crab.42@gmail.com'
-EMAIL_HOST_PASSWORD = 'edqv qjcx stgz smwn'  # Généré depuis Google
-DEFAULT_FROM_EMAIL = 'im.a.crab.42@gmail.com'
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 
-TWILIO_ACCOUNT_SID = "ACb264109e29cc01882c09e36faa1cb72e"
-TWILIO_AUTH_TOKEN = "85c5bb4188a88a3b6cc671928a2829da"
-TWILIO_PHONE_NUMBER = "+12696992785"
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
 
 OTP_TOTP_ISSUER = "YourAppName"
 OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
