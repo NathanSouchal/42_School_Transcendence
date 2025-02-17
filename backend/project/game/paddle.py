@@ -4,8 +4,8 @@ class Paddle:
         # These values should match your game's configuration
         self.MOVE_SPEED = 30  # Matches your deltaFactor
         # TODO: Replace these values with your actual sizes
-        self.ARENA_WIDTH = 26.0  # Set this to (arena_width - border_width * 2)
-        self.PADDLE_WIDTH = 5.0  # Set this to paddle_width
+        self.ARENA_WIDTH = 24.0  # Set this to (arena_width - border_width * 2)
+        self.PADDLE_WIDTH = 6.0  # Set this to paddle_width
 
     def move(self, direction, delta_time):
         """

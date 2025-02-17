@@ -28,7 +28,6 @@ class Paddle {
         this.player.dispose();
         this.needsRemoving = false;
       }
-      console.log("OK here is a ROBOT !!");
       this.player = new Robot(this, this.size);
     } else if (player_type === "none") {
       if (this.needsRemoving === true) {

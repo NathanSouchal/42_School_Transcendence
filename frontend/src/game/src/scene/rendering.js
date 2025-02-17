@@ -47,12 +47,12 @@ class Renderer {
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime, gameManager);
-        //this.collisionsUpdate(deltaTime, gameManager);
       }
-
-      // Input handlers or Robot controls (still on the front)
-
-      // Terrain and arena updates
+      if (state.ballCollided) {
+        this.game.ball.spawn_sparks(state.collisionPoint);
+        state.ballCollided = false;
+      }
+      this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
       this.pivotUpdate(deltaTime);
@@ -75,13 +75,11 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime, gameManager) {
-    //this.game.ball.update(deltaTime, this.scene, this, gameManager);
-
     if (this.game.paddleLeft.player != null) {
       this.game.paddleRight.player.update(
         deltaTime,
         gameManager,
-        this.game.ball.pos,
+        this.game.ball.obj.position,
         this.game.ball.velocity,
       );
     }
@@ -89,7 +87,7 @@ class Renderer {
       this.game.paddleLeft.player.update(
         deltaTime,
         gameManager,
-        this.game.ball.pos,
+        this.game.ball.obj.position,
         this.game.ball.velocity,
       );
     }
@@ -99,38 +97,6 @@ class Renderer {
     this.game.sea.update(deltaTime);
     for (let creature of this.game.fishFactory.creatures) {
       creature.update(deltaTime);
-    }
-  }
-
-  collisionsUpdate(deltaTime, gameManager) {
-    const shouldUpdate =
-      state.gameMode == "default" ||
-      state.gameMode == "PVP" ||
-      state.gameMode == "PVR" ||
-      gameManager.side == "left";
-    for (const bbox of this.game.arena.BBoxes) {
-      if (this.game.ball.box.intersectsBox(bbox.box)) {
-        this.game.ball.bounce(bbox);
-        if (shouldUpdate) {
-          this.game.ball.update(deltaTime, this.scene, this, gameManager);
-        }
-        if (bbox.side === "right") {
-          this.game.paddleLeft.controls.other_has_hit = true;
-          this.game.paddleRight.controls.other_has_hit = false;
-          this.game.paddleRight.tap_animation(deltaTime);
-        } else if (bbox.side === "left") {
-          this.game.paddleLeft.controls.other_has_hit = false;
-          this.game.paddleRight.controls.other_has_hit = true;
-          this.game.paddleLeft.tap_animation(deltaTime);
-        }
-        const collisionPoint = new THREE.Vector3(
-          this.game.ball.pos.x,
-          this.game.ball.pos.y,
-          this.game.ball.pos.z,
-        );
-        this.game.ball.spawn_sparks(collisionPoint);
-        break;
-      }
     }
   }
 }

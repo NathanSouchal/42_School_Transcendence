@@ -92,12 +92,7 @@ class GameState(AsyncWebsocketConsumer):
             self.manage_task = asyncio.create_task(self.manage_online_players())
         else:
             self.isSourceOfTruth = False
-
         self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
-
-        # print(f"len(self.rooms) : {len(self.rooms)}, self.room: {self.room}, self.channel_name {self.channel_name}, self.rooms[self.room]['players']: {self.rooms[self.room]['players']}")
-        # print(f"self.room is {self.room}, self.channel_name is {self.channel_name}, players are {self.rooms[self.room]['players']}")
-        # print(f"Default state2 for room {self.room}: {self.rooms[self.room]}")
 
     async def initializeRoom(self):
         self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
@@ -158,21 +153,32 @@ class GameState(AsyncWebsocketConsumer):
                     ball = self.rooms[room]["ball"]
                     left_paddle_pos = self.rooms[room]["positions"]["paddle_left"]
                     right_paddle_pos = self.rooms[room]["positions"]["paddle_right"]
-                    # ball_pos = self.rooms[room]["positions"]["ball"]
                     ball_state = ball.update(delta_time)
-
-                    if ball.check_paddle_collision(left_paddle_pos, "left"):
-                        print("collided")
-                        ball.bounce("left", left_paddle_pos)
-                    elif ball.check_paddle_collision(right_paddle_pos, "right"):
-                        print("collided")
-                        ball.bounce("right", right_paddle_pos)
-
-                    # TODO: collisions with top and bottom walls
                     self.rooms[room]["positions"]["ball"] = ball.get_current_position()
 
-                    if ball_state == "point_scored":
-                        pass
+                    wall_collision, paddle_collision = ball.check_collision(
+                        left_paddle_pos, right_paddle_pos
+                    )
+
+                    if wall_collision or paddle_collision:
+                        await self.sendCollision(ball.position.x)
+
+                        if paddle_collision:
+                            ball.bounce(
+                                paddle_collision,
+                                (
+                                    left_paddle_pos
+                                    if paddle_collision == "left"
+                                    else right_paddle_pos
+                                ),
+                            )
+                        elif wall_collision:
+                            ball.bounce(wall_collision)
+
+                    # TODO: implement score
+                    # if ball_state == "point_scored":
+                    #     self.score_point()
+                    # pass
 
                     await self.sendPositions()
 
@@ -191,19 +197,46 @@ class GameState(AsyncWebsocketConsumer):
                 return
             direction = data.get("direction")
             side = data.get("side")
-            # print(f"Received data: {direction}, {side}")
             positions = self.rooms[self.room]["positions"]
             delta_time = float(data.get("deltaTime"))
 
             positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][side].move(
                 direction, delta_time
             )
-
-            # await self.sendPositions()
-
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
+
+    async def sendCollision(self, collision):
+        if self.game_mode is not GameMode.ONLINE:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "collision",
+                        "collision": collision,
+                    },
+                    cls=NumericEncoder,
+                )
+            )
+        else:
+            await self.channel_layer.group_send(
+                self.room,
+                {
+                    "type": "collision",
+                    "collision": collision,
+                },
+            )
+
+    async def collision(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "collision",
+                    "collision": event["collision"],
+                },
+                cls=NumericEncoder,
+            )
+        )
 
     async def sendPositions(self):
         positions = self.rooms[self.room]["positions"]
@@ -248,17 +281,11 @@ class GameState(AsyncWebsocketConsumer):
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
 
-        # Log avant nettoyage
-        print("Room state before disconnect:", self.rooms.get(self.room))
-
         if self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
 
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
-
-        # Log après nettoyage
-        print("Room state after disconnect:", self.rooms.get(self.room))
 
         await self.channel_layer.group_discard(self.room, self.channel_name)

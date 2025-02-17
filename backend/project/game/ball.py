@@ -27,12 +27,11 @@ class Vector3:
 
 class Ball:
     def __init__(self):
-        # TODO: Replace these with your actual configuration values
-        self.ARENA_WIDTH = 26.0  # Width of the arena
-        self.ARENA_DEPTH = 40.0  # Depth of the arena
-        self.PADDLE_WIDTH = 5.0  # Width of paddle
-        self.PADDLE_HEIGHT = 1.0  # Height of paddle
-        self.BALL_RADIUS = 0.3  # Radius of ball
+        self.ARENA_WIDTH = 24.0
+        self.ARENA_DEPTH = 44.0
+        self.PADDLE_WIDTH = 6.0
+        self.PADDLE_DEPTH = 7.0
+        self.BALL_RADIUS = 0.3
 
         # Configuration for ball physics
         self.conf = {
@@ -45,7 +44,6 @@ class Ball:
             }
         }
 
-        # Ball state
         self.position = Vector3(0, 2.7, 0)
         self.velocity = self._random_initial_velocity()
         self.is_falling = False
@@ -76,30 +74,33 @@ class Ball:
 
         return Vector3(x, 0, y)
 
-    def check_paddle_collision(self, paddle_x, side):
-        """Check collision with paddle using position-based detection"""
-        # Determine paddle boundaries based on side
+    def check_collision(self, paddle_x_left, paddle_x_right):
+        half_width = self.ARENA_WIDTH / 2
+        left_paddle_z = -self.ARENA_DEPTH / 2 + self.PADDLE_DEPTH / 2
+        right_paddle_z = self.ARENA_DEPTH / 2 - self.PADDLE_DEPTH / 2
 
-        if side == "left":
-            paddle_z = -self.ARENA_DEPTH / 2
-        else:  # right
-            paddle_z = self.ARENA_DEPTH / 2
+        if self.position.x >= half_width - self.BALL_RADIUS:
+            return "top", None
+        if self.position.x <= -(half_width - self.BALL_RADIUS):
+            return "bottom", None
 
-        # Check if ball is at paddle's z-position
-        if (side == "left" and self.position.z <= paddle_z + self.BALL_RADIUS) or (
-            side == "right" and self.position.z >= paddle_z - self.BALL_RADIUS
-        ):
-
-            # Check if ball is within paddle's vertical range
-            if abs(self.position.x - paddle_x) <= (
-                self.PADDLE_WIDTH / 2 + self.BALL_RADIUS
+        if self.position.z <= left_paddle_z + self.BALL_RADIUS:
+            if (
+                abs(self.position.x - paddle_x_left)
+                <= self.PADDLE_WIDTH / 2 + self.BALL_RADIUS
             ):
+                return None, "left"
 
-                return True
-        return False
+        if self.position.z >= right_paddle_z - self.BALL_RADIUS:
+            if (
+                abs(self.position.x - paddle_x_right)
+                <= self.PADDLE_WIDTH / 2 + self.BALL_RADIUS
+            ):
+                return None, "right"
+
+        return None, None
 
     def bounce(self, side, paddle_pos=None):
-        """Handle bounce physics"""
         current_time = time.time()
         if (
             side == self.last_collision["side"]
@@ -112,8 +113,7 @@ class Ball:
 
         if side in ["left", "right"]:
             if paddle_pos is not None:
-                # Calculate angle based on hit position
-                relative_position = self.position.x - paddle_pos["x"]
+                relative_position = self.position.x - paddle_pos
                 normalized_position = relative_position / (self.PADDLE_WIDTH / 2)
                 max_angle = math.pi / 4  # 45 degrees
                 new_angle = normalized_position * max_angle
@@ -124,7 +124,6 @@ class Ball:
                 self.velocity.x = current_speed * math.sin(new_angle)
                 self.velocity.z = y_direction * abs(current_speed * math.cos(new_angle))
 
-                # Speed up ball after paddle hits
                 self.bounces += 1
                 if self.bounces < self.bounces_needed:
                     current_speed *= self.conf["speed"]["incrementFactor"]

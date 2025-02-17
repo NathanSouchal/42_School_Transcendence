@@ -45,6 +45,9 @@ export class GameManager {
           state.isSourceOfTruth = data.isSourceOfTruth;
           console.log(`isSourceOfTruth: ${state.isSourceOfTruth}`);
           state.setIsSearching(false);
+        case "collision":
+          state.ballCollided = true;
+          state.collisionPoint = data.collision;
       }
     };
 
@@ -74,6 +77,9 @@ export class GameManager {
         state.ball.vel_y,
         state.ball.vel_z,
       );
+      //console.log(
+      //  `ball is now at: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`,
+      //);
     }
   }
 

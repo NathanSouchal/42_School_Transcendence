@@ -63,28 +63,14 @@ class Robot {
       gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
     }
     if (this.state.top) {
-      gameManager.sendMovingUp("up", this.paddle.side, deltaTime);
+      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
     }
-  }
-
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.pos.x = THREE.MathUtils.clamp(
-      this.paddle.pos.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
   }
 
   update(deltaTime, gameManager, position, velocity) {
     this.target_x = this.predictBallPosition(position, velocity);
     this.moveTowardsTarget(deltaTime);
     this.updatePaddlePosition(deltaTime, gameManager);
-    //this.constrainPaddlePosition();
   }
 }
 
