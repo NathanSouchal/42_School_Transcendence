@@ -30,8 +30,8 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    // this.gamePoints = 10;
-    this.gamePoints = 1;
+    this.gamePoints = 10;
+    // this.gamePoints = 1;
 
     this.player_types = {
       default: {
