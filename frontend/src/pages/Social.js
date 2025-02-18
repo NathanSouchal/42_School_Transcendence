@@ -84,29 +84,21 @@ export default class Social {
     });
 
     const validate_button = document.getElementById("validate_invit");
-    if (validate_button) {
+    if (validate_button && !this.eventListeners.some((e) => e.name === "validate_invit")) {
       const validate_btn_fctn = this.validate_btn_fctn.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "validate_invit")) {
-        validate_button.addEventListener("click", async (e) => {
-          await validate_btn_fctn(e.target.value);
-        });
-      }
+      validate_button.addEventListener("click", validate_btn_fctn);
       this.eventListeners.push({
         name: "validate_invit",
         type: "click",
         element: validate_button,
         listener: validate_btn_fctn,
-      });
-    }
+      })
+    };
 
     const cancel_button = document.getElementById("cancel_decline_invit");
-    if (cancel_button) {
+    if (cancel_button && !this.eventListeners.some((e) => e.name === "cancel_decline_invit")) {
       const cancel_btn_fctn = this.cancel_btn_fctn.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "cancel_decline_invit")) {
-        cancel_button.addEventListener("click", async (e) => {
-          await cancel_btn_fctn(e.target.value);
-        });
-      }
+      cancel_button.addEventListener("click",cancel_btn_fctn)
       this.eventListeners.push({
         name: "cancel_decline_invit",
         type: "click",
@@ -116,15 +108,9 @@ export default class Social {
     }
 
     const search_bar_user = document.getElementById("search_bar_user");
-    if (search_bar_user) {
+    if (search_bar_user && !this.eventListeners.some((e) => e.name === "search_bar_user")) {
       const search_bar_user_fctn = this.search_bar_user_fctn.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "search_bar_user")) {
-        search_bar_user.addEventListener("keydown", async (e) => {
-          if (e.key === "Enter") {
-            await search_bar_user_fctn(e.target.value);
-          }
-        });
-      }
+      search_bar_user.addEventListener("keydown", search_bar_user_fctn);
       this.eventListeners.push({
         name: "search_bar_user",
         type: "input",
@@ -134,7 +120,8 @@ export default class Social {
     }
   }
 
-  async validate_btn_fctn(invit_id) {
+  async validate_btn_fctn(e) {
+    const invit_id = e.target.value;
     console.log(invit_id);
     await this.validate_invit_request(invit_id);
   }
@@ -152,7 +139,8 @@ export default class Social {
     
   }
 
-  async cancel_btn_fctn(invit_id) {
+  async cancel_btn_fctn(e) {
+    const invit_id = e.target.value;
     console.log(invit_id);
     await this.cancel_invit_request(invit_id);
   }
@@ -169,11 +157,13 @@ export default class Social {
     }
   }
 
-  async search_bar_user_fctn(username_to_search) {
-    console.log(username_to_search);
-    const searchResultDiv = document.getElementById("search_result");
-    searchResultDiv.innerHTML = "";
-    await this.search_bar_user_request(username_to_search);
+  async search_bar_user_fctn(e) {
+    if (e.key === "Enter") {
+      console.log(e.target.value);
+      const searchResultDiv = document.getElementById("search_result");
+      searchResultDiv.innerHTML = "";
+      await this.search_bar_user_request(e.target.value);
+    }
   }
 
   async search_bar_user_request(username_to_search) {
@@ -248,90 +238,105 @@ export default class Social {
         return "";
       }
     }
+  
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
+  
     if (this.friends && this.invitations) {
-      return `${backArrow}<div class="main-div-social">
-                <h1 class="global-page-title">Social</h1>
-                <div class="content-social">
-                  <div class="search-bar-and-result-social">
-                    <input type="text" id="search_bar_user" placeholder="Search..." />
-                    <div id="search_result"></div>
-                  </div>
-                  <div class="friends-and-invitations-social">
-                    <div class="friends-div-social">
-                      <h2>FRIENDS</h2>
-                      <div class="friends-list-social">
-                        ${
-                          Object.keys(this.friends).length > 0
-                            ? `
-                          ${Object.values(this.friends)
-                            .map(
-                              (value) =>
-                                `<div class="friends-item-social">
-							  <a href="/user/${value.id}/">
-                                    <div class="friends-item-img-username">
-											<img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
-											<p>${value.username}</p>
-                                    </div>
-                                    <p>Online</p>
-                                </div>
-								</a>`
-                            )
-                            .join("")} `
-                            : `<div>
-                                <p>zero friend, sniff sniff</p>
-                              </div>`
-                        }
+      return `
+        ${backArrow}
+        <div class="main-div-social">
+          <h1 class="global-page-title">Social</h1>
+          <div class="content-social">
+            <div class="search-bar-and-result-social">
+              <input type="text" id="search_bar_user" placeholder="Search..." />
+              <div id="search_result"></div>
+            </div>
+            <div class="friends-and-invitations-social">
+              <div class="friends-div-social">
+                <h2>FRIENDS</h2>
+                <div class="friends-list-social">
+                  ${
+                    Object.keys(this.friends).length > 0
+                      ? Object.values(this.friends)
+                          .map(
+                            (value) => `
+                      <div class="friends-item-social">
+                        <div class="friends-item-img-username">
+                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+                          <a href="/user/${value.id}/">
+                            ${value.username}
+                          </a>
+                        </div>
+                        <p>Online</p>
                       </div>
+                    `
+                          )
+                          .join("")
+                      : `
+                    <div>
+                      <p>zero friend, sniff sniff</p>
                     </div>
-                    <div class="invitations-div-social">
-                      <h2>REQUESTS</h2>
-                      <div class="invitations-list-div-social">
-                        ${
-                          Object.keys(this.invitations).length > 0
-                            ? `
-                          ${Object.values(this.invitations)
-                            .map(
-                              (value) =>
-                                `
-                                    ${
-                                      value.from_user.id == this.state.state.userId
-                                        ? `<div class="invitation-item-social">
-										<a href="/user/${value.to_user.id}/">
-                                        <div class="invitation-item-img-username">
-                                         		<img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
-                                          	<p>${value.to_user.username}, waiting for acceptation...</p>
-                                        </div>
-										</a>
-                                        <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
-                                      </div>`
-                                        : `<div class="invitation-item-social">
-                                        <a href="/user/${value.from_user.id}/">
-										<div class="invitation-item-img-username">
-                                          		<img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
-                                          		<p>${value.from_user.username}</p>
-                                        </div>
-										</a>
-                                        <div class="two-buttons-invitation-social">
-                                          <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
-                                          <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
-                                        </div>
-                                      </div>`
-                                    }`
-                            )
-                            .join("")}`
-                            : `<div>
-                                <p>no pending invitations</p>
-                              </div>`
-                        }
-                      </div>
-                    </div>
-                  </div>
+                  `
+                  }
                 </div>
-              </div>`;
+              </div>
+              <div class="invitations-div-social">
+                <h2>REQUESTS</h2>
+                <div class="invitations-list-div-social">
+                  ${
+                    Object.keys(this.invitations).length > 0
+                      ? Object.values(this.invitations)
+                          .map(
+                            (value) => `
+                      ${
+                        value.from_user.id == this.state.state.userId
+                          ? `
+                        <div class="invitation-item-social">
+                          <a href="/user/${value.to_user.id}/">
+                            <div class="invitation-item-img-username">
+                              <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                              <p>${value.to_user.username}, waiting for acceptation...</p>
+                            </div>
+                          </a>
+                          <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                        </div>
+                      `
+                          : `
+                        <div class="invitation-item-social">
+                          <a href="/user/${value.from_user.id}/">
+                            <div class="invitation-item-img-username">
+                              <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                              <p>${value.from_user.username}</p>
+                            </div>
+                          </a>
+                          <div class="two-buttons-invitation-social">
+                            <button class="validate-button-invitation-social" value="${value.id}" id="validate_invit">✓</button>
+                            <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
+                          </div>
+                        </div>
+                      `
+                      }
+                    `
+                          )
+                          .join("")
+                      : `
+                    <div>
+                      <p>no pending invitations</p>
+                    </div>
+                  `
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
     } else {
-      return `${backArrow}<h1>No data</h1>`;
+      return `
+        ${backArrow}
+        <h1>No data</h1>
+      `;
     }
   }
-}
+}  
