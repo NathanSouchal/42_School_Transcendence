@@ -179,19 +179,17 @@ export default class Account {
   async handleFile(key, file) {
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const maxSize = 1 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024; // 5MB
       const fileInput = file;
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
           this.displayAccountErrorMessage("Only JPG and PNG files are allowed");
-          file = "";
           label.textContent = "Upload file";
           return;
         }
         if (fileInput.size > maxSize) {
           this.displayAccountErrorMessage("File size can't exceed 5MB");
-          file = "";
           label.textContent = "Upload file";
           return;
         }
@@ -328,7 +326,11 @@ export default class Account {
     console.log("this.formData.username: " + this.formData.username);
     console.log("this.formData.alias: " + this.formData.alias);
     try {
-      if (!this.formData.username?.length || !this.formData.alias?.length) {
+      if (
+        !Object.keys(this.formData).length ||
+        !this.formData.username?.length ||
+        !this.formData.alias?.length
+      ) {
         console.error("Please complete all fields");
         throw new Error("Please complete all fields");
       }
