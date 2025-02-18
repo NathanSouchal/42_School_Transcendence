@@ -12,8 +12,6 @@ from api.models import User
 from api.serializers import UserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
-from django.db import transaction
-from api.authentication import CookieJWTAuthentication
 from django.db import IntegrityError
 from rest_framework_simplejwt.tokens import RefreshToken as SimpleJWTRefreshToken, TokenError
 from rest_framework.exceptions import AuthenticationFailed
@@ -28,13 +26,15 @@ from django.http import JsonResponse
 
 class RegisterView(APIView):
 	serializer_class = UserSerializer
-	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [AllowAny]
 
 	def post(self, request):
 		serializer = UserSerializer(data=request.data)
 		username = request.data.get('username')
 		password = request.data.get('password')
+		password_confirmation = request.data.get('passwordConfirmation')
+		if (password != password_confirmation):
+			return Response({'password_match': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
 			try:
@@ -51,7 +51,6 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
 	serializer_class = UserSerializer
-	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [AllowAny]
 
 	def post(self, request):
@@ -151,7 +150,6 @@ class LoginView(APIView):
 
 class Verify2FAView(APIView):
 	serializer_class = UserSerializer
-	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [AllowAny]
 
 	def post(self, request):
@@ -204,7 +202,6 @@ class Verify2FAView(APIView):
 		return LoginView().generate_jwt_response(user)
 
 class GenerateTOTPQRCodeView(APIView):
-	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [IsAuthenticated]
 	""" Génère un QR Code pour l'authentification TOTP """
 	def get(self, request):
@@ -221,7 +218,6 @@ class GenerateTOTPQRCodeView(APIView):
 		return JsonResponse({"qr_code": qr_base64})
 
 class LogoutView(APIView):
-    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -248,7 +244,6 @@ class LogoutView(APIView):
 
 
 class RefreshTokenView(APIView):
-    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -291,7 +286,6 @@ class RefreshTokenView(APIView):
 
 class AccessTokenView(APIView):
     serializer_class = UserSerializer
-    authentication_classes = [CookieJWTAuthentication]
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -335,7 +329,6 @@ class AccessTokenView(APIView):
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class IsAuthView(APIView):
-	authentication_classes = [CookieJWTAuthentication]
 	permission_classes = [IsAuthenticated]
 
 	def get(self, request):

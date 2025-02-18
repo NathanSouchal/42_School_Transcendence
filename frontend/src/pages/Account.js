@@ -512,7 +512,7 @@ export default class Account {
 						<input
 						type="text"
 						class="sms2FA-input"
-						minLength="4"
+						minLength="12"
 						maxLength="12"
 						placeholder="Phone number"
 						value="${this.formData.phone_number ? this.formData.phone_number : ``}"

@@ -254,7 +254,7 @@ export default class Login {
             <button type="submit" class="form-button-login-register">
               Sign in
             </button>
-			<h2 class="login-error-message" id="login-error-message">${this.errorMessage ? this.errorMessage : ``}</h2>
+			<h2 class="login-error-message" id="login-error-message"></h2>
 			<div class="link-to-register" id="link-to-retry" style="display: none">
               <h2>Retry</h2>
             </div>
@@ -301,7 +301,7 @@ export default class Login {
             <div class="link-to-register">
               <a class="nav-link" href="/register">No account? Create one here</a>
             </div>
-			<h2 class="login-error-message" id="login-error-message">${this.errorMessage ? this.errorMessage : ``}</h2>
+			<h2 class="login-error-message" id="login-error-message"></h2>
           </div>
         </form>`;
   }

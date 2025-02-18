@@ -8,7 +8,6 @@ from django.http import Http404
 from api.models import User
 from api.serializers import UserSerializer, PublicUserSerializer, SimpleUserSerializer
 from api.permissions import IsAuthenticated
-from rest_framework.permissions import AllowAny
 from django.http import Http404
 
 
@@ -19,8 +18,8 @@ class UserView(APIView):
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			# if request.user != user and not request.user.is_superuser:
-			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
+			if request.user != user and not request.user.is_superuser:
+				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 		except ValueError:
 			return Response({'error': 'Invalid UUID format'}, status=status.HTTP_400_BAD_REQUEST)

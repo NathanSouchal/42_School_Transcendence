@@ -1,11 +1,6 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  checkUserStatus,
-} from "../utils.js";
+import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
 
 export default class Register {
@@ -66,6 +61,20 @@ export default class Register {
       }
     }
 
+    const popup = document.getElementById("popup-div");
+    if (popup) {
+      const showPopup = this.showPopup.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "popup")) {
+        popup.addEventListener("click", showPopup);
+        this.eventListeners.push({
+          name: "popup",
+          type: "click",
+          element: popup,
+          listener: showPopup,
+        });
+      }
+    }
+
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
       if (!this.eventListeners.some((e) => e.element === input)) {
@@ -79,6 +88,12 @@ export default class Register {
         });
       }
     });
+  }
+
+  showPopup() {
+    console.log("click");
+    const popup = document.getElementById("popup");
+    if (popup) popup.classList.toggle("show");
   }
 
   handleNavigation(e) {
@@ -133,9 +148,9 @@ export default class Register {
   async handleSubmit(e) {
     e.preventDefault();
     if (
-      this.formState.username.length < 4 ||
-      this.formState.password.length < 4 ||
-      this.formState.passwordConfirmation.length < 4
+      !this.formState.username?.length ||
+      !this.formState.password?.length ||
+      !this.formState.passwordConfirmation?.length
     ) {
       return console.error("Please complete all fields");
     }
@@ -143,11 +158,27 @@ export default class Register {
       const response = await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
-      console.error(`Error while trying to post data : ${error}`);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data
+      ) {
+        const errorData = error.response.data;
+        if (errorData.username)
+          this.displayRegisterErrorMessage(Object.values(errorData.username));
+        else if (errorData.password_match)
+          this.displayRegisterErrorMessage(errorData.password_match);
+        else if (errorData.password)
+          this.displayRegisterErrorMessage(Object.values(errorData.password));
+      }
     } finally {
-      this.formState.username = "";
-      this.formState.password = "";
-      this.formState.passwordConfirmation = "";
+      this.formState = {};
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach((input) => {
+        input.value = "";
+        input.classList.remove("is-valid");
+        input.classList.remove("is-invalid");
+      });
     }
   }
 
@@ -160,6 +191,11 @@ export default class Register {
       await updateView(this);
     }
     this.previousState = { ...newState };
+  }
+
+  displayRegisterErrorMessage(errorMsg) {
+    const errorTitle = document.getElementById("register-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
   removeEventListeners() {
@@ -182,17 +218,6 @@ export default class Register {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-    } catch (error) {
-      console.error(error);
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
-    }
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
@@ -237,6 +262,11 @@ export default class Register {
             <button type="submit" class="form-button-login-register">
               Sign up
             </button>
+			<div class="popup" id="popup-div">
+			<h3>Password restrictions</h3>
+				<span class="popup-text" id="popup">Password must be at least 10 characters long, with 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character</span>
+			</div>
+			<h2 class="register-error-message" id="register-error-message"></h2>
           </div>
         </form>`;
   }

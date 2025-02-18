@@ -256,16 +256,6 @@ label {
   margin-bottom: 4rem;
 }
 
-.login-error-message {
-  text-align: center;
-  color: var(--danger-color);
-  letter-spacing: 0.1rem;
-  font-weight: 700;
-  font-size: 1.7em;
-  font-style: italic;
-  margin-top: 1rem;
-}
-
 .inputs-button-form-login-register label {
   text-align: center;
   margin-bottom: 1rem;
