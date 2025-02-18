@@ -13,10 +13,7 @@ export default class Account {
     this.isInitialized = false;
 
     this.userData = {};
-    this.formData = {
-      username: "",
-      alias: "",
-    };
+    this.formData = {};
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
@@ -182,18 +179,18 @@ export default class Account {
   async handleFile(key, file) {
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 1 * 1024 * 1024; // 5MB
       const fileInput = file;
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
-          alert("Only JPG and PNG files are allowed");
+          this.displayAccountErrorMessage("Only JPG and PNG files are allowed");
           file = "";
           label.textContent = "Upload file";
           return;
         }
         if (fileInput.size > maxSize) {
-          alert("File size can't exceed 5MB");
+          this.displayAccountErrorMessage("File size can't exceed 5MB");
           file = "";
           label.textContent = "Upload file";
           return;
@@ -328,14 +325,35 @@ export default class Account {
 
   async updateUserInfo(id) {
     console.log("Updating data...");
-    if (this.formData.username.length < 4 || this.formData.alias.length < 4) {
-      return console.error("Please complete all fields");
-    }
+    console.log("this.formData.username: " + this.formData.username);
+    console.log("this.formData.alias: " + this.formData.alias);
     try {
+      if (!this.formData.username?.length || !this.formData.alias?.length) {
+        console.error("Please complete all fields");
+        throw new Error("Please complete all fields");
+      }
       const res = await API.put(`/user/${id}/`, this.formData);
       console.log(res);
     } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data
+      ) {
+        const errorData = error.response.data;
+        if (errorData.phone_number)
+          console.log(Object.values(errorData.phone_number));
+        if (errorData.errors)
+          this.displayAccountErrorMessage(Object.values(errorData.errors)[0]);
+        else if (errorData.no_phone_number)
+          this.displayAccountErrorMessage(errorData.no_phone_number);
+        else if (errorData.no_email)
+          this.displayAccountErrorMessage(errorData.no_email);
+        else if (errorData.wrong_avatar)
+          this.displayAccountErrorMessage(errorData.wrong_avatar);
+      }
       console.error(`Error while trying to update user data : ${error}`);
+      throw error;
     }
   }
 
@@ -347,6 +365,12 @@ export default class Account {
     } catch (error) {
       console.error(`Error while trying to delete data : ${error}`);
     }
+  }
+
+  displayAccountErrorMessage(errorMsg) {
+    console.log("ici");
+    const errorTitle = document.getElementById("account-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
   removeEventListeners() {
@@ -522,6 +546,7 @@ export default class Account {
 						</div>
 					</div>
 				</div>
+				<h2 class="account-error-message" id="account-error-message"></h2>
 				<div class="d-flex flex-column align-items-center">
 					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
 						Update my info

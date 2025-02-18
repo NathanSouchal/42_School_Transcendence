@@ -165,7 +165,7 @@ export default class Login {
   async handleSubmit2FA(e) {
     e.preventDefault();
     console.log("Sending 2FA verification:", this.formState.code);
-    if (!this.formState.code.length) {
+    if (!this.formState.code?.length) {
       return console.error("Please enter your code");
     }
     try {
@@ -289,7 +289,7 @@ export default class Login {
               class="form-control"
               placeholder="Enter password"
               value="${this.formState.password ? this.formState.password : ``}"
-			  minLength="4"
+			  minLength="8"
 			  maxLength="20"
               name="password"
               aria-label="Password"

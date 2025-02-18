@@ -273,3 +273,13 @@ label {
 .account-button {
   width: 60%;
 }
+
+.account-error-message {
+  text-align: center;
+  color: var(--danger-color);
+  letter-spacing: 0.1rem;
+  font-weight: 700;
+  font-size: 1.7em !important;
+  font-style: italic;
+  margin-top: 1rem;
+}

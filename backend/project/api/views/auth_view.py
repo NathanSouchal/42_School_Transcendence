@@ -21,6 +21,7 @@ import qrcode
 import base64
 import pyotp
 import boto3
+import re
 from io import BytesIO
 from django.http import JsonResponse
 
@@ -33,8 +34,12 @@ class RegisterView(APIView):
 		username = request.data.get('username')
 		password = request.data.get('password')
 		password_confirmation = request.data.get('passwordConfirmation')
+		print(f'passwordConfirmation : {password_confirmation}')
 		if (password != password_confirmation):
 			return Response({'password_match': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
+		regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
+		if not re.match(regex, password):
+			return Response({'password_format': 'Wrong password fornat'}, status=status.HTTP_400_BAD_REQUEST)
 		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
 			try:

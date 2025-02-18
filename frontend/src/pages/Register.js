@@ -168,8 +168,8 @@ export default class Register {
           this.displayRegisterErrorMessage(Object.values(errorData.username));
         else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
-        else if (errorData.password)
-          this.displayRegisterErrorMessage(Object.values(errorData.password));
+        else if (errorData.password_format)
+          this.displayRegisterErrorMessage(errorData.password_format);
       }
     } finally {
       this.formState = {};
@@ -232,7 +232,7 @@ export default class Register {
               placeholder="Enter username"
               minLength="4"
               maxLength="10"
-              value="${this.formState.username}"
+              value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
               required
@@ -241,8 +241,8 @@ export default class Register {
               type="password"
               class="form-control"
               placeholder="Enter password"
-              value="${this.formState.password}"
-			  minLength="4"
+              value="${this.formState.password ? this.formState.password : ``}"
+			  minLength="8"
 			  maxLength="20"
               name="password"
               aria-label="Password"
@@ -252,8 +252,8 @@ export default class Register {
               type="password"
               class="form-control"
               placeholder="Confirm password"
-              value="${this.formState.passwordConfirmation}"
-			  minLength="4"
+              value="${this.formState.passwordConfirmation ? this.formState.passwordConfirmation : ``}"
+			  minLength="8"
 			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
@@ -264,7 +264,7 @@ export default class Register {
             </button>
 			<div class="popup" id="popup-div">
 			<h3>Password restrictions</h3>
-				<span class="popup-text" id="popup">Password must be at least 10 characters long, with 1 uppercase letter, 1 lowercase letter, 1 number and 1 special character</span>
+				<span class="popup-text" id="popup">Password must have at least 8 characters, one uppercase letter, one number, and one special character</span>
 			</div>
 			<h2 class="register-error-message" id="register-error-message"></h2>
           </div>
