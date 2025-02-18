@@ -161,7 +161,7 @@ class GameState(AsyncWebsocketConsumer):
                     )
 
                     if wall_collision or paddle_collision:
-                        await self.sendCollision(ball.position.x)
+                    #     await self.sendCollision(ball.position.x)
 
                         if paddle_collision:
                             ball.bounce(
@@ -175,10 +175,11 @@ class GameState(AsyncWebsocketConsumer):
                         elif wall_collision:
                             ball.bounce(wall_collision)
 
-                    # TODO: implement score
-                    # if ball_state == "point_scored":
-                    #     self.score_point()
-                    # pass
+                    if (
+                        ball_state == "point_scored_left"
+                        or ball_state == "point_scored_right"
+                    ):
+                        await self.sendPointScored(ball_state)
 
                     await self.sendPositions()
 
@@ -206,6 +207,39 @@ class GameState(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
+
+    async def sendPointScored(self, ball_state):
+        scored_side = "left" if ball_state == "point_scored_left" else "right"
+
+        if self.game_mode is not GameMode.ONLINE:
+            await self.send(
+                text_data=json.dumps(
+                    {
+                        "type": "scored_side",
+                        "scored_side": scored_side,
+                    },
+                    cls=NumericEncoder,
+                )
+            )
+        else:
+            await self.channel_layer.group_send(
+                self.room,
+                {
+                    "type": "scored_side",
+                    "scored_side": scored_side,
+                },
+            )
+
+    async def scored_side(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "scored_side",
+                    "scored_side": event["scored_side"],
+                },
+                cls=NumericEncoder,
+            )
+        )
 
     async def sendCollision(self, collision):
         if self.game_mode is not GameMode.ONLINE:

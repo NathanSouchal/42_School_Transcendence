@@ -30,12 +30,12 @@ class Renderer {
     if (state.players.left === "robot" && state.players.right === "robot")
       return;
     if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
-      state.updateScore("right", 1);
+      state.updateScore("right");
     } else if (
       this.game.ball.obj.position.z >
       this.zMax / 2 - this.depth / 2 + 3
     ) {
-      state.updateScore("left", 1);
+      state.updateScore("left");
     }
   }
 
@@ -49,10 +49,10 @@ class Renderer {
         this.gameElementsUpdate(deltaTime, gameManager);
       }
       if (state.ballCollided) {
-        this.game.ball.spawn_sparks(state.collisionPoint);
+        // this.game.ball.spawn_sparks(state.collisionPoint);
         state.ballCollided = false;
       }
-      this.game.ball.animate_sparks();
+      // this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
       this.pivotUpdate(deltaTime);

@@ -43,11 +43,12 @@ export class GameManager {
           this.side = data.side;
           state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
           state.isSourceOfTruth = data.isSourceOfTruth;
-          console.log(`isSourceOfTruth: ${state.isSourceOfTruth}`);
           state.setIsSearching(false);
         case "collision":
           state.ballCollided = true;
           state.collisionPoint = data.collision;
+        case "scored_side":
+          state.updateScore(data.scored_side, 1);
       }
     };
 

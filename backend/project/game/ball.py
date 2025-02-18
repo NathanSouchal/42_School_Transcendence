@@ -149,8 +149,9 @@ class Ball:
 
             self.elapsed_time += delta_time
             if self.elapsed_time >= 1.5:
+                side = "left" if self.position.x < 0 else "right"
                 self.reset()
-                return "point_scored"
+                return f"point_scored_{side}"
         else:
             scaled_velocity = self.velocity.multiply_scalar(
                 delta_time * self.conf["speed"]["deltaFactor"]
