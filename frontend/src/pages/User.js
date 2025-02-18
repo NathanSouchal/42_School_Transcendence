@@ -58,107 +58,30 @@ export default class User {
         });
       }
     });
-
-    const cancelFriendRequestButton = document.getElementById(
-      "cancel-friend-request"
-    );
-    if (cancelFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some((e) => e.name === "cancel-friend-request")
-      ) {
-        cancelFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("cancel-friend-request", "")
-        );
+  
+    const friendButtonConfigs = [
+      { id: "cancel-friend-request", action: "cancel-friend-request" },
+      { id: "send-friend-request", action: "send-friend-request" },
+      { id: "unfriend", action: "unfriend" },
+      { id: "accept-friend-request", action: "accept-friend-request" },
+      { id: "delete-recieved-friend-request", action: "delete-recieved-friend-request" },
+    ];
+  
+    friendButtonConfigs.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button && !this.eventListeners.some((e) => e.name === action)) {
+        const boundHandleFriend = this.handleFriend.bind(this, action, "");
+        button.addEventListener("click", boundHandleFriend);
         this.eventListeners.push({
-          name: "cancel-friend-request",
+          name: action,
           type: "click",
-          element: cancelFriendRequestButton,
-          listener: handleFriend,
+          element: button,
+          listener: boundHandleFriend,
         });
       }
-    }
-
-    const sendFriendRequestButton = document.getElementById(
-      "send-friend-request"
-    );
-    if (sendFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "send-friend-request")) {
-        sendFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("send-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "send-friend-request",
-          type: "click",
-          element: sendFriendRequestButton,
-          listener: handleFriend,
-        });
-      }
-    }
-
-    const unfriendButton = document.getElementById("unfriend");
-    if (unfriendButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "unfriend")) {
-        unfriendButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("unfriend", "")
-        );
-        this.eventListeners.push({
-          name: "unfriend",
-          type: "click",
-          element: unfriendButton,
-          listener: handleFriend,
-        });
-      }
-    }
-
-    const acceptFriendButton = document.getElementById("accept-friend-request");
-    if (acceptFriendButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some((e) => e.name === "accept-friend-request")
-      ) {
-        acceptFriendButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("accept-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "accept-friend-request",
-          type: "click",
-          element: acceptFriendButton,
-          listener: handleFriend,
-        });
-      }
-    }
-
-    const deleteRecievedFriendRequestButton = document.getElementById(
-      "delete-recieved-friend-request"
-    );
-    if (deleteRecievedFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some(
-          (e) => e.name === "delete-recieved-friend-request"
-        )
-      ) {
-        deleteRecievedFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("delete-recieved-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "delete-recieved-friend-request",
-          type: "click",
-          element: deleteRecievedFriendRequestButton,
-          listener: handleFriend,
-        });
-      }
-    }
+    });
   }
-
+  
   async getPublicUserInfo() {
     try {
       const response = await API.get(`/user/public-profile/${this.pageId}/`);

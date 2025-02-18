@@ -11,6 +11,7 @@ export default class GamePage {
     this.isSubscribed = false;
     this.isInitialized = false;
     this.eventListeners = [];
+    this.oldscore = state.score;
   }
 
   async initialize(routeParams = {}) {
@@ -108,12 +109,17 @@ export default class GamePage {
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
-      newState.gameHasLoaded !== this.previousState.gameHasLoaded
+      newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
     ) {
       console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
+      this.oldscore = {...this.state.score};
       await updateView(this);
-    } else this.previousState = { ...newState };
+    } else 
+        this.previousState = { ...newState };
+        this.oldscore = {...this.state.score};
   }
 
   removeEventListeners() {

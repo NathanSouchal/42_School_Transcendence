@@ -8,7 +8,6 @@ export default class Account {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
-    this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
 
@@ -17,6 +16,7 @@ export default class Account {
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
+    this.deleteUserVerification = false;
   }
 
   async initialize(routeParams = {}) {
@@ -24,17 +24,17 @@ export default class Account {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange);
+      this.state.subscribe(this.handleStateChange.bind(this));
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    await updateView(this);
   }
 
   attachEventListeners() {
-    const links = document.querySelectorAll("a");
-    links.forEach((link) => {
+    // Attache le listener de navigation sur tous les liens <a>
+    document.querySelectorAll("a").forEach((link) => {
       if (!this.eventListeners.some((e) => e.element === link)) {
         const handleNavigation = this.handleNavigation.bind(this);
         link.addEventListener("click", handleNavigation);
@@ -50,6 +50,8 @@ export default class Account {
     const buttons = [
       { id: "delete-user-button", action: "delete-user-button" },
       { id: "update-user-info", action: "update-user-info" },
+      { id: "confirm-delete-user", action: "confirm-delete-user" },
+      { id: "cancel-delete-user", action: "cancel-delete-user" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -139,12 +141,13 @@ export default class Account {
     inputs.forEach((input) => {
       const handleChangeInput = this.handleChangeInput.bind(this);
       if (!this.eventListeners.some((e) => e.name === input.name)) {
-        input.addEventListener("input", handleChangeInput);
+        const listener = this.handleChangeInput.bind(this);
+        input.addEventListener("input", listener);
         this.eventListeners.push({
           name: input.name,
           type: "input",
           element: input,
-          listener: handleChangeInput,
+          listener,
         });
       }
     });
@@ -154,26 +157,25 @@ export default class Account {
     const target = e.target.closest("a");
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
-      const path = target.getAttribute("href");
-      router.navigate(path);
+      router.navigate(target.getAttribute("href"));
     }
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    console.log("NEWGameHasLoaded:", newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Account page");
       this.previousState = { ...newState };
       await updateView(this);
-    } else this.previousState = { ...newState };
+    } else {
+      this.previousState = { ...newState };
+    }
   }
 
   handleChangeInput(e) {
     this.formData[e.target.name] = e.target.value;
-    console.log(this.formData.alias);
-    console.log(this.formData.username);
-    console.log(this.formData.avatar);
+    console.log(this.formData);
   }
 
   async handleFile(key, file) {
@@ -194,16 +196,15 @@ export default class Account {
           return;
         }
         let filename = fileInput.name;
-        if (fileInput.name.length > 10)
-          filename = fileInput.name
-            .slice(0, 7)
-            .concat(`...${fileInput.type.slice(6)}`);
+        if (fileInput.name.length > 10) {
+          filename =
+            fileInput.name.slice(0, 7) + `...${fileInput.type.slice(6)}`;
+        }
         label.textContent = filename;
         const reader = new FileReader();
         reader.onload = (e) => {
-          const base64String = e.target.result;
-          console.log(base64String);
-          this.formData.avatar = base64String;
+          this.formData.avatar = e.target.result;
+          console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
       } else label.textContent = "Upload file";
@@ -212,7 +213,9 @@ export default class Account {
 
   async handleClick(key) {
     console.log("handleClick");
+    alert("this.isForm" + this.isForm);
     if (key == "cancel-button" || key == "update-user-info") {
+      alert("1");
       this.isForm = !this.isForm;
       await updateView(this);
       if (this.isForm) {
@@ -221,13 +224,15 @@ export default class Account {
           await this.getQrcode();
         }
       }
-    } else if (key == "delete-user-button") {
-      try {
-        await this.deleteUser(this.state.state.userId);
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
+    } else if (key === "delete-user-button") {
+      alert("2");
+      await this.deleteUser();
+    } else if (key === "confirm-delete-user") {
+      alert("3");
+      await this.confirmDeleteUser(this.state.state.userId);
+    } else if (key === "cancel-delete-user") {
+      alert("4");
+      await updateView(this);
     }
   }
 
@@ -299,7 +304,7 @@ export default class Account {
       this.formData.phone_number = data.user.phone_number;
       this.formData.two_factor_method = data.user.two_factor_method;
     } catch (error) {
-      console.error(`Error while trying to get data : ${error}`);
+      console.error("Error while trying to get data:", error);
       this.userData = {};
       throw error;
     }
@@ -359,13 +364,21 @@ export default class Account {
     }
   }
 
-  async deleteUser(id) {
+  async deleteUser() {
+    this.deleteUserVerification = true;
+    await updateView(this);
+    this.deleteUserVerification = false;
+  }
+
+  async confirmDeleteUser(id) {
+    this.deleteUserVerification = false;
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
       await updateView(this);
     } catch (error) {
-      console.error(`Error while trying to delete data : ${error}`);
+      console.error("Error while trying to delete data:", error);
+      throw error;
     }
   }
 
@@ -379,7 +392,7 @@ export default class Account {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
+        console.log(`Removed ${type} eventListener from element`);
       }
     });
     this.eventListeners = [];
@@ -389,7 +402,7 @@ export default class Account {
     const event = this.eventListeners.find((el) => el.name === name);
     if (event) {
       event.element.removeEventListener(event.type, event.listener);
-      console.log("Removed unique eventListener from input");
+      console.log("Removed unique eventListener:", name);
       this.eventListeners = this.eventListeners.filter(
         (el) => el.name !== name
       );
@@ -398,8 +411,9 @@ export default class Account {
 
   destroy() {
     this.removeEventListeners();
+    this.isForm = false;
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange);
+      this.state.unsubscribe(this.handleStateChange.bind(this));
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
     }
@@ -413,8 +427,6 @@ export default class Account {
       if (error.response.status === 401) return "";
     }
     handleHeader(this.state.isUserLoggedIn, false);
-    // const userData = this.state.data.username;
-    // const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}<div class="user-main-div">
 						<div class="user-main-content">
@@ -589,14 +601,21 @@ export default class Account {
 								Change my info
 								</button>`
         }
-				<button
-					class="btn btn-danger m-3 account-button"
-					id="delete-user-button"
-				>
-					Delete Account
-				</button>
+		${
+      !this.deleteUserVerification
+        ? `<button class="btn btn-danger mb-2" id="delete-user-button">Delete Account</button>`
+        : `<div>
+				  <p class="text-danger">Are you sure?</p>
+				  <div>
+					<button class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
+					<button class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
+				  </div>
+				</div>`
+    }
             </div>
-			</div>
-			</div>`;
+          </div>
+        </div>
+      </div>
+    `;
   }
 }
