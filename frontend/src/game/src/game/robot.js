@@ -15,6 +15,9 @@ class Robot {
     this.target_x = 0;
     this.last_target_x = 0;
     this.half_width = 3.42; // BAD
+    this.timeSinceLastView = 0;
+    this.lastBallPosition = {x: 0 ,z: 0};
+    this.lastBallVelocity = {x: 0 ,z: 0};
   }
 
   predictBallPosition(position, velocity) {
@@ -33,7 +36,6 @@ class Robot {
         predictedX = halfArenaWidth - (predictedX - halfArenaWidth);
       }
     }
-
     return predictedX;
   }
 
@@ -80,12 +82,77 @@ class Robot {
     );
   }
 
+  extrapolateBallPositionWithRebounds(lastBallPosition, lastBallVelocity, extrapolatedTime) {
+    // Dimensions de l'arène
+    const arenaHeight = this.size.arena_width - this.size.border_width * 2;
+    const halfArenaHeight = arenaHeight / 2;
+    const arenaWidth = this.size.arena_height - this.size.border_height * 2;
+    const halfArenaWidth = arenaWidth / 2;
+    
+  
+    let posX = lastBallPosition.x; // Position en X (horizontal)
+    let posZ = lastBallPosition.z; // Position en Z (profondeur)
+    let velX = lastBallVelocity.x; // Vitesse en X
+    let velZ = lastBallVelocity.z; // Vitesse en Z (profondeur)
+  
+    let timeRemaining = extrapolatedTime;
+    const dtStep = 0.01; // Petit pas de simulation
+  
+    while (timeRemaining > 0) {
+      const step = Math.min(dtStep, timeRemaining);
+      
+      // Mise à jour des positions
+      posX += velX * step;
+      posZ += velZ * step;
+      
+      timeRemaining -= step;
+  
+      // Vérifier si la balle touche un mur en haut ou en bas (rebond en Z uniquement)
+      if (posZ < -halfArenaHeight) {
+        posZ = -halfArenaHeight + (-halfArenaHeight - posZ);
+        velZ = -velZ; // Inversion de la vitesse verticale uniquement
+      } else if (posZ > halfArenaHeight) {
+        posZ = halfArenaHeight - (posZ - halfArenaHeight);
+        velZ = -velZ; // Inversion de la vitesse verticale uniquement
+      }
+  
+      // Vérifier si la balle atteint la zone du paddle adverse (rebond sur le paddle)
+      if (posZ < -halfArenaWidth) {
+        velX = -velX * 1.1; // Légère augmentation pour simuler un effet de rebond naturel
+        velZ = -velZ;
+      } else if (posZ > halfArenaWidth) {
+        velX = -velX * 1.1; // Légère augmentation pour simuler un effet de rebond naturel
+        velZ = -velZ;
+      }
+    }
+    return posZ; // Retourne la position Z de la balle après extrapolation
+  }
+  
+
+
   update(deltaTime, position, velocity) {
-    this.target_x = this.predictBallPosition(position, velocity);
+    // Accumuler le deltaTime pour simuler une mise à jour complète une fois par seconde
+    this.timeSinceLastView += deltaTime;
+    if (this.timeSinceLastView >= 1) {
+      // Rafraîchir la vue complète : recalcul de la prédiction
+      this.target_x = this.predictBallPosition(position, velocity);
+      // Stocker la dernière prédiction et les données associées pour l'extrapolation
+      this.lastTarget_x = this.target_x;
+      this.lastBallPosition = { x: position.x, z: position.z };
+      this.lastBallVelocity = { x: velocity.x, z: velocity.z };
+      this.timeSinceLastView = 0;
+    } else if ((this.timeSinceLastView <= 0.3 || this.timeSinceLastView >= 0.6) && this.timeSinceLastView < 1){
+      this.target_x = this.extrapolateBallPositionWithRebounds(
+        this.lastBallPosition,
+        this.lastBallVelocity,
+        this.timeSinceLastView
+      );
+    }
     this.moveTowardsTarget(deltaTime);
     this.updatePaddlePosition(deltaTime);
     this.constrainPaddlePosition();
   }
+  
 }
 
 export default Robot;
