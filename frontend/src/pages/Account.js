@@ -52,6 +52,7 @@ export default class Account {
       { id: "update-user-info", action: "update-user-info" },
       { id: "confirm-delete-user", action: "confirm-delete-user" },
       { id: "cancel-delete-user", action: "cancel-delete-user" },
+      { id: "cancel-button", action: "cancel-button" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -212,10 +213,7 @@ export default class Account {
   }
 
   async handleClick(key) {
-    console.log("handleClick");
-    alert("this.isForm" + this.isForm);
     if (key == "cancel-button" || key == "update-user-info") {
-      alert("1");
       this.isForm = !this.isForm;
       await updateView(this);
       if (this.isForm) {
@@ -225,13 +223,10 @@ export default class Account {
         }
       }
     } else if (key === "delete-user-button") {
-      alert("2");
       await this.deleteUser();
     } else if (key === "confirm-delete-user") {
-      alert("3");
       await this.confirmDeleteUser(this.state.state.userId);
     } else if (key === "cancel-delete-user") {
-      alert("4");
       await updateView(this);
     }
   }
@@ -428,7 +423,7 @@ export default class Account {
     }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="user-main-div">
+    return `${backArrow}<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
                             <h1>Account</h1>
@@ -498,7 +493,6 @@ export default class Account {
 						</label>
 						<div class="totp-qr-code-div">
 							<img id="totp-qr-code" width=200 height=200 style="display: none" src="" alt="TOTP QR Code" />
-						<div>
 						</div>
 					</div>
 					<div class="email2FA-div" id="email2FA-div">
@@ -594,10 +588,10 @@ export default class Account {
 			  <div class="d-flex justify-center flex-column align-items-center app2FA-div">
 				${
           this.isForm
-            ? `<button class="btn btn-dark m-3 account-button" id="cancel-button">
+            ? `<button type="button" class="btn btn-dark m-3 account-button" id="cancel-button">
 								Cancel
 								</button>`
-            : `<button class="btn btn-dark m-3 account-button" id="update-user-info">
+            : `<button type="button" class="btn btn-dark m-3 account-button" id="update-user-info">
 								Change my info
 								</button>`
         }
@@ -606,9 +600,9 @@ export default class Account {
         ? `<button class="btn btn-danger mb-2" id="delete-user-button">Delete Account</button>`
         : `<div>
 				  <p class="text-danger">Are you sure?</p>
-				  <div>
-					<button class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
-					<button class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
+				  <div class="delete-account-confirm-div">
+					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
+					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
 				  </div>
 				</div>`
     }

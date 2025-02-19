@@ -11,6 +11,10 @@
   margin: 0 auto;
 }
 
+.account-main-div button {
+  width: 200px;
+}
+
 .user-main-content {
   overflow-y: scroll;
   scrollbar-width: none;
@@ -270,10 +274,6 @@ label {
   font-size: 1.8rem;
 }
 
-.account-button {
-  width: 60%;
-}
-
 .account-error-message {
   text-align: center;
   color: var(--danger-color);
@@ -282,4 +282,14 @@ label {
   font-size: 1.5em !important;
   font-style: italic;
   margin-top: 1rem;
+}
+
+.delete-account-confirm-div {
+  display: flex;
+}
+
+.delete-account-confirm-div button {
+  width: 100px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }
