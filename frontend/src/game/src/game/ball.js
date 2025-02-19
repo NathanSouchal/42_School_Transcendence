@@ -177,7 +177,7 @@ class Ball {
   }
 
   spawn_sparks(collisionPoint) {
-    console.log(`spawning sparks at ${collisionPoint}`)
+    //console.log(`spawning sparks at ${collisionPoint}`)
     this.sparks.group.position.copy(collisionPoint);
     this.sparks.material.opacity = 1.0;
 

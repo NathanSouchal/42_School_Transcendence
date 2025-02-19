@@ -148,7 +148,6 @@ class GameState(AsyncWebsocketConsumer):
     async def game_loop(self, room):
         try:
             last_time = time.time()
-            # last_pos = self.rooms[room]["ball"].get_current_position()
             while True:
                 if room in self.rooms:
                     current_time = time.time()
@@ -160,14 +159,6 @@ class GameState(AsyncWebsocketConsumer):
                     right_paddle_pos = self.rooms[room]["positions"]["paddle_right"]
                     ball_state = ball.update(delta_time)
                     self.rooms[room]["positions"]["ball"] = ball.get_current_position()
-
-                    # ball_pos = self.rooms[room]["positions"]["ball"]
-                    # if (
-                    #     ball_pos["x"] - last_pos["x"] > 2
-                    #     or ball_pos["z"] - last_pos["z"] > 2
-                    # ):
-                    #     print("STRANGE")
-                    # last_pos = ball_pos
 
                     wall_collision, paddle_collision = ball.check_collision(
                         left_paddle_pos, right_paddle_pos
@@ -191,8 +182,10 @@ class GameState(AsyncWebsocketConsumer):
                     if (
                         ball_state == "point_scored_left"
                         or ball_state == "point_scored_right"
-                    ) and self.game_mode != GameMode.BACKGROUND:
-                        await self.sendPointScored(ball_state)
+                    ):
+                        await self.resetPositions(delta_time)
+                        if self.game_mode != GameMode.BACKGROUND:
+                            await self.sendPointScored(ball_state)
 
                     await self.sendPositions()
 
@@ -203,6 +196,20 @@ class GameState(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error in game loop: {e}")
 
+    async def resetPositions(self, delta_time):
+        paddle_left = self.rooms[self.room]["paddles"]["left"]
+        paddle_right = self.rooms[self.room]["paddles"]["right"]
+
+        paddle_left.chooseResetDir()
+        paddle_right.chooseResetDir()
+
+        while paddle_left.isResetting or paddle_right.isResetting:
+            self.rooms[self.room]["positions"]["paddle_left"] = paddle_left.reset(delta_time)
+            self.rooms[self.room]["positions"]["paddle_right"] = paddle_right.reset(delta_time)
+            await self.sendPositions()
+            await asyncio.sleep(1 / 60)
+        self.rooms[self.room]["ball"].reset()
+
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
@@ -211,12 +218,6 @@ class GameState(AsyncWebsocketConsumer):
                 return
             direction = data.get("direction")
             side = data.get("side")
-            # print(f"{side} paddle moving {direction}")
-            # print(f"left paddle at {self.rooms[self.room]["positions"]["paddle_left"]}")
-            # print(
-            #     f"right paddle at {self.rooms[self.room]["positions"]["paddle_right"]}"
-            # )
-
             positions = self.rooms[self.room]["positions"]
             delta_time = float(data.get("deltaTime"))
 

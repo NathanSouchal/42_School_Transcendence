@@ -9,6 +9,8 @@ export class GameManager {
   }
 
   connect() {
+    if (this.socket)
+      this.socket.close();
     const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
 
     switch (state.gameMode) {

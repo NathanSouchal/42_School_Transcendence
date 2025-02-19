@@ -40,7 +40,7 @@ class Ball:
                 "initialMax": 0.6,
                 "max": 1.5,
                 "incrementFactor": 1.03,
-                "deltaFactor": 15,
+                "deltaFactor": 30,
             }
         }
 
@@ -135,9 +135,7 @@ class Ball:
             self.velocity.x *= -1
 
     def update(self, delta_time):
-        """Update ball position and handle falling state"""
         if self.is_falling:
-            # print("ball is falling")
             if self.position.y <= -1:
                 self.velocity.y *= 0.7
                 self.velocity.x *= 0.85
@@ -149,9 +147,8 @@ class Ball:
             self.position.add(scaled_velocity)
 
             self.elapsed_time += delta_time
-            if self.elapsed_time >= 1.5:
+            if self.elapsed_time >= 1.2:
                 side = "left" if self.position.x < 0 else "right"
-                self.reset()
                 return f"point_scored_{side}"
         else:
             scaled_velocity = self.velocity.multiply_scalar(
@@ -177,7 +174,6 @@ class Ball:
             self.velocity.y = -0.2
 
     def reset(self):
-        """Reset ball to initial state"""
         self.elapsed_time = 0
         self.is_falling = False
         self.position = Vector3(0, 2.7, 0)
