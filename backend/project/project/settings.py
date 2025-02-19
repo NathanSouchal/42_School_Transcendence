@@ -2,6 +2,9 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,6 +37,9 @@ INSTALLED_APPS = [
 	'rest_framework_simplejwt',
 	'rest_framework_simplejwt.token_blacklist',
 	'sslserver',
+	'django_otp',
+	'django_otp.plugins.otp_totp',
+	'django_otp.plugins.otp_static',
 ]
 
 REST_FRAMEWORK = {
@@ -108,9 +114,13 @@ DATABASES = {
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Authentification standard Django
 ]
 
 
@@ -174,3 +184,26 @@ CSRF_TRUSTED_ORIGINS = [
     'https://localhost:3000',  # Frontend sécurisé
     'https://frontend:3000',
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
+
+OTP_TOTP_ISSUER = "YourAppName"
+OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
+OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

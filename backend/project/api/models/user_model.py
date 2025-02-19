@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.apps import apps
 from django.conf import settings
 import uuid
+import pyotp
 import os
 
 """
@@ -56,6 +57,28 @@ class User(AbstractBaseUser, PermissionsMixin):
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
 
+	TWO_FACTOR_CHOICES = [
+		('email', 'Email'),
+		('sms', 'SMS'),
+		('TOTP', 'Google Authenticator'),
+		('none', 'None'),
+	]
+
+	two_factor_method = models.CharField(
+		max_length=10,
+		choices=TWO_FACTOR_CHOICES,
+		null=True,
+		blank=True,
+		help_text="2FA method choosed by user"
+	)
+
+	email_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par email
+	sms_otp = models.CharField(max_length=6, null=True, blank=True)  # Stocke le code temporaire envoyé par SMS
+	phone_number = models.CharField(max_length=15, null=True, blank=True, help_text="Required for SMS 2FA")
+	email = models.CharField(max_length=50, null=True, blank=True, help_text="Required for Email 2FA")
+	otp_created_at = models.DateTimeField(null=True, blank=True, help_text="Time when OTP was generated")
+	totp_secret = models.CharField(max_length=32, blank=True, null=True)
+
 	objects = UserManager()
 
 	USERNAME_FIELD = 'username'
@@ -77,6 +100,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 	def save(self, *args, **kwargs):
 		self.delete_old_avatar()
 		super().save(*args, **kwargs)
+
+	def generate_totp_secret(self):
+		""" Génère une nouvelle clé secrète pour TOTP """
+		self.totp_secret = pyotp.random_base32()
+		self.save()
+
+	def get_totp_uri(self):
+		""" Retourne l'URI pour Google Authenticator """
+		return f"otpauth://totp/MyApp:{self.username}?secret={self.totp_secret}&issuer=MyApp"
+
+	def verify_totp(self, otp_code):
+		""" Vérifie si le code entré par l'utilisateur est valide """
+		if not self.totp_secret:
+			return False
+		totp = pyotp.TOTP(self.totp_secret)
+		return totp.verify(otp_code)  # Vérifie le code TOTP actuel
 
 """
 def create_user(self, username, password=None, **extra_fields):
