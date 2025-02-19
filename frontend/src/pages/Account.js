@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, checkUserStatus } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  checkUserStatus,
+  setDisable,
+} from "../utils";
 import { createBackArrow } from "../utils";
 import { router } from "../app.js";
 
@@ -322,9 +327,7 @@ export default class Account {
   }
 
   async updateUserInfo(id) {
-    console.log("Updating data...");
-    console.log("this.formData.username: " + this.formData.username);
-    console.log("this.formData.alias: " + this.formData.alias);
+    setDisable(true, "form-button");
     try {
       if (
         !Object.keys(this.formData).length ||
@@ -356,6 +359,8 @@ export default class Account {
       }
       console.error(`Error while trying to update user data : ${error}`);
       throw error;
+    } finally {
+      setDisable(false, "form-button");
     }
   }
 
@@ -367,6 +372,7 @@ export default class Account {
 
   async confirmDeleteUser(id) {
     this.deleteUserVerification = false;
+    setDisable(true, "confirm-delete-user");
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
@@ -374,6 +380,8 @@ export default class Account {
     } catch (error) {
       console.error("Error while trying to delete data:", error);
       throw error;
+    } finally {
+      setDisable(false, "confirm-delete-user");
     }
   }
 

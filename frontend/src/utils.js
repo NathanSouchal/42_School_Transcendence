@@ -44,7 +44,13 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy) {
   }
 }
 
+export function setDisable(bool, id) {
+  const button = document.getElementById(id);
+  if (button) button.disabled = bool;
+}
+
 export async function logout() {
+  setDisable(true, "logout-button");
   try {
     await API.post(`/auth/logout/`);
     state.setIsUserLoggedIn(false);
@@ -52,6 +58,9 @@ export async function logout() {
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);
+    throw error;
+  } finally {
+    setDisable(false, "logout-button");
   }
 }
 

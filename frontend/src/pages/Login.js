@@ -4,7 +4,7 @@ import {
   handleHeader,
   updateView,
   createBackArrow,
-  checkUserStatus,
+  setDisable,
 } from "../utils.js";
 import { router } from "../app.js";
 
@@ -129,6 +129,8 @@ export default class Login {
 
   async handleSubmit(e) {
     e.preventDefault();
+    setDisable(true, "2fa-login-form");
+    setDisable(true, "login-form");
     if (!this.formState.username.length || !this.formState.password.length) {
       return console.error("Please complete all fields");
     }
@@ -154,6 +156,8 @@ export default class Login {
         }
       }
     } finally {
+      setDisable(false, "2fa-login-form");
+      setDisable(false, "login-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {

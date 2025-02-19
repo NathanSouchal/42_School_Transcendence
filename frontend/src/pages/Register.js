@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  setDisable,
+} from "../utils.js";
 import { router } from "../app.js";
 
 export default class Register {
@@ -91,7 +96,6 @@ export default class Register {
   }
 
   showPopup() {
-    console.log("click");
     const popup = document.getElementById("popup");
     if (popup) popup.classList.toggle("show");
   }
@@ -147,6 +151,7 @@ export default class Register {
 
   async handleSubmit(e) {
     e.preventDefault();
+    setDisable(true, "register-form");
     if (
       !this.formState.username?.length ||
       !this.formState.password?.length ||
@@ -172,6 +177,7 @@ export default class Register {
           this.displayRegisterErrorMessage(errorData.password_format);
       }
     } finally {
+      setDisable(false, "register-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {

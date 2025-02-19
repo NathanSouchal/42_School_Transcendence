@@ -30,8 +30,8 @@ class UserSerializer(serializers.ModelSerializer):
     # id = serializers.UUIDField(format='hex')
     username = serializers.CharField(min_length=4, max_length=10, required=True, error_messages={'min_length': 'Username must be a least 4 characters long', 'max_length': 'Username must be at maximum 10 characters long'})
     alias = serializers.CharField(min_length=4, max_length=10, required=False, error_messages={'min_length': 'Alias must be a least 4 characters long', 'max_length': 'Alias must be at maximum 10 characters long'})
-    email = serializers.EmailField(required=False, allow_blank=True)
-    phone_number = serializers.CharField(required=False, allow_blank=True, validators=[
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True, validators=[
             RegexValidator(
                 r'^\+33[1-9]\d{8}$',
                 message="Wrong phone number format"
