@@ -40,7 +40,7 @@ class Ball:
                 "initialMax": 0.6,
                 "max": 1.5,
                 "incrementFactor": 1.03,
-                "deltaFactor": 30,
+                "deltaFactor": 15,
             }
         }
 
@@ -137,6 +137,7 @@ class Ball:
     def update(self, delta_time):
         """Update ball position and handle falling state"""
         if self.is_falling:
+            # print("ball is falling")
             if self.position.y <= -1:
                 self.velocity.y *= 0.7
                 self.velocity.x *= 0.85

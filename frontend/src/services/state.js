@@ -185,6 +185,9 @@ export default class State {
 
   updateScore(side, points) {
     this.score[side] += points;
+    console.log(
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+    );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();
       this.state.gameHasBeenWon = true;

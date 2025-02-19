@@ -92,6 +92,10 @@ class GameState(AsyncWebsocketConsumer):
             self.manage_task = asyncio.create_task(self.manage_online_players())
         else:
             self.isSourceOfTruth = False
+
+        print(f"rooms number: {len(self.rooms)}")
+        for room, details in self.rooms.items():
+            print(f"Room {room}: {details['players']}")
         self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
 
     async def initializeRoom(self):
@@ -144,6 +148,7 @@ class GameState(AsyncWebsocketConsumer):
     async def game_loop(self, room):
         try:
             last_time = time.time()
+            # last_pos = self.rooms[room]["ball"].get_current_position()
             while True:
                 if room in self.rooms:
                     current_time = time.time()
@@ -156,12 +161,20 @@ class GameState(AsyncWebsocketConsumer):
                     ball_state = ball.update(delta_time)
                     self.rooms[room]["positions"]["ball"] = ball.get_current_position()
 
+                    # ball_pos = self.rooms[room]["positions"]["ball"]
+                    # if (
+                    #     ball_pos["x"] - last_pos["x"] > 2
+                    #     or ball_pos["z"] - last_pos["z"] > 2
+                    # ):
+                    #     print("STRANGE")
+                    # last_pos = ball_pos
+
                     wall_collision, paddle_collision = ball.check_collision(
                         left_paddle_pos, right_paddle_pos
                     )
 
                     if wall_collision or paddle_collision:
-                    #     await self.sendCollision(ball.position.x)
+                        await self.sendCollision(ball.position.x)
 
                         if paddle_collision:
                             ball.bounce(
@@ -178,7 +191,7 @@ class GameState(AsyncWebsocketConsumer):
                     if (
                         ball_state == "point_scored_left"
                         or ball_state == "point_scored_right"
-                    ):
+                    ) and self.game_mode != GameMode.BACKGROUND:
                         await self.sendPointScored(ball_state)
 
                     await self.sendPositions()
@@ -198,6 +211,12 @@ class GameState(AsyncWebsocketConsumer):
                 return
             direction = data.get("direction")
             side = data.get("side")
+            # print(f"{side} paddle moving {direction}")
+            # print(f"left paddle at {self.rooms[self.room]["positions"]["paddle_left"]}")
+            # print(
+            #     f"right paddle at {self.rooms[self.room]["positions"]["paddle_right"]}"
+            # )
+
             positions = self.rooms[self.room]["positions"]
             delta_time = float(data.get("deltaTime"))
 

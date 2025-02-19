@@ -104,52 +104,6 @@ class Ball {
     this.rotationSpeed *= -1;
   }
 
-  update(deltaTime, scene, renderer, gameManager) {
-    if (this.isFalling) {
-      if (this.pos.y <= -1) {
-        this.velocity.y *= 0.7;
-        this.velocity.x *= 0.85;
-        this.velocity.z *= 0.85;
-      }
-      const scaledVelocity = this.velocity
-        .clone()
-        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
-      this.pos.add(scaledVelocity);
-      this.obj.rotateY(0.5 * deltaTime);
-
-      this.elapsedTime += deltaTime;
-      if (this.elapsedTime >= 1.5) {
-        renderer.markPoints();
-        this.reset();
-      }
-    } else {
-      const scaledVelocity = this.velocity
-        .clone()
-        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
-      this.pos.add(scaledVelocity);
-      this.box = new THREE.Box3().setFromObject(this.obj, true);
-      this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
-      this.animate_sparks();
-      if (this.isOutOfArena(renderer)) {
-        this.startFalling();
-      }
-    }
-
-    gameManager.sendMessage({
-      type: "positions",
-      element: "ball",
-      side: gameManager.side,
-      pos: {
-        x: Number(this.pos.x).toFixed(4),
-        y: Number(this.pos.y).toFixed(4),
-        z: Number(this.pos.z).toFixed(4),
-        vel_x: Number(this.velocity.x).toFixed(4),
-        vel_y: Number(this.velocity.y).toFixed(4),
-        vel_z: Number(this.velocity.z).toFixed(4),
-      },
-    });
-  }
-
   isOutOfArena(renderer) {
     return (
       this.pos.z < -(renderer.zMax / 2) + renderer.depth / 2 - 3 ||
@@ -223,6 +177,7 @@ class Ball {
   }
 
   spawn_sparks(collisionPoint) {
+    console.log(`spawning sparks at ${collisionPoint}`)
     this.sparks.group.position.copy(collisionPoint);
     this.sparks.material.opacity = 1.0;
 
