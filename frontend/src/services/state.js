@@ -16,6 +16,7 @@ export default class State {
       gameIsPaused: false,
       gameHasBeenWon: false,
       userId: "0",
+      lang: "EN",
     };
     this.isUserLoggedIn = false;
 

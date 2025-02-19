@@ -8,6 +8,7 @@ import {
 } from "../utils";
 import { createBackArrow } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Account {
   constructor(state) {
@@ -22,6 +23,7 @@ export default class Account {
     this.isForm = false;
     this.eventListeners = [];
     this.deleteUserVerification = false;
+    this.lang = state.state.lang;
   }
 
   async initialize(routeParams = {}) {
@@ -434,7 +436,7 @@ export default class Account {
     return `${backArrow}<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
-                            <h1>Account</h1>
+                            <h1>${trad[this.lang].account.title}</h1>
                           </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
