@@ -21,12 +21,17 @@ export class Lang {
       e.stopPropagation();
     });
 
+    const selectedLangImg = document.getElementById("selected-lang-img");
+    if (selectedLangImg) {
+      if (this.state.state.lang === "EN") selectedLangImg.src = "english.jpg";
+      else if (this.state.state.lang === "FR")
+        selectedLangImg.src = "french.jpg";
+    }
+
     // Sélection d'une langue
     document.querySelectorAll(".lang-menu li").forEach((item) => {
       item.addEventListener("click", (e) => {
         const newLang = e.currentTarget.getAttribute("data-lang");
-        const selectedLangImg = document.getElementById("selected-lang-img");
-
         const langText =
           e.currentTarget.querySelector(".lang-name").textContent;
         this.state.updateLang(langText);
