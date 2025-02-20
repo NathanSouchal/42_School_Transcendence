@@ -27,14 +27,13 @@ export default class Account {
   }
 
   async initialize(routeParams = {}) {
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange.bind(this));
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
+    if (this.isInitialized) return;
+    this.isInitialized = true;
     if (!this.state.state.gameHasLoaded) return;
     await updateView(this);
   }

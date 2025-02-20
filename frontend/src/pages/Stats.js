@@ -20,15 +20,13 @@ export default class Stats {
   }
 
   async initialize(routeParams = {}) {
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");
     }
-
+    if (this.isInitialized) return;
+    this.isInitialized = true;
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -95,7 +93,7 @@ export default class Stats {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Home page unsubscribed from state");
+      console.log("Stats page unsubscribed from state");
     }
   }
 
