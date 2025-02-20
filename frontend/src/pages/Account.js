@@ -172,9 +172,16 @@ export default class Account {
   async handleStateChange(newState) {
     console.log("NEWGameHasLoaded:", newState.gameHasLoaded);
     console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
+    console.log("newState.lang:", newState.lang);
+    console.log("this.previousState.lang:", this.previousState.lang);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Account page");
       this.previousState = { ...newState };
+      await updateView(this);
+    } else if (newState.lang !== this.previousState.lang) {
+      console.log("COUCOU");
+      this.previousState = { ...newState };
+      this.lang = newState.lang;
       await updateView(this);
     } else {
       this.previousState = { ...newState };
@@ -567,7 +574,7 @@ export default class Account {
 				<h2 class="account-error-message" id="account-error-message"></h2>
 				<div class="d-flex flex-column align-items-center">
 					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
-						${trad[this.lang].account.change}
+						${trad[this.lang].account.update}
 					</button>
 				</div>
 				</form>
@@ -602,7 +609,7 @@ export default class Account {
 								${trad[this.lang].account.cancel}
 								</button>`
             : `<button type="button" class="btn btn-dark m-3 account-button" id="update-user-info">
-								${trad[this.lang].account.update}
+								${trad[this.lang].account.change}
 								</button>`
         }
 		${

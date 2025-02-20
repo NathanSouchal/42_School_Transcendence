@@ -21,6 +21,8 @@ export default state;
 const header = new Header();
 export { header };
 
+new Lang(state);
+
 const routes = {
   "/": new Home(state),
   "/account": new Account(state),
@@ -39,17 +41,8 @@ const routes = {
 const router = new Router(routes);
 export { router };
 
-// Exemple d'utilisation de l'état
-state.subscribe((data) => {
-  // console.log("État mis à jour:", data);
-});
-
 // Exposez le router et l'état globalement si nécessaire
 window.app = { router, state };
 
 // Charger la route initiale
 router.navigate(window.location.pathname);
-
-document.addEventListener("DOMContentLoaded", () => {
-  new Lang();
-});

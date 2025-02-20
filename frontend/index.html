@@ -75,28 +75,26 @@
       </div>
       <canvas id="c"></canvas>
       <div class="lang-div">
-        <img
-          alt="main-lang-img"
-          class="main-lang-img"
-          src="english.jpg"
-          id="selected-lang"
-        />
-        <button class="lang-dropdown-btn" id="lang-dropdown-btn">
-          <span class="lang-arrow"></span>
-        </button>
+        <div class="selected-lang-div" id="selected-lang-div">
+          <img
+            alt="selected-lang-img"
+            class="selected-lang-img"
+            src="english.jpg"
+            id="selected-lang-img"
+          />
+          <button class="lang-dropdown-btn" id="lang-dropdown-btn">
+            <span class="lang-arrow"></span>
+          </button>
+        </div>
         <ul class="lang-menu" id="lang-menu">
-          <li data-lang="english.jpg">
-            <img src="english.jpg" alt="English" class="lang-icon" />
-            <span>English</span>
-          </li>
           <li data-lang="french.jpg">
             <img src="french.jpg" alt="Français" class="lang-icon" />
-            <span>Français</span>
+            <span class="lang-name">FR</span>
           </li>
-          <!-- <li data-lang="spanish.jpg">
-            <img src="spanish.jpg" alt="Español" class="lang-icon" />
-            <span>Español</span>
-          </li> -->
+          <li data-lang="english.jpg">
+            <img src="english.jpg" alt="English" class="lang-icon" />
+            <span class="lang-name">EN</span>
+          </li>
         </ul>
       </div>
       <main id="main" class="main">

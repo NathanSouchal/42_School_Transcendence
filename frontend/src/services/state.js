@@ -59,6 +59,11 @@ export default class State {
     State.instance = this;
   }
 
+  updateLang(lang) {
+    this.state.lang = lang;
+    this.notifyListeners();
+  }
+
   saveState() {
     console.log(this.state.userId + "saving state...");
     const stateToSave = {
@@ -83,7 +88,6 @@ export default class State {
     this.state.gameHasLoaded = true;
     console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
-
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");

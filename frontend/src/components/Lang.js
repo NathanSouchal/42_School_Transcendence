@@ -1,54 +1,51 @@
 export class Lang {
-  constructor() {
-    this.init();
-  }
-
-  init() {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", () =>
-        this.attachEventListeners()
-      );
-    } else {
-      this.attachEventListeners();
-    }
+  constructor(state) {
+    this.state = state;
+    this.attachEventListeners();
   }
 
   attachEventListeners() {
-    const dropdownBtn = document.getElementById("dropdown-btn");
+    const langDiv = document.querySelector(".lang-div");
+    const dropdownBtn = document.getElementById("lang-dropdown-btn");
     const langMenu = document.getElementById("lang-menu");
-    const selectedLang = document.getElementById("selected-lang");
 
-    if (!dropdownBtn || !langMenu || !selectedLang) {
+    if (!langDiv || !dropdownBtn || !langMenu) {
       console.error(
         "Les éléments de la langue ne sont pas trouvés dans le DOM !"
       );
       return;
     }
 
-    console.log("AAAAAAH");
-
-    dropdownBtn.addEventListener("click", function (event) {
-      langMenu.style.display =
-        langMenu.style.display === "block" ? "none" : "block";
-      event.stopPropagation(); // Empêcher de fermer immédiatement après l'ouverture
+    dropdownBtn.addEventListener("click", (e) => {
+      langDiv.classList.toggle("open");
+      e.stopPropagation();
     });
 
     // Sélection d'une langue
     document.querySelectorAll(".lang-menu li").forEach((item) => {
-      item.addEventListener("click", function () {
-        const newLang = this.getAttribute("data-lang");
-        selectedLang.src = newLang;
-        langMenu.style.display = "none"; // Ferme le menu après la sélection
+      item.addEventListener("click", (e) => {
+        const newLang = e.currentTarget.getAttribute("data-lang");
+        const selectedLangImg = document.getElementById("selected-lang-img");
+
+        const langText =
+          e.currentTarget.querySelector(".lang-name").textContent;
+        this.state.updateLang(langText);
+        console.log("this.state.state.lang : " + this.state.state.lang);
+        langDiv.classList.remove("open");
+
+        selectedLangImg.classList.add("fade-out");
+
+        setTimeout(() => {
+          selectedLangImg.src = newLang;
+          selectedLangImg.classList.remove("fade-out");
+        }, 250);
       });
     });
 
     // Fermer le menu quand on clique ailleurs
-    document.addEventListener("click", function (event) {
-      if (
-        !dropdownBtn.contains(event.target) &&
-        !langMenu.contains(event.target)
-      ) {
-        langMenu.style.display = "none";
+    document.addEventListener("click", (e) => {
+      if (!langDiv.contains(e.target)) {
+        langDiv.classList.remove("open");
       }
     });
   }

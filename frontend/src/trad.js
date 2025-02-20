@@ -8,7 +8,7 @@ export const trad = {
       totp2faLabel: "2FA with Google Authenticator",
       email2faLabel: "2FA with e-mail",
       sms2faLabel: "2FA with SMS",
-      change: "Change my info",
+      change: "Change my information",
       cancel: "Cancel",
       update: "Update my information",
       delete: "Delete my account",
