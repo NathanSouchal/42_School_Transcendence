@@ -436,7 +436,7 @@ export default class Account {
     return `${backArrow}<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
-                            <h1>${trad[this.lang].account.title}</h1>
+                            <h1>${trad[this.lang].account.pageTitle}</h1>
                           </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
@@ -447,7 +447,7 @@ export default class Account {
 					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 					<div class="input-div file-input-div">
 						<label class="file-label" for="avatar">
-							Upload file
+							${trad[this.lang].account.fileLabel}
 						</label>
 						<input
 						type="file"
@@ -459,7 +459,7 @@ export default class Account {
 				</div>
 				<div class="input-div" id="username-main-div">
 					<label for="username">
-						Username
+						${trad[this.lang].account.username}
 					</label>
 					<input
 					type="text"
@@ -473,7 +473,7 @@ export default class Account {
 				</div>
 				<div class="input-div" id="alias-main-div">
 					<label for="alias">
-						Alias
+						${trad[this.lang].account.alias}
 					</label>
 					<input
 					type="text"
@@ -489,7 +489,7 @@ export default class Account {
 					<div class="app2FA-div" id="app2FA-div">
 						<div class="checkbox-div">
 						<label for="app2FA-checkbox" id="app2FA-checkbox-label">
-							2FA with Google Authenticator
+							${trad[this.lang].account.totp2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -508,7 +508,7 @@ export default class Account {
 					<div class="email2FA-div" id="email2FA-div">
 						<div class="checkbox-div">
 						<label for="email2FA-checkbox" id="email2FA-checkbox-label">
-							2FA with e-mail
+							${trad[this.lang].account.email2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -537,7 +537,7 @@ export default class Account {
 					<div class="sms2FA-div" id="sms2FA-div">
 						<div class="checkbox-div">
 						<label for="sms2FA-checkbox" id="sms2FA-checkbox-label">
-							2FA with SMS
+							${trad[this.lang].account.sms2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -567,7 +567,7 @@ export default class Account {
 				<h2 class="account-error-message" id="account-error-message"></h2>
 				<div class="d-flex flex-column align-items-center">
 					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
-						Update my info
+						${trad[this.lang].account.change}
 					</button>
 				</div>
 				</form>
@@ -579,7 +579,7 @@ export default class Account {
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">
-					Username :
+					${trad[this.lang].account.username + `` + `:`}
 					</h2>
 					<h2 class="username-title-value">
 					${this.userData.username ? `${this.userData.username}` : ""}
@@ -587,7 +587,7 @@ export default class Account {
 				</div>
 				<div class="alias-title-div" id="alias-main-div">
 					<h2 class="alias-title">
-					Alias :
+					${trad[this.lang].account.alias + `` + `:`}
 					</h2>
 					<h2 class="alias-title-value">
 					${this.userData.alias ? `${this.userData.alias}` : ""}
@@ -599,20 +599,20 @@ export default class Account {
 				${
           this.isForm
             ? `<button type="button" class="btn btn-dark m-3 account-button" id="cancel-button">
-								Cancel
+								${trad[this.lang].account.cancel}
 								</button>`
             : `<button type="button" class="btn btn-dark m-3 account-button" id="update-user-info">
-								Change my info
+								${trad[this.lang].account.update}
 								</button>`
         }
 		${
       !this.deleteUserVerification
-        ? `<button class="btn btn-danger mb-2" id="delete-user-button">Delete Account</button>`
+        ? `<button class="btn btn-danger mb-2" id="delete-user-button">${trad[this.lang].account.delete}</button>`
         : `<div>
-				  <p class="text-danger">Are you sure?</p>
+				  <p class="text-danger">${trad[this.lang].account.sure}</p>
 				  <div class="delete-account-confirm-div">
-					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
-					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
+					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">${trad[this.lang].account.yes}</button>
+					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">${trad[this.lang].account.no}</button>
 				  </div>
 				</div>`
     }

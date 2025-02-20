@@ -265,3 +265,79 @@ canvas#c {
   font-family: var(--primary-font);
   color: var(--primary-color);
 }
+
+.lang-div {
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: rgba(54, 54, 54, 0.6);
+  overflow-x: hidden;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: 2px solid rgba(95, 95, 95, 0.6);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 25px;
+}
+
+.main-lang-img {
+  width: 40px;
+  height: 25px;
+  margin-left: 5px;
+}
+
+.lang-dropdown-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  margin-left: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lang-arrow {
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid rgba(0, 0, 0, 0.9);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.9);
+  transform: rotate(-45deg);
+  margin-left: 5px;
+  margin-right: -3px;
+  margin-top: -3px;
+}
+
+.lang-menu {
+  display: none;
+  position: absolute;
+  top: 50px;
+  right: 0;
+  background: rgba(54, 54, 54, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 150px;
+}
+
+.lang-menu li {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  text-align: left;
+}
+
+.lang-menu li:hover {
+  background: rgba(95, 95, 95, 0.8);
+}
+
+.lang-icon {
+  width: 25px;
+  height: 15px;
+  margin-right: 10px;
+  border-radius: 3px;
+}
