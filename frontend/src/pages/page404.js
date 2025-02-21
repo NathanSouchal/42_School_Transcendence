@@ -63,7 +63,7 @@ export default class page404 {
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     let template = `${backArrow}<div class="main-error-container">
 				<div class="error-title-container">

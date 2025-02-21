@@ -272,7 +272,7 @@ export default class Login {
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);

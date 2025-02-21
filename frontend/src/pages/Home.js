@@ -87,17 +87,18 @@ export default class Home {
       await checkUserStatus();
     } catch (error) {
       console.error(error);
-      throw error;
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
     }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    handleHeader(this.state.isUserLoggedIn, false);
     console.log("Home rendered");
-    const template = `
+    let template = `
     <div class="home-main-div">
       <div class="home-title">
         <h1>PONG</h1>
@@ -108,9 +109,9 @@ export default class Home {
 			<div class="global-nav-items">
 				${
           this.state.isUserLoggedIn
-            ? `<a class="nav-link" href="/game">${trad[this.lang].home.play}</a>`
-            : `<a class="nav-link" href="/login">${trad[this.lang].home.login}</a>
-				<a class="nav-link" href="/game">${trad[this.lang].home.guestMode}</a>`
+            ? `<a class="global-nav-link" href="/game">${trad[this.lang].home.play}</a>`
+            : `<a class="global-nav-link" href="/login">${trad[this.lang].home.login}</a>
+				<a class="global-nav-link" href="/game">${trad[this.lang].home.guestMode}</a>`
         }
 			</div>
         </div>

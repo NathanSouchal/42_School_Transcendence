@@ -377,8 +377,8 @@ export default class LocalTournament {
       console.log("LocalTournament page subscribed to state");
     }
     if (this.state.state.gameStarted === true)
-      handleHeader(this.state.isUserLoggedIn, true);
-    else handleHeader(this.state.isUserLoggedIn, false);
+      handleHeader(this.state.isUserLoggedIn, true, false);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
     return this.state.state.gameStarted === true
       ? this.getGameHUDTemplate()
       : `

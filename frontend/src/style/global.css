@@ -204,6 +204,22 @@ canvas#c {
   background-color: var(--blue);
 }
 
+@media (max-width: 900px) {
+  .app {
+    width: 90%;
+    min-width: 320px;
+  }
+}
+
+.global-page-title {
+  text-align: center;
+  font-size: 3em;
+  letter-spacing: 0.2em;
+  padding: 0.5em;
+  font-family: var(--primary-font);
+  color: var(--primary-color);
+}
+
 .global-nav-section {
   font-size: 2.4em;
   font-family: var(--primary-font);
@@ -216,27 +232,9 @@ canvas#c {
   color: var(--primary-color);
 }
 
-@media (min-width: 490px) and (max-width: 620px) {
-  .global-nav-section {
-    font-size: 1.8em;
-  }
-}
-
-@media (max-width: 489px) {
-  .global-nav-section {
-    font-size: 1.3em;
-  }
-}
-
-@media (max-width: 900px) {
-  .app {
-    width: 90%;
-    min-width: 320px;
-  }
-}
-
 .global-nav-items {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   margin: 0.7em;
@@ -247,7 +245,11 @@ canvas#c {
   padding-right: 0.3em;
   padding-left: 0.3em;
   border-radius: 20px;
+  margin-bottom: 2.5rem;
   transition: all 0.3s ease;
+  margin-bottom: 2.5rem;
+  text-decoration: none;
+  color: var(--primary-color);
 }
 
 .global-nav-items a:hover {
@@ -257,13 +259,16 @@ canvas#c {
   transform: translateY(-3px); /* Légère élévation */
 }
 
-.global-page-title {
-  text-align: center;
-  font-size: 3em;
-  letter-spacing: 0.2em;
-  padding: 0.5em;
-  font-family: var(--primary-font);
-  color: var(--primary-color);
+@media (min-width: 490px) and (max-width: 620px) {
+  .global-nav-section {
+    font-size: 1.8em;
+  }
+}
+
+@media (max-width: 489px) {
+  .global-nav-section {
+    font-size: 1.3em;
+  }
 }
 
 .lang-div {

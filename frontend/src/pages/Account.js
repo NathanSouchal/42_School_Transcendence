@@ -441,7 +441,9 @@ export default class Account {
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}<div class="user-main-div account-main-div">

@@ -18,7 +18,7 @@ import { Lang } from "./components/Lang.js";
 const state = new State();
 export default state;
 
-const header = new Header();
+const header = new Header(state);
 export { header };
 
 new Lang(state);

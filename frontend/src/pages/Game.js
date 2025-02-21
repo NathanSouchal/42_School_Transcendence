@@ -247,7 +247,6 @@ export default class GamePage {
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
-    this.lang = this.state.state.lang;
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
@@ -255,22 +254,34 @@ export default class GamePage {
     if (!gameStarted && !gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, false);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
+      this.lang = this.state.state.lang;
       return this.renderGameMenu();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderGameEnded();
     } else if (gameIsPaused) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderPauseMenu();
     } else {
       renderGame.className = "";
       menuButton.className = "";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderGameHUD();
     }
   }

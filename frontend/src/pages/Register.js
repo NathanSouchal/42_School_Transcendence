@@ -175,7 +175,8 @@ export default class Register {
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
-      }
+      } else if (error.response && error.response.status === 409)
+        this.displayRegisterErrorMessage("This username is already used");
     } finally {
       setDisable(false, "register-form");
       this.formState = {};
@@ -229,7 +230,7 @@ export default class Register {
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);

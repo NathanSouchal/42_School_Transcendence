@@ -1,5 +1,16 @@
 export const trad = {
   EN: {
+    header: {
+      home: "Home",
+      play: "Play",
+      account: "Account",
+      stats: "Stats",
+      matchHistory: "Match History",
+      social: "Social",
+      register: "Register",
+      login: "Login",
+      logout: "Logout",
+    },
     account: {
       pageTitle: "Account",
       fileLabel: "Upload image",
@@ -35,6 +46,17 @@ export const trad = {
     },
   },
   FR: {
+    header: {
+      home: "Accueil",
+      play: "Jouer",
+      account: "Compte",
+      stats: "Stats",
+      matchHistory: "Historique de jeu",
+      social: "Amis",
+      register: "S'inscrire",
+      login: "Connexion",
+      logout: "Déconnexion",
+    },
     account: {
       pageTitle: "Compte",
       fileLabel: "Modifier l'image",

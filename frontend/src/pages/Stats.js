@@ -117,7 +117,7 @@ export default class Stats {
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)

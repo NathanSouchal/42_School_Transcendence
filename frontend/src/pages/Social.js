@@ -251,7 +251,7 @@ export default class Social {
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
 
     if (this.friends && this.invitations) {

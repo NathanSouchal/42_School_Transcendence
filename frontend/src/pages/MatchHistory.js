@@ -122,7 +122,7 @@ export default class MatchHistory {
       this.isSubscribed = true;
       console.log("Match_history page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     const template = `${backArrow}<div class="user-main-div">
 						<div class="user-main-content">

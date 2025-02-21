@@ -302,7 +302,7 @@ export default class User {
       this.isSubscribed = true;
       console.log("User page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    handleHeader(this.state.isUserLoggedIn, false, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
