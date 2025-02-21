@@ -18,8 +18,8 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        bottom: ",",
-        top: ".",
+        bottom: "b",
+        top: "n",
       },
     },
   },

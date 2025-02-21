@@ -92,18 +92,16 @@ export default class GamePage {
     }
   }
 
-  async handleDifficultyChange(e) {
+  handleDifficultyChange(e) {
     console.log("COUCOU");
     const selectedValue = e.target.value;
     if (selectedValue) {
-      this.haveToSelectBotDifficulty = false;
       this.state.botDifficulty = selectedValue;
       this.state.setGameStarted("PVR");
-      await updateView(this);
     }
   }
 
-  handleClick(param) {
+  async handleClick(param) {
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
@@ -111,6 +109,8 @@ export default class GamePage {
         break;
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
+        await updateView(this);
+        this.haveToSelectBotDifficulty = false;
         // this.state.setGameStarted("PVR");
         break;
       case "resume-game":
@@ -170,15 +170,19 @@ export default class GamePage {
   }
 
   renderSelectBotDifficulty() {
-    return `<div class="select-container">
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const template = `${backArrow}
+              <div class="select-container">
                 <label for="select-difficulty">Difficulty</label>
                 <select id="select-difficulty">
                   <option value="" disabled selected>Select...</option>
-                  <option value="2">Easy</option>
-                  <option value="4">Normal</option>
+                  <option value="4">Easy</option>
+                  <option value="5">Normal</option>
                   <option value="6">Hard</option>
                 </select>
               </div>`;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate
   }
 
   renderGameMenu() {

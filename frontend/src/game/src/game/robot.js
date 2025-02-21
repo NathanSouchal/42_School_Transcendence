@@ -1,10 +1,11 @@
 import * as THREE from "three";
+import state from "../../../app";
 
 class Robot {
-  constructor(paddle, size, difficulty = 6) {
+  constructor(paddle, size) {
     this.paddle = paddle;
     this.size = size;
-    this.difficulty = difficulty;
+    this.difficulty = state.botDifficulty;
     this.inverseDifficulty = 6 - this.difficulty;
     this.deltaFactor = 30;
     this.half_width = this.paddle.paddle_half_width;
@@ -79,6 +80,7 @@ class Robot {
   }
 
   update(deltaTime, position, velocity) {
+    console.log("DIFFICULTY = ", this.difficulty);
     this.timeSinceLastView += deltaTime;
 
     if (this.timeSinceLastView >= 1) {
