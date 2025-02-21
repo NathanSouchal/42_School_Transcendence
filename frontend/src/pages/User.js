@@ -58,15 +58,18 @@ export default class User {
         });
       }
     });
-  
+
     const friendButtonConfigs = [
       { id: "cancel-friend-request", action: "cancel-friend-request" },
       { id: "send-friend-request", action: "send-friend-request" },
       { id: "unfriend", action: "unfriend" },
       { id: "accept-friend-request", action: "accept-friend-request" },
-      { id: "delete-recieved-friend-request", action: "delete-recieved-friend-request" },
+      {
+        id: "delete-recieved-friend-request",
+        action: "delete-recieved-friend-request",
+      },
     ];
-  
+
     friendButtonConfigs.forEach(({ id, action }) => {
       const button = document.getElementById(id);
       if (button && !this.eventListeners.some((e) => e.name === action)) {
@@ -81,7 +84,7 @@ export default class User {
       }
     });
   }
-  
+
   async getPublicUserInfo() {
     try {
       const response = await API.get(`/user/public-profile/${this.pageId}/`);
@@ -293,6 +296,11 @@ export default class User {
         }, 50);
         return "";
       }
+    }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("User page subscribed to state");
     }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastLastRoute);

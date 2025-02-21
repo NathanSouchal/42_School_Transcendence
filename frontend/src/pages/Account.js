@@ -16,24 +16,24 @@ export default class Account {
     this.previousState = { ...state.state };
     this.isSubscribed = false;
     this.isInitialized = false;
-
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.userData = {};
     this.formData = {};
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
     this.deleteUserVerification = false;
-    this.lang = state.state.lang;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
     if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange.bind(this));
+      this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
     if (!this.state.state.gameHasLoaded) return;
     await updateView(this);
   }
@@ -173,14 +173,13 @@ export default class Account {
     console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
     console.log("newState.lang:", newState.lang);
     console.log("this.previousState.lang:", this.previousState.lang);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    console.log(newState.lang !== this.previousState.lang);
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering Account page");
       this.previousState = { ...newState };
-      await updateView(this);
-    } else if (newState.lang !== this.previousState.lang) {
-      console.log("COUCOU");
-      this.previousState = { ...newState };
-      this.lang = newState.lang;
       await updateView(this);
     } else {
       this.previousState = { ...newState };
@@ -399,16 +398,6 @@ export default class Account {
     if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
-  removeEventListeners() {
-    this.eventListeners.forEach(({ element, listener, type }) => {
-      if (element) {
-        element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from element`);
-      }
-    });
-    this.eventListeners = [];
-  }
-
   removeEventListener(name) {
     const event = this.eventListeners.find((el) => el.name === name);
     if (event) {
@@ -420,11 +409,21 @@ export default class Account {
     }
   }
 
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from element`);
+      }
+    });
+    this.eventListeners = [];
+  }
+
   destroy() {
     this.removeEventListeners();
     this.isForm = false;
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange.bind(this));
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
     }
@@ -437,7 +436,13 @@ export default class Account {
     } catch (error) {
       if (error.response.status === 401) return "";
     }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Account page subscribed to state");
+    }
     handleHeader(this.state.isUserLoggedIn, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}<div class="user-main-div account-main-div">
 						<div class="user-main-content">

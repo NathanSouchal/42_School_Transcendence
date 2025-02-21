@@ -9,13 +9,14 @@ export default class LoadingPage {
   }
 
   async initialize(routeParams = {}) {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Loading page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
 
     const content = this.render();
     const container = document.getElementById("app");
@@ -50,6 +51,11 @@ export default class LoadingPage {
   }
 
   render(routeParams = {}) {
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Loading page subscribed to state");
+    }
     const percentage = state.state.gameLoadPercentage || 0;
     const loadingContainer = document.createElement("div");
     loadingContainer.className = "loading-container text-center mb-4";

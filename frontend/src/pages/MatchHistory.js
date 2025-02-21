@@ -117,6 +117,11 @@ export default class MatchHistory {
         return "";
       }
     }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Match_history page subscribed to state");
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     const template = `${backArrow}<div class="user-main-div">

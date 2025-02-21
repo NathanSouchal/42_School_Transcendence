@@ -267,6 +267,11 @@ export default class Login {
   }
 
   async render(routeParams = {}) {
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Login page subscribed to state");
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);

@@ -16,6 +16,11 @@ export const trad = {
       yes: "Yes",
       no: "No",
     },
+    home: {
+      play: "Play",
+      login: "Login",
+      guestMode: "Guest Mode",
+    },
   },
   FR: {
     account: {
@@ -33,6 +38,11 @@ export const trad = {
       sure: "Confirmer ?",
       yes: "Oui",
       no: "Non",
+    },
+    home: {
+      play: "Jouer",
+      login: "Se connecter",
+      guestMode: "Mode invité",
     },
   },
 };

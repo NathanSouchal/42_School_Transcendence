@@ -17,7 +17,6 @@ export default class GamePage {
   async initialize(routeParams = {}) {
     if (this.isInitialized) return;
     this.isInitialized = true;
-    console.log("GamePage initialized");
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -115,11 +114,10 @@ export default class GamePage {
     ) {
       console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
-      this.oldscore = {...this.state.score};
+      this.oldscore = { ...this.state.score };
       await updateView(this);
-    } else 
-        this.previousState = { ...newState };
-        this.oldscore = {...this.state.score};
+    } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
   }
 
   removeEventListeners() {
@@ -240,6 +238,11 @@ export default class GamePage {
         }, 50);
         return "";
       }
+    }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");

@@ -84,7 +84,10 @@ export default class Social {
     });
 
     const validate_button = document.getElementById("validate_invit");
-    if (validate_button && !this.eventListeners.some((e) => e.name === "validate_invit")) {
+    if (
+      validate_button &&
+      !this.eventListeners.some((e) => e.name === "validate_invit")
+    ) {
       const validate_btn_fctn = this.validate_btn_fctn.bind(this);
       validate_button.addEventListener("click", validate_btn_fctn);
       this.eventListeners.push({
@@ -92,13 +95,16 @@ export default class Social {
         type: "click",
         element: validate_button,
         listener: validate_btn_fctn,
-      })
-    };
+      });
+    }
 
     const cancel_button = document.getElementById("cancel_decline_invit");
-    if (cancel_button && !this.eventListeners.some((e) => e.name === "cancel_decline_invit")) {
+    if (
+      cancel_button &&
+      !this.eventListeners.some((e) => e.name === "cancel_decline_invit")
+    ) {
       const cancel_btn_fctn = this.cancel_btn_fctn.bind(this);
-      cancel_button.addEventListener("click",cancel_btn_fctn)
+      cancel_button.addEventListener("click", cancel_btn_fctn);
       this.eventListeners.push({
         name: "cancel_decline_invit",
         type: "click",
@@ -108,7 +114,10 @@ export default class Social {
     }
 
     const search_bar_user = document.getElementById("search_bar_user");
-    if (search_bar_user && !this.eventListeners.some((e) => e.name === "search_bar_user")) {
+    if (
+      search_bar_user &&
+      !this.eventListeners.some((e) => e.name === "search_bar_user")
+    ) {
       const search_bar_user_fctn = this.search_bar_user_fctn.bind(this);
       search_bar_user.addEventListener("keydown", search_bar_user_fctn);
       this.eventListeners.push({
@@ -132,11 +141,9 @@ export default class Social {
         accepted: "true",
       });
       await updateView(this);
+    } catch (error) {
+      console.error(`Error while trying to accept friend request : ${error}`);
     }
-    catch (error) {
-      console.error(`Error while trying to accept friend request : ${error}`)
-    }
-    
   }
 
   async cancel_btn_fctn(e) {
@@ -151,9 +158,10 @@ export default class Social {
         accepted: "false",
       });
       await updateView(this);
-    }
-    catch (error) {
-      console.error(`Error while trying to cancel or denie friend request : ${error}`)
+    } catch (error) {
+      console.error(
+        `Error while trying to cancel or denie friend request : ${error}`
+      );
     }
   }
 
@@ -238,10 +246,14 @@ export default class Social {
         return "";
       }
     }
-  
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Social page subscribed to state");
+    }
     handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-  
+
     if (this.friends && this.invitations) {
       return `
         ${backArrow}
@@ -339,4 +351,4 @@ export default class Social {
       `;
     }
   }
-}  
+}

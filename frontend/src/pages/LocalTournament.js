@@ -371,6 +371,11 @@ export default class LocalTournament {
         return "";
       }
     }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("LocalTournament page subscribed to state");
+    }
     if (this.state.state.gameStarted === true)
       handleHeader(this.state.isUserLoggedIn, true);
     else handleHeader(this.state.isUserLoggedIn, false);
