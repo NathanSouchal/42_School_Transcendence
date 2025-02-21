@@ -2,6 +2,7 @@ import { handleHeader, updateView, checkUserStatus } from "../utils";
 import DOMPurify from "dompurify";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
+import { trad } from "../trad.js";
 
 export default class GamePage {
   constructor(state) {
@@ -12,6 +13,7 @@ export default class GamePage {
     this.isInitialized = false;
     this.eventListeners = [];
     this.oldscore = state.score;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -110,7 +112,8 @@ export default class GamePage {
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
-      this.state.score["right"] !== this.oldscore["right"]
+      this.state.score["right"] !== this.oldscore["right"] ||
+      newState.lang !== this.previousState.lang
     ) {
       console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
@@ -146,13 +149,13 @@ export default class GamePage {
             <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
               <div class="global-nav-section nav-section-game">
                   <div class="global-nav-items">
-                    <button id="start-pvp-game">Player vs Player</button>
+                    <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
                   </div>
                   <div class="global-nav-items">
-                    <button id="start-pvr-game">Player vs Robot</button>
+                    <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
                   </div>
                   <div id="start-local-tournament" class="global-nav-items">
-                     <a class="nav-link" href="/local-tournament">Local tournament</a>
+                     <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
                   </div>
               </div>
             </div>
@@ -184,13 +187,13 @@ export default class GamePage {
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
-							<h1>Game Paused</h1>
+							<h1>${trad[this.lang].game.paused}</h1>
 						</div>
 						<div class="global-nav-items">
-							<button id="resume-game">Resume Game</button>
+							<button id="resume-game">${trad[this.lang].game.resume}</button>
 						</div>
 						<div class="global-nav-items">
-							<button id="exit-game">Quit Game</button>
+							<button id="exit-game">${trad[this.lang].game.quit}</button>
 						</div>
 					</div>
 				</div>
@@ -212,13 +215,13 @@ export default class GamePage {
 							<h1 class="display-4 mb-0">${left} - ${right}</h1>
 						</div>
 						<h2 class="mt-2">
-							${left > right ? "Left Player Wins!" : "Right Player Wins!"}
+							${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
 						</h2>
 						<div class="global-nav-items">
-							<button id="restart-game">Play Again</button>
+							<button id="restart-game">${trad[this.lang].game.playAgain}</button>
 						</div>
 						<div class="global-nav-items">
-							<button id="exit-game">Back to Menu</button>
+							<button id="exit-game">${trad[this.lang].game.back}</button>
 						</div>
 					</div>
 				</div>
@@ -244,6 +247,7 @@ export default class GamePage {
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
+    this.lang = this.state.state.lang;
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
