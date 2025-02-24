@@ -57,9 +57,7 @@ export class Header {
     const logoutButton = document.getElementById("logout-button");
     if (logoutButton) {
       if (!this.eventListeners.some((e) => e.name === "logoutButton")) {
-        logoutButton.addEventListener("click", async () => {
-          await logout();
-        });
+        logoutButton.addEventListener("click", logout);
         this.eventListeners.push({
           name: "logoutButton",
           type: "click",
