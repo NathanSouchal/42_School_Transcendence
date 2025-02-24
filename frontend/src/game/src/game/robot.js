@@ -80,7 +80,6 @@ class Robot {
   }
 
   update(deltaTime, position, velocity) {
-    console.log("DIFFICULTY = ", this.difficulty);
     this.timeSinceLastView += deltaTime;
 
     if (this.timeSinceLastView >= 1) {

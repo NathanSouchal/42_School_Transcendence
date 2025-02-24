@@ -93,7 +93,6 @@ export default class GamePage {
   }
 
   handleDifficultyChange(e) {
-    console.log("COUCOU");
     const selectedValue = e.target.value;
     if (selectedValue) {
       this.state.botDifficulty = selectedValue;
@@ -172,6 +171,7 @@ export default class GamePage {
   renderSelectBotDifficulty() {
     const backArrow = createBackArrow(this.state.state.lastRoute);
     const template = `${backArrow}
+            <div class="container-selector">
               <div class="select-container">
                 <label for="select-difficulty">Difficulty</label>
                 <select id="select-difficulty">
@@ -180,7 +180,8 @@ export default class GamePage {
                   <option value="5">Normal</option>
                   <option value="6">Hard</option>
                 </select>
-              </div>`;
+              </div>
+            </div>`;
     const sanitizedTemplate = DOMPurify.sanitize(template);
     return sanitizedTemplate
   }
