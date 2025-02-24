@@ -12,6 +12,7 @@ export default class GamePage {
     this.isInitialized = false;
     this.eventListeners = [];
     this.oldscore = state.score;
+    this.haveToSelectBotDifficulty = false;
   }
 
   async initialize(routeParams = {}) {
@@ -40,6 +41,21 @@ export default class GamePage {
         });
       }
     });
+
+    const selectDifficulty = document.getElementById("select-difficulty");
+    if (selectDifficulty) {
+      const handleDifficultyChange = this.handleDifficultyChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "selectDifficulty")) {
+        selectDifficulty.addEventListener("change", handleDifficultyChange);
+      }
+      this.eventListeners.push({
+        name: "selectDifficulty",
+        type: "change",
+        element: selectDifficulty,
+        listener: handleDifficultyChange,
+      });
+    }
+
 
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
@@ -76,14 +92,25 @@ export default class GamePage {
     }
   }
 
-  handleClick(param) {
+  handleDifficultyChange(e) {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      this.state.botDifficulty = selectedValue;
+      this.state.setGameStarted("PVR");
+    }
+  }
+
+  async handleClick(param) {
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
         console.log("coucou");
         break;
       case "start-pvr-game":
-        this.state.setGameStarted("PVR");
+        this.haveToSelectBotDifficulty = true;
+        await updateView(this);
+        this.haveToSelectBotDifficulty = false;
+        // this.state.setGameStarted("PVR");
         break;
       case "resume-game":
         this.state.togglePause();
@@ -139,6 +166,24 @@ export default class GamePage {
       this.isSubscribed = false;
       console.log("Game page unsubscribed from state");
     }
+  }
+
+  renderSelectBotDifficulty() {
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const template = `${backArrow}
+            <div class="container-selector">
+              <div class="select-container">
+                <label for="select-difficulty">Difficulty</label>
+                <select id="select-difficulty">
+                  <option value="" disabled selected>Select...</option>
+                  <option value="4">Easy</option>
+                  <option value="5">Normal</option>
+                  <option value="6">Hard</option>
+                </select>
+              </div>
+            </div>`;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate
   }
 
   renderGameMenu() {
@@ -245,11 +290,13 @@ export default class GamePage {
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if (!gameStarted && !gameHasBeenWon) {
+    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       handleHeader(this.state.isUserLoggedIn, false);
       return this.renderGameMenu();
+    } else if (!gameStarted && !gameHasBeenWon && this.haveToSelectBotDifficulty) {
+      return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

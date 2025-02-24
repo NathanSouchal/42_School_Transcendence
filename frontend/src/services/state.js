@@ -32,6 +32,8 @@ export default class State {
 
     this.gamePoints = 10;
     // this.gamePoints = 1;
+    
+    this.botDifficulty = 6;
 
     this.player_types = {
       default: {
