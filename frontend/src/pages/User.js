@@ -6,6 +6,7 @@ import {
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class User {
   constructor(state) {
@@ -22,6 +23,7 @@ export default class User {
     this.friendRequests = [];
     this.friendStatus = "";
     this.friendRequestId = null;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -241,9 +243,10 @@ export default class User {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering User page");
       this.previousState = { ...newState };
       await updateView(this);
@@ -285,31 +288,25 @@ export default class User {
       await this.getPublicUserInfo();
       await this.getMyFriends();
     } catch (error) {
-      if (error.response.status === 401) {
-        this.state.state.lastLastRoute = this.state.state.lastRoute;
-        return "";
-      }
-      if (error.response.status === 404) {
-        this.state.state.lastLastRoute = this.state.state.lastRoute;
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
+      this.state.state.lastLastRoute = this.state.state.lastRoute;
+      console.error(error);
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false, false);
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
 			<div class="user-main-div">
 			<div class="user-main-content">
 				<div class="title-div">
-				<h1>${this.publicUserData.username ? `${this.publicUserData.username}` : "User"}</h1>
+				<h1>${this.publicUserData.username ? `${this.publicUserData.username}` : `${trad[this.lang].user.pageTitle}`}</h1>
 				</div>
 				<div id="user-main-div">
 					<div class="avatar-main-div" id="avatar-main-div">
@@ -317,7 +314,7 @@ export default class User {
 					</div>
 					<div class="username-title-div" id="username-main-div">
 						<h2 class="username-title">
-						Username :
+						${trad[this.lang].user.username}
 						</h2>
 						<h2 class="username-title-value">
 						${this.publicUserData.username ? `${this.publicUserData.username}` : ""}
@@ -325,7 +322,7 @@ export default class User {
 					</div>
 					<div class="alias-title-div" id="alias-main-div">
 						<h2 class="alias-title">
-						Alias :
+						${trad[this.lang].user.alias}
 						</h2>
 						<h2 class="alias-title-value">
 						${this.publicUserData.alias ? `${this.publicUserData.alias}` : ""}
@@ -334,21 +331,21 @@ export default class User {
 					${
             this.friendStatus === "free"
               ? `<button type="button" class="btn btn-success m-3" id="send-friend-request">
-						Add friend
+						${trad[this.lang].user.addFriend}
 					</button>`
               : this.friendStatus === "friend"
                 ? `<button type="button" class="btn btn-danger m-3" id="unfriend">
-						Unfriend
+						${trad[this.lang].user.unfriend}
 					</button>`
                 : this.friendStatus === "pending"
                   ? `<button type="button" class="btn btn-info m-3" id="cancel-friend-request">
-						Cancel friend request
+						${trad[this.lang].user.cancel}
 					</button>`
                   : this.friendStatus === "recieved"
                     ? `<button type="button" class="btn btn-info m-3" id="accept-friend-request">
-						Accept friend request
+						${trad[this.lang].user.accept}
 					</button><button type="button" class="btn btn-info m-3" id="delete-recieved-friend-request">
-						Delete friend request
+						${trad[this.lang].user.delete}
 					</button>`
                     : ``
           }

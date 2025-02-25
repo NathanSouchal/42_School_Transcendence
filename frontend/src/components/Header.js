@@ -212,12 +212,16 @@ export class Header {
     this.lang = this.state.state.lang;
     const nav = document.getElementById("navbar");
     if (nav) {
+      console.log("ici2");
       const links = nav.querySelectorAll(".nav-link");
       const paths = ["home", "play", "register", "login"];
 
       links.forEach((link, index) => {
         console.log(trad[this.lang].header[paths[index]]);
-        if (paths[index]) link.innerHTML = trad[this.lang].header[paths[index]];
+        if (paths[index]) {
+          console.log("ici3");
+          link.innerHTML = trad[this.lang].header[paths[index]];
+        }
       });
     }
   }
@@ -227,7 +231,7 @@ export class Header {
     this.lang = this.state.state.lang;
     this.isUserRendered = false;
     this.isGuestRendered = true;
-    const header = `<nav class="navbar">
+    const header = `<nav class="navbar" id="navbar">
                     <ul class="global-nav-section navbar-links">
                       <li class="global-nav-items navbar-link">
                           <a class="nav-link" href="/">${trad[this.lang].header.home}</a>

@@ -6,6 +6,7 @@ import {
   checkUserStatus,
 } from "../utils.js";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Social {
   constructor(state) {
@@ -18,6 +19,7 @@ export default class Social {
     this.invitations = {};
     this.eventListeners = [];
     this.search_result = {};
+    this.lang = null;
   }
 
   async initialize() {
@@ -203,14 +205,14 @@ export default class Social {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering Social page");
       this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -238,35 +240,32 @@ export default class Social {
       await this.getFriends(this.state.state.userId);
       await this.getInvitations(this.state.state.userId);
     } catch (error) {
-      if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
+      console.error(error);
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false, false);
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
 
     if (this.friends && this.invitations) {
       return `
         ${backArrow}
         <div class="main-div-social">
-          <h1 class="global-page-title">Social</h1>
+          <h1 class="global-page-title">${trad[this.lang].social.pageTitle}</h1>
           <div class="content-social">
             <div class="search-bar-and-result-social">
-              <input type="text" id="search_bar_user" placeholder="Search..." />
+              <input type="text" id="search_bar_user" placeholder="${trad[this.lang].social.search}" />
               <div id="search_result"></div>
             </div>
             <div class="friends-and-invitations-social">
               <div class="friends-div-social">
-                <h2>FRIENDS</h2>
+                <h2>${trad[this.lang].social.friends}</h2>
                 <div class="friends-list-social">
                   ${
                     Object.keys(this.friends).length > 0
@@ -280,21 +279,21 @@ export default class Social {
                             ${value.username}
                           </a>
                         </div>
-                        <p>Online</p>
+                        <p>${trad[this.lang].social.online}</p>
                       </div>
                     `
                           )
                           .join("")
                       : `
                     <div>
-                      <p>zero friend, sniff sniff</p>
+                      <p>${trad[this.lang].social.noFriends}</p>
                     </div>
                   `
                   }
                 </div>
               </div>
               <div class="invitations-div-social">
-                <h2>REQUESTS</h2>
+                <h2>${trad[this.lang].social.requests}</h2>
                 <div class="invitations-list-div-social">
                   ${
                     Object.keys(this.invitations).length > 0
@@ -308,7 +307,7 @@ export default class Social {
                           <a href="/user/${value.to_user.id}/">
                             <div class="invitation-item-img-username">
                               <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
-                              <p>${value.to_user.username}, waiting for acceptation...</p>
+                              <p>${value.to_user.username}${trad[this.lang].social.waitingAcceptation}</p>
                             </div>
                           </a>
                           <button class="cancel-button-invitation-social" value="${value.id}" id="cancel_decline_invit">⛌</button>
@@ -334,7 +333,7 @@ export default class Social {
                           .join("")
                       : `
                     <div>
-                      <p>no pending invitations</p>
+                      <p>${trad[this.lang].social.noInvitation}</p>
                     </div>
                   `
                   }

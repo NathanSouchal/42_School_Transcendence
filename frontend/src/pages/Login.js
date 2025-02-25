@@ -7,6 +7,7 @@ import {
   setDisable,
 } from "../utils.js";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Login {
   constructor(state) {
@@ -20,6 +21,7 @@ export default class Login {
     this.formState = {};
     this.eventListeners = [];
     this.cssLink;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -206,14 +208,14 @@ export default class Login {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering Login page");
       this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -240,27 +242,28 @@ export default class Login {
     this.is2fa = false;
     return `
 		<form id="2fa-login-form" class="form-div-login-register">
-          <h1 class="global-page-title">Login</h1>
+          <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
           <div class="inputs-button-form-login-register">
 		  	<label>
-				We've sent a verification code to your ${this.method2fa}
+				${trad[this.lang].login.label2fa}${this.method2fa}
 		  	</label>
             <input
               type="text"
               class="form-control"
               minLength="6"
               maxLength="6"
-			  placeholder="Enter verification code"
+			  placeholder="${trad[this.lang].login.oneTimeCode}"
               value="${this.formState.code ? this.formState.code : ``}"
               name="code"
+			  autocomplete="one-time-code"
               required
             />
             <button type="submit" class="form-button-login-register">
-              Sign in
+			${trad[this.lang].login.login}
             </button>
 			<h2 class="login-error-message" id="login-error-message"></h2>
 			<div class="link-to-register" id="link-to-retry" style="display: none">
-              <h2>Retry</h2>
+              <h2>${trad[this.lang].login.retry}</h2>
             </div>
           </div>
         </form>`;
@@ -272,7 +275,10 @@ export default class Login {
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false, false);
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
@@ -285,30 +291,32 @@ export default class Login {
             <input
               type="text"
               class="form-control"
-              placeholder="Enter username"
+              placeholder="${trad[this.lang].login.enterUsername}"
               minLength="4"
               maxLength="10"
               value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
+			  autocomplete="username"
               required
             />
             <input
               type="password"
               class="form-control"
-              placeholder="Enter password"
+              placeholder="${trad[this.lang].login.enterPassword}"
               value="${this.formState.password ? this.formState.password : ``}"
 			  minLength="8"
 			  maxLength="20"
               name="password"
               aria-label="Password"
+			  autocomplete="current-password"
               required
             />
             <button type="submit" class="form-button-login-register">
-              Sign in
+			${trad[this.lang].login.login}
             </button>
             <div class="link-to-register">
-              <a class="nav-link" href="/register">No account? Create one here</a>
+              <a class="nav-link" href="/register">${trad[this.lang].login.register}</a>
             </div>
 			<h2 class="login-error-message" id="login-error-message"></h2>
           </div>
