@@ -16,7 +16,6 @@ class Ball {
       right: new THREE.Vector3(0, 0, 1),
       left: new THREE.Vector3(0, 0, -1),
     };
-    this.rotationSpeed = 3.0;
     this.isFalling = false;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
     this.pos = new position();
@@ -148,6 +147,10 @@ class Ball {
     this.isFalling = false;
     this.pos.set(0, 2.7, 0);
     this.velocity = this.random_initial_velocity();
+  }
+
+  updateRotation(deltaTime) {
+    this.obj.rotateY(3.0 * deltaTime * this.velocity.length());
   }
 
   make_sparks() {

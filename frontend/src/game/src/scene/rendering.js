@@ -35,11 +35,13 @@ class Renderer {
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime, gameManager);
       }
+
+      this.game.ball.updateRotation(deltaTime);
       if (state.ballCollided) {
         this.game.ball.spawn_sparks(state.collisionPoint);
         state.ballCollided = false;
       }
-      this.game.ball.animate_sparks();
+      // this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
       this.pivotUpdate(deltaTime);
