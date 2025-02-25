@@ -16,7 +16,6 @@ export default class State {
       gameIsPaused: false,
       gameHasBeenWon: false,
       isSearching: false,
-      userId: 0,
       userId: "0",
     };
     this.gameMode = "default";
@@ -35,7 +34,7 @@ export default class State {
 
     this.gamePoints = 10;
     // this.gamePoints = 1;
-    
+
     this.botDifficulty = 6;
 
     this.player_types = {
