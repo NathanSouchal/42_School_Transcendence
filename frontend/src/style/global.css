@@ -162,8 +162,8 @@ canvas#c {
 
 .pause-play-btn {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 30px;
+  right: 120px;
   background-color: var(--beige);
   border: none;
   border-radius: 50%;
@@ -272,6 +272,7 @@ canvas#c {
 }
 
 .lang-div {
+  z-index: 10000;
   margin: 0 auto;
   display: flex;
   align-items: center;
