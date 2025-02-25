@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, checkUserStatus } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  checkUserStatus,
+  setDisable,
+} from "../utils";
 import { createBackArrow } from "../utils";
 import { router } from "../app.js";
 
@@ -8,18 +13,15 @@ export default class Account {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
-    this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
 
     this.userData = {};
-    this.formData = {
-      username: "",
-      alias: "",
-    };
+    this.formData = {};
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
+    this.deleteUserVerification = false;
   }
 
   async initialize(routeParams = {}) {
@@ -27,17 +29,17 @@ export default class Account {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange);
+      this.state.subscribe(this.handleStateChange.bind(this));
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    await updateView(this);
   }
 
   attachEventListeners() {
-    const links = document.querySelectorAll("a");
-    links.forEach((link) => {
+    // Attache le listener de navigation sur tous les liens <a>
+    document.querySelectorAll("a").forEach((link) => {
       if (!this.eventListeners.some((e) => e.element === link)) {
         const handleNavigation = this.handleNavigation.bind(this);
         link.addEventListener("click", handleNavigation);
@@ -50,135 +52,108 @@ export default class Account {
       }
     });
 
+    const buttons = [
+      { id: "delete-user-button", action: "delete-user-button" },
+      { id: "update-user-info", action: "update-user-info" },
+      { id: "confirm-delete-user", action: "confirm-delete-user" },
+      { id: "cancel-delete-user", action: "cancel-delete-user" },
+      { id: "cancel-button", action: "cancel-button" },
+    ];
+
+    buttons.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleClick = this.handleClick.bind(this, action);
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          button.addEventListener("click", handleClick);
+          this.eventListeners.push({
+            name: action,
+            type: "click",
+            element: button,
+            listener: handleClick,
+          });
+        }
+      }
+    });
+
+    const checkboxes = [
+      { id: "app2FA-checkbox", action: "app2FA-checkbox" },
+      {
+        id: "email2FA-checkbox",
+        action: "email2FA-checkbox",
+        input: ".email2FA-input",
+      },
+      {
+        id: "sms2FA-checkbox",
+        action: "sms2FA-checkbox",
+        input: ".sms2FA-input",
+      },
+    ];
+
+    checkboxes.forEach(({ id, action, input }) => {
+      const checkbox = document.getElementById(id);
+      const inputField = input ? document.querySelector(input) : null;
+      if (checkbox) {
+        const handleCheckBox = this.handleCheckBox.bind(
+          this,
+          checkbox,
+          inputField,
+          checkboxes
+        );
+        if (!this.eventListeners.some((e) => e.name === action)) {
+          checkbox.addEventListener("click", handleCheckBox);
+          this.eventListeners.push({
+            name: action,
+            type: "change",
+            element: checkbox,
+            listener: handleCheckBox,
+          });
+        }
+      }
+    });
+
     const avatarInput = document.getElementById("avatar");
     if (avatarInput) {
-      const handleChangeBound = this.handleChange.bind(this);
       if (!this.eventListeners.some((e) => e.name === "avatar")) {
-        avatarInput.addEventListener("change", async (e) => {
+        const handleFile = (e) => {
           const file = e.target.files[0];
-          await handleChangeBound("avatar", file);
-        });
+          if (file) this.handleFile("avatar", file);
+        };
+        avatarInput.addEventListener("change", handleFile);
         this.eventListeners.push({
           name: "avatar",
           type: "change",
           element: avatarInput,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const updateButton = document.getElementById("update-user-info");
-    if (updateButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "updateUserInfo")) {
-        updateButton.addEventListener("click", async (e) => {
-          await handleChangeBound("update-user-info", "");
-        });
-        this.eventListeners.push({
-          name: "updateUserInfo",
-          type: "click",
-          element: updateButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const refreshButton = document.getElementById("refresh-token-button");
-    if (refreshButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "refreshButton")) {
-        refreshButton.addEventListener("click", async () => {
-          await handleChangeBound("refresh-token-button", "");
-        });
-        this.eventListeners.push({
-          name: "refreshButton",
-          type: "click",
-          element: refreshButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const accessButton = document.getElementById("access-token-button");
-    if (accessButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      console.log("checking if accessButton object exists");
-      if (!this.eventListeners.some((e) => e.name === "accessButton")) {
-        accessButton.addEventListener("click", async () => {
-          await handleChangeBound("access-token-button", "");
-        });
-        console.log("pushing accessButton object");
-        this.eventListeners.push({
-          name: "accessButton",
-          type: "click",
-          element: accessButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const deleteUserButton = document.getElementById("delete-user-button");
-    if (deleteUserButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "deleteUserButton")) {
-        deleteUserButton.addEventListener("click", async () => {
-          await handleChangeBound("delete-user-button", "");
-        });
-        this.eventListeners.push({
-          name: "deleteUserButton",
-          type: "click",
-          element: deleteUserButton,
-          listener: handleChangeBound,
-        });
-      }
-    }
-
-    const formButton = document.getElementById("form-button");
-    if (formButton) {
-      const handleChangeBound = this.handleChange.bind(this);
-      // Vérifie si le gestionnaire d'événements a déjà été ajouté
-      if (!this.eventListeners.some((e) => e.name === "formButton")) {
-        formButton.addEventListener("click", async () => {
-          await handleChangeBound("form-button", "");
-        });
-        this.eventListeners.push({
-          name: "formButton",
-          type: "click",
-          element: formButton,
-          listener: handleChangeBound,
+          listener: handleFile,
         });
       }
     }
 
     const formSubmit = document.getElementById("user-form");
     if (formSubmit) {
-      const handleChangeBound = this.handleChange.bind(this);
+      const handleSubmit = this.handleSubmit.bind(this);
       if (!this.eventListeners.some((e) => e.name === "formSubmit")) {
-        formButton.addEventListener("submit", async (e) => {
-          e.preventDefault();
-          await handleChangeBound("form-submit", "");
-        });
+        formSubmit.addEventListener("submit", handleSubmit);
         this.eventListeners.push({
           name: "formSubmit",
-          type: "form-submit",
+          type: "submit",
           element: formSubmit,
-          listener: handleChangeBound,
+          listener: handleSubmit,
         });
       }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeInputBound = this.handleChangeInput.bind(this);
+      const handleChangeInput = this.handleChangeInput.bind(this);
       if (!this.eventListeners.some((e) => e.name === input.name)) {
-        input.addEventListener("input", (e) => {
-          handleChangeInputBound(e.target.name, e.target.value, e.target);
-        });
+        const listener = this.handleChangeInput.bind(this);
+        input.addEventListener("input", listener);
         this.eventListeners.push({
           name: input.name,
           type: "input",
           element: input,
-          listener: handleChangeInputBound,
+          listener,
         });
       }
     });
@@ -188,76 +163,136 @@ export default class Account {
     const target = e.target.closest("a");
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
-      const path = target.getAttribute("href");
-      router.navigate(path);
+      router.navigate(target.getAttribute("href"));
     }
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
+    console.log("NEWGameHasLoaded:", newState.gameHasLoaded);
+    console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Account page");
+      this.previousState = { ...newState };
       await updateView(this);
+    } else {
+      this.previousState = { ...newState };
     }
-    this.previousState = { ...newState };
   }
 
-  handleChangeInput(key, value, inputElement) {
-    this.formData[key] = value;
-    console.log(this.formData.alias);
-    console.log(this.formData.username);
-    console.log(this.formData.avatar);
+  handleChangeInput(e) {
+    this.formData[e.target.name] = e.target.value;
+    console.log(this.formData);
   }
 
-  async handleChange(key, value) {
-    console.log("handlechange");
+  async handleFile(key, file) {
     if (key == "avatar") {
-      const fileInput = value;
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      const fileInput = file;
+      const label = document.querySelector(".file-label");
       if (fileInput) {
+        if (!allowedTypes.includes(fileInput.type)) {
+          this.displayAccountErrorMessage("Only JPG and PNG files are allowed");
+          label.textContent = "Upload file";
+          return;
+        }
+        if (fileInput.size > maxSize) {
+          this.displayAccountErrorMessage("File size can't exceed 5MB");
+          label.textContent = "Upload file";
+          return;
+        }
+        let filename = fileInput.name;
+        if (fileInput.name.length > 10) {
+          filename =
+            fileInput.name.slice(0, 7) + `...${fileInput.type.slice(6)}`;
+        }
+        label.textContent = filename;
         const reader = new FileReader();
         reader.onload = (e) => {
-          const base64String = e.target.result;
-          console.log(base64String);
-          this.formData.avatar = base64String;
+          this.formData.avatar = e.target.result;
+          console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
-      }
-    } else if (key == "form-button") {
+      } else label.textContent = "Upload file";
+    }
+  }
+
+  async handleClick(key) {
+    if (key == "cancel-button" || key == "update-user-info") {
       this.isForm = !this.isForm;
       await updateView(this);
-    } else if (key == "update-user-info") {
-      try {
-        await this.updateUserInfo(this.userData.id);
-        await this.fetchData(this.userData.id);
-        this.isForm = !this.isForm;
-        await updateView(this);
-      } catch (error) {
-        console.error(error);
+      if (this.isForm) {
+        const checked2fa = document.getElementById("app2FA-checkbox")?.checked;
+        if (checked2fa) {
+          await this.getQrcode();
+        }
       }
-    } else if (key == "refresh-token-button") {
-      try {
-        await this.getNewRefreshToken(this.userData.id);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (key == "access-token-button") {
-      try {
-        await this.getNewAccessToken(this.userData.id);
-      } catch (error) {
-        console.error(error);
-      }
-    } else if (key == "delete-user-button") {
-      try {
-        await this.deleteUser(this.userData.id);
-      } catch (error) {
-        console.error(error);
-      }
+    } else if (key === "delete-user-button") {
+      await this.deleteUser();
+    } else if (key === "confirm-delete-user") {
+      await this.confirmDeleteUser(this.state.state.userId);
+    } else if (key === "cancel-delete-user") {
+      await updateView(this);
+    }
+  }
+
+  async handleSubmit(e) {
+    e.preventDefault();
+    try {
+      await this.updateUserInfo(this.state.state.userId);
+      await this.fetchData(this.userData.id);
+      this.isForm = !this.isForm;
+      await updateView(this);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  async handleCheckBox(checkbox, inputField, checkboxes) {
+    checkboxes.forEach(({ id }) => {
+      const otherCheckbox = document.getElementById(id);
+      if (otherCheckbox !== checkbox) otherCheckbox.checked = false;
+    });
+
+    document
+      .querySelectorAll(".email2FA-input, .sms2FA-input")
+      .forEach((input) => {
+        input.disabled = true;
+        input.required = false;
+        console.log("input.name : " + input.name);
+        if (
+          input.classList.contains("email2FA-input") &&
+          !document.getElementById("email2FA-checkbox").checked
+        ) {
+          this.formData.email = "";
+          input.value = "";
+        }
+        if (
+          input.classList.contains("sms2FA-input") &&
+          !document.getElementById("sms2FA-checkbox").checked
+        ) {
+          this.formData.phone_number = "";
+          input.value = "";
+        }
+      });
+
+    if (checkbox.checked) this.formData.two_factor_method = checkbox.value;
+    else this.formData.two_factor_method = "none";
+    if (checkbox.checked && inputField) {
+      inputField.disabled = false;
+      inputField.required = true;
+    }
+    if (document.getElementById("app2FA-checkbox").checked) {
+      await this.getQrcode();
+    }
+    if (!document.getElementById("app2FA-checkbox").checked) {
+      document.getElementById("totp-qr-code").style.display = "none";
     }
   }
 
   async fetchData(id) {
-    console.log("Fetchind data...");
+    console.log("Fetching data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
@@ -265,57 +300,102 @@ export default class Account {
       this.userData = data.user;
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
-      if (!this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(true);
+      this.formData.email = data.user.email;
+      this.formData.phone_number = data.user.phone_number;
+      this.formData.two_factor_method = data.user.two_factor_method;
     } catch (error) {
-      console.error(`Error while trying to get data : ${error}`);
+      console.error("Error while trying to get data:", error);
       this.userData = {};
-      if (this.state.isUserLoggedIn) this.state.setIsUserLoggedIn(false);
+      throw error;
+    }
+  }
+
+  async getQrcode() {
+    try {
+      const response = await API.get(`/auth/generate-qrcode/`);
+      const data = response.data;
+      console.log(data);
+      const qrCode = document.getElementById("totp-qr-code");
+      if (qrCode) {
+        qrCode.src = `data:image/png;base64,${data.qr_code}`;
+        qrCode.style.display = "block";
+      }
+    } catch (error) {
+      console.error(`Error while trying to get qrcode : ${error}`);
       throw error;
     }
   }
 
   async updateUserInfo(id) {
-    console.log("Updating data...");
+    setDisable(true, "form-button");
     try {
+      if (
+        !Object.keys(this.formData).length ||
+        !this.formData.username?.length ||
+        !this.formData.alias?.length
+      ) {
+        console.error("Please complete all fields");
+        throw new Error("Please complete all fields");
+      }
       const res = await API.put(`/user/${id}/`, this.formData);
       console.log(res);
     } catch (error) {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data
+      ) {
+        const errorData = error.response.data;
+        if (errorData.phone_number)
+          console.log(Object.values(errorData.phone_number));
+        if (errorData.errors)
+          this.displayAccountErrorMessage(Object.values(errorData.errors)[0]);
+        else if (errorData.no_phone_number)
+          this.displayAccountErrorMessage(errorData.no_phone_number);
+        else if (errorData.no_email)
+          this.displayAccountErrorMessage(errorData.no_email);
+        else if (errorData.wrong_avatar)
+          this.displayAccountErrorMessage(errorData.wrong_avatar);
+      }
       console.error(`Error while trying to update user data : ${error}`);
+      throw error;
+    } finally {
+      setDisable(false, "form-button");
     }
   }
 
-  async deleteUser(id) {
+  async deleteUser() {
+    this.deleteUserVerification = true;
+    await updateView(this);
+    this.deleteUserVerification = false;
+  }
+
+  async confirmDeleteUser(id) {
+    this.deleteUserVerification = false;
+    setDisable(true, "confirm-delete-user");
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
       await updateView(this);
     } catch (error) {
-      console.error(`Error while trying to delete data : ${error}`);
-      await updateView(this);
+      console.error("Error while trying to delete data:", error);
+      throw error;
+    } finally {
+      setDisable(false, "confirm-delete-user");
     }
   }
 
-  async getNewAccessToken(id) {
-    try {
-      await API.post(`/auth/custom-token/access/`);
-    } catch (error) {
-      console.error(`Error while trying to get new access token : ${error}`);
-    }
-  }
-
-  async getNewRefreshToken(id) {
-    try {
-      await API.post(`/auth/custom-token/refresh/`);
-    } catch (error) {
-      console.error(`Error while trying to get new refresh token : ${error}`);
-    }
+  displayAccountErrorMessage(errorMsg) {
+    console.log("ici");
+    const errorTitle = document.getElementById("account-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
+        console.log(`Removed ${type} eventListener from element`);
       }
     });
     this.eventListeners = [];
@@ -325,8 +405,7 @@ export default class Account {
     const event = this.eventListeners.find((el) => el.name === name);
     if (event) {
       event.element.removeEventListener(event.type, event.listener);
-      console.log("Removed unique eventListener from input");
-      // Supprimez l'événement de la liste
+      console.log("Removed unique eventListener:", name);
       this.eventListeners = this.eventListeners.filter(
         (el) => el.name !== name
       );
@@ -335,145 +414,210 @@ export default class Account {
 
   destroy() {
     this.removeEventListeners();
+    this.isForm = false;
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange);
+      this.state.unsubscribe(this.handleStateChange.bind(this));
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
     }
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
     try {
       await checkUserStatus();
       await this.fetchData(this.state.state.userId);
     } catch (error) {
       if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
-      }
     }
-    // const userData = this.state.data.username;
-    // const sanitizedData = DOMPurify.sanitize(userData);
-    const hasUsername =
-      this.userData.username && this.userData.username.length > 0;
+    handleHeader(this.state.isUserLoggedIn, false);
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="d-flex flex-column justify-content-center align-items-center h-100">
-          <div class="title-div mb-4">
-            <h1 class="text-capitalize w-100 text-center">Account</h1>
-          </div>
-            ${
-              this.state.isUserLoggedIn
-                ? `
+    return `${backArrow}<div class="user-main-div account-main-div">
+						<div class="user-main-content">
+                          <div class="title-div">
+                            <h1>Account</h1>
+                          </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
           this.isForm
-            ? `<div id="user-main-div">
+            ? `<div id="userinfo-main-div">
 				<form id="user-form">
-			 	<div id="avatar-main-div">
-					<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">
-					<div class="custom-file m-2">
-						<label class="form-label" for="avatar">
-							Avatar
+			 	<div class="input-main-div" id="avatar-main-div">
+					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					<div class="input-div file-input-div">
+						<label class="file-label" for="avatar">
+							Upload file
 						</label>
 						<input
 						type="file"
-						class="form-control"
+						class="file-input"
 						name="avatar"
 						id="avatar"
 						/>
 					</div>
 				</div>
-				<div id="username-main-div">
-					<label class="text-capitalize">
-						Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="input-div" id="username-main-div">
+					<label for="username">
+						Username
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.username}"
 					minLength="4"
 					maxLength="10"
-					value="${this.formData.username}"
+					value="${this.formData.username ? this.formData.username : ``}"
 					name="username"
 					required
 					/>
 				</div>
-				<div id="alias-main-div">
-					<label class="text-capitalize">
-						Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="input-div" id="alias-main-div">
+					<label for="alias">
+						Alias
 					</label>
 					<input
 					type="text"
 					class="form-control"
-					placeholder="${this.userData.alias}"
 					minLength="4"
 					maxLength="10"
-					value="${this.formData.alias}"
+					value="${this.formData.alias ? this.formData.alias : ``}"
 					name="alias"
 					required
 					/>
 				</div>
-				<button type="button" class="btn btn-success m-3" id="update-user-info">
-					Update my info
-				</button>
+				<div class="form-2FA-main-div" id="form-2FA-main-div">
+					<div class="app2FA-div" id="app2FA-div">
+						<div class="checkbox-div">
+						<label for="app2FA-checkbox" id="app2FA-checkbox-label">
+							2FA with Google Authenticator
+						</label>
+						<label class="switch">
+						<input
+						type="checkbox"
+						id="app2FA-checkbox"
+						name="app2FA-checkbox"
+						value="TOTP"
+						${this.userData.two_factor_method == "TOTP" ? `checked` : ``}
+						/>
+						<div class="slider round"></div>
+						</label>
+						<div class="totp-qr-code-div">
+							<img id="totp-qr-code" width=200 height=200 style="display: none" src="" alt="TOTP QR Code" />
+						</div>
+					</div>
+					<div class="email2FA-div" id="email2FA-div">
+						<div class="checkbox-div">
+						<label for="email2FA-checkbox" id="email2FA-checkbox-label">
+							2FA with e-mail
+						</label>
+						<label class="switch">
+						<input
+						type="checkbox"
+						id="email2FA-checkbox"
+						name="email2FA-checkbox"
+						value="email"
+						${this.userData.two_factor_method == "email" ? `checked` : ``}
+						/>
+						<div class="slider round"></div>
+						</label>
+						</div>
+						<div class="input-div email2FA-input-div">
+						<input
+						type="email"
+						class="email2FA-input"
+						minLength="4"
+						maxLength="50"
+						placeholder="E-mail"
+						value="${this.formData.email ? this.formData.email : ``}"
+						name="email"
+						${this.userData.two_factor_method == "email" ? `` : `disabled`}
+						/>
+						</div>
+					</div>
+					<div class="sms2FA-div" id="sms2FA-div">
+						<div class="checkbox-div">
+						<label for="sms2FA-checkbox" id="sms2FA-checkbox-label">
+							2FA with SMS
+						</label>
+						<label class="switch">
+						<input
+						type="checkbox"
+						id="sms2FA-checkbox"
+						name="sms2FA-checkbox"
+						value="sms"
+						${this.userData.two_factor_method == "sms" ? `checked` : ``}
+						/>
+						<div class="slider round"></div>
+						</label>
+						</div>
+						<div class="input-div sms2FA-input-div">
+						<input
+						type="text"
+						class="sms2FA-input"
+						minLength="12"
+						maxLength="12"
+						placeholder="Phone number"
+						value="${this.formData.phone_number ? this.formData.phone_number : ``}"
+						name="phone_number"
+						${this.userData.two_factor_method == "sms" ? `` : `disabled`}
+						/>
+						</div>
+					</div>
+				</div>
+				<h2 class="account-error-message" id="account-error-message"></h2>
+				<div class="d-flex flex-column align-items-center">
+					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
+						Update my info
+					</button>
+				</div>
 				</form>
               </div>`
             : `
-			  <div id="user-main-div">
-			 	<div id="avatar-main-div">
-				${this.userData.avatar ? `<img width="200" height="200" src="https://127.0.0.1:8000/${this.userData.avatar}" class="rounded-circle">` : ``}
+			  <div id="userinfo-main-div">
+			 	<div class="avatar-main-div" id="avatar-main-div">
+				${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 				</div>
-				<div id="username-main-div">
-					<h2 class="text-capitalize">
-					Username : ${this.userData.username ? `${this.userData.username}` : ""}
+				<div class="username-title-div" id="username-main-div">
+					<h2 class="username-title">
+					Username :
+					</h2>
+					<h2 class="username-title-value">
+					${this.userData.username ? `${this.userData.username}` : ""}
 					</h2>
 				</div>
-				</div>
-				<div id="alias-main-div">
-					<h2 class="text-capitalize">
-					Alias : ${this.userData.alias ? `${this.userData.alias}` : ""}
+				<div class="alias-title-div" id="alias-main-div">
+					<h2 class="alias-title">
+					Alias :
+					</h2>
+					<h2 class="alias-title-value">
+					${this.userData.alias ? `${this.userData.alias}` : ""}
 					</h2>
 				</div>
               </div>`
         }
-			  <div class="d-flex flex-column align-items-center">
-				<button class="btn btn-dark m-3" id="form-button">
-					${this.isForm ? `Cancel` : `Change my info`}
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="delete-user-button"
-				>
-					Delete Account
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="access-token-button"
-				>
-					Get New Access Token
-				</button>
-				<button
-					class="btn btn-danger mb-2"
-					id="refresh-token-button"
-				>
-					Get New Refresh Token
-				</button>
-                </div>
-            `
-                : `
-              <div class="text-center">
-                <h1>No info, please log in</h1>
-                <button
-                  class="btn btn-danger mb-2"
-				  id="refresh-token-button"
-                >
-                  Get New Refresh Token
-                </button>
-              </div>
-            `
-            }
-      </div>`;
+			  <div class="d-flex justify-center flex-column align-items-center app2FA-div">
+				${
+          this.isForm
+            ? `<button type="button" class="btn btn-dark m-3 account-button" id="cancel-button">
+								Cancel
+								</button>`
+            : `<button type="button" class="btn btn-dark m-3 account-button" id="update-user-info">
+								Change my info
+								</button>`
+        }
+		${
+      !this.deleteUserVerification
+        ? `<button class="btn btn-danger mb-2" id="delete-user-button">Delete Account</button>`
+        : `<div>
+				  <p class="text-danger">Are you sure?</p>
+				  <div class="delete-account-confirm-div">
+					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
+					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
+				  </div>
+				</div>`
+    }
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
   }
 }

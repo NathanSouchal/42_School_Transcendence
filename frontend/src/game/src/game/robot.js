@@ -1,10 +1,11 @@
 import * as THREE from "three";
+import state from "../../../app";
 
 class Robot {
-  constructor(paddle, size, difficulty = 4) {
+  constructor(paddle, size) {
     this.paddle = paddle;
     this.size = size;
-    this.difficulty = difficulty;
+    this.difficulty = state.botDifficulty;
     this.inverseDifficulty = 6 - this.difficulty;
     this.deltaFactor = 30;
     this.half_width = this.paddle.paddle_half_width;
@@ -14,7 +15,8 @@ class Robot {
     };
     this.target_x = 0;
     this.last_target_x = 0;
-    this.half_width = 3.42; // BAD
+    // this.half_width = 3.42; // BAD
+    this.timeSinceLastView = 0;
   }
 
   predictBallPosition(position, velocity) {
@@ -22,7 +24,6 @@ class Robot {
     const halfArenaWidth = arenaWidth / 2;
     const paddleZ = this.paddle.pos.z;
     const timeToReach = (paddleZ - position.z) / velocity.z;
-
     let predictedX = position.x + velocity.x * timeToReach;
     while (predictedX < -halfArenaWidth || predictedX > halfArenaWidth) {
       if (predictedX < -halfArenaWidth) {
@@ -66,6 +67,26 @@ class Robot {
 
   update(deltaTime, gameManager, position, velocity) {
     this.target_x = this.predictBallPosition(position, velocity);
+  constrainPaddlePosition() {
+    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+    const paddleWidth = this.size.paddle_width;
+    const halfArenaWidth = arenaWidth / 2;
+    const halfPaddleWidth = paddleWidth / 2;
+
+    this.paddle.obj.position.x = THREE.MathUtils.clamp(
+      this.paddle.obj.position.x,
+      -halfArenaWidth + halfPaddleWidth,
+      halfArenaWidth - halfPaddleWidth,
+    );
+  }
+
+  update(deltaTime, position, velocity) {
+    this.timeSinceLastView += deltaTime;
+
+    if (this.timeSinceLastView >= 1) {
+      this.target_x = this.predictBallPosition(position, velocity);
+      this.timeSinceLastView = 0;
+    }
     this.moveTowardsTarget(deltaTime);
     this.updatePaddlePosition(deltaTime, gameManager);
   }

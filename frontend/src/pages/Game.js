@@ -1,4 +1,4 @@
-import { handleHeader, updateView } from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import DOMPurify from "dompurify";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
@@ -13,6 +13,8 @@ export default class GamePage {
     this.isSubscribed = false;
     this.isInitialized = false;
     this.eventListeners = [];
+    this.oldscore = state.score;
+    this.haveToSelectBotDifficulty = false;
   }
 
   async initialize(routeParams = {}) {
@@ -41,6 +43,21 @@ export default class GamePage {
         });
       }
     });
+
+    const selectDifficulty = document.getElementById("select-difficulty");
+    if (selectDifficulty) {
+      const handleDifficultyChange = this.handleDifficultyChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "selectDifficulty")) {
+        selectDifficulty.addEventListener("change", handleDifficultyChange);
+      }
+      this.eventListeners.push({
+        name: "selectDifficulty",
+        type: "change",
+        element: selectDifficulty,
+        listener: handleDifficultyChange,
+      });
+    }
+
 
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
@@ -78,15 +95,25 @@ export default class GamePage {
     }
   }
 
-  handleClick(param) {
-    // console.log(param);
+  handleDifficultyChange(e) {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      this.state.botDifficulty = selectedValue;
+      this.state.setGameStarted("PVR");
+    }
+  }
+
+  async handleClick(param) {
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
         console.log("coucou");
         break;
       case "start-pvr-game":
-        this.state.setGameStarted("PVR");
+        this.haveToSelectBotDifficulty = true;
+        await updateView(this);
+        this.haveToSelectBotDifficulty = false;
+        // this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
         if (!this.state.state.isSearching) {
@@ -122,12 +149,16 @@ export default class GamePage {
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
-      newState.isSearching !== this.previousState.isSearching
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
     ) {
-      // console.log("State changed, rendering Game page");
+      console.log("State changed, rendering Game page");
+      this.previousState = { ...newState };
+      this.oldscore = {...this.state.score};
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else 
+        this.previousState = { ...newState };
+        this.oldscore = {...this.state.score};
   }
 
   removeEventListeners() {
@@ -147,6 +178,24 @@ export default class GamePage {
       this.isSubscribed = false;
       // console.log("Game page unsubscribed from state");
     }
+  }
+
+  renderSelectBotDifficulty() {
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const template = `${backArrow}
+            <div class="container-selector">
+              <div class="select-container">
+                <label for="select-difficulty">Difficulty</label>
+                <select id="select-difficulty">
+                  <option value="" disabled selected>Select...</option>
+                  <option value="4">Easy</option>
+                  <option value="5">Normal</option>
+                  <option value="6">Hard</option>
+                </select>
+              </div>
+            </div>`;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate
   }
 
   renderGameMenu() {
@@ -250,15 +299,27 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
+      }
+    }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if (!gameStarted && !gameHasBeenWon) {
+    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       handleHeader(this.state.isUserLoggedIn, false);
       return this.renderGameMenu();
+    } else if (!gameStarted && !gameHasBeenWon && this.haveToSelectBotDifficulty) {
+      return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

@@ -1,82 +1,169 @@
 .form-div-login-register {
-    height: 100%;
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5em;
+  height: 100%;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
 }
 
 .inputs-button-form-login-register {
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3em;
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
 }
 
 .inputs-button-form-login-register input {
-    width: 100%;
-    font-family: var(--secondary-font);
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    outline: none;
-    background: white;
-    transition: border 0.3s, box-shadow 0.3s;
+  width: 100%;
+  font-family: var(--secondary-font);
+  padding: 12px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  background: white;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
 }
 
 .inputs-button-form-login-register input::placeholder {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .inputs-button-form-login-register input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
 }
 
 .form-button-login-register {
-    width: 100%;
-    padding: 12px;
-    font-size: 18px;
-    color: white;
-    background: var(--primary-color);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  color: white;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition:
+    background 0.3s,
+    transform 0.2s;
 }
-  
+
 .form-button-login-register:hover {
-    background: #ba410d;
-    transform: scale(1.05);
+  background: #ba410d;
+  transform: scale(1.05);
 }
 
 .form-button-login-register:active {
-    background: #98350b;
-    transform: scale(1);
+  background: #98350b;
+  transform: scale(1);
 }
 
 .link-to-register {
-    color: rgba(99, 99, 90, 0.62);
-    font-size: 1.2rem;
-    text-decoration: underline;
-    transition: transform 0.2s;
+  color: rgba(99, 99, 90, 0.62);
+  font-size: 1.2rem;
+  text-decoration: underline;
+  transition: transform 0.2s;
 }
 
 .link-to-register:hover {
-    color: rgba(48, 48, 44, 0.62);
-    transform: scale(1.03)
+  color: rgba(48, 48, 44, 0.62);
+  transform: scale(1.03);
 }
 
 .link-to-register:active {
-    transform: scale(1);
+  transform: scale(1);
+}
+
+.login-error-message,
+.register-error-message {
+  text-align: center;
+  color: var(--danger-color);
+  letter-spacing: 0.1rem;
+  font-weight: 700;
+  font-size: 1.7em;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* The actual popup */
+.popup .popup-text {
+  visibility: hidden;
+  width: 300px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 0;
+  position: absolute;
+  z-index: 1;
+  top: 125%;
+  left: 5%;
+}
+
+/* Popup arrow */
+.popup .popup-text::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+.popup .show {
+  visibility: visible;
+  -webkit-animation: fadeIn 1s;
+  animation: fadeIn 1s;
+  padding: 1rem;
+}
+
+.popup h3 {
+  text-align: center;
+  margin-top: 1rem;
+  color: rgba(99, 99, 90, 0.62);
+  font-size: 1.2rem;
+  text-decoration: underline;
+  transition: transform 0.2s;
+}
+
+/* Add animation (fade in the popup) */
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 400px) {
-    .form-div-login-register {
-        width: 90%;
-        padding: 1.5rem;
-    }   
+  .form-div-login-register {
+    width: 90%;
+    padding: 1.5rem;
+  }
 }
-  

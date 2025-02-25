@@ -1,6 +1,11 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  setDisable,
+} from "../utils.js";
 import { router } from "../app.js";
 
 export default class Register {
@@ -50,26 +55,49 @@ export default class Register {
     const registerForm = document.getElementById("register-form");
     if (registerForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
-      registerForm.addEventListener("submit", handleSubmitBound);
-      this.eventListeners.push({
-        name: "register-form",
-        element: registerForm,
-        listener: handleSubmitBound,
-      });
+      if (!this.eventListeners.some((e) => e.name === "register-form")) {
+        registerForm.addEventListener("submit", handleSubmitBound);
+        this.eventListeners.push({
+          name: "register-form",
+          type: "submit",
+          element: registerForm,
+          listener: handleSubmitBound,
+        });
+      }
+    }
+
+    const popup = document.getElementById("popup-div");
+    if (popup) {
+      const showPopup = this.showPopup.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "popup")) {
+        popup.addEventListener("click", showPopup);
+        this.eventListeners.push({
+          name: "popup",
+          type: "click",
+          element: popup,
+          listener: showPopup,
+        });
+      }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeBound = (e) => {
-        this.handleChange(e.target.name, e.target.value, e.target);
-      };
-      input.addEventListener("input", handleChangeBound);
-      this.eventListeners.push({
-        name: input.name,
-        element: input,
-        listener: handleChangeBound,
-      });
+      if (!this.eventListeners.some((e) => e.element === input)) {
+        const handleChangeBound = this.handleChange.bind(this);
+        input.addEventListener("input", handleChangeBound);
+        this.eventListeners.push({
+          name: input.name,
+          type: "input",
+          element: input,
+          listener: handleChangeBound,
+        });
+      }
     });
+  }
+
+  showPopup() {
+    const popup = document.getElementById("popup");
+    if (popup) popup.classList.toggle("show");
   }
 
   handleNavigation(e) {
@@ -81,7 +109,11 @@ export default class Register {
     }
   }
 
-  handleChange(key, value, inputElement) {
+  handleChange(e) {
+    let key = e.target.name;
+    let value = e.target.value;
+    let inputElement = e.target;
+
     if (key === "username") {
       if (value.length < 4) {
         inputElement.classList.remove("is-valid");
@@ -119,10 +151,11 @@ export default class Register {
 
   async handleSubmit(e) {
     e.preventDefault();
+    setDisable(true, "register-form");
     if (
-      !this.formState.username.length ||
-      !this.formState.password.length ||
-      !this.formState.passwordConfirmation.length
+      !this.formState.username?.length ||
+      !this.formState.password?.length ||
+      !this.formState.passwordConfirmation?.length
     ) {
       return console.error("Please complete all fields");
     }
@@ -130,11 +163,28 @@ export default class Register {
       const response = await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
-      console.error(`Error while trying to post data : ${error}`);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data
+      ) {
+        const errorData = error.response.data;
+        if (errorData.username)
+          this.displayRegisterErrorMessage(Object.values(errorData.username));
+        else if (errorData.password_match)
+          this.displayRegisterErrorMessage(errorData.password_match);
+        else if (errorData.password_format)
+          this.displayRegisterErrorMessage(errorData.password_format);
+      }
     } finally {
-      this.formState.username = "";
-      this.formState.password = "";
-      this.formState.passwordConfirmation = "";
+      setDisable(false, "register-form");
+      this.formState = {};
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach((input) => {
+        input.value = "";
+        input.classList.remove("is-valid");
+        input.classList.remove("is-invalid");
+      });
     }
   }
 
@@ -143,15 +193,23 @@ export default class Register {
     console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
     if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
       console.log("GameHasLoaded state changed, rendering Home page");
+      this.previousState = { ...newState };
       await updateView(this);
     }
     this.previousState = { ...newState };
   }
 
+  displayRegisterErrorMessage(errorMsg) {
+    const errorTitle = document.getElementById("register-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
+  }
+
   removeEventListeners() {
-    this.eventListeners.forEach(({ name, element, listener }) => {
-      element.removeEventListener(element, listener);
-      console.log("Removed eventListener fron input");
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
     });
     this.eventListeners = [];
   }
@@ -159,7 +217,7 @@ export default class Register {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
@@ -180,7 +238,7 @@ export default class Register {
               placeholder="Enter username"
               minLength="4"
               maxLength="10"
-              value="${this.formState.username}"
+              value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
               required
@@ -189,7 +247,9 @@ export default class Register {
               type="password"
               class="form-control"
               placeholder="Enter password"
-              value="${this.formState.password}"
+              value="${this.formState.password ? this.formState.password : ``}"
+			  minLength="8"
+			  maxLength="20"
               name="password"
               aria-label="Password"
               required
@@ -198,7 +258,9 @@ export default class Register {
               type="password"
               class="form-control"
               placeholder="Confirm password"
-              value="${this.formState.passwordConfirmation}"
+              value="${this.formState.passwordConfirmation ? this.formState.passwordConfirmation : ``}"
+			  minLength="8"
+			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
               required
@@ -206,6 +268,11 @@ export default class Register {
             <button type="submit" class="form-button-login-register">
               Sign up
             </button>
+			<div class="popup" id="popup-div">
+			<h3>Password restrictions</h3>
+				<span class="popup-text" id="popup">Password must have at least 8 characters, one uppercase letter, one number, and one special character</span>
+			</div>
+			<h2 class="register-error-message" id="register-error-message"></h2>
           </div>
         </form>`;
   }

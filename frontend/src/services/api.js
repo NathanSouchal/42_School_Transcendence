@@ -25,19 +25,29 @@ API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
     const originalRequest = error.config;
-    if (!error.response) {
+    if (!error.response || (error.response && error.response.status === 500)) {
       router.navigate("/500");
+      return Promise.reject(error);
     }
-    // Vérifier si l'erreur est une 401 (Unauthorized)
-    if (error.response && error.response.status === 401) {
-      if (isRetrying || !state.isUserLoggedIn) {
+    if (error.response.status == 401 && window.location.pathname === "/login")
+      return Promise.reject(error);
+    if (error.response.status === 401) {
+      if (isRetrying) {
         setTimeout(() => {
           if (
             window.location.pathname !== "/" &&
-            window.location.pathname !== "/login"
+            window.location.pathname !== "/login" &&
+            window.location.pathname !== "/register" &&
+            window.location.pathname !== "/game" &&
+            window.location.pathname !== "/local-tournament"
           ) {
             router.navigate("/login");
           }
+        }, 100);
+        return Promise.reject(error);
+      } else if (error.response && error.response.status === 404) {
+        setTimeout(() => {
+          router.navigate("/404");
         }, 100);
         return Promise.reject(error);
       }
@@ -46,21 +56,15 @@ API.interceptors.response.use(
       //Attention, a rajouter : 401 ne veut pas forcement dire token, ca peut aussi etre
       //page interdite, donc il y aura un comportement different pour ca
       try {
-        // Essayer d'obtenir un nouveau token
         await getNewAccessToken();
-
-        // Relancer la requête originale avec le nouveau token
         state.setIsUserLoggedIn(true);
         isRetrying = false;
         return API(originalRequest);
       } catch (tokenError) {
-        // Si l'obtention d'un nouveau token échoue, gérer l'erreur (ex : déconnexion)
         console.error("Token refresh failed:", tokenError);
-
         return Promise.reject(tokenError);
       }
     }
-    // Si ce n'est pas une erreur 401, ou si le rafraîchissement échoue, rejeter l'erreur
     return Promise.reject(error);
   }
 );

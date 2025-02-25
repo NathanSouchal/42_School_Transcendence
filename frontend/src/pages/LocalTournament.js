@@ -1,4 +1,4 @@
-import { updateView } from "../utils";
+import { updateView, checkUserStatus } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -158,13 +158,14 @@ export default class LocalTournament {
       console.log(
         "GameHasLoaded state changed, rendering LocalTournament page"
       );
+      this.previousState = { ...newState };
       await updateView(this);
     } else if (newState.gameStarted && !this.previousState.gameStarted) {
       console.log("Game has started");
-
       const container = document.getElementById("app");
       if (container) {
         container.className = "";
+        this.previousState = { ...newState };
         await updateView(this);
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
@@ -172,10 +173,10 @@ export default class LocalTournament {
       const container = document.getElementById("app");
       if (container) {
         container.className = "app";
+        this.previousState = { ...newState };
         await updateView(this);
       }
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   handleStartButton() {
@@ -360,6 +361,16 @@ export default class LocalTournament {
 
   async render() {
     console.log(this.state.state.gameStarted);
+    try {
+      await checkUserStatus();
+    } catch (error) {
+      if (error.response.status === 404) {
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
+      }
+    }
     if (this.state.state.gameStarted === true)
       handleHeader(this.state.isUserLoggedIn, true);
     else handleHeader(this.state.isUserLoggedIn, false);

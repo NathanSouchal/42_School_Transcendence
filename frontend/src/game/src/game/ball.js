@@ -38,7 +38,7 @@ class Ball {
 
   async init() {
     await this.loadModel(
-      "src/game/assets/duck.glb",
+      "/game/assets/duck.glb",
       new THREE.Vector3(0.007, 0.007, 0.007),
     );
     this.obj.add(this.asset);

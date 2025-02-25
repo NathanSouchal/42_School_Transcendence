@@ -17,10 +17,10 @@ export function resetZIndex() {
 export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
-    context.removeEventListeners();
     container.innerHTML = await context.render();
     // Attendre que le DOM soit mis a jour de façon asynchrone
     requestAnimationFrame(() => {
+      context.removeEventListeners();
       context.attachEventListeners();
     });
   }
@@ -44,7 +44,13 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy) {
   }
 }
 
+export function setDisable(bool, id) {
+  const button = document.getElementById(id);
+  if (button) button.disabled = bool;
+}
+
 export async function logout() {
+  setDisable(true, "logout-button");
   try {
     await API.post(`/auth/logout/`);
     state.setIsUserLoggedIn(false);
@@ -52,15 +58,23 @@ export async function logout() {
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);
+    throw error;
+  } finally {
+    setDisable(false, "logout-button");
   }
 }
 
 export async function checkUserStatus() {
   try {
-    await API.get("/auth/is-auth/");
+    const res = await API.get("/auth/is-auth/");
+    const id = res.data.user_id.toString();
+    console.log(id);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
+    if (id !== state.state.userId) {
+      state.state.userId = id;
+      state.saveState();
+    }
   } catch (error) {
-    if (state.isUserLoggedIn) state.setIsUserLoggedIn(false);
     console.error(`Error while trying to check user status : ${error}`);
     throw error;
   }

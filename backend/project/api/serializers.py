@@ -1,6 +1,8 @@
 from rest_framework import serializers;
 from api.models import Game, User, Tournament, Match, Stats, FriendRequest
 from drf_extra_fields.fields import Base64ImageField
+from django.core.validators import RegexValidator
+import re
 
 class GameSerializer(serializers.ModelSerializer):
     # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
@@ -25,6 +27,16 @@ class SimpleUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'avatar']
 
 class UserSerializer(serializers.ModelSerializer):
+    # id = serializers.UUIDField(format='hex')
+    username = serializers.CharField(min_length=4, max_length=10, required=True, error_messages={'min_length': 'Username must be a least 4 characters long', 'max_length': 'Username must be at maximum 10 characters long'})
+    alias = serializers.CharField(min_length=4, max_length=10, required=False, error_messages={'min_length': 'Alias must be a least 4 characters long', 'max_length': 'Alias must be at maximum 10 characters long'})
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True, validators=[
+            RegexValidator(
+                r'^\+33[1-9]\d{8}$',
+                message="Wrong phone number format"
+            )
+        ])
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
@@ -37,6 +49,14 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'is_superuser': {'read_only': True}  # Empêche la modification via l'API
         }
+
+    def validate_phone_number(self, value):
+        regex = r'^\+33[1-9]\d{8}$'
+        if value and not re.match(regex, value):
+            raise serializers.ValidationError(
+				"Phone number format (ex: +33606060606)"
+			)
+        return value
 
     def create(self, validated_data):
         avatar = validated_data.get('avatar', None)
@@ -105,11 +125,13 @@ class StatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stats
         fields = '__all__'
+        read_only_fields = ['id']
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
         fields = '__all__'
+        read_only_fields = ['id']
 
     def to_representation(self, instance):
         """

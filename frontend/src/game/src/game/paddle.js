@@ -43,7 +43,7 @@ class Paddle {
     const zMax = this.size.arena_depth;
     const z =
       this.side === "left"
-        ? -(zMax / 2) + this.size.paddle_depth / 2
+        ? -(zMax / 2) + this.size.paddle_depth / 2  
         : zMax / 2 - this.size.paddle_depth / 2;
     this.pos.set(0, 2.5, z);
     this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
@@ -66,7 +66,7 @@ class Paddle {
 
   async init() {
     await this.loadModel(
-      "src/game/assets/crab.glb",
+      "/game/assets/crab.glb",
       new THREE.Vector3(1.5, 1.3, 1.5),
     );
     this.obj.add(this.asset);
