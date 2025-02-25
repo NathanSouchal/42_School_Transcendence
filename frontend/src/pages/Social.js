@@ -268,7 +268,11 @@ export default class Social {
                             ${value.username}
                           </a>
                         </div>
-                        <p>Online</p>
+                        ${console.log("ONLINE STATUS: ", value.is_online)}
+                        ${value.is_online
+                        ? `<p>Online</p>`
+                        : `<p>Offline</p>`
+                        }
                       </div>
                     `
                           )

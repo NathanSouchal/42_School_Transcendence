@@ -15,7 +15,7 @@ export default class Account {
     this.previousState = { ...state.state };
     this.isSubscribed = false;
     this.isInitialized = false;
-
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.userData = {};
     this.formData = {};
     this.lastDeleted = 0;
@@ -29,7 +29,7 @@ export default class Account {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange.bind(this));
+      this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }

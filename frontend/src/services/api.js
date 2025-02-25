@@ -2,8 +2,10 @@ import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 const API = axios.create({
-  baseURL: "https://localhost:8000",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
