@@ -66,21 +66,21 @@ class Robot {
   }
 
   update(deltaTime, gameManager, position, velocity) {
-    this.target_x = this.predictBallPosition(position, velocity);
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
-  }
-
-  update(deltaTime, position, velocity) {
+    //   this.target_x = this.predictBallPosition(position, velocity);
+    // constrainPaddlePosition() {
+    //   const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+    //   const paddleWidth = this.size.paddle_width;
+    //   const halfArenaWidth = arenaWidth / 2;
+    //   const halfPaddleWidth = paddleWidth / 2;
+    //
+    //   this.paddle.obj.position.x = THREE.MathUtils.clamp(
+    //     this.paddle.obj.position.x,
+    //     -halfArenaWidth + halfPaddleWidth,
+    //     halfArenaWidth - halfPaddleWidth,
+    //   );
+    // }
+    //
+    // update(deltaTime, position, velocity) {
     this.timeSinceLastView += deltaTime;
 
     if (this.timeSinceLastView >= 1) {

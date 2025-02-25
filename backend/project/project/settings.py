@@ -1,4 +1,7 @@
 import os
+from datetime import timedelta
+from pathlib import Path
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,6 +26,8 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     "daphne",
+    "channels",
+    "django_extensions",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -35,23 +40,9 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "sslserver",
-    "channels",
-    "django_extensions",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-	'api',
-	'corsheaders',
-	'rest_framework',
-	'rest_framework_simplejwt',
-	'rest_framework_simplejwt.token_blacklist',
-	'sslserver',
-	'django_otp',
-	'django_otp.plugins.otp_totp',
-	'django_otp.plugins.otp_static',
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
 ]
 
 
@@ -122,14 +113,14 @@ DATABASES = {
 }
 
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
     # 'django.contrib.auth.hashers.PBKDF2PasswordHasher',
     # 'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
     # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',  # Authentification standard Django
+    "django.contrib.auth.backends.ModelBackend",  # Authentification standard Django
 ]
 
 
@@ -211,8 +202,8 @@ CHANNEL_LAYERS = {
 
 # SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # SECURE_SSL_REDIRECT = True
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
@@ -232,4 +223,4 @@ OTP_TOTP_ISSUER = "YourAppName"
 OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
 OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
 
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
