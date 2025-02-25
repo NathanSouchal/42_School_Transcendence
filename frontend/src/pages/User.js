@@ -290,6 +290,7 @@ export default class User {
     } catch (error) {
       this.state.state.lastLastRoute = this.state.state.lastRoute;
       console.error(error);
+      return "";
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
