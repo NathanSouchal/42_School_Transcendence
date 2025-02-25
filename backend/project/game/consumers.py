@@ -157,6 +157,17 @@ class GameState(AsyncWebsocketConsumer):
                     ball = self.rooms[room]["ball"]
                     left_paddle_pos = self.rooms[room]["positions"]["paddle_left"]
                     right_paddle_pos = self.rooms[room]["positions"]["paddle_right"]
+
+                    if left_paddle_pos is None:
+                        print(f"Left paddle position is None, using default 0")
+                        left_paddle_pos = 0
+                        self.rooms[room]["positions"]["paddle_left"] = 0
+
+                    if right_paddle_pos is None:
+                        print(f"Right paddle position is None, using default 0")
+                        right_paddle_pos = 0
+                        self.rooms[room]["positions"]["paddle_right"] = 0
+
                     ball_state = ball.update(delta_time)
                     self.rooms[room]["positions"]["ball"] = ball.get_current_position()
 
@@ -164,20 +175,24 @@ class GameState(AsyncWebsocketConsumer):
                         left_paddle_pos, right_paddle_pos
                     )
 
-                    if wall_collision or paddle_collision:
-                        await self.sendCollision(ball.position.x)
+                    try:
+                        if wall_collision or paddle_collision:
+                            await self.sendCollision(ball.position.x)
 
-                        if paddle_collision:
-                            ball.bounce(
-                                paddle_collision,
-                                (
-                                    left_paddle_pos
-                                    if paddle_collision == "left"
-                                    else right_paddle_pos
-                                ),
-                            )
-                        elif wall_collision:
-                            ball.bounce(wall_collision)
+                            if paddle_collision:
+                                ball.bounce(
+                                    paddle_collision,
+                                    (
+                                        left_paddle_pos
+                                        if paddle_collision == "left"
+                                        else right_paddle_pos
+                                    ),
+                                )
+                            elif wall_collision:
+                                ball.bounce(wall_collision)
+
+                    except Exception as e:
+                        print(f"Error here: {e}")
 
                     if (
                         ball_state == "point_scored_left"
@@ -204,8 +219,12 @@ class GameState(AsyncWebsocketConsumer):
         paddle_right.chooseResetDir()
 
         while paddle_left.isResetting or paddle_right.isResetting:
-            self.rooms[self.room]["positions"]["paddle_left"] = paddle_left.reset(delta_time)
-            self.rooms[self.room]["positions"]["paddle_right"] = paddle_right.reset(delta_time)
+            self.rooms[self.room]["positions"]["paddle_left"] = paddle_left.reset(
+                delta_time
+            )
+            self.rooms[self.room]["positions"]["paddle_right"] = paddle_right.reset(
+                delta_time
+            )
             await self.sendPositions()
             await asyncio.sleep(1 / 60)
         self.rooms[self.room]["ball"].reset()

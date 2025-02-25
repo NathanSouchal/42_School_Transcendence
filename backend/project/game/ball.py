@@ -36,9 +36,9 @@ class Ball:
         # Configuration for ball physics
         self.conf = {
             "speed": {
-                "initialMin": 0.5,
-                "initialMax": 0.6,
-                "max": 1.5,
+                "initialMin": 0.3,
+                "initialMax": 0.4,
+                "max": 1.2,
                 "incrementFactor": 1.03,
                 "deltaFactor": 30,
             }

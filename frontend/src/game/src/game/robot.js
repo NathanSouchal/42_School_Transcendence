@@ -24,7 +24,6 @@ class Robot {
     const timeToReach = (paddleZ - position.z) / velocity.z;
 
     let predictedX = position.x + velocity.x * timeToReach;
-
     while (predictedX < -halfArenaWidth || predictedX > halfArenaWidth) {
       if (predictedX < -halfArenaWidth) {
         predictedX = -halfArenaWidth + (-predictedX - halfArenaWidth);
@@ -33,7 +32,6 @@ class Robot {
         predictedX = halfArenaWidth - (predictedX - halfArenaWidth);
       }
     }
-
     return predictedX;
   }
 
@@ -45,7 +43,6 @@ class Robot {
         this.inverseDifficulty > 1 ? Math.random() * this.inverseDifficulty : 0;
       this.last_target_x = this.target_x;
     }
-
     if (currentX + this.half_width < this.target_x - this.offset) {
       this.state.top = true;
       this.state.bottom = false;

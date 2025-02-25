@@ -62,7 +62,7 @@ class Renderer {
   }
 
   gameElementsUpdate(deltaTime, gameManager) {
-    if (this.game.paddleLeft.player != null) {
+    if (state.gameMode != "OnlineLeft") {
       this.game.paddleRight.player.update(
         deltaTime,
         gameManager,
@@ -70,7 +70,7 @@ class Renderer {
         this.game.ball.velocity,
       );
     }
-    if (this.game.paddleLeft.player != null) {
+    if (state.gameMode != "OnlineRight") {
       this.game.paddleLeft.player.update(
         deltaTime,
         gameManager,
