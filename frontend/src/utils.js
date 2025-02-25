@@ -4,29 +4,6 @@ import state from "./app";
 import { router } from "./app";
 import DOMPurify from "dompurify";
 
-export function resetZIndex() {
-  const canvas = document.querySelector("#c");
-  const app = document.querySelector("#app");
-  if (canvas && app) {
-    canvas.style.zIndex = "-1"; // Canvas en arrière-plan
-    //app.style.zIndex = "0"; // App en avant-plan
-    app.classList.remove("view2");
-    app.classList.add("view1");
-  }
-}
-
-// export async function updateView(context) {
-//   const container = document.getElementById("app");
-//   if (container) {
-//     container.innerHTML = await context.render();
-//     // Attendre que le DOM soit mis a jour de façon asynchrone
-//     requestAnimationFrame(() => {
-//       context.removeEventListeners();
-//       context.attachEventListeners();
-//     });
-//   }
-// }
-
 export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
@@ -34,9 +11,9 @@ export async function updateView(context) {
     const sanitizedTemplate = DOMPurify.sanitize(template);
     container.innerHTML = sanitizedTemplate;
     // Attendre que le DOM soit mis a jour de façon asynchrone
+    if (typeof context.removeEventListeners === "function")
+      context.removeEventListeners();
     requestAnimationFrame(() => {
-      if (typeof context.removeEventListeners === "function")
-        context.removeEventListeners();
       if (typeof context.attachEventListeners === "function")
         context.attachEventListeners();
     });
@@ -63,22 +40,6 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   }
 }
 
-// export async function handleHeader(isUserLoggedIn, needsToDestroy) {
-//   if (needsToDestroy && (header.isUserRendered || header.isGuestRendered)) {
-//     header.destroy();
-//   } else if (isUserLoggedIn && !header.isUserRendered) {
-//     if (header.isGuestRendered) {
-//       header.destroy();
-//     }
-//     header.renderUserLoggedIn();
-//   } else if (!isUserLoggedIn && !header.isGuestRendered) {
-//     if (header.isUserRendered) {
-//       header.destroy();
-//     }
-//     header.renderGuestUser();
-//   }
-// }
-
 export function setDisable(bool, id) {
   const button = document.getElementById(id);
   if (button) button.disabled = bool;
@@ -89,7 +50,9 @@ export async function logout() {
   try {
     await API.post(`/auth/logout/`);
     state.setIsUserLoggedIn(false);
-    //remove user id also
+    state.state.userId = "0";
+    state.state.lang = "EN";
+    state.saveState();
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);

@@ -286,7 +286,7 @@ export default class Login {
     else
       return `${backArrow}
         <form id="login-form" class="form-div-login-register">
-          <h1 class="global-page-title">Login</h1>
+          <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
           <div class="inputs-button-form-login-register">
             <input
               type="text"

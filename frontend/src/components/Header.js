@@ -154,13 +154,15 @@ export class Header {
         "stats",
         "matchHistory",
         "social",
-        "logout",
       ];
 
       links.forEach((link, index) => {
-        if (paths[index]) link.innerHTML = trad[this.lang].header[paths[index]];
+        if (index < paths.length && paths[index])
+          link.innerHTML = trad[this.lang].header[paths[index]];
       });
     }
+    const logoutBtn = document.getElementById("logout-button");
+    if (logoutBtn) logoutBtn.innerHTML = trad[this.lang].header.logout;
   }
 
   renderUserLoggedIn() {
@@ -189,9 +191,9 @@ export class Header {
                           <a class="nav-link" href="/social">${trad[this.lang].header.social}</a>
                       </li>
                       <li class="navbar-link">
-                        <a><button type="button" class="btn btn-danger mb-2" id="logout-button">
+                        <button type="button" class="btn btn-danger mb-2" id="logout-button">
 						${trad[this.lang].header.logout}
-                        </button></a>
+                        </button>
                       </li>
                     </ul>
                     </nav>`;
@@ -208,18 +210,15 @@ export class Header {
   }
 
   updateLangGuestUser() {
-    console.log("ici");
     this.lang = this.state.state.lang;
     const nav = document.getElementById("navbar");
     if (nav) {
-      console.log("ici2");
       const links = nav.querySelectorAll(".nav-link");
       const paths = ["home", "play", "register", "login"];
 
       links.forEach((link, index) => {
-        console.log(trad[this.lang].header[paths[index]]);
-        if (paths[index]) {
-          console.log("ici3");
+        if (index < paths.length && paths[index]) {
+          console.log(trad[this.lang].header[paths[index]]);
           link.innerHTML = trad[this.lang].header[paths[index]];
         }
       });

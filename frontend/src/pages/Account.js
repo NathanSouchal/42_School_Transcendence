@@ -393,7 +393,6 @@ export default class Account {
   }
 
   displayAccountErrorMessage(errorMsg) {
-    console.log("ici");
     const errorTitle = document.getElementById("account-error-message");
     if (errorTitle) errorTitle.textContent = errorMsg;
   }
@@ -434,7 +433,8 @@ export default class Account {
       await checkUserStatus();
       await this.fetchData(this.state.state.userId);
     } catch (error) {
-      if (error.response.status === 401) return "";
+      console.error(error);
+      return "";
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);

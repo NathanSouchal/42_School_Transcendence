@@ -170,7 +170,7 @@ export const trad = {
       stop: "Arrêter le tournoi",
     },
     login: {
-      pageTitle: "Se connecter",
+      pageTitle: "Connexion",
       label2fa: "Nous avons envoyé un code sur votre ",
       oneTimeCode: "Saisir le code",
       login: "Se connecter",
