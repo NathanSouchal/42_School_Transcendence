@@ -32,7 +32,7 @@ class Paddle {
     const zMax = this.size.arena_depth;
     const z =
       this.side === "left"
-        ? -(zMax / 2) + this.size.paddle_depth / 2
+        ? -(zMax / 2) + this.size.paddle_depth / 2  
         : zMax / 2 - this.size.paddle_depth / 2;
     this.obj.position.set(0, 2.5, z);
   }

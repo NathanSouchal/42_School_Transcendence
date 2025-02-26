@@ -18,8 +18,8 @@ export const DEFAULT_CONFIG = {
       mouseControl: false,
       keyboardControl: true,
       keyboardKeys: {
-        bottom: ",",
-        top: ".",
+        bottom: "b",
+        top: "n",
       },
     },
   },
@@ -64,7 +64,6 @@ export const DEFAULT_CONFIG = {
     arena_depth: 40,
     border_width: 2,
     border_height: 1,
-    border_depth: 30,
     paddle_width: 5,
     paddle_height: 1,
     paddle_depth: 1,
