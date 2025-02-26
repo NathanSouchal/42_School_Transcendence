@@ -279,12 +279,7 @@ export default class GamePage {
     try {
       await checkUserStatus();
     } catch (error) {
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
+      console.error(error);
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
@@ -308,6 +303,10 @@ export default class GamePage {
       !gameHasBeenWon &&
       this.haveToSelectBotDifficulty
     ) {
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
+      this.lang = this.state.state.lang;
       return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
