@@ -19,8 +19,12 @@ SECRET_KEY = 'django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
+# ALLOWED_HOSTS = [
+#     "10.13.12.2",
+#     ]
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -66,6 +70,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.UpdateLastSeenMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -174,6 +179,8 @@ CORS_ALLOWED_ORIGINS = [
 	# "http://localhost:3000",
 	"https://frontend:3000",
 	"https://localhost:3000",
+    "https://10.13.12.2:3000",
+
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
