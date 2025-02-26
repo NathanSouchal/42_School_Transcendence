@@ -7,6 +7,7 @@ import {
   setDisable,
 } from "../utils.js";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Register {
   constructor(state) {
@@ -21,7 +22,7 @@ export default class Register {
       passwordConfirmation: "",
     };
     this.eventListeners = [];
-    this.cssLink;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -175,7 +176,8 @@ export default class Register {
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
-      }
+      } else if (error.response && error.response.status === 409)
+        this.displayRegisterErrorMessage("This username is already used");
     } finally {
       setDisable(false, "register-form");
       this.formState = {};
@@ -189,14 +191,14 @@ export default class Register {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering Home page");
       this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   displayRegisterErrorMessage(errorMsg) {
@@ -224,53 +226,64 @@ export default class Register {
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Register page subscribed to state");
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}
         <form id="register-form" class="form-div-login-register">
-          <h1 class="global-page-title">Register</h1>
+          <h1 class="global-page-title">${trad[this.lang].register.pageTitle}</h1>
           <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
-              placeholder="Enter username"
+              placeholder="${trad[this.lang].register.enterUsername}"
               minLength="4"
               maxLength="10"
               value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
+			  autocomplete="username"
               required
             />
             <input
               type="password"
               class="form-control"
-              placeholder="Enter password"
+              placeholder="${trad[this.lang].register.enterPassword}"
               value="${this.formState.password ? this.formState.password : ``}"
 			  minLength="8"
 			  maxLength="20"
               name="password"
               aria-label="Password"
+			  autocomplete="nwe-password"
               required
             />
             <input
               type="password"
               class="form-control"
-              placeholder="Confirm password"
+              placeholder="${trad[this.lang].register.confirmPassword}"
               value="${this.formState.passwordConfirmation ? this.formState.passwordConfirmation : ``}"
 			  minLength="8"
 			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
+			  autocomplete="nwe-password"
               required
             />
             <button type="submit" class="form-button-login-register">
-              Sign up
+			${trad[this.lang].register.signUp}
             </button>
 			<div class="popup" id="popup-div">
 			<h3>Password restrictions</h3>
-				<span class="popup-text" id="popup">Password must have at least 8 characters, one uppercase letter, one number, and one special character</span>
+				<span class="popup-text" id="popup">${trad[this.lang].register.restrictions}</span>
 			</div>
 			<h2 class="register-error-message" id="register-error-message"></h2>
           </div>

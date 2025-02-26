@@ -8,6 +8,7 @@ import {
 } from "../utils";
 import { createBackArrow } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Account {
   constructor(state) {
@@ -15,21 +16,21 @@ export default class Account {
     this.previousState = { ...state.state };
     this.isSubscribed = false;
     this.isInitialized = false;
-
+    this.handleStateChange = this.handleStateChange.bind(this);
     this.userData = {};
     this.formData = {};
     this.lastDeleted = 0;
     this.isForm = false;
     this.eventListeners = [];
     this.deleteUserVerification = false;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
     if (this.isInitialized) return;
     this.isInitialized = true;
-
     if (!this.isSubscribed) {
-      this.state.subscribe(this.handleStateChange.bind(this));
+      this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
     }
@@ -170,7 +171,13 @@ export default class Account {
   async handleStateChange(newState) {
     console.log("NEWGameHasLoaded:", newState.gameHasLoaded);
     console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    console.log("newState.lang:", newState.lang);
+    console.log("this.previousState.lang:", this.previousState.lang);
+    console.log(newState.lang !== this.previousState.lang);
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering Account page");
       this.previousState = { ...newState };
       await updateView(this);
@@ -386,19 +393,8 @@ export default class Account {
   }
 
   displayAccountErrorMessage(errorMsg) {
-    console.log("ici");
     const errorTitle = document.getElementById("account-error-message");
     if (errorTitle) errorTitle.textContent = errorMsg;
-  }
-
-  removeEventListeners() {
-    this.eventListeners.forEach(({ element, listener, type }) => {
-      if (element) {
-        element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from element`);
-      }
-    });
-    this.eventListeners = [];
   }
 
   removeEventListener(name) {
@@ -412,11 +408,21 @@ export default class Account {
     }
   }
 
+  removeEventListeners() {
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from element`);
+      }
+    });
+    this.eventListeners = [];
+  }
+
   destroy() {
     this.removeEventListeners();
     this.isForm = false;
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange.bind(this));
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Account page unsubscribed from state");
     }
@@ -427,14 +433,23 @@ export default class Account {
       await checkUserStatus();
       await this.fetchData(this.state.state.userId);
     } catch (error) {
-      if (error.response.status === 401) return "";
+      console.error(error);
+      return "";
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Account page subscribed to state");
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
-                            <h1>Account</h1>
+                            <h1>${trad[this.lang].account.pageTitle}</h1>
                           </div>
               <div class="text-center mb-4" id="user-info-div">
 			  ${
@@ -445,7 +460,7 @@ export default class Account {
 					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 					<div class="input-div file-input-div">
 						<label class="file-label" for="avatar">
-							Upload file
+							${trad[this.lang].account.fileLabel}
 						</label>
 						<input
 						type="file"
@@ -457,7 +472,7 @@ export default class Account {
 				</div>
 				<div class="input-div" id="username-main-div">
 					<label for="username">
-						Username
+						${trad[this.lang].account.username}
 					</label>
 					<input
 					type="text"
@@ -466,12 +481,13 @@ export default class Account {
 					maxLength="10"
 					value="${this.formData.username ? this.formData.username : ``}"
 					name="username"
+					autocomplete="username"
 					required
 					/>
 				</div>
 				<div class="input-div" id="alias-main-div">
 					<label for="alias">
-						Alias
+						${trad[this.lang].account.alias}
 					</label>
 					<input
 					type="text"
@@ -480,6 +496,7 @@ export default class Account {
 					maxLength="10"
 					value="${this.formData.alias ? this.formData.alias : ``}"
 					name="alias"
+					autocomplete="auto"
 					required
 					/>
 				</div>
@@ -487,7 +504,7 @@ export default class Account {
 					<div class="app2FA-div" id="app2FA-div">
 						<div class="checkbox-div">
 						<label for="app2FA-checkbox" id="app2FA-checkbox-label">
-							2FA with Google Authenticator
+							${trad[this.lang].account.totp2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -506,7 +523,7 @@ export default class Account {
 					<div class="email2FA-div" id="email2FA-div">
 						<div class="checkbox-div">
 						<label for="email2FA-checkbox" id="email2FA-checkbox-label">
-							2FA with e-mail
+							${trad[this.lang].account.email2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -528,6 +545,7 @@ export default class Account {
 						placeholder="E-mail"
 						value="${this.formData.email ? this.formData.email : ``}"
 						name="email"
+						autocomplete="email"
 						${this.userData.two_factor_method == "email" ? `` : `disabled`}
 						/>
 						</div>
@@ -535,7 +553,7 @@ export default class Account {
 					<div class="sms2FA-div" id="sms2FA-div">
 						<div class="checkbox-div">
 						<label for="sms2FA-checkbox" id="sms2FA-checkbox-label">
-							2FA with SMS
+							${trad[this.lang].account.sms2faLabel}
 						</label>
 						<label class="switch">
 						<input
@@ -557,6 +575,7 @@ export default class Account {
 						placeholder="Phone number"
 						value="${this.formData.phone_number ? this.formData.phone_number : ``}"
 						name="phone_number"
+						autocomplete="tel"
 						${this.userData.two_factor_method == "sms" ? `` : `disabled`}
 						/>
 						</div>
@@ -565,7 +584,7 @@ export default class Account {
 				<h2 class="account-error-message" id="account-error-message"></h2>
 				<div class="d-flex flex-column align-items-center">
 					<button type="submit" class="btn btn-success m-3 account-button" id="form-button">
-						Update my info
+						${trad[this.lang].account.update}
 					</button>
 				</div>
 				</form>
@@ -577,7 +596,7 @@ export default class Account {
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">
-					Username :
+					${trad[this.lang].account.username + `` + `:`}
 					</h2>
 					<h2 class="username-title-value">
 					${this.userData.username ? `${this.userData.username}` : ""}
@@ -585,7 +604,7 @@ export default class Account {
 				</div>
 				<div class="alias-title-div" id="alias-main-div">
 					<h2 class="alias-title">
-					Alias :
+					${trad[this.lang].account.alias + `` + `:`}
 					</h2>
 					<h2 class="alias-title-value">
 					${this.userData.alias ? `${this.userData.alias}` : ""}
@@ -597,20 +616,20 @@ export default class Account {
 				${
           this.isForm
             ? `<button type="button" class="btn btn-dark m-3 account-button" id="cancel-button">
-								Cancel
+								${trad[this.lang].account.cancel}
 								</button>`
             : `<button type="button" class="btn btn-dark m-3 account-button" id="update-user-info">
-								Change my info
+								${trad[this.lang].account.change}
 								</button>`
         }
 		${
       !this.deleteUserVerification
-        ? `<button class="btn btn-danger mb-2" id="delete-user-button">Delete Account</button>`
+        ? `<button class="btn btn-danger mb-2" id="delete-user-button">${trad[this.lang].account.delete}</button>`
         : `<div>
-				  <p class="text-danger">Are you sure?</p>
+				  <p class="text-danger">${trad[this.lang].account.sure}</p>
 				  <div class="delete-account-confirm-div">
-					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">Yes</button>
-					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">No</button>
+					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">${trad[this.lang].account.yes}</button>
+					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">${trad[this.lang].account.no}</button>
 				  </div>
 				</div>`
     }

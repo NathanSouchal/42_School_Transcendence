@@ -1,12 +1,15 @@
 import DOMPurify from "dompurify";
 import { logout } from "../utils";
 import { router } from "../app";
+import { trad } from "../trad";
 
 export class Header {
-  constructor() {
+  constructor(state) {
+    this.state = state;
     this.isUserRendered = false;
     this.isGuestRendered = false;
     this.eventListeners = [];
+    this.lang = null;
   }
 
   attachEventListeners() {
@@ -78,7 +81,6 @@ export class Header {
   }
 
   handleToggleButton() {
-    console.log("click burger");
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
@@ -133,40 +135,65 @@ export class Header {
     this.removeEventListeners();
     this.isUserRendered = false;
     this.isGuestRendered = false;
+    this.lang = null;
     const container = document.getElementById("header");
     const toggleButton = document.getElementById("toggle-button-container");
     if (container) container.style.display = "none";
     if (toggleButton) toggleButton.style.display = "none";
   }
 
+  updateLangUserLoggedIn() {
+    this.lang = this.state.state.lang;
+    const nav = document.getElementById("navbar");
+    if (nav) {
+      const links = nav.querySelectorAll(".nav-link");
+      const paths = [
+        "home",
+        "play",
+        "account",
+        "stats",
+        "matchHistory",
+        "social",
+      ];
+
+      links.forEach((link, index) => {
+        if (index < paths.length && paths[index])
+          link.innerHTML = trad[this.lang].header[paths[index]];
+      });
+    }
+    const logoutBtn = document.getElementById("logout-button");
+    if (logoutBtn) logoutBtn.innerHTML = trad[this.lang].header.logout;
+  }
+
   renderUserLoggedIn() {
     console.log("renderUserLoggedIn Header");
+    this.lang = this.state.state.lang;
     this.isUserRendered = true;
     this.isGuestRendered = false;
-    const header = `<nav class="navbar">
+    const header = `<nav class="navbar" id="navbar">
                     <ul class="navbar-links global-nav-section">
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/">Home</a>
+                          <a class="nav-link" href="/">${trad[this.lang].header.home}</a>
                       </li>
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/game">Play</a>
+                          <a class="nav-link" href="/game">${trad[this.lang].header.play}</a>
                       </li>
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/account">Account</a>
+                          <a class="nav-link" href="/account">${trad[this.lang].header.account}</a>
                       </li>
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/stats">Stats</a>
+                          <a class="nav-link" href="/stats">${trad[this.lang].header.stats}</a>
                       </li>
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/match-history">Match History</a>
+                          <a class="nav-link" href="/match-history">${trad[this.lang].header.matchHistory}</a>
                       </li>
                       <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/social">Social</a>
+                          <a class="nav-link" href="/social">${trad[this.lang].header.social}</a>
                       </li>
                       <li class="navbar-link">
-                        <a><button type="button" class="btn btn-danger mb-2" id="logout-button">
-                          Logout
-                        </button></a>
+                        <button type="button" class="btn btn-danger mb-2" id="logout-button">
+						${trad[this.lang].header.logout}
+                        </button>
                       </li>
                     </ul>
                     </nav>`;
@@ -176,29 +203,46 @@ export class Header {
     if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
-      container.innerHTML = sanitizedData; // Insérer le rendu dans le container
+      container.innerHTML = sanitizedData;
       this.removeEventListeners();
       this.attachEventListeners();
     }
   }
 
+  updateLangGuestUser() {
+    this.lang = this.state.state.lang;
+    const nav = document.getElementById("navbar");
+    if (nav) {
+      const links = nav.querySelectorAll(".nav-link");
+      const paths = ["home", "play", "register", "login"];
+
+      links.forEach((link, index) => {
+        if (index < paths.length && paths[index]) {
+          console.log(trad[this.lang].header[paths[index]]);
+          link.innerHTML = trad[this.lang].header[paths[index]];
+        }
+      });
+    }
+  }
+
   renderGuestUser() {
-    // console.log("renderGuestUser Header");
+    console.log("renderGuestUser Header");
+    this.lang = this.state.state.lang;
     this.isUserRendered = false;
     this.isGuestRendered = true;
-    const header = `<nav class="navbar">
-                    <ul class="navbar-links global-nav-section">
-                      <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/">Home</a>
+    const header = `<nav class="navbar" id="navbar">
+                    <ul class="global-nav-section navbar-links">
+                      <li class="global-nav-items navbar-link">
+                          <a class="nav-link" href="/">${trad[this.lang].header.home}</a>
                       </li>
-                      <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/game">Play</a>
+                      <li class="global-nav-items navbar-link">
+                          <a class="nav-link" href="/game">${trad[this.lang].header.play}</a>
                       </li>
-                      <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/register">Register</a>
+                      <li class="global-nav-items navbar-link">
+                          <a class="nav-link" href="/register">${trad[this.lang].header.register}</a>
                       </li>
-                      <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/login">Login</a>
+                      <li class="global-nav-items navbar-link">
+                          <a class="nav-link" href="/login">${trad[this.lang].header.login}</a>
                       </li>
                     </ul>
                     </nav>`;
@@ -208,7 +252,7 @@ export class Header {
     if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
-      container.innerHTML = sanitizedData; // Insérer le rendu dans le container
+      container.innerHTML = sanitizedData;
       this.removeEventListeners();
       this.attachEventListeners();
     }

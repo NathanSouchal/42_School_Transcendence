@@ -1,6 +1,7 @@
 import DOMPurify from "dompurify";
 import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class page404 {
   constructor(state) {
@@ -8,19 +9,20 @@ export default class page404 {
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
     this.eventListeners = [];
+    this.lang = null;
   }
   async initialize(routeParams = {}) {
     await updateView(this);
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log("GameHasLoaded state changed, rendering 404 page");
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   attachEventListeners() {
@@ -49,9 +51,11 @@ export default class page404 {
   }
 
   removeEventListeners() {
-    this.eventListeners.forEach(({ name, element, listener }) => {
-      element.removeEventListener(element, listener);
-      console.log("Removed eventListener from input");
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
     });
     this.eventListeners = [];
   }
@@ -61,7 +65,14 @@ export default class page404 {
   }
 
   async render(routeParams = {}) {
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     let template = `${backArrow}<div class="main-error-container">
 				<div class="error-title-container">

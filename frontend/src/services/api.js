@@ -2,7 +2,10 @@ import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:8000";
+
 const API = axios.create({
+  // baseURL: API_BASE_URL,
   baseURL: "https://localhost:8000",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
@@ -45,11 +48,6 @@ API.interceptors.response.use(
           }
         }, 100);
         return Promise.reject(error);
-      } else if (error.response && error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 100);
-        return Promise.reject(error);
       }
       isRetrying = true;
       console.log("Error 401, will try to get new access token");
@@ -64,6 +62,11 @@ API.interceptors.response.use(
         console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
+    } else if (error.response && error.response.status === 404) {
+      setTimeout(() => {
+        router.navigate("/404");
+      }, 100);
+      return Promise.reject(error);
     }
     return Promise.reject(error);
   }
