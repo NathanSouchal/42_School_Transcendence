@@ -13,12 +13,15 @@ import LocalTournament from "./pages/LocalTournament.js";
 import page404 from "./pages/page404.js";
 import page500 from "./pages/page500.js";
 import { Header } from "./components/Header.js";
+import { Lang } from "./components/Lang.js";
 
 const state = new State();
 export default state;
 
-const header = new Header();
+const header = new Header(state);
 export { header };
+
+new Lang(state);
 
 const routes = {
   "/": new Home(state),
@@ -37,22 +40,6 @@ const routes = {
 
 const router = new Router(routes);
 export { router };
-
-// Gestion des clics sur les liens
-// document.addEventListener("click", (event) => {
-//   const target = event.target.closest("a");
-//   if (target && target.href.startsWith(window.location.origin)) {
-//     console.log("ICI");
-//     event.preventDefault();
-//     const path = target.getAttribute("href");
-//     router.navigate(path);
-//   }
-// });
-
-// Exemple d'utilisation de l'état
-state.subscribe((data) => {
-  // console.log("État mis à jour:", data);
-});
 
 // Exposez le router et l'état globalement si nécessaire
 window.app = { router, state };

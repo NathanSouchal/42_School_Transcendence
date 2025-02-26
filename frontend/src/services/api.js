@@ -48,11 +48,6 @@ API.interceptors.response.use(
           }
         }, 100);
         return Promise.reject(error);
-      } else if (error.response && error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 100);
-        return Promise.reject(error);
       }
       isRetrying = true;
       console.log("Error 401, will try to get new access token");
@@ -67,6 +62,11 @@ API.interceptors.response.use(
         console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
+    } else if (error.response && error.response.status === 404) {
+      setTimeout(() => {
+        router.navigate("/404");
+      }, 100);
+      return Promise.reject(error);
     }
     return Promise.reject(error);
   }

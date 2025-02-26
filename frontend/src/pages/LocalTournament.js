@@ -2,6 +2,7 @@ import { updateView, checkUserStatus } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class LocalTournament {
   constructor(state) {
@@ -21,6 +22,7 @@ export default class LocalTournament {
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
+    this.lang = null;
   }
 
   async initialize() {
@@ -34,7 +36,7 @@ export default class LocalTournament {
     }
 
     if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
-    else this.userAlias = "Guest";
+    else this.userAlias = "";
     await updateView(this);
   }
 
@@ -154,7 +156,10 @@ export default class LocalTournament {
   }
 
   async handleStateChange(newState) {
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
       console.log(
         "GameHasLoaded state changed, rendering LocalTournament page"
       );
@@ -242,7 +247,7 @@ export default class LocalTournament {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Account page unsubscribed from state");
+      console.log("LocalTournament page unsubscribed from state");
     }
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -259,9 +264,9 @@ export default class LocalTournament {
 
   renderSelectNbPlayers() {
     return `<div class="select-container">
-                <label for="select-nb-players">Number of Players</label>
+                <label for="select-nb-players">${trad[this.lang].localTournament.playersNum}</label>
                 <select id="select-nb-players">
-                  <option value="" disabled selected>Select...</option>
+                  <option value="" disabled selected>${trad[this.lang].localTournament.select}</option>
                   ${this.possibleNbPlayers
                     .map(
                       (element) =>
@@ -274,9 +279,9 @@ export default class LocalTournament {
 
   renderInputPlayerName() {
     return `<div class="input-player-name">
-					    <label>Player n°${this.inputCount + 1}</label>
+					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
-              placeholder="Enter player n°${this.inputCount + 1} name" required/>
+              placeholder="${trad[this.lang].localTournament.namePlayer}${this.inputCount + 1}" required/>
 				    </div>`;
   }
 
@@ -284,10 +289,10 @@ export default class LocalTournament {
     return `
         ${
           this.tournamentFinished
-            ? `<h2 class="winner-announce">Winner: ${this.tournamentWinner} !</h2>`
+            ? `<h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>`
             : !this.MatchToPlay.next_match
-              ? `<h2>FINAL</h2>`
-              : `<h2>Round n°${this.MatchToPlay.round_number}</h2>`
+              ? `<h2>${trad[this.lang].localTournament.final}</h2>`
+              : `<h2>${trad[this.lang].localTournament.round}${this.MatchToPlay.round_number}</h2>`
         }
 
         <div class="matches-list">
@@ -300,7 +305,7 @@ export default class LocalTournament {
                       <p>vs</p>
                       <p>${element.player2}</p>
                     </div>
-                    <button id="btn-start-match">PLAY</button>
+                    <button id="btn-start-match">${trad[this.lang].localTournament.play}</button>
                   </div>`
                 : !element.winner && !this.tournamentWinner
                   ? `<div class="upcoming-match-main-div">
@@ -333,7 +338,7 @@ export default class LocalTournament {
         </div>
         <div class="stop-button-div">
           <button id="game-menu-button">
-            ${!this.MatchToPlay.next_match ? `Game Menu` : `Stop Tournament`}
+            ${!this.MatchToPlay.next_match ? `${trad[this.lang].localTournament.gameMenu}` : `${trad[this.lang].localTournament.stop}`}
           </button>
         </div>
     `;
@@ -371,9 +376,15 @@ export default class LocalTournament {
         return "";
       }
     }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("LocalTournament page subscribed to state");
+    }
     if (this.state.state.gameStarted === true)
-      handleHeader(this.state.isUserLoggedIn, true);
-    else handleHeader(this.state.isUserLoggedIn, false);
+      handleHeader(this.state.isUserLoggedIn, true, false);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     return this.state.state.gameStarted === true
       ? this.getGameHUDTemplate()
       : `

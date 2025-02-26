@@ -36,6 +36,22 @@
   overflow-y: auto;
 }
 
+.navbar-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0.7em;
+  text-align: center;
+}
+
+.navbar-link a:hover {
+  color: var(--secondary-color);
+  background: var(--primary-color);
+  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
+  transform: translateY(-3px); /* Légère élévation */
+}
+
 header .global-nav-section {
   font-size: 2em;
   white-space: nowrap;
@@ -50,7 +66,7 @@ header .global-nav-section {
 /* Liens dans la navbar */
 .navbar-links li {
   list-style: none;
-  margin: 1rem 0;
+  margin: 0.2rem 0;
   color: var(--primary-color);
 }
 

@@ -16,16 +16,16 @@ export default class State {
       gameIsPaused: false,
       gameHasBeenWon: false,
       userId: "0",
+      lang: "EN",
     };
     this.isUserLoggedIn = false;
 
-    let savedState = JSON.parse(localStorage.getItem("pongState"));
-    if (!savedState || !savedState?.isUserLoggedIn || !savedState.id) {
-      this.saveState();
-      savedState = JSON.parse(localStorage.getItem("pongState"));
-    }
-    this.isUserLoggedIn = savedState?.isUserLoggedIn || false;
-    this.state.userId = parseInt(savedState?.id) || "0";
+    const savedState = JSON.parse(localStorage.getItem("pongState"));
+    if (savedState) {
+      this.isUserLoggedIn = savedState.isUserLoggedIn || false;
+      this.state.userId = parseInt(savedState.userId) || "0";
+      this.state.lang = savedState.lang || "EN";
+    } else this.saveState();
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
@@ -60,11 +60,18 @@ export default class State {
     State.instance = this;
   }
 
+  updateLang(lang) {
+    this.state.lang = lang;
+    this.saveState();
+    this.notifyListeners();
+  }
+
   saveState() {
     console.log(this.state.userId + "saving state...");
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,
+      lang: this.state.lang,
     };
     localStorage.setItem("pongState", JSON.stringify(stateToSave));
   }
@@ -84,7 +91,6 @@ export default class State {
     this.state.gameHasLoaded = true;
     console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
-
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
