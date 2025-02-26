@@ -119,8 +119,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return totp.verify(otp_code)  # Vérifie le code TOTP actuel
 	
 	def is_online(self):
-		# print(f"USERNAME: ${self.username} | LAST SEEN: ${self.last_seen} | NOW: ${now()}")
-		return (now() - self.last_seen).seconds < 300
+		return (now() - self.last_seen).seconds < 120
 
 """
 def create_user(self, username, password=None, **extra_fields):

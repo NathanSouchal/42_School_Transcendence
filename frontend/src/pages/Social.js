@@ -268,10 +268,9 @@ export default class Social {
                             ${value.username}
                           </a>
                         </div>
-                        ${console.log("ONLINE STATUS: ", value.is_online)}
                         ${value.is_online
-                        ? `<p>Online</p>`
-                        : `<p>Offline</p>`
+                        ? `<p class="text-success">Online</p>`
+                        : `<p class="text-danger">Offline</p>`
                         }
                       </div>
                     `
@@ -326,7 +325,7 @@ export default class Social {
                           .join("")
                       : `
                     <div>
-                      <p>no pending invitations</p>
+                      <p class="mt-2">no pending invitations</p>
                     </div>
                   `
                   }

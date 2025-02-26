@@ -74,9 +74,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class PublicUserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ['id', 'avatar', 'username', 'alias']
+    class Meta:
+        model = User
+        fields = ['id', 'avatar', 'username', 'alias']
 
 """
 	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre

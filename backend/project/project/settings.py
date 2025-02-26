@@ -19,10 +19,12 @@ SECRET_KEY = 'django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    "10.13.12.2",
-    ]
+# a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
+# ALLOWED_HOSTS = [
+#     "10.13.12.2",
+#     ]
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
