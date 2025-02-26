@@ -22,9 +22,14 @@ class GameSerializer(serializers.ModelSerializer):
         return representation
 
 class SimpleUserSerializer(serializers.ModelSerializer):
+    is_online = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar']
+        fields = ['id', 'username', 'avatar', 'is_online']
+
+    def get_is_online(self, obj):
+        return obj.is_online()
 
 class UserSerializer(serializers.ModelSerializer):
     # id = serializers.UUIDField(format='hex')
@@ -69,9 +74,9 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class PublicUserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ['id', 'avatar', 'username', 'alias']
+    class Meta:
+        model = User
+        fields = ['id', 'avatar', 'username', 'alias']
 
 """
 	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre

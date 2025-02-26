@@ -13,7 +13,7 @@ export default class Social {
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
-    this.isSubscribed = false; // Eviter plusieurs abonnements
+    this.isSubscribed = false;
     this.isInitialized = false;
     this.friends = {};
     this.invitations = {};
@@ -279,7 +279,11 @@ export default class Social {
                             ${value.username}
                           </a>
                         </div>
-                        <p>${trad[this.lang].social.online}</p>
+                        ${
+                          value.is_online
+                            ? `<p class="text-success">${trad[this.lang].social.online}</p>`
+                            : `<p class="text-danger">${trad[this.lang].social.offline}</p>`
+                        }
                       </div>
                     `
                           )
@@ -333,7 +337,7 @@ export default class Social {
                           .join("")
                       : `
                     <div>
-                      <p>${trad[this.lang].social.noInvitation}</p>
+                      <p class="mt-2">${trad[this.lang].social.noInvitation}</p>
                     </div>
                   `
                   }
