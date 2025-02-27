@@ -160,9 +160,6 @@ export default class LocalTournament {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log(
-        "GameHasLoaded state changed, rendering LocalTournament page"
-      );
       this.previousState = { ...newState };
       await updateView(this);
     } else if (newState.gameStarted && !this.previousState.gameStarted) {

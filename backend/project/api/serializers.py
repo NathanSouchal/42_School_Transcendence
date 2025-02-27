@@ -70,6 +70,9 @@ class UserSerializer(serializers.ModelSerializer):
         alias = validated_data.get('alias', None)
         if not alias:
             validated_data['alias'] = validated_data.get('username')
+        lang = validated_data.get('lang', None)
+        if not lang:
+            validated_data['lang'] = "EN"
         user = User.objects.create_user(**validated_data)
         return user
 

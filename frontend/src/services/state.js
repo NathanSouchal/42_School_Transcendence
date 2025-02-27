@@ -31,6 +31,7 @@ export default class State {
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
+    document.getElementById("lang-div").classList.add("hidden");
 
     this.gamePoints = 10;
     // this.gamePoints = 1;
@@ -77,7 +78,6 @@ export default class State {
   }
 
   saveState() {
-    console.log(this.state.userId + "saving state...");
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,
@@ -104,6 +104,7 @@ export default class State {
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
+    document.getElementById("lang-div").classList.remove("hidden");
   }
 
   setGameNeedsReset(bool) {

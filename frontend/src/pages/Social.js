@@ -209,7 +209,6 @@ export default class Social {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Social page");
       this.previousState = { ...newState };
       await updateView(this);
     } else this.previousState = { ...newState };

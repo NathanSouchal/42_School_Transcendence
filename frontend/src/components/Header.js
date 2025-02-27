@@ -191,7 +191,7 @@ export class Header {
                           <a class="nav-link" href="/social">${trad[this.lang].header.social}</a>
                       </li>
                       <li class="navbar-link">
-                        <button type="button" class="btn btn-danger mb-2" id="logout-button">
+                        <button type="button" class="nav-link btn btn-danger mb-2" id="logout-button">
 						${trad[this.lang].header.logout}
                         </button>
                       </li>
@@ -218,7 +218,6 @@ export class Header {
 
       links.forEach((link, index) => {
         if (index < paths.length && paths[index]) {
-          console.log(trad[this.lang].header[paths[index]]);
           link.innerHTML = trad[this.lang].header[paths[index]];
         }
       });

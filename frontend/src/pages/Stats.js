@@ -65,7 +65,6 @@ export default class Stats {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Stats page");
       this.previousState = { ...newState };
       await updateView(this);
     } else this.previousState = { ...newState };
@@ -151,11 +150,11 @@ export default class Stats {
             <p>${this.stats.nb_games || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>${trad[this.lang].stats.avergaeScore}</h2>
+            <h2>${trad[this.lang].stats.averageScore}</h2>
             <p>${this.stats.average_score || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>${trad[this.lang].stats.lastGane}</h2>
+            <h2>${trad[this.lang].stats.lastGame}</h2>
             <p>${this.stats.last_game || 0}</p>
           </div>
 				</div>
