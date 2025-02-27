@@ -145,11 +145,7 @@ export default class Login {
         if (response.data.method === "email") this.method2fa = "e-mail";
         return updateView(this);
       }
-      const id = response.data.user.id;
-      console.log(response.data);
-      console.log(response.data.user.id.toString());
-      this.state.state.userId = id.toString();
-      this.state.saveState();
+      this.updateUserInfo(response.data.user);
       router.navigate("/account");
     } catch (error) {
       if (error.response) {
@@ -176,10 +172,7 @@ export default class Login {
     }
     try {
       const response = await API.post("/auth/verify-2fa/", this.formState);
-      const id = response.data.user.id;
-      console.log(response.data);
-      this.state.state.userId = id.toString();
-      this.state.saveState();
+      this.updateUserInfo(response.data.user);
       if (this.is2fa) this.is2fa = false;
       router.navigate("/account");
     } catch (error) {
@@ -202,6 +195,30 @@ export default class Login {
     }
   }
 
+  updateUserInfo(data) {
+    this.state.state.lang = data.lang;
+    this.state.state.userId = data.id.toString();
+    this.state.saveState();
+    const selectedLangImg = document.getElementById("selected-lang-img");
+    const loading = document.querySelector(".loading-h2");
+    if (selectedLangImg && loading) {
+      const loadingText = loading.childNodes[0];
+      if (data.lang === "EN") {
+        selectedLangImg.src = "english.jpg";
+        loadingText.nodeValue = "Loading Game";
+      } else if (data.lang === "ES") {
+        selectedLangImg.src = "spanish.jpg";
+        loadingText.nodeValue = "Cargando Juego";
+      } else if (data.lang === "FR") {
+        selectedLangImg.src = "french.jpg";
+        loadingText.nodeValue = "Chargement du jeu";
+      } else if (data.lang === "CR") {
+        selectedLangImg.src = "crab.jpg";
+        loadingText.nodeValue = "Crabing Crab";
+      }
+    }
+  }
+
   displayLoginErrorMessage(errorMsg) {
     const errorTitle = document.getElementById("login-error-message");
     if (errorTitle) errorTitle.textContent = errorMsg;
@@ -212,7 +229,6 @@ export default class Login {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Login page");
       this.previousState = { ...newState };
       await updateView(this);
     } else this.previousState = { ...newState };

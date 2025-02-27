@@ -2,7 +2,8 @@ import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_BACKEND_URL || "https://localhost:8000";
 
 const API = axios.create({
   // baseURL: API_BASE_URL,
@@ -28,7 +29,7 @@ API.interceptors.response.use(
   (response) => response, // Laisser passer les réponses réussies
   async (error) => {
     const originalRequest = error.config;
-    if (!error.response || (error.response && error.response.status === 500)) {
+    if (error.response && error.response.status === 500) {
       router.navigate("/500");
       return Promise.reject(error);
     }
@@ -50,9 +51,7 @@ API.interceptors.response.use(
         return Promise.reject(error);
       }
       isRetrying = true;
-      console.log("Error 401, will try to get new access token");
-      //Attention, a rajouter : 401 ne veut pas forcement dire token, ca peut aussi etre
-      //page interdite, donc il y aura un comportement different pour ca
+      console.error("Error 401, will try to get new access token");
       try {
         await getNewAccessToken();
         state.setIsUserLoggedIn(true);

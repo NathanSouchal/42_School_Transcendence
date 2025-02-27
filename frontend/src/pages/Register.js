@@ -195,7 +195,6 @@ export default class Register {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Home page");
       this.previousState = { ...newState };
       await updateView(this);
     } else this.previousState = { ...newState };

@@ -20,7 +20,6 @@ export default class page500 {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering 500 page");
       await updateView(this);
     } else this.previousState = { ...newState };
   }
