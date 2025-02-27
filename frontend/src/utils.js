@@ -8,7 +8,10 @@ export async function updateView(context) {
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render();
-    const sanitizedTemplate = DOMPurify.sanitize(template);
+    const sanitizedTemplate = DOMPurify.sanitize(template, {
+      ALLOWED_TAGS: [], // Bloque toutes les balises HTML
+      ALLOWED_ATTR: [], // Bloque tous les attributs (onmouseover, onclick, etc.)
+    });
     container.innerHTML = sanitizedTemplate;
     // Attendre que le DOM soit mis a jour de façon asynchrone
     if (typeof context.removeEventListeners === "function")
@@ -74,7 +77,7 @@ export async function checkUserStatus() {
     }
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
-    throw error;
+    // throw error;
   }
 }
 

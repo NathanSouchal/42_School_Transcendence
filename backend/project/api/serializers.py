@@ -104,28 +104,47 @@ class PublicUserSerializer(serializers.ModelSerializer):
 
 class MatchSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Match
-        fields = ['id', 'round_number', 'player1', 'player2', 'winner', 'score_player1', 'score_player2', 'next_match']
-        read_only_fields = ['created_at', 'id']
+	class Meta:
+		model = Match
+		fields = ['id', 'round_number', 'player1', 'player2', 'winner', 'score_player1', 'score_player2', 'next_match']
+		read_only_fields = ['created_at', 'id']
 
 class TournamentSerializer(serializers.ModelSerializer):
-    rounds_tree = serializers.SerializerMethodField()
+	rounds_tree = serializers.SerializerMethodField()
 
-    class Meta:
-        model = Tournament
-        fields = '__all__'
-        read_only_fields = ['created_at', 'id']
+	class Meta:
+		model = Tournament
+		fields = '__all__'
+		read_only_fields = ['created_at', 'id']
 
-    def get_rounds_tree(self, obj):
-        serialized_rounds_tree = []
+	def get_rounds_tree(self, obj):
+		serialized_rounds_tree = []
 
-        for round_ids in obj.rounds_tree:
-            matches = Match.objects.filter(id__in=round_ids)
-            serialized_matches = MatchSerializer(matches, many=True).data
-            serialized_rounds_tree.append(serialized_matches)
+		for round_ids in obj.rounds_tree:
+			matches = Match.objects.filter(id__in=round_ids)
+			serialized_matches = MatchSerializer(matches, many=True).data
+			serialized_rounds_tree.append(serialized_matches)
 
-        return serialized_rounds_tree
+		return serialized_rounds_tree
+
+	def validate_participants(self, value):
+		"""
+		Vérifie que chaque participant n'a que des lettres (A-Z, a-z).
+		"""
+		if not isinstance(value, list):
+			raise serializers.ValidationError("Participants must be a list.")
+
+		for name in value:
+			if not re.fullmatch(r'^[A-Za-z]+$', name):
+				raise serializers.ValidationError(
+					f"Invalid participant name: {name}. Only letters (A-Z, a-z) are allowed."
+				)
+
+		# Vérifier s'il y a des doublons
+		if len(value) != len(set(value)):
+			raise serializers.ValidationError("Duplicate participants are not allowed.")
+
+		return value  # Retourne la liste validée si tout est OK
 
 
 class StatsSerializer(serializers.ModelSerializer):

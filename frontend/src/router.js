@@ -67,14 +67,7 @@ export class Router {
     ) {
       await view.initialize(this.routeParams || {});
     } else if (typeof view.render === "function") {
-      const app = document.getElementById("app");
-      if (app) {
-        app.innerHTML = await view.render(this.routeParams || {});
-        console.log("Appel à render pour :", path);
-        if (typeof view.attachEventListeners === "function") {
-          view.attachEventListeners(); // Appelle attachEventListeners si cette méthode existe
-        }
-      }
+      await view.render(this.routeParams || {});
     }
 
     if (shouldPushState) {

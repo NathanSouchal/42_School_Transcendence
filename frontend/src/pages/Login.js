@@ -20,7 +20,6 @@ export default class Login {
     this.method2fa = null;
     this.formState = {};
     this.eventListeners = [];
-    this.cssLink;
     this.lang = null;
   }
 

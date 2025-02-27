@@ -18,7 +18,6 @@ export default class LocalTournament {
     this.eventListeners = [];
     this.currentRound = [];
     this.MatchToPlay = {};
-    this.cssLink;
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
@@ -119,6 +118,20 @@ export default class LocalTournament {
         listener: handleGameMenuButton,
       });
     }
+
+    const playerBtn = document.getElementById("player-name-button");
+    if (playerBtn) {
+      const handlePlayersName = this.handlePlayersName.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "playerBtn")) {
+        playerBtn.addEventListener("click", handlePlayersName);
+      }
+      this.eventListeners.push({
+        name: "playerBtn",
+        type: "click",
+        element: playerBtn,
+        listener: handlePlayersName,
+      });
+    }
   }
 
   handleNavigation(e) {
@@ -141,16 +154,22 @@ export default class LocalTournament {
 
   async handlePlayersName(e) {
     const enterKey = e.key;
-    if (enterKey && enterKey === "Enter") {
-      const playerName = e.target.value;
-      if (playerName) {
-        this.playerList.push(playerName);
-        this.inputCount++;
-        console.log(this.inputCount);
-        console.log(this.playerList.map((el) => el));
-        if (this.inputCount == this.nbPlayers)
-          await this.createLocalTournament();
-        await updateView(this);
+    if (
+      (enterKey && enterKey === "Enter") ||
+      e.target.name === "player-name-button"
+    ) {
+      const input = document.getElementById("input-player-name");
+      if (input) {
+        const playerName = input.value;
+        if (playerName) {
+          this.playerList.push(playerName);
+          this.inputCount++;
+          console.log(this.inputCount);
+          console.log(this.playerList.map((el) => el));
+          if (this.inputCount == this.nbPlayers)
+            await this.createLocalTournament();
+          else await updateView(this);
+        }
       }
     }
   }
@@ -226,7 +245,29 @@ export default class LocalTournament {
       this.MatchToPlay = res.data.FirstMatch;
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
+      if (error.response && error.response.status === 400) {
+        await updateView(this);
+        if (error.response.data.error)
+          this.displayTournamentErrorMessage(error.response.data.error);
+        this.resetAttributes();
+      }
     }
+  }
+
+  displayTournamentErrorMessage(errorMsg) {
+    const errorTitle = document.getElementById("tournament-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
+  }
+
+  resetAttributes() {
+    this.playerList = [];
+    this.nbPlayers = 0;
+    this.inputCount = 0;
+    this.currentRound = [];
+    this.MatchToPlay = {};
+    this.tournamentFinished = false;
+    this.tournamentWinner = null;
+    this.userAlias = "";
   }
 
   removeEventListeners() {
@@ -246,17 +287,6 @@ export default class LocalTournament {
       this.isSubscribed = false;
       console.log("LocalTournament page unsubscribed from state");
     }
-    this.isSubscribed = false;
-    this.isInitialized = false;
-    this.playerList = [];
-    this.nbPlayers = 0;
-    this.inputCount = 0;
-    this.currentRound = [];
-    this.MatchToPlay = {};
-    this.cssLink;
-    this.tournamentFinished = false;
-    this.tournamentWinner = null;
-    this.userAlias = "";
   }
 
   renderSelectNbPlayers() {
@@ -279,6 +309,9 @@ export default class LocalTournament {
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
               placeholder="${trad[this.lang].localTournament.namePlayer}${this.inputCount + 1}" required/>
+			  <button class="btn btn-success m-3 account-button" id="player-name-button" name="player-name-button">
+			  	OK
+			  </button>
 				    </div>`;
   }
 
@@ -288,8 +321,8 @@ export default class LocalTournament {
           this.tournamentFinished
             ? `<h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>`
             : !this.MatchToPlay.next_match
-              ? `<h2>${trad[this.lang].localTournament.final}</h2>`
-              : `<h2>${trad[this.lang].localTournament.round}${this.MatchToPlay.round_number}</h2>`
+              ? `<h2 class="round-title">${trad[this.lang].localTournament.final}</h2>`
+              : `<h2 class="round-title">${trad[this.lang].localTournament.round}${this.MatchToPlay.round_number}</h2>`
         }
 
         <div class="matches-list">
@@ -366,12 +399,7 @@ export default class LocalTournament {
     try {
       await checkUserStatus();
     } catch (error) {
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
+      return Promise.reject(error);
     }
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
@@ -395,6 +423,7 @@ export default class LocalTournament {
                       ? this.renderTournament()
                       : this.renderInputPlayerName()
                 }
+				<h2 class="tournament-error-message" id="tournament-error-message"></h2>
               </div>
           </div>
         `;
