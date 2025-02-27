@@ -5,9 +5,9 @@ export default defineConfig({
   server: {
     historyApiFallback: true,
     port: 3000,
-    //https: {
-    //  key: fs.readFileSync("./ssl/key.pem"),
-    //  cert: fs.readFileSync("./ssl/cert.pem"),
-    //},
+    https: {
+      key: fs.readFileSync("./ssl/key.pem"),
+      cert: fs.readFileSync("./ssl/cert.pem"),
+    },
   },
 });
