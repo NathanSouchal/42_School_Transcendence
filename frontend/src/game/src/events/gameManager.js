@@ -9,8 +9,7 @@ export class GameManager {
   }
 
   connect() {
-    if (this.socket)
-      this.socket.close();
+    if (this.socket) this.socket.close();
     const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
 
     switch (state.gameMode) {
@@ -111,6 +110,15 @@ export class GameManager {
       side: side,
       direction: direction,
       deltaTime: deltaTime,
+    });
+  }
+
+  sendPause(bool) {
+    // const strBool = bool == true ? "true" : "false";
+    // console.log(`sent pause: ${bool}`);
+    this.sendMessage({
+      type: "pausedOrUnpaused",
+      bool: bool,
     });
   }
 }

@@ -34,6 +34,7 @@ class GameState(AsyncWebsocketConsumer):
         "players": [],
         "score": {"left": 0, "right": 0},
         "game_mode": "null",
+        "isPaused": "false",
         "positions": {
             "paddle_left": 0,
             "paddle_right": 0,
@@ -150,6 +151,12 @@ class GameState(AsyncWebsocketConsumer):
             last_time = time.time()
             while True:
                 if room in self.rooms:
+
+                    # print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
+                    if (self.game_mode == GameMode.LOCAL) and self.rooms[self.room][
+                        "isPaused"
+                    ]:
+                        continue
                     current_time = time.time()
                     delta_time = current_time - last_time
                     last_time = current_time
@@ -233,16 +240,18 @@ class GameState(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
 
-            if data.get("type") != "paddle_move":
-                return
-            direction = data.get("direction")
-            side = data.get("side")
-            positions = self.rooms[self.room]["positions"]
-            delta_time = float(data.get("deltaTime"))
+            if data.get("type") == "paddle_move":
+                direction = data.get("direction")
+                side = data.get("side")
+                positions = self.rooms[self.room]["positions"]
+                delta_time = float(data.get("deltaTime"))
 
-            positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][side].move(
-                direction, delta_time
-            )
+                positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][
+                    side
+                ].move(direction, delta_time)
+            elif data.get("type") == "pausedOrUnpaused":
+                self.rooms[self.room]["isPaused"] = data.get("bool")
+                print(f"{data.get('bool')}")
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")

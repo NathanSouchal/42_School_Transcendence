@@ -8,14 +8,13 @@ class Robot {
     this.difficulty = state.botDifficulty;
     this.inverseDifficulty = 6 - this.difficulty;
     this.deltaFactor = 30;
-    this.half_width = this.paddle.paddle_half_width;
+    this.half_width = 3.42;
     this.state = {
       top: false,
       bottom: false,
     };
     this.target_x = 0;
     this.last_target_x = 0;
-    // this.half_width = 3.42; // BAD
     this.timeSinceLastView = 0;
   }
 

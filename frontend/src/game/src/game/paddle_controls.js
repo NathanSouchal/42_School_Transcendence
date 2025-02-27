@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
 class PaddleControls {
-  constructor(paddle, controls, size) {
+  constructor(paddle, keymaps, size) {
     this.paddle = paddle;
     this.size = size;
-    this.controls = controls;
+    this.keymaps = keymaps;
     this.state = {
       bottom: false,
       top: false,
@@ -17,57 +17,36 @@ class PaddleControls {
   }
 
   setupEventListeners() {
-    if (this.controls.keyboardControl) {
-      window.addEventListener("keydown", this.handleKeyDown);
-      window.addEventListener("keyup", this.handleKeyUp);
-    }
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
   }
 
   handleKeyDown(event) {
-    if (!this.controls.keyboardControl) return;
-
-    if (event.key === this.controls.keyboardKeys.bottom) {
+    if (event.key === this.keymaps.bottom) {
       this.state.bottom = true;
     }
-    if (event.key === this.controls.keyboardKeys.top) {
+    if (event.key === this.keymaps.top) {
       this.state.top = true;
     }
   }
 
   handleKeyUp(event) {
-    if (!this.controls.keyboardControl) return;
-
-    if (event.key === this.controls.keyboardKeys.bottom) {
+    if (event.key === this.keymaps.bottom) {
       this.state.bottom = false;
     }
-    if (event.key === this.controls.keyboardKeys.top) {
+    if (event.key === this.keymaps.top) {
       this.state.top = false;
     }
   }
 
   update(deltaTime, gameManager) {
-    if (this.controls.keyboardControl) {
-      if (this.state.bottom) {
-        gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
-      }
-      if (this.state.top) {
-        gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-      }
+    if (this.state.bottom) {
+      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
+    }
+    if (this.state.top) {
+      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
     }
   }
-
-  //constrainPaddlePosition() {
-  //  const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-  //  const paddleWidth = this.size.paddle_width;
-  //  const halfArenaWidth = arenaWidth / 2;
-  //  const halfPaddleWidth = paddleWidth / 2;
-  //
-  //  this.paddle.pos.x = THREE.MathUtils.clamp(
-  //    this.paddle.pos.x,
-  //    -halfArenaWidth + halfPaddleWidth,
-  //    halfArenaWidth - halfPaddleWidth,
-  //  );
-  //}
 
   dispose() {
     window.removeEventListener("keydown", this.handleKeyDown);
