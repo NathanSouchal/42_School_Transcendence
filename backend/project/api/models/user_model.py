@@ -57,6 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	friends = models.ManyToManyField('self', blank=True, symmetrical=True) #symmetrical permet que si un user1 est ajoute aux friends de user2, user2 sera ajoute a ceux de user1
 	is_staff = models.BooleanField(default=False)
 	last_seen = models.DateTimeField(default=now)
+	lang = models.CharField(max_length=3, default="EN")
 
 	TWO_FACTOR_CHOICES = [
 		('email', 'Email'),
@@ -117,7 +118,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 			return False
 		totp = pyotp.TOTP(self.totp_secret)
 		return totp.verify(otp_code)  # Vérifie le code TOTP actuel
-	
+
 	def is_online(self):
 		return (now() - self.last_seen).seconds < 120
 

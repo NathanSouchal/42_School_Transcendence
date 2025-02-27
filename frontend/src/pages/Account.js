@@ -169,16 +169,10 @@ export default class Account {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded:", newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded:", this.previousState.gameHasLoaded);
-    console.log("newState.lang:", newState.lang);
-    console.log("this.previousState.lang:", this.previousState.lang);
-    console.log(newState.lang !== this.previousState.lang);
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Account page");
       this.previousState = { ...newState };
       await updateView(this);
     } else {

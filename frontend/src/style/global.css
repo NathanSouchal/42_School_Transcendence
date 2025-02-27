@@ -8,7 +8,7 @@
   --tertiary-color: #5a2108;
   --validate-color: #096d11;
   --danger-color: #a71611;
-  --primary-font: "Dangrek", sans-serif;
+  --primary-font: "Madimi One", sans-serif;
   --secondary-font: "Roboto", sans-serif;
 }
 
@@ -318,6 +318,14 @@ canvas#c {
   opacity: 0;
 }
 
+.lang-div {
+  opacity: 1;
+}
+
+.lang-div.hidden {
+  opacity: 0;
+}
+
 .lang-name {
   margin-left: 10px;
 }
@@ -375,7 +383,7 @@ canvas#c {
 }
 
 .lang-div.open {
-  height: 148px;
+  height: 240px;
   border-radius: 25px;
 }
 

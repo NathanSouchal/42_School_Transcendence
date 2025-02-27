@@ -247,7 +247,6 @@ export default class User {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering User page");
       this.previousState = { ...newState };
       await updateView(this);
     } else this.previousState = { ...newState };
