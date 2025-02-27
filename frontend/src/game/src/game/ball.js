@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { position } from "../events/gameManager.js";
+import state from "../../../app";
 
 class Ball {
   constructor(size, conf) {
@@ -14,21 +16,23 @@ class Ball {
       right: new THREE.Vector3(0, 0, 1),
       left: new THREE.Vector3(0, 0, -1),
     };
-    this.rotationSpeed = 3.0;
     this.isFalling = false;
     //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
+    this.pos = new position();
+    this.lastCollision = {
+      side: null,
+      time: 0,
+    };
+    this.collisionCooldown = 0.1;
   }
 
   computeBoundingBoxes() {
     this.box = new THREE.Box3().setFromObject(this.obj, true);
     this.velocity = this.random_initial_velocity();
-    this.obj.position.set(this.setPosition());
+    this.pos.set(0, 2.7, 0);
+    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
     this.make_sparks();
     //this.boxHelper.box.copy(this.box);
-  }
-
-  setPosition() {
-    return new THREE.Vector3(0, 2.7, 0);
   }
 
   async init() {
@@ -61,10 +65,20 @@ class Ball {
   }
 
   bounce(bbox) {
-    const normal = this.reflectionNormals[bbox.side];
+    const currentTime = performance.now() / 1000;
+    if (
+      bbox.side === this.lastCollision.side &&
+      currentTime - this.lastCollision.time < this.collisionCooldown
+    ) {
+      return;
+    }
 
+    this.lastCollision.side = bbox.side;
+    this.lastCollision.time = currentTime;
+
+    const normal = this.reflectionNormals[bbox.side];
     if (bbox.side === "right" || bbox.side === "left") {
-      const ballCenter = this.obj.position.clone();
+      const ballCenter = this.pos.clone();
       const paddleCenter = bbox.box.getCenter(new THREE.Vector3());
       const relativePosition = ballCenter.x - paddleCenter.x;
       const normalizedRelativePosition =
@@ -89,42 +103,10 @@ class Ball {
     this.rotationSpeed *= -1;
   }
 
-  update(deltaTime, scene, renderer) {
-    if (this.isFalling) {
-      if (this.obj.position.y <= -1) {
-        this.velocity.y *= 0.7;
-        this.velocity.x *= 0.85;
-        this.velocity.z *= 0.85;
-      }
-      const scaledVelocity = this.velocity
-        .clone()
-        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
-      this.obj.position.add(scaledVelocity);
-      this.obj.rotateY(0.5 * deltaTime);
-
-      this.elapsedTime += deltaTime;
-      if (this.elapsedTime >= 1.5) {
-        renderer.markPoints();
-        this.reset();
-      }
-    } else {
-      const scaledVelocity = this.velocity
-        .clone()
-        .multiplyScalar(deltaTime * this.conf.speed.deltaFactor);
-      this.obj.position.add(scaledVelocity);
-      this.box = new THREE.Box3().setFromObject(this.obj, true);
-      this.obj.rotateY(this.rotationSpeed * deltaTime * this.velocity.length());
-      this.animate_sparks();
-      if (this.isOutOfArena(renderer)) {
-        this.startFalling();
-      }
-    }
-  }
-
   isOutOfArena(renderer) {
     return (
-      this.obj.position.z < -(renderer.zMax / 2) + renderer.depth / 2 - 3 ||
-      this.obj.position.z > renderer.zMax / 2 - renderer.depth / 2 + 3
+      this.pos.z < -(renderer.zMax / 2) + renderer.depth / 2 - 3 ||
+      this.pos.z > renderer.zMax / 2 - renderer.depth / 2 + 3
     );
   }
 
@@ -163,8 +145,12 @@ class Ball {
   reset() {
     this.elapsedTime = 0;
     this.isFalling = false;
-    this.obj.position.copy(this.setPosition());
+    this.pos.set(0, 2.7, 0);
     this.velocity = this.random_initial_velocity();
+  }
+
+  updateRotation(deltaTime) {
+    this.obj.rotateY(3.0 * deltaTime * this.velocity.length());
   }
 
   make_sparks() {

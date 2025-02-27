@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import PaddleControls from "./paddle_controls";
 import Robot from "./robot";
+import { position } from "../events/gameManager.js";
+import state from "../../../app";
 
 class Paddle {
   constructor(arena, side, player_type, config) {
@@ -12,19 +14,28 @@ class Paddle {
     this.needsRemoving = false;
     this.controls = config.getPaddleConfig(side);
     this.obj = new THREE.Object3D();
+    this.pos = new position();
     this.choosePlayer(player_type);
   }
 
   choosePlayer(player_type) {
+    console.log(`Player type chosen on the ${this.side} side: ${player_type}`);
     if (player_type === "player") {
       this.player_type = player_type;
       this.player = new PaddleControls(this, this.controls, this.size);
-    } else {
+    } else if (player_type === "robot") {
       if (this.needsRemoving === true) {
         this.player.dispose();
         this.needsRemoving = false;
       }
       this.player = new Robot(this, this.size);
+    } else if (player_type === "none") {
+      console.log("player_type is none");
+      if (this.needsRemoving === true) {
+        this.player.dispose();
+        this.needsRemoving = false;
+        this.player = null;
+      }
     }
   }
 
@@ -34,7 +45,8 @@ class Paddle {
       this.side === "left"
         ? -(zMax / 2) + this.size.paddle_depth / 2  
         : zMax / 2 - this.size.paddle_depth / 2;
-    this.obj.position.set(0, 2.5, z);
+    this.pos.set(0, 2.5, z);
+    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
   }
 
   computeBoundingBoxes() {
@@ -94,19 +106,7 @@ class Paddle {
     }
   }
 
-  update(deltaTime, position, velocity) {
-    this.player.update(deltaTime, position, velocity);
-
-    const newBox = new THREE.Box3().setFromObject(this.obj, true);
-    const paddleBoxIndex = this.arena.BBoxes.findIndex(
-      (bbox) => bbox.side === this.side,
-    );
-    if (paddleBoxIndex !== -1) {
-      this.arena.BBoxes[paddleBoxIndex] = {
-        box: newBox,
-        side: this.side,
-      };
-    }
+  animation_update(deltaTime) {
     this.mixer.update(deltaTime);
 
     if (this.player.state.bottom) {

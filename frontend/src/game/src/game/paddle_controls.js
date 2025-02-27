@@ -12,6 +12,7 @@ class PaddleControls {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.paddle.needsRemoving = true;
+    this.deltaFactor = 30;
     this.setupEventListeners();
   }
 
@@ -44,30 +45,29 @@ class PaddleControls {
     }
   }
 
-  update(deltaTime, ballX) {
+  update(deltaTime, gameManager) {
     if (this.controls.keyboardControl) {
       if (this.state.bottom) {
-        this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
+        gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
       }
       if (this.state.top) {
-        this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
+        gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
       }
-      this.constrainPaddlePosition();
     }
   }
 
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
-  }
+  //constrainPaddlePosition() {
+  //  const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+  //  const paddleWidth = this.size.paddle_width;
+  //  const halfArenaWidth = arenaWidth / 2;
+  //  const halfPaddleWidth = paddleWidth / 2;
+  //
+  //  this.paddle.pos.x = THREE.MathUtils.clamp(
+  //    this.paddle.pos.x,
+  //    -halfArenaWidth + halfPaddleWidth,
+  //    halfArenaWidth - halfPaddleWidth,
+  //  );
+  //}
 
   dispose() {
     window.removeEventListener("keydown", this.handleKeyDown);

@@ -22,10 +22,9 @@ class Robot {
   predictBallPosition(position, velocity) {
     const arenaWidth = this.size.arena_width - this.size.border_width * 2;
     const halfArenaWidth = arenaWidth / 2;
-    const paddleZ = this.paddle.obj.position.z;
+    const paddleZ = this.paddle.pos.z;
     const timeToReach = (paddleZ - position.z) / velocity.z;
     let predictedX = position.x + velocity.x * timeToReach;
-
     while (predictedX < -halfArenaWidth || predictedX > halfArenaWidth) {
       if (predictedX < -halfArenaWidth) {
         predictedX = -halfArenaWidth + (-predictedX - halfArenaWidth);
@@ -38,7 +37,7 @@ class Robot {
   }
 
   moveTowardsTarget(deltaTime) {
-    const currentX = this.paddle.obj.position.x;
+    const currentX = this.paddle.pos.x;
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
@@ -57,29 +56,31 @@ class Robot {
     }
   }
 
-  updatePaddlePosition(deltaTime) {
+  updatePaddlePosition(deltaTime, gameManager) {
     if (this.state.bottom) {
-      this.paddle.obj.position.x -= deltaTime * this.deltaFactor;
+      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
     }
     if (this.state.top) {
-      this.paddle.obj.position.x += deltaTime * this.deltaFactor;
+      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
     }
   }
 
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
-  }
-
-  update(deltaTime, position, velocity) {
+  update(deltaTime, gameManager, position, velocity) {
+    //   this.target_x = this.predictBallPosition(position, velocity);
+    // constrainPaddlePosition() {
+    //   const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+    //   const paddleWidth = this.size.paddle_width;
+    //   const halfArenaWidth = arenaWidth / 2;
+    //   const halfPaddleWidth = paddleWidth / 2;
+    //
+    //   this.paddle.obj.position.x = THREE.MathUtils.clamp(
+    //     this.paddle.obj.position.x,
+    //     -halfArenaWidth + halfPaddleWidth,
+    //     halfArenaWidth - halfPaddleWidth,
+    //   );
+    // }
+    //
+    // update(deltaTime, position, velocity) {
     this.timeSinceLastView += deltaTime;
 
     if (this.timeSinceLastView >= 1) {
@@ -87,8 +88,7 @@ class Robot {
       this.timeSinceLastView = 0;
     }
     this.moveTowardsTarget(deltaTime);
-    this.updatePaddlePosition(deltaTime);
-    this.constrainPaddlePosition();
+    this.updatePaddlePosition(deltaTime, gameManager);
   }
 }
 
