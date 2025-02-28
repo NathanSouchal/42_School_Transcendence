@@ -161,6 +161,23 @@ export default class LocalTournament {
       const input = document.getElementById("input-player-name");
       if (input) {
         const playerName = input.value;
+        const regex = /^\w+$/;
+        if (input.value) {
+          if (!regex.test(input.value)) {
+            alert("regex");
+            return this.displayTournamentErrorMessage(
+              "Invalid participant name : only letters, numbers and underscores are allowed"
+            );
+          }
+          if (input.value.length < 4)
+            return this.displayTournamentErrorMessage(
+              "Player name must be at least 4 characters long"
+            );
+          if (input.value.length > 10)
+            return this.displayTournamentErrorMessage(
+              "Player name must be at most 10 characters long"
+            );
+        }
         if (playerName) {
           this.playerList.push(playerName);
           this.inputCount++;
@@ -417,7 +434,7 @@ export default class LocalTournament {
       ? this.getGameHUDTemplate()
       : `
           <div class="main-div-tournament">
-              <h1 class="global-page-title">TOURNAMENT</h1>
+              <h1 class="global-page-title">${trad[this.lang].localTournament.pageTitle}</h1>
               <div class="content-page-tournament">
                 ${
                   !this.nbPlayers

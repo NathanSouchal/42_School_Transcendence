@@ -22,9 +22,11 @@
   color: var(--danger-color);
   letter-spacing: 0.1rem;
   font-weight: 700;
-  font-size: 1.5em !important;
+  font-size: 1.3em;
   font-style: italic;
   margin-top: 1rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
 }
 
 @keyframes shine {

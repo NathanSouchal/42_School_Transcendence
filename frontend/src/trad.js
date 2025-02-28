@@ -45,6 +45,7 @@ export const trad = {
       guestMode: "Guest Mode",
     },
     localTournament: {
+      pageTtitle: "TOURNAMENT",
       playersNum: "Number of Players",
       select: "Select...",
       player: "Player n°",
@@ -163,6 +164,7 @@ export const trad = {
       guestMode: "Mode invité",
     },
     localTournament: {
+      pageTtitle: "TOURNOI",
       playersNum: "Nombre de joueurs",
       select: "Selection...",
       player: "Joueur n°",
@@ -281,6 +283,7 @@ export const trad = {
       guestMode: "Modo Invitado",
     },
     localTournament: {
+      pageTtitle: "TORNEO",
       playersNum: "Número de jugadores",
       select: "Seleccionar...",
       player: "Jugador n°",
@@ -399,6 +402,7 @@ export const trad = {
       guestMode: "Crab Mode",
     },
     localTournament: {
+      pageTtitle: "CRABNAMENT",
       playersNum: "Number of Crabbers",
       select: "Crablect...",
       player: "Crabber n°",
