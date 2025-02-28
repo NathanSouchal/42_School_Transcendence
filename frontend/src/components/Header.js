@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import { logout } from "../utils";
 import { router } from "../app";
 import { trad } from "../trad";
@@ -43,7 +42,7 @@ export class Header {
 
     const links = Array.from(document.querySelectorAll(".navbar-link a"));
     links.forEach((link) => {
-      const closeMenu = this.closeMenu.bind(this);
+      const closeMenu = this.closeMenu.bind(this, "");
       if (
         !this.eventListeners.some((e) => e.name === `link-${link.innerText}`)
       ) {
@@ -57,15 +56,16 @@ export class Header {
       }
     });
 
-    const logoutButton = document.getElementById("logout-button");
-    if (logoutButton) {
-      if (!this.eventListeners.some((e) => e.name === "logoutButton")) {
-        logoutButton.addEventListener("click", logout);
+    const logoutCloseMenu = document.getElementById("logout-button");
+    if (logoutCloseMenu) {
+      if (!this.eventListeners.some((e) => e.name === "logoutCloseMenu")) {
+        const closeMenu = this.closeMenu.bind(this, "logout");
+        logoutCloseMenu.addEventListener("click", closeMenu);
         this.eventListeners.push({
-          name: "logoutButton",
+          name: "logoutCloseMenu",
           type: "click",
-          element: logoutButton,
-          listener: logout,
+          element: logoutCloseMenu,
+          listener: closeMenu,
         });
       }
     }
@@ -101,7 +101,7 @@ export class Header {
     }
   }
 
-  closeMenu() {
+  closeMenu(key) {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
@@ -117,6 +117,7 @@ export class Header {
       setTimeout(() => {
         header.style.zIndex = "0";
       }, 500);
+      if (key === "logout") logout();
     }
   }
 
@@ -191,19 +192,18 @@ export class Header {
                           <a class="nav-link" href="/social">${trad[this.lang].header.social}</a>
                       </li>
                       <li class="navbar-link">
-                        <button type="button" class="nav-link btn btn-danger mb-2" id="logout-button">
+                        <button type="button" class="btn btn-danger mb-2" id="logout-button">
 						${trad[this.lang].header.logout}
                         </button>
                       </li>
                     </ul>
                     </nav>`;
-    const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
     const toggleButton = document.getElementById("toggle-button-container");
     if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
-      container.innerHTML = sanitizedData;
+      container.innerHTML = header;
       this.removeEventListeners();
       this.attachEventListeners();
     }
@@ -245,13 +245,12 @@ export class Header {
                       </li>
                     </ul>
                     </nav>`;
-    const sanitizedData = DOMPurify.sanitize(header);
     const container = document.getElementById("header");
     const toggleButton = document.getElementById("toggle-button-container");
     if (toggleButton) toggleButton.style.display = "block";
     if (container) {
       container.style.display = "block";
-      container.innerHTML = sanitizedData;
+      container.innerHTML = header;
       this.removeEventListeners();
       this.attachEventListeners();
     }

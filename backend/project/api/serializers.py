@@ -33,8 +33,18 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     # id = serializers.UUIDField(format='hex')
-    username = serializers.CharField(min_length=4, max_length=10, required=True, error_messages={'min_length': 'Username must be a least 4 characters long', 'max_length': 'Username must be at maximum 10 characters long'})
-    alias = serializers.CharField(min_length=4, max_length=10, required=False, error_messages={'min_length': 'Alias must be a least 4 characters long', 'max_length': 'Alias must be at maximum 10 characters long'})
+    username = serializers.CharField(min_length=4, max_length=10, required=True, validators=[
+            RegexValidator(
+                regex=r'^\w+$',
+                message="Username can only contain letters, numbers, and underscores"
+            )
+        ], error_messages={'min_length': 'Username must be a least 4 characters long', 'max_length': 'Username must be at maximum 10 characters long'})
+    alias = serializers.CharField(min_length=4, max_length=10, required=False, validators=[
+            RegexValidator(
+                regex=r'^\w+$',
+                message="Alias can only contain letters, numbers, and underscores"
+            )
+        ], error_messages={'min_length': 'Alias must be a least 4 characters long', 'max_length': 'Alias must be at maximum 10 characters long'})
     email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
     phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True, validators=[
             RegexValidator(
@@ -128,23 +138,28 @@ class TournamentSerializer(serializers.ModelSerializer):
 		return serialized_rounds_tree
 
 	def validate_participants(self, value):
-		"""
-		Vérifie que chaque participant n'a que des lettres (A-Z, a-z).
-		"""
 		if not isinstance(value, list):
-			raise serializers.ValidationError("Participants must be a list.")
+			raise serializers.ValidationError("Participants must be a list")
 
 		for name in value:
-			if not re.fullmatch(r'^[A-Za-z]+$', name):
+			if not re.fullmatch(r'^\w+$', name):
 				raise serializers.ValidationError(
-					f"Invalid participant name: {name}. Only letters (A-Z, a-z) are allowed."
+					f"Invalid participant name : only letters, numbers and underscores are allowed"
 				)
 
-		# Vérifier s'il y a des doublons
-		if len(value) != len(set(value)):
-			raise serializers.ValidationError("Duplicate participants are not allowed.")
+			if len(name) < 4:
+				raise serializers.ValidationError(
+					f"Player name must be at least 4 characters long"
+				)
+			if len(name) > 10:
+				raise serializers.ValidationError(
+					f"Player name must be at most 10 characters long"
+				)
 
-		return value  # Retourne la liste validée si tout est OK
+		if len(value) != len(set(value)):
+			raise serializers.ValidationError("Duplicate participants are not allowed")
+
+		return value
 
 
 class StatsSerializer(serializers.ModelSerializer):

@@ -103,7 +103,7 @@ class TournamentListView(APIView):
                     {'message': 'Tournament created successfully', 'tournament': TournamentSerializer(tournament).data,
 					 'FirstMatch': MatchSerializer(firstMatch).data},
                     status=status.HTTP_201_CREATED)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

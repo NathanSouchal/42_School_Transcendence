@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -35,7 +34,7 @@ export default class Register {
       console.log("Register page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -196,7 +195,7 @@ export default class Register {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -234,8 +233,6 @@ export default class Register {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const userData = this.state.data.username;
-    const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}
         <form id="register-form" class="form-div-login-register">

@@ -111,6 +111,11 @@ export const trad = {
       accept: "Accept friend request",
       delete: "Delete friend request",
     },
+    page404: {
+      pageTitle: "Error 404",
+      message: "Woooops this page could not be found...",
+    },
+    page500: { pageTitle: "Error 500", message: "Internal server error" },
   },
   FR: {
     header: {
@@ -224,6 +229,11 @@ export const trad = {
       accept: "Accepter l'invitation",
       delete: "Refuser l'invitation",
     },
+    page404: {
+      pageTitle: "Erreur 404",
+      message: "Woooops cette page est introuvable...",
+    },
+    page500: { pageTitle: "Erreur 500", message: "Erreur interne du serveur" },
   },
   ES: {
     header: {
@@ -337,6 +347,11 @@ export const trad = {
       accept: "Aceptar solicitud de amistad",
       delete: "Eliminar solicitud de amistad",
     },
+    page404: {
+      pageTitle: "Error 404",
+      message: "Woooops no se pudo encontrar esta página...",
+    },
+    page500: { pageTitle: "Error 500", message: "Error Interno del Servidor" },
   },
   CR: {
     header: {
@@ -450,5 +465,10 @@ export const trad = {
       accept: "Accept Crabquest",
       delete: "Delete Crabquest",
     },
+    page404: {
+      pageTitle: "Crabror 404",
+      message: "Woooops Crab Crab be Crabby...",
+    },
+    page500: { pageTitle: "Crabror 500", message: "Internal Crab Crabrror" },
   },
 };

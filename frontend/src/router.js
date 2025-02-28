@@ -1,4 +1,5 @@
 import state from "./app";
+import { updateView } from "./utils";
 
 export class Router {
   constructor(routes) {
@@ -67,7 +68,7 @@ export class Router {
     ) {
       await view.initialize(this.routeParams || {});
     } else if (typeof view.render === "function") {
-      await view.render(this.routeParams || {});
+      await updateView(view, this.routeParams || {});
     }
 
     if (shouldPushState) {

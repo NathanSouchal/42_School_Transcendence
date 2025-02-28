@@ -1,5 +1,4 @@
 import { handleHeader, updateView, checkUserStatus } from "../utils";
-import DOMPurify from "dompurify";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
 import { trad } from "../trad.js";
@@ -25,7 +24,7 @@ export default class GamePage {
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
-    await updateView(this);
+    await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -108,7 +107,7 @@ export default class GamePage {
         break;
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
-        await updateView(this);
+        await updateView(this, {});
         this.haveToSelectBotDifficulty = false;
         // this.state.setGameStarted("PVR");
         break;
@@ -144,7 +143,7 @@ export default class GamePage {
       console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
     this.oldscore = { ...this.state.score };
   }
@@ -170,7 +169,7 @@ export default class GamePage {
 
   renderSelectBotDifficulty() {
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    const template = `${backArrow}
+    return `${backArrow}
             <div class="container-selector">
               <div class="select-container">
                 <label for="select-difficulty">Difficulty</label>
@@ -182,13 +181,11 @@ export default class GamePage {
                 </select>
               </div>
             </div>`;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 
   renderGameMenu() {
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    const template = `${backArrow}
+    return `${backArrow}
             <div>
             <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
               <div class="global-nav-section nav-section-game">
@@ -205,15 +202,13 @@ export default class GamePage {
             </div>
           </div>
         `;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
 
-    const template = `<div class="game-hud">
+    return `<div class="game-hud">
 				<div class="game-score">
 					<h1 class="display-4 mb-0">${left} - ${right}</h1>
 				</div>
@@ -222,12 +217,10 @@ export default class GamePage {
 				</button>
 			</div>
   `;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 
   renderPauseMenu() {
-    const template = `<div>
+    return `<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
@@ -243,15 +236,13 @@ export default class GamePage {
 				</div>
 			</div>
   `;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 
   renderGameEnded() {
     const { left, right } = this.state.score;
     const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    const template = `${backArrow}
+    return `${backArrow}
 			<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
@@ -271,16 +262,11 @@ export default class GamePage {
 				</div>
 			</div>
   `;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-    } catch (error) {
-      console.error(error);
-    }
+    await checkUserStatus();
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;

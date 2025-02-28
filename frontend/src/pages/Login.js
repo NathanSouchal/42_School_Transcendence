@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -33,7 +32,7 @@ export default class Login {
       console.log("Login page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -110,7 +109,7 @@ export default class Login {
 
   async resetLoginPage() {
     this.is2fa = false;
-    await updateView(this);
+    await updateView(this, {});
   }
 
   handleNavigation(e) {
@@ -142,7 +141,7 @@ export default class Login {
         if (response.data.method === "TOTP") this.method2fa = "Auth App";
         if (response.data.method === "sms") this.method2fa = "phone";
         if (response.data.method === "email") this.method2fa = "e-mail";
-        return updateView(this);
+        return updateView(this, {});
       }
       this.updateUserInfo(response.data.user);
       router.navigate("/account");
@@ -229,7 +228,7 @@ export default class Login {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -294,8 +293,6 @@ export default class Login {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const userData = this.state.data.username;
-    const sanitizedData = DOMPurify.sanitize(userData);
     const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.is2fa) return this.render2FA();
     else

@@ -4,14 +4,11 @@ import state from "./app";
 import { router } from "./app";
 import DOMPurify from "dompurify";
 
-export async function updateView(context) {
+export async function updateView(context, routeParams = {}) {
   const container = document.getElementById("app");
   if (container) {
-    const template = await context.render();
-    const sanitizedTemplate = DOMPurify.sanitize(template, {
-      ALLOWED_TAGS: [], // Bloque toutes les balises HTML
-      ALLOWED_ATTR: [], // Bloque tous les attributs (onmouseover, onclick, etc.)
-    });
+    const template = await context.render(routeParams);
+    const sanitizedTemplate = DOMPurify.sanitize(template);
     container.innerHTML = sanitizedTemplate;
     // Attendre que le DOM soit mis a jour de façon asynchrone
     if (typeof context.removeEventListeners === "function")
@@ -77,7 +74,7 @@ export async function checkUserStatus() {
     }
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
-    // throw error;
+    return false;
   }
 }
 
