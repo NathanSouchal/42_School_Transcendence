@@ -1,6 +1,7 @@
 from django.urls import path
+from api.views import GameView, GameListView
 
 urlpatterns = [
-	# path('register/', Register.as_view()),
-	# path('login/', Login.as_view(), name='login')
+	path('<int:id>/', GameView.as_view(), name = 'game_detail'),
+	path('list/', GameListView.as_view(), name = 'game_list')
 ]

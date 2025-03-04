@@ -1,0 +1,193 @@
+/* Style des liens de la navbar */
+#header {
+  position: absolute;
+  font-family: var(--secondary-font);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -45%); /* Conserve le centrage */
+  height: 70vh;
+  width: 60%;
+  min-width: 320px;
+  padding: 20px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.navbar-links {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 0%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(222, 212, 184, 1);
+  transition:
+    width 0.5s ease-in-out,
+    opacity 0.5s ease-in-out;
+  z-index: 0;
+  border-radius: 10px;
+  overflow-y: auto;
+}
+
+.navbar-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0.7em;
+  text-align: center;
+}
+
+.navbar-link a:hover {
+  color: var(--secondary-color);
+  background: var(--primary-color);
+  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
+  transform: translateY(-3px); /* Légère élévation */
+}
+
+header .global-nav-section {
+  font-size: 2em;
+  white-space: nowrap;
+}
+
+/* Lorsque le menu est ouvert, les liens prennent toute la largeur */
+.navbar.show-nav .navbar-links {
+  width: 100%;
+  opacity: 1;
+}
+
+/* Liens dans la navbar */
+.navbar-links li {
+  list-style: none;
+  margin: 0.2rem 0;
+  color: var(--primary-color);
+}
+
+/* Bouton burger */
+
+.toggle-button-container {
+  position: relative;
+  top: 42%;
+  left: 105%;
+  transform: translate(-50%, -45%);
+  height: 5vh;
+  width: 25%;
+  margin-left: 10%;
+  min-width: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.toggle-button {
+  position: absolute;
+  top: 5%;
+  left: 90%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 35px;
+  height: 25px;
+  cursor: pointer;
+  justify-content: space-between;
+}
+
+.toggle-button .bar2 {
+  height: 5px;
+  width: 100%;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  transition: 0.5s ease-in-out;
+  position: relative;
+}
+
+.toggle-button .bar2::before,
+.toggle-button .bar2::after {
+  content: "";
+  position: absolute;
+  height: 5px;
+  width: 100%;
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  transition: all 0.5s ease-in-out;
+}
+
+.toggle-button .bar2::before {
+  transform: translateY(-10px);
+}
+
+.toggle-button .bar2::after {
+  transform: translateY(10px);
+}
+
+.toggle-button.open .bar2 {
+  background: transparent;
+}
+
+.toggle-button.open .bar2::before {
+  transform: rotate(45deg);
+}
+
+.toggle-button.open .bar2::after {
+  transform: rotate(-45deg);
+}
+
+@media (min-width: 400px) and (max-width: 900px) {
+  #header {
+    width: 90%;
+    min-width: 320px;
+  }
+  .toggle-button-container {
+    left: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .toggle-button-container {
+    width: 80%;
+    left: 80%;
+  }
+  .navbar-links {
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 460px) {
+  .toggle-button-container {
+    width: 50%;
+    left: 70%;
+  }
+}
+
+@media (max-width: 390px) {
+  .toggle-button-container {
+    width: 0%;
+    left: 75%;
+  }
+}
+
+@media (max-width: 340px) {
+  .toggle-button-container {
+    left: 65%;
+  }
+}
+
+@media (max-height: 700px) {
+  .navbar-links {
+    padding-top: 150px;
+  }
+  .app,
+  #header {
+    height: 80vh;
+  }
+}

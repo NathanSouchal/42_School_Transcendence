@@ -1,5 +1,10 @@
 from pathlib import Path
 from datetime import timedelta
+from decouple import config
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,8 +19,12 @@ SECRET_KEY = 'django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
+# ALLOWED_HOSTS = [
+#     "10.13.12.2",
+#     ]
 
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -30,6 +39,12 @@ INSTALLED_APPS = [
 	'corsheaders',
 	'rest_framework',
 	'rest_framework_simplejwt',
+	'rest_framework_simplejwt.token_blacklist',
+	'sslserver',
+	'django_otp',
+	'django_otp.plugins.otp_totp',
+	'django_otp.plugins.otp_static',
+	'django_bleach',
 ]
 
 REST_FRAMEWORK = {
@@ -37,16 +52,14 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.CookieJWTAuthentication',
     ),
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+	'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
 }
 
 MIDDLEWARE = [
@@ -58,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.UpdateLastSeenMiddleware',
 ]
 
 ROOT_URLCONF = 'project.urls'
@@ -84,12 +98,36 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Database pour le deploiement en utilisant docker
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('POSTGRES_DB'),
+#         'USER': config('POSTGRES_USER'),
+#         'PASSWORD': config('POSTGRES_PASSWORD'),
+#         'HOST': config('POSTGRES_HOST'),
+#         'PORT': config('POSTGRES_PORT', default=5432, cast=int),
+#     }
+# }
+
+# Database pour le developpement (sans passer par docker)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    # 'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Authentification standard Django
+]
 
 
 # Password validation
@@ -129,12 +167,51 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-	"http://frontend:3000",
-	"http://localhost:3000",
+	# "http://frontend:3000",
+	# "http://localhost:3000",
+	"https://frontend:3000",
+	"https://localhost:3000",
+    "https://10.13.12.2:3000",
+
 ]
+
+CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
+
+CSRF_COOKIE_SECURE = True  # Envoie le cookie CSRF uniquement via HTTPS
+SESSION_COOKIE_SECURE = True  # Envoie le cookie de session uniquement via HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost:3000',  # Frontend sécurisé
+    'https://frontend:3000',
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_REGION = os.getenv("AWS_REGION")
+
+OTP_TOTP_ISSUER = "YourAppName"
+OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
+OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'

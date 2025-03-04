@@ -1,0 +1,213 @@
+.main-div-social {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  height: 100%;
+}
+
+.main-div-social a {
+  all: unset;
+  display: revert;
+  color: var(--tertiary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.main-div-social a:hover {
+  color: #696858e9;
+}
+
+.main-div-social p {
+  margin: 0;
+  height: fit-content;
+}
+
+.content-social {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* gap: 1em; */
+  font-family: var(--secondary-font);
+}
+
+.search-bar-and-result-social input {
+  width: 100%;
+  font-family: var(--secondary-font);
+  padding: 0.8em;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  background: white;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
+}
+
+.search-bar-and-result-social input::placeholder {
+  opacity: 0.5;
+}
+
+.search-bar-and-result-social input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
+}
+
+.friends-and-invitations-social {
+  width: 100%;
+  height: 80%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 1.5em;
+}
+
+.friends-and-invitations-social h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  border-bottom: 0.05em solid var(--primary-color);
+  width: 80%;
+  margin-left: 10%;
+  letter-spacing: 0.1em;
+}
+
+.friends-div-social {
+  width: 50%;
+}
+
+.friends-list-social {
+  padding: 1em 1.2em 0 0;
+  overflow-y: auto;
+  font-size: 1.3rem;
+  color: var(--tertiary-color);
+}
+
+.friends-list-social a {
+  font-size: 1.3rem;
+}
+
+.friends-item-social {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 0.5em;
+}
+
+.friends-item-img-username {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.9em;
+}
+
+.friends-item-social p {
+  margin-top: 0.7em;
+  font-size: 1.1rem;
+}
+
+.invitations-div-social {
+  width: 50%;
+}
+
+.invitations-list-div-social {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  font-size: 1.3rem;
+  color: var(--tertiary-color);
+  padding: 1em 0 0 1.2em;
+  overflow-y: clip;
+  overflow-x: visible;
+}
+
+.invitation-item-social {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.invitation-item-img-username {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.invitation-item-img-username p {
+  margin-right: 1em;
+}
+
+.invitation-item-social button {
+  height: fit-content;
+  font-weight: 900;
+  font-size: 1.7rem;
+  transition: all 0.2s ease;
+}
+
+.invitation-item-social button:hover {
+  transform: scale(1.3);
+}
+
+.invitation-item-social button:active {
+  transform: scale(1);
+}
+
+.two-buttons-invitation-social {
+  display: flex;
+  gap: 1em;
+}
+
+.validate-button-invitation-social {
+  all: unset;
+  display: revert;
+  color: var(--validate-color);
+}
+
+.cancel-button-invitation-social {
+  all: unset;
+  display: revert;
+  color: var(--danger-color);
+}
+
+@media (max-width: 755px) {
+  .content-social {
+    justify-content: flex-start;
+  }
+
+  .friends-and-invitations-social {
+    max-height: 60%;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2em;
+    overflow-y: auto;
+  }
+
+  .friends-div-social {
+    width: 100%;
+  }
+
+  .invitations-div-social {
+    width: 100%;
+  }
+
+  .invitations-list-div-social {
+    padding: 1em 1.2em 0 0;
+  }
+}
+
+@media (max-width: 460px) {
+  .content-social h2 {
+    font-size: 1.6rem;
+  }
+
+  .friends-item-social a {
+    font-size: 1.5rem;
+  }
+}
