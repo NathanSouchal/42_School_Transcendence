@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -35,7 +34,7 @@ export default class Account {
       console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    await updateView(this);
+    await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -174,7 +173,7 @@ export default class Account {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else {
       this.previousState = { ...newState };
     }
@@ -221,7 +220,7 @@ export default class Account {
   async handleClick(key) {
     if (key == "cancel-button" || key == "update-user-info") {
       this.isForm = !this.isForm;
-      await updateView(this);
+      await updateView(this, {});
       if (this.isForm) {
         const checked2fa = document.getElementById("app2FA-checkbox")?.checked;
         if (checked2fa) {
@@ -233,7 +232,7 @@ export default class Account {
     } else if (key === "confirm-delete-user") {
       await this.confirmDeleteUser(this.state.state.userId);
     } else if (key === "cancel-delete-user") {
-      await updateView(this);
+      await updateView(this, {});
     }
   }
 
@@ -243,10 +242,9 @@ export default class Account {
       await this.updateUserInfo(this.state.state.userId);
       await this.fetchData(this.userData.id);
       this.isForm = !this.isForm;
-      await updateView(this);
+      await updateView(this, {});
     } catch (error) {
       console.error(error);
-      throw error;
     }
   }
 
@@ -323,7 +321,6 @@ export default class Account {
       }
     } catch (error) {
       console.error(`Error while trying to get qrcode : ${error}`);
-      throw error;
     }
   }
 
@@ -367,7 +364,7 @@ export default class Account {
 
   async deleteUser() {
     this.deleteUserVerification = true;
-    await updateView(this);
+    await updateView(this, {});
     this.deleteUserVerification = false;
   }
 
@@ -377,10 +374,9 @@ export default class Account {
     try {
       await API.delete(`/user/${id}/`);
       this.lastDeleted = id;
-      await updateView(this);
+      await updateView(this, {});
     } catch (error) {
       console.error("Error while trying to delete data:", error);
-      throw error;
     } finally {
       setDisable(false, "confirm-delete-user");
     }
@@ -423,13 +419,11 @@ export default class Account {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-      await this.fetchData(this.state.state.userId);
-    } catch (error) {
-      console.error(error);
-      return "";
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.fetchData(this.state.state.userId);
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
