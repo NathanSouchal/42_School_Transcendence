@@ -72,6 +72,7 @@ export async function checkUserStatus() {
       state.state.userId = id;
       state.saveState();
     }
+    return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
     return false;

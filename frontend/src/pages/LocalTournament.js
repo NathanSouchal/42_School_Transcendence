@@ -331,7 +331,7 @@ export default class LocalTournament {
   renderInputPlayerName() {
     return `<div class="input-player-name">
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
-              <input id="input-player-name" type="text" name="" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
+              <input id="input-player-name" type="text" name="" minLength="4" maxLength="10" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
               placeholder="${trad[this.lang].localTournament.namePlayer}${this.inputCount + 1}" required/>
 			  <button class="btn btn-success m-3 account-button" id="player-name-button" name="player-name-button">
 			  	OK

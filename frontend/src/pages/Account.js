@@ -245,7 +245,6 @@ export default class Account {
       await updateView(this, {});
     } catch (error) {
       console.error(error);
-      throw error;
     }
   }
 
@@ -306,6 +305,7 @@ export default class Account {
     } catch (error) {
       console.error("Error while trying to get data:", error);
       this.userData = {};
+      throw error;
     }
   }
 
@@ -356,6 +356,7 @@ export default class Account {
           this.displayAccountErrorMessage(errorData.wrong_avatar);
       }
       console.error(`Error while trying to update user data : ${error}`);
+      throw error;
     } finally {
       setDisable(false, "form-button");
     }

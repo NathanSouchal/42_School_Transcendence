@@ -39,7 +39,7 @@ class RegisterView(APIView):
 			return Response({'password_match': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 		regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
 		if not re.match(regex, password):
-			return Response({'password_format': 'Wrong password fornat'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'password_format': 'Wrong password format'}, status=status.HTTP_400_BAD_REQUEST)
 		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
 			try:
