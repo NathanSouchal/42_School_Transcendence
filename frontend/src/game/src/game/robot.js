@@ -42,7 +42,7 @@ class Robot {
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
-        this.inverseDifficulty > 1 ? Math.random() * this.inverseDifficulty : 0;
+        this.inverseDifficulty >= 1 ? Math.random() * this.inverseDifficulty - 0.5 : 0;
       this.last_target_x = this.target_x;
     }
     if (currentX + this.half_width < this.target_x - this.offset) {

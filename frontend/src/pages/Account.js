@@ -232,7 +232,7 @@ export default class Account {
     } else if (key === "confirm-delete-user") {
       await this.confirmDeleteUser(this.state.state.userId);
     } else if (key === "cancel-delete-user") {
-      await updateView(this, {});
+      await this.cancelDeleteUser();
     }
   }
 
@@ -363,11 +363,23 @@ export default class Account {
   }
 
   async deleteUser() {
-    this.deleteUserVerification = true;
-    await updateView(this, {});
-    this.deleteUserVerification = false;
+    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteUserButton = document.getElementById("delete-user-button");
+    if (deleteVerificationDiv && deleteUserButton) {
+      deleteVerificationDiv.style.display = "block";
+      deleteUserButton.style.display = "none";
+    }
   }
 
+  async cancelDeleteUser() {
+    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteUserButton = document.getElementById("delete-user-button");
+    if (deleteVerificationDiv && deleteUserButton) {
+      deleteVerificationDiv.style.display = "none";
+      deleteUserButton.style.display = "block";
+    }
+  }
+  
   async confirmDeleteUser(id) {
     this.deleteUserVerification = false;
     setDisable(true, "confirm-delete-user");
@@ -610,17 +622,14 @@ export default class Account {
 								${trad[this.lang].account.change}
 								</button>`
         }
-		${
-      !this.deleteUserVerification
-        ? `<button class="btn btn-danger mb-2" id="delete-user-button">${trad[this.lang].account.delete}</button>`
-        : `<div>
+        <button class="btn btn-danger mb-2" id="delete-user-button" style="display: block">${trad[this.lang].account.delete}</button>
+        <div id="delete-verification-div" style="display: none">
 				  <p class="text-danger">${trad[this.lang].account.sure}</p>
 				  <div class="delete-account-confirm-div">
 					<button type="button" class="btn btn-success mb-2" id="confirm-delete-user">${trad[this.lang].account.yes}</button>
 					<button type="button" class="btn btn-danger mb-2" id="cancel-delete-user">${trad[this.lang].account.no}</button>
 				  </div>
-				</div>`
-    }
+				</div>
             </div>
           </div>
         </div>
