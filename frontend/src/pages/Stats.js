@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -32,7 +31,7 @@ export default class Stats {
     }
 
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -66,7 +65,7 @@ export default class Stats {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -101,18 +100,11 @@ export default class Stats {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-      await this.getStats(this.state.state.userId);
-    } catch (error) {
-      if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.getStats(this.state.state.userId);
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -164,7 +156,6 @@ export default class Stats {
           <h1>No data</h1>
       </div>`;
     }
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
+    return template;
   }
 }

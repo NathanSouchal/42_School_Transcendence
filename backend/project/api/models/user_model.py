@@ -6,6 +6,7 @@ import uuid
 import pyotp
 import os
 from django.utils.timezone import now
+from api.utils import sanitize_input
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -100,6 +101,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 				pass
 
 	def save(self, *args, **kwargs):
+		self.username = sanitize_input(self.username)
+		self.alias = sanitize_input(self.alias) if self.alias else None
+		self.email = sanitize_input(self.email) if self.email else None
+		self.phone_number = sanitize_input(self.phone_number) if self.phone_number else None
+
 		self.delete_old_avatar()
 		super().save(*args, **kwargs)
 

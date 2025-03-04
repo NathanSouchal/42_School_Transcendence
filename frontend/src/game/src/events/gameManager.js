@@ -10,7 +10,8 @@ export class GameManager {
 
   connect() {
     if (this.socket) this.socket.close();
-    const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const baseUrl = `${protocol}://${window.location.hostname}:8000/ws/`;
 
     switch (state.gameMode) {
       case "PVP":
@@ -39,7 +40,7 @@ export class GameManager {
         case "hasFoundOpponent":
           console.log(
             "gameManager caught 'hasFoundOpponent', assigned side is ",
-            data.side,
+            data.side
           );
           this.side = data.side;
           state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
@@ -80,7 +81,7 @@ export class GameManager {
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,
-        state.ball.vel_z,
+        state.ball.vel_z
       );
       //console.log(
       //  `ball is now at: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`,
