@@ -130,7 +130,16 @@ export default class GamePage {
     }
   }
 
+  updateStatsEndGame() {
+    const { left, right } = this.state.score;
+    alert("ici");
+    console.log("left: " + left + "right: " + right);
+  }
+
   async handleStateChange(newState) {
+    console.log("state changed");
+    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
+      this.updateStatsEndGame();
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
