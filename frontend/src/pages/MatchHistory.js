@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -32,7 +31,7 @@ export default class MatchHistory {
     }
 
     if (!this.state.state.gameHasLoaded) return;
-    await updateView(this);
+    await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -65,9 +64,8 @@ export default class MatchHistory {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering MatchHistory page");
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -107,12 +105,11 @@ export default class MatchHistory {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-      await this.getMatchHistory(this.state.state.userId);
-    } catch (error) {
-      console.error(error);
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.getMatchHistory(this.state.state.userId);
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -123,7 +120,7 @@ export default class MatchHistory {
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    const template = `${backArrow}<div class="user-main-div">
+    return `${backArrow}<div class="user-main-div">
 						<div class="user-main-content">
 							<div class="title-div match-history-title-div">
 								<h1>${trad[this.lang].matchHistory.pageTitle}</h1>
@@ -155,7 +152,5 @@ export default class MatchHistory {
 						</div>
 						</div>
 					</div>`;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 }

@@ -33,7 +33,7 @@ export default class Social {
     }
 
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   async getFriends(id) {
@@ -142,7 +142,7 @@ export default class Social {
       await API.put(`/friend-requests/${invit_id}/`, {
         accepted: "true",
       });
-      await updateView(this);
+      await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
     }
@@ -159,7 +159,7 @@ export default class Social {
       await API.put(`/friend-requests/${invit_id}/`, {
         accepted: "false",
       });
-      await updateView(this);
+      await updateView(this, {});
     } catch (error) {
       console.error(
         `Error while trying to cancel or denie friend request : ${error}`
@@ -209,9 +209,8 @@ export default class Social {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Social page");
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -235,13 +234,12 @@ export default class Social {
   }
 
   async render(userId) {
-    try {
-      await checkUserStatus();
-      await this.getFriends(this.state.state.userId);
-      await this.getInvitations(this.state.state.userId);
-    } catch (error) {
-      console.error(error);
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.getFriends(this.state.state.userId);
+    await this.getInvitations(this.state.state.userId);
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;

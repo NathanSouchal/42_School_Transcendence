@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -32,7 +31,7 @@ export default class Stats {
     }
 
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -65,9 +64,8 @@ export default class Stats {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Stats page");
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -102,18 +100,11 @@ export default class Stats {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-      await this.getStats(this.state.state.userId);
-    } catch (error) {
-      if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        setTimeout(() => {
-          router.navigate("/404");
-        }, 50);
-        return "";
-      }
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.getStats(this.state.state.userId);
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -151,11 +142,11 @@ export default class Stats {
             <p>${this.stats.nb_games || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>${trad[this.lang].stats.avergaeScore}</h2>
+            <h2>${trad[this.lang].stats.averageScore}</h2>
             <p>${this.stats.average_score || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>${trad[this.lang].stats.lastGane}</h2>
+            <h2>${trad[this.lang].stats.lastGame}</h2>
             <p>${this.stats.last_game || 0}</p>
           </div>
 				</div>
@@ -165,7 +156,6 @@ export default class Stats {
           <h1>No data</h1>
       </div>`;
     }
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
+    return template;
   }
 }

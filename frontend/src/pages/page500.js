@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import { handleHeader, updateView, createBackArrow } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
@@ -12,7 +11,7 @@ export default class page500 {
     this.lang = null;
   }
   async initialize(routeParams = {}) {
-    await updateView(this);
+    await updateView(this, {});
   }
 
   async handleStateChange(newState) {
@@ -20,8 +19,7 @@ export default class page500 {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering 500 page");
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -74,14 +72,12 @@ export default class page500 {
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    let template = `${backArrow}<div class="main-error-container">
+    return `${backArrow}<div class="main-error-container">
 				<div class="error-title-container">
-				<h1>Error 500</h1>
-				<h2>Internal server error</h2>
+				<h1>${trad[this.lang].page500.pageTitle}</h1>
+				<h2>${trad[this.lang].page500.message}</h2>
 				</div>
 				<img src="/error/500.jpg" alt="500img" class="img500">
 			</div>`;
-    const sanitizedData = DOMPurify.sanitize(template);
-    return sanitizedData;
   }
 }

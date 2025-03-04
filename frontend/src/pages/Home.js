@@ -1,4 +1,3 @@
-import DOMPurify from "dompurify";
 import { handleHeader } from "../utils";
 import { updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
@@ -23,7 +22,7 @@ export default class Home {
       console.log("Home page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, {});
   }
 
   attachEventListeners() {
@@ -56,9 +55,8 @@ export default class Home {
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("GameHasLoaded state changed, rendering Home page");
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, {});
     } else this.previousState = { ...newState };
   }
 
@@ -83,11 +81,8 @@ export default class Home {
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-    } catch (error) {
-      console.error(error);
-    }
+    await checkUserStatus();
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
@@ -98,7 +93,7 @@ export default class Home {
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
     console.log("Home rendered");
-    let template = `
+    return `
     <div class="home-main-div">
       <div class="home-title">
         <h1>PONG</h1>
@@ -118,7 +113,5 @@ export default class Home {
       </div>
     </div>
 	`;
-    const sanitizedTemplate = DOMPurify.sanitize(template);
-    return sanitizedTemplate;
   }
 }
