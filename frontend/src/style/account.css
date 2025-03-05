@@ -8,6 +8,11 @@
   text-align: center;
   color: var(--primary-color);
   width: 80%;
+  margin: 0 auto;
+}
+
+.account-main-div button {
+  width: 200px;
 }
 
 .user-main-content {
@@ -28,12 +33,6 @@ label {
   font-size: 2rem;
 }
 
-.avatar-main-div,
-.username-main-div,
-.alias-main-div {
-  margin: 20px;
-}
-
 .username-title-div,
 .alias-title-div {
   display: flex;
@@ -42,10 +41,39 @@ label {
   width: 100%;
 }
 
-.form-username-title-div,
-.form-alias-title-div {
+.input-div {
+  display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   line-height: 2;
+  margin: 20px auto;
+  width: 100%;
+}
+
+.input-div input {
+  text-align: center;
+  width: 100%;
+  max-width: 350px;
+  font-family: var(--secondary-font);
+  padding: 0.8em;
+  font-size: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  background: white;
+  transition:
+    border 0.3s,
+    box-shadow 0.3s;
+}
+
+.input-div input::placeholder {
+  opacity: 0.5;
+}
+
+.input-div input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(255, 94, 0, 0.2);
 }
 
 .username-title,
@@ -54,6 +82,7 @@ label {
   font-weight: 300;
   padding-right: 10px;
   padding-left: 10px;
+  font-size: 1.8rem;
 }
 
 .user-main-div input {
@@ -69,11 +98,17 @@ label {
   font-style: var(--primary-font);
 }
 
-img {
+.user-main-div img {
   width: 200px;
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
+  margin-bottom: 1rem;
+}
+
+.file-input-div {
+  width: 50%;
+  margin-top: -1rem;
 }
 
 .file-input {
@@ -83,15 +118,20 @@ img {
   height: 0;
 }
 
+#username-main-div,
+#alias-main-div {
+  width: 100%;
+}
+
 .file-label {
   width: 100%;
   font-family: var(--secondary-font);
   margin-top: 1rem;
   padding: 0.8em;
   font-size: 1rem;
-  border: 2px solid #ddd;
+  border: 2px solid #c7c3c3;
   border-radius: 5px;
-  background: white;
+  background: rgb(222, 222, 222);
   display: inline-block;
   text-align: center;
   transition:
@@ -114,8 +154,142 @@ img {
   background-color: var(--primary-light);
 }
 
+.form-2FA-main-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 5rem;
+}
+
+.app2FA-div,
+.email2FA-div,
+.sms2FA-div {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 90%;
+}
+
+.checkbox-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.checkbox-div label {
+  display: block;
+  font-size: 1.5em;
+  margin-bottom: 1rem;
+}
+
+.checkbox-div input {
+  margin: 10px;
+}
+
 @media (max-width: 800px) {
   .user-main-div h2 {
     font-size: 1.5em;
   }
+
+  .input-div {
+    max-width: 300px;
+  }
+}
+
+.checkbox-div .switch {
+  display: inline-block;
+  height: 34px;
+  position: relative;
+  width: 60px;
+}
+
+.checkbox-div .switch input {
+  display: none;
+}
+
+.checkbox-div .slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+}
+
+.checkbox-div .slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: "";
+  height: 26px;
+  left: 4px;
+  position: absolute;
+  transition: 0.4s;
+  width: 26px;
+}
+
+.checkbox-div input:checked + .slider {
+  background-color: #66bb6a;
+}
+
+.checkbox-div input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.checkbox-div .slider.round {
+  border-radius: 34px;
+}
+
+.checkbox-div .slider.round:before {
+  border-radius: 50%;
+}
+
+.email2FA-input-div,
+.sms2FA-input-div {
+  margin-top: -1rem;
+  margin-bottom: 4rem;
+}
+
+.totp-qr-code-div img {
+  border-radius: 0;
+  margin-bottom: 4rem;
+}
+
+.inputs-button-form-login-register label {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.link-to-register {
+  margin: auto;
+}
+
+.link-to-register h2 {
+  font-size: 1.8rem;
+}
+
+.account-error-message {
+  text-align: center;
+  color: var(--danger-color);
+  letter-spacing: 0.1rem;
+  font-weight: 700;
+  font-size: 1.5em !important;
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+.delete-account-confirm-div {
+  display: flex;
+}
+
+.delete-account-confirm-div button {
+  width: 100px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
 }

@@ -7,6 +7,7 @@ import {
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Stats {
   constructor(state) {
@@ -17,6 +18,7 @@ export default class Stats {
     this.isInitialized = false;
     this.eventListeners = [];
     this.stats = {};
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -59,13 +61,13 @@ export default class Stats {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Stats page");
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   async getStats(id) {
@@ -94,7 +96,7 @@ export default class Stats {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Home page unsubscribed from state");
+      console.log("Stats page unsubscribed from state");
     }
   }
 
@@ -105,11 +107,21 @@ export default class Stats {
     } catch (error) {
       if (error.response.status === 401) return "";
       if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
+        setTimeout(() => {
+          router.navigate("/404");
+        }, 50);
+        return "";
       }
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Stats page subscribed to state");
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     console.log(
       "STATS: " +
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
@@ -119,30 +131,30 @@ export default class Stats {
     if (this.stats && Object.keys(this.stats).length > 0) {
       template = `${backArrow}
       <div class="main-div-stats">
-        <h1 class="global-page-title">Stats</h1>
+        <h1 class="global-page-title">${trad[this.lang].stats.pageTitle}</h1>
 				<div class="stats-list">
 					<div class="stats-item">
-            <h2>Wins</h2>
+            <h2>${trad[this.lang].stats.wins}</h2>
             <p>${this.stats.wins || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>Losses</h2>
+            <h2>${trad[this.lang].stats.losses}</h2>
             <p>${this.stats.losses || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>Win ratio</h2>
+            <h2>${trad[this.lang].stats.winRatio}</h2>
             <p>${this.stats.win_ratio || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>Number of games</h2>
+            <h2>${trad[this.lang].stats.gameNum}</h2>
             <p>${this.stats.nb_games || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>Average score</h2>
+            <h2>${trad[this.lang].stats.averageScore}</h2>
             <p>${this.stats.average_score || 0}</p>
           </div>
 					<div class="stats-item">
-            <h2>Last game</h2>
+            <h2>${trad[this.lang].stats.lastGame}</h2>
             <p>${this.stats.last_game || 0}</p>
           </div>
 				</div>

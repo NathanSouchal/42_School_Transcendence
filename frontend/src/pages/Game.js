@@ -2,25 +2,30 @@ import { handleHeader, updateView, checkUserStatus } from "../utils";
 import DOMPurify from "dompurify";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
+import { trad } from "../trad.js";
 
 export default class GamePage {
   constructor(state) {
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.container = null;
+    this.isMatchmaking = false;
     this.isSubscribed = false;
     this.isInitialized = false;
     this.eventListeners = [];
+    this.oldscore = state.score;
+    this.lang = null;
+    this.haveToSelectBotDifficulty = false;
   }
 
   async initialize(routeParams = {}) {
     if (this.isInitialized) return;
     this.isInitialized = true;
-    console.log("GamePage initialized");
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("GamePage subscribed to state");
+      // console.log("GamePage subscribed to state");
     }
     await updateView(this);
   }
@@ -40,10 +45,25 @@ export default class GamePage {
       }
     });
 
+    const selectDifficulty = document.getElementById("select-difficulty");
+    if (selectDifficulty) {
+      const handleDifficultyChange = this.handleDifficultyChange.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "selectDifficulty")) {
+        selectDifficulty.addEventListener("change", handleDifficultyChange);
+      }
+      this.eventListeners.push({
+        name: "selectDifficulty",
+        type: "change",
+        element: selectDifficulty,
+        listener: handleDifficultyChange,
+      });
+    }
+
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },
       { id: "start-pvr-game", action: "start-pvr-game" },
+      { id: "start-online-pvp-game", action: "start-online-pvp-game" },
       { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },
@@ -75,14 +95,33 @@ export default class GamePage {
     }
   }
 
-  handleClick(param) {
+  handleDifficultyChange(e) {
+    const selectedValue = e.target.value;
+    if (selectedValue) {
+      this.state.botDifficulty = selectedValue;
+      this.state.setGameStarted("PVR");
+    }
+  }
+
+  async handleClick(param) {
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
         console.log("coucou");
         break;
       case "start-pvr-game":
-        this.state.setGameStarted("PVR");
+        this.haveToSelectBotDifficulty = true;
+        await updateView(this);
+        this.haveToSelectBotDifficulty = false;
+        // this.state.setGameStarted("PVR");
+        break;
+      case "start-online-pvp-game":
+        if (!this.state.state.isSearching) {
+          this.state.startMatchmaking();
+        } else {
+          this.state.cancelMatchmaking();
+        }
+        console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
       case "resume-game":
         this.state.togglePause();
@@ -104,23 +143,29 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
+    // console.log("Checking if state has changed");
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
-      newState.gameHasLoaded !== this.previousState.gameHasLoaded
+      newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"] ||
+      newState.lang !== this.previousState.lang
     ) {
       console.log("State changed, rendering Game page");
+      this.previousState = { ...newState };
+      this.oldscore = { ...this.state.score };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
   }
 
   removeEventListeners() {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
+        // console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -131,24 +176,53 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Game page unsubscribed from state");
+      // console.log("Game page unsubscribed from state");
     }
   }
 
+  renderSelectBotDifficulty() {
+    const backArrow = createBackArrow(this.state.state.lastRoute);
+    const template = `${backArrow}
+            <div class="container-selector">
+              <div class="select-container">
+                <label for="select-difficulty">Difficulty</label>
+                <select id="select-difficulty">
+                  <option value="" disabled selected>Select...</option>
+                  <option value="4">Easy</option>
+                  <option value="5">Normal</option>
+                  <option value="6">Hard</option>
+                </select>
+              </div>
+            </div>`;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate;
+  }
+
   renderGameMenu() {
+    const { isSearching } = this.state.state;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     const template = `${backArrow}
             <div>
             <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
               <div class="global-nav-section nav-section-game">
                   <div class="global-nav-items">
-                    <button id="start-pvp-game">Player vs Player</button>
+                    <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
                   </div>
                   <div class="global-nav-items">
-                    <button id="start-pvr-game">Player vs Robot</button>
+                    <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
                   </div>
                   <div id="start-local-tournament" class="global-nav-items">
-                     <a class="nav-link" href="/local-tournament">Local tournament</a>
+                     <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
+                  </div>
+
+                  <div class="global-nav-items">
+                    <button id="start-online-pvp-game">
+                      ${
+                        isSearching
+                          ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
+                          : "Online PVP"
+                      }
+                    </button>
                   </div>
               </div>
             </div>
@@ -180,13 +254,13 @@ export default class GamePage {
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
-							<h1>Game Paused</h1>
+							<h1>${trad[this.lang].game.paused}</h1>
 						</div>
 						<div class="global-nav-items">
-							<button id="resume-game">Resume Game</button>
+							<button id="resume-game">${trad[this.lang].game.resume}</button>
 						</div>
 						<div class="global-nav-items">
-							<button id="exit-game">Quit Game</button>
+							<button id="exit-game">${trad[this.lang].game.quit}</button>
 						</div>
 					</div>
 				</div>
@@ -208,13 +282,13 @@ export default class GamePage {
 							<h1 class="display-4 mb-0">${left} - ${right}</h1>
 						</div>
 						<h2 class="mt-2">
-							${left > right ? "Left Player Wins!" : "Right Player Wins!"}
+							${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
 						</h2>
 						<div class="global-nav-items">
-							<button id="restart-game">Play Again</button>
+							<button id="restart-game">${trad[this.lang].game.playAgain}</button>
 						</div>
 						<div class="global-nav-items">
-							<button id="exit-game">Back to Menu</button>
+							<button id="exit-game">${trad[this.lang].game.back}</button>
 						</div>
 					</div>
 				</div>
@@ -228,34 +302,58 @@ export default class GamePage {
     try {
       await checkUserStatus();
     } catch (error) {
-      if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
-      }
+      console.error(error);
+    }
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
-    
-    if (!gameStarted && !gameHasBeenWon) {
+
+    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, false);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
+      this.lang = this.state.state.lang;
       return this.renderGameMenu();
+    } else if (
+      !gameStarted &&
+      !gameHasBeenWon &&
+      this.haveToSelectBotDifficulty
+    ) {
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
+      this.lang = this.state.state.lang;
+      return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderGameEnded();
     } else if (gameIsPaused) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderPauseMenu();
     } else {
       renderGame.className = "";
       menuButton.className = "";
-      handleHeader(this.state.isUserLoggedIn, true);
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, true, true);
+      else handleHeader(this.state.isUserLoggedIn, true, false);
+      this.lang = this.state.state.lang;
       return this.renderGameHUD();
     }
   }

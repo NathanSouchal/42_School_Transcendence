@@ -1,10 +1,10 @@
 import * as THREE from "three";
 
 class PaddleControls {
-  constructor(paddle, controls, size) {
+  constructor(paddle, keymaps, size) {
     this.paddle = paddle;
     this.size = size;
-    this.controls = controls;
+    this.keymaps = keymaps;
     this.state = {
       bottom: false,
       top: false,
@@ -12,61 +12,40 @@ class PaddleControls {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.paddle.needsRemoving = true;
+    this.deltaFactor = 30;
     this.setupEventListeners();
   }
 
   setupEventListeners() {
-    if (this.controls.keyboardControl) {
-      window.addEventListener("keydown", this.handleKeyDown);
-      window.addEventListener("keyup", this.handleKeyUp);
-    }
+    window.addEventListener("keydown", this.handleKeyDown);
+    window.addEventListener("keyup", this.handleKeyUp);
   }
 
   handleKeyDown(event) {
-    if (!this.controls.keyboardControl) return;
-
-    if (event.key === this.controls.keyboardKeys.bottom) {
+    if (event.key === this.keymaps.bottom) {
       this.state.bottom = true;
     }
-    if (event.key === this.controls.keyboardKeys.top) {
+    if (event.key === this.keymaps.top) {
       this.state.top = true;
     }
   }
 
   handleKeyUp(event) {
-    if (!this.controls.keyboardControl) return;
-
-    if (event.key === this.controls.keyboardKeys.bottom) {
+    if (event.key === this.keymaps.bottom) {
       this.state.bottom = false;
     }
-    if (event.key === this.controls.keyboardKeys.top) {
+    if (event.key === this.keymaps.top) {
       this.state.top = false;
     }
   }
 
-  update(deltaTime, ballX) {
-    if (this.controls.keyboardControl) {
-      if (this.state.bottom) {
-        this.paddle.obj.position.x -= deltaTime * this.controls.deltaFactor;
-      }
-      if (this.state.top) {
-        this.paddle.obj.position.x += deltaTime * this.controls.deltaFactor;
-      }
-      this.constrainPaddlePosition();
+  update(deltaTime, gameManager) {
+    if (this.state.bottom) {
+      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
     }
-  }
-
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
-
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
+    if (this.state.top) {
+      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
+    }
   }
 
   dispose() {

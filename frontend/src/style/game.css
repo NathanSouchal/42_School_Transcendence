@@ -33,6 +33,11 @@
   text-align: center;
 }
 
+.container-selector {
+  width: 200%;
+  height: 70%;
+}
+
 @media (max-width: 900px) {
   .game-paused-title h1 {
     font-size: 2rem;

@@ -1,30 +1,29 @@
 import * as THREE from "three";
+import state from "../../../app";
 
 class Robot {
-  constructor(paddle, size, difficulty = 4) {
+  constructor(paddle, size) {
     this.paddle = paddle;
     this.size = size;
-    this.difficulty = difficulty;
+    this.difficulty = state.botDifficulty;
     this.inverseDifficulty = 6 - this.difficulty;
     this.deltaFactor = 30;
-    this.half_width = this.paddle.paddle_half_width;
+    this.half_width = 3.42;
     this.state = {
       top: false,
       bottom: false,
     };
     this.target_x = 0;
     this.last_target_x = 0;
-    this.half_width = 3.42; // BAD
+    this.timeSinceLastView = 0;
   }
 
   predictBallPosition(position, velocity) {
     const arenaWidth = this.size.arena_width - this.size.border_width * 2;
     const halfArenaWidth = arenaWidth / 2;
-    const paddleZ = this.paddle.obj.position.z;
+    const paddleZ = this.paddle.pos.z;
     const timeToReach = (paddleZ - position.z) / velocity.z;
-
     let predictedX = position.x + velocity.x * timeToReach;
-
     while (predictedX < -halfArenaWidth || predictedX > halfArenaWidth) {
       if (predictedX < -halfArenaWidth) {
         predictedX = -halfArenaWidth + (-predictedX - halfArenaWidth);
@@ -33,19 +32,17 @@ class Robot {
         predictedX = halfArenaWidth - (predictedX - halfArenaWidth);
       }
     }
-
     return predictedX;
   }
 
   moveTowardsTarget(deltaTime) {
-    const currentX = this.paddle.obj.position.x;
+    const currentX = this.paddle.pos.x;
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
-        this.inverseDifficulty > 1 ? Math.random() * this.inverseDifficulty : 0;
+        this.inverseDifficulty >= 1 ? Math.random() * this.inverseDifficulty - 0.5 : 0;
       this.last_target_x = this.target_x;
     }
-
     if (currentX + this.half_width < this.target_x - this.offset) {
       this.state.top = true;
       this.state.bottom = false;
@@ -58,33 +55,39 @@ class Robot {
     }
   }
 
-  updatePaddlePosition(deltaTime) {
+  updatePaddlePosition(deltaTime, gameManager) {
     if (this.state.bottom) {
-      this.paddle.obj.position.x -= deltaTime * this.deltaFactor;
+      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
     }
     if (this.state.top) {
-      this.paddle.obj.position.x += deltaTime * this.deltaFactor;
+      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
     }
   }
 
-  constrainPaddlePosition() {
-    const arenaWidth = this.size.arena_width - this.size.border_width * 2;
-    const paddleWidth = this.size.paddle_width;
-    const halfArenaWidth = arenaWidth / 2;
-    const halfPaddleWidth = paddleWidth / 2;
+  update(deltaTime, gameManager, position, velocity) {
+    //   this.target_x = this.predictBallPosition(position, velocity);
+    // constrainPaddlePosition() {
+    //   const arenaWidth = this.size.arena_width - this.size.border_width * 2;
+    //   const paddleWidth = this.size.paddle_width;
+    //   const halfArenaWidth = arenaWidth / 2;
+    //   const halfPaddleWidth = paddleWidth / 2;
+    //
+    //   this.paddle.obj.position.x = THREE.MathUtils.clamp(
+    //     this.paddle.obj.position.x,
+    //     -halfArenaWidth + halfPaddleWidth,
+    //     halfArenaWidth - halfPaddleWidth,
+    //   );
+    // }
+    //
+    // update(deltaTime, position, velocity) {
+    this.timeSinceLastView += deltaTime;
 
-    this.paddle.obj.position.x = THREE.MathUtils.clamp(
-      this.paddle.obj.position.x,
-      -halfArenaWidth + halfPaddleWidth,
-      halfArenaWidth - halfPaddleWidth,
-    );
-  }
-
-  update(deltaTime, position, velocity) {
-    this.target_x = this.predictBallPosition(position, velocity);
+    if (this.timeSinceLastView >= 1) {
+      this.target_x = this.predictBallPosition(position, velocity);
+      this.timeSinceLastView = 0;
+    }
     this.moveTowardsTarget(deltaTime);
-    this.updatePaddlePosition(deltaTime);
-    this.constrainPaddlePosition();
+    this.updatePaddlePosition(deltaTime, gameManager);
   }
 }
 

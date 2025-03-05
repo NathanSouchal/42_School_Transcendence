@@ -1,8 +1,8 @@
 import DOMPurify from "dompurify";
 import { handleHeader } from "../utils";
-import API from "../services/api.js";
 import { updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Home {
   constructor(state) {
@@ -12,17 +12,16 @@ export default class Home {
     this.isSubscribed = false;
     this.isInitialized = false;
     this.eventListeners = [];
+    this.lang = null;
   }
   async initialize(routeParams = {}) {
-    console.log("Home initialized");
+    if (this.isInitialized) return;
+    this.isInitialized = true;
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
     }
-    if (this.isInitialized) return;
-    this.isInitialized = true;
-    console.log("PREVGameHasLoaded1 : " + this.previousState.gameHasLoaded);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -53,13 +52,13 @@ export default class Home {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Home page");
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -88,28 +87,17 @@ export default class Home {
     } catch (error) {
       console.error(error);
     }
-    handleHeader(this.state.isUserLoggedIn, false);
-    console.log("Home rendered");
-    const container = document.getElementById("app");
-    if (container) container.className = "app";
-    const { id } = routeParams;
-    let links;
-    if (this.state.isUserLoggedIn) {
-      links = [
-        { href: "/game", text: "Play" },
-        // { href: "/user/1", text: "User 1" },
-        // { href: "/user/2", text: "User 2" },
-        // { href: "/user/3", text: "User 3" },
-        // { href: "/user/200", text: "User 200" },
-      ];
-    } else {
-      links = [
-        { href: "/login", text: "Login" },
-        { href: "/game", text: "Guest Mode" },
-        // { href: "/user/200", text: "User 200" },
-      ];
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Home page subscribed to state");
     }
-    return `
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
+    console.log("Home rendered");
+    let template = `
     <div class="home-main-div">
       <div class="home-title">
         <h1>PONG</h1>
@@ -117,15 +105,19 @@ export default class Home {
       </div>
       <div>
         <div class="global-nav-section">
-          ${links
-            .map(
-              (link) =>
-                `<div class="global-nav-items"><a class="nav-link" href="${link.href}">${link.text}</a></div>`
-            )
-            .join("")}
+			<div class="global-nav-items">
+				${
+          this.state.isUserLoggedIn
+            ? `<a class="global-nav-link" href="/game">${trad[this.lang].home.play}</a>`
+            : `<a class="global-nav-link" href="/login">${trad[this.lang].home.login}</a>
+				<a class="global-nav-link" href="/game">${trad[this.lang].home.guestMode}</a>`
+        }
+			</div>
         </div>
       </div>
     </div>
 	`;
+    const sanitizedTemplate = DOMPurify.sanitize(template);
+    return sanitizedTemplate;
   }
 }

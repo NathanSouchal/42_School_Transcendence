@@ -15,7 +15,11 @@
     <link rel="stylesheet" href="./src/style/stats.css" />
     <link rel="stylesheet" href="./src/style/error-page.css" />
     <link rel="stylesheet" href="./src/style/account.css" />
-    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./src/style/user.css" />
+    <link rel="stylesheet" href="./src/style/match-history.css" />
+    <link rel="stylesheet" href="./src/style/loader.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦀</text></svg>"
@@ -37,11 +41,11 @@
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Dangrek&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Madimi+One&display=swap"
       rel="stylesheet"
     />
 
@@ -52,19 +56,53 @@
   </head>
   <body>
     <div class="body-container">
-      <!-- <div class="toggle-button">
-      <span class="bar2"></span>
-    </div> -->
       <header id="header" class="" style="display: none"></header>
       <div id="loading-overlay" class="loading-overlay">
         <div class="loading-content">
-          <div class="spinner-border" role="status">
+          <div class="loader" role="status">
             <span class="visually-hidden">Loading...</span>
           </div>
-          <h2>Loading Game...</h2>
+          <h2 class="loading-h2">
+            Loading Game<span class="loading-text">
+              <span class="dot">.</span>
+              <span class="dot">.</span>
+              <span class="dot">.</span>
+            </span>
+          </h2>
         </div>
       </div>
       <canvas id="c"></canvas>
+      <div class="lang-div" id="lang-div">
+        <div class="selected-lang-div" id="selected-lang-div">
+          <img
+            alt="selected-lang-img"
+            class="selected-lang-img"
+            src="english.jpg"
+            id="selected-lang-img"
+          />
+          <button class="lang-dropdown-btn" id="lang-dropdown-btn">
+            <span class="lang-arrow"></span>
+          </button>
+        </div>
+        <ul class="lang-menu" id="lang-menu">
+          <li data-lang="french.jpg">
+            <img src="french.jpg" alt="Français" class="lang-icon" />
+            <span class="lang-name">FR</span>
+          </li>
+          <li data-lang="english.jpg">
+            <img src="english.jpg" alt="English" class="lang-icon" />
+            <span class="lang-name">EN</span>
+          </li>
+          <li data-lang="spanish.jpg">
+            <img src="spanish.jpg" alt="Spanish" class="lang-icon" />
+            <span class="lang-name">ES</span>
+          </li>
+          <li data-lang="crab.jpg">
+            <img src="crab.jpg" alt="Crab" class="lang-icon" />
+            <span class="lang-name">CR</span>
+          </li>
+        </ul>
+      </div>
       <main id="main" class="main">
         <div class="toggle-button-container" id="toggle-button-container">
           <div class="toggle-button" id="toggle-button">

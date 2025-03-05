@@ -6,6 +6,7 @@ import {
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class User {
   constructor(state) {
@@ -22,10 +23,12 @@ export default class User {
     this.friendRequests = [];
     this.friendStatus = "";
     this.friendRequestId = null;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
     const newPageId = routeParams.id;
+
     if (this.pageId === newPageId) this.isRouteId = true;
     if (this.isRouteId && this.isInitialized) return;
     if (!this.isInitialized) this.isInitialized = true;
@@ -37,7 +40,8 @@ export default class User {
     }
 
     this.pageId = routeParams.id;
-
+    console.log("Newage id : " + newPageId);
+    console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this);
   }
@@ -57,104 +61,30 @@ export default class User {
       }
     });
 
-    const cancelFriendRequestButton = document.getElementById(
-      "cancel-friend-request"
-    );
-    if (cancelFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some((e) => e.name === "cancel-friend-request")
-      ) {
-        cancelFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("cancel-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "cancel-friend-request",
-          type: "click",
-          element: cancelFriendRequestButton,
-          listener: handleFriend,
-        });
-      }
-    }
+    const friendButtonConfigs = [
+      { id: "cancel-friend-request", action: "cancel-friend-request" },
+      { id: "send-friend-request", action: "send-friend-request" },
+      { id: "unfriend", action: "unfriend" },
+      { id: "accept-friend-request", action: "accept-friend-request" },
+      {
+        id: "delete-recieved-friend-request",
+        action: "delete-recieved-friend-request",
+      },
+    ];
 
-    const sendFriendRequestButton = document.getElementById(
-      "send-friend-request"
-    );
-    if (sendFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "send-friend-request")) {
-        sendFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("send-friend-request", "")
-        );
+    friendButtonConfigs.forEach(({ id, action }) => {
+      const button = document.getElementById(id);
+      if (button && !this.eventListeners.some((e) => e.name === action)) {
+        const boundHandleFriend = this.handleFriend.bind(this, action, "");
+        button.addEventListener("click", boundHandleFriend);
         this.eventListeners.push({
-          name: "send-friend-request",
+          name: action,
           type: "click",
-          element: sendFriendRequestButton,
-          listener: handleFriend,
+          element: button,
+          listener: boundHandleFriend,
         });
       }
-    }
-
-    const unfriendButton = document.getElementById("unfriend");
-    if (unfriendButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "unfriend")) {
-        unfriendButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("unfriend", "")
-        );
-        this.eventListeners.push({
-          name: "unfriend",
-          type: "click",
-          element: unfriendButton,
-          listener: handleFriend,
-        });
-      }
-    }
-
-    const acceptFriendButton = document.getElementById("accept-friend-request");
-    if (acceptFriendButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some((e) => e.name === "accept-friend-request")
-      ) {
-        acceptFriendButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("accept-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "accept-friend-request",
-          type: "click",
-          element: acceptFriendButton,
-          listener: handleFriend,
-        });
-      }
-    }
-
-    const deleteRecievedFriendRequestButton = document.getElementById(
-      "delete-recieved-friend-request"
-    );
-    if (deleteRecievedFriendRequestButton) {
-      const handleFriend = this.handleFriend.bind(this);
-      if (
-        !this.eventListeners.some(
-          (e) => e.name === "delete-recieved-friend-request"
-        )
-      ) {
-        deleteRecievedFriendRequestButton.addEventListener(
-          "click",
-          async (e) => await handleFriend("delete-recieved-friend-request", "")
-        );
-        this.eventListeners.push({
-          name: "delete-recieved-friend-request",
-          type: "click",
-          element: deleteRecievedFriendRequestButton,
-          listener: handleFriend,
-        });
-      }
-    }
+    });
   }
 
   async getPublicUserInfo() {
@@ -165,6 +95,7 @@ export default class User {
       console.log(data);
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
+      throw error;
     }
   }
 
@@ -180,6 +111,7 @@ export default class User {
       console.log(this.friends, this.friendRequests);
     } catch (error) {
       console.error(`Error while trying to get MyFriends : ${error}`);
+      throw error;
     }
   }
 
@@ -192,6 +124,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
+      throw error;
     }
   }
 
@@ -201,6 +134,7 @@ export default class User {
       console.log(res.data);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
+      throw error;
     }
   }
 
@@ -212,6 +146,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to cancel friend request : ${error}`);
+      throw error;
     }
   }
 
@@ -223,6 +158,7 @@ export default class User {
       console.log(res);
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
+      throw error;
     }
   }
 
@@ -236,6 +172,7 @@ export default class User {
       console.error(
         `Error while trying to delete recieved friend request : ${error}`
       );
+      throw error;
     }
   }
 
@@ -306,13 +243,13 @@ export default class User {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering User page");
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   removeEventListeners() {
@@ -350,61 +287,70 @@ export default class User {
       await this.getPublicUserInfo();
       await this.getMyFriends();
     } catch (error) {
-      if (error.response.status === 401) {
-        this.state.state.lastLastRoute = this.state.state.lastRoute;
-        return "";
-      }
-      if (error.response.status === 404) {
-        this.state.state.lastLastRoute = this.state.state.lastRoute;
-        router.navigate("/404");
-        return;
-      }
+      this.state.state.lastLastRoute = this.state.state.lastRoute;
+      console.error(error);
+      return "";
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("User page subscribed to state");
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
     return `${backArrow}
-			<div class="d-flex flex-column justify-content-center align-items-center h-100">
-				<div class="title-div mb-4">
-					<h1 class="text-capitalize w-100 text-center">Public user page</h1>
+			<div class="user-main-div">
+			<div class="user-main-content">
+				<div class="title-div">
+				<h1>${this.publicUserData.username ? `${this.publicUserData.username}` : `${trad[this.lang].user.pageTitle}`}</h1>
 				</div>
 				<div id="user-main-div">
-					<div id="avatar-main-div">
-					${this.publicUserData.avatar ? `<img width="200" height="200" src="https://localhost:8443${this.publicUserData.avatar}" class="rounded-circle">` : ``}
+					<div class="avatar-main-div" id="avatar-main-div">
+					${this.publicUserData.avatar ? `<img src="https://127.0.0.1:8000${this.publicUserData.avatar}">` : `<img src="/profile.jpeg">`}
 					</div>
-					<div id="username-main-div">
-						<h2 class="text-capitalize">
-						Username : ${this.publicUserData.username ? `${this.publicUserData.username}` : ""}
+					<div class="username-title-div" id="username-main-div">
+						<h2 class="username-title">
+						${trad[this.lang].user.username}
+						</h2>
+						<h2 class="username-title-value">
+						${this.publicUserData.username ? `${this.publicUserData.username}` : ""}
 						</h2>
 					</div>
-					</div>
-					<div id="alias-main-div">
-						<h2 class="text-capitalize">
-						Alias : ${this.publicUserData.alias ? `${this.publicUserData.alias}` : ""}
+					<div class="alias-title-div" id="alias-main-div">
+						<h2 class="alias-title">
+						${trad[this.lang].user.alias}
+						</h2>
+						<h2 class="alias-title-value">
+						${this.publicUserData.alias ? `${this.publicUserData.alias}` : ""}
 						</h2>
 					</div>
 					${
             this.friendStatus === "free"
               ? `<button type="button" class="btn btn-success m-3" id="send-friend-request">
-						Add friend
+						${trad[this.lang].user.addFriend}
 					</button>`
               : this.friendStatus === "friend"
                 ? `<button type="button" class="btn btn-danger m-3" id="unfriend">
-						Unfriend
+						${trad[this.lang].user.unfriend}
 					</button>`
                 : this.friendStatus === "pending"
                   ? `<button type="button" class="btn btn-info m-3" id="cancel-friend-request">
-						Cancel friend request
+						${trad[this.lang].user.cancel}
 					</button>`
                   : this.friendStatus === "recieved"
                     ? `<button type="button" class="btn btn-info m-3" id="accept-friend-request">
-						Accept friend request
+						${trad[this.lang].user.accept}
 					</button><button type="button" class="btn btn-info m-3" id="delete-recieved-friend-request">
-						Delete friend request
+						${trad[this.lang].user.delete}
 					</button>`
                     : ``
           }
 				</div>
+			</div>
 			</div>
 	`;
   }

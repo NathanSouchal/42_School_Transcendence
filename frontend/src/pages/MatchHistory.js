@@ -7,6 +7,7 @@ import {
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class MatchHistory {
   constructor(state) {
@@ -17,6 +18,7 @@ export default class MatchHistory {
     this.isInitialized = false;
     this.matchHistory = {};
     this.eventListeners = [];
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -59,13 +61,13 @@ export default class MatchHistory {
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering MatchHistory page");
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
   }
 
   async getMatchHistory(id) {
@@ -104,39 +106,54 @@ export default class MatchHistory {
   }
 
   async render(routeParams = {}) {
-    let template;
     try {
       await checkUserStatus();
       await this.getMatchHistory(this.state.state.userId);
     } catch (error) {
-      if (error.response.status === 401) return "";
-      if (error.response.status === 404) {
-        router.navigate("/404");
-        return;
-      }
+      console.error(error);
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Match_history page subscribed to state");
+    }
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const backArrow = createBackArrow(this.state.state.lastRoute);
-    if (this.matchHistory && Object.keys(this.matchHistory).length > 0) {
-      template = `${backArrow}${Object.values(this.matchHistory)
-        .map(
-          (value) =>
-            `<div class="d-flex flex-column m-3"><h3>Game n°${value.id}</h3>
-                <div class="d-flex gap-3 align-items-center">
-                    <h5>${value.created_at.split("T")[0]}</h5>
-                    <h4>${value.player1}</h4>
-                    <h5>${value.score_player1}</h5>
-                    <span>-</span>
-                    <h5>${value.score_player2}</h5>
-                    <h4>${value.player2}</h4>
-                </div>
-
-            </div>`
-        )
-        .join("")}`;
-    } else {
-      template = `${backArrow}<h1>No data</h1>`;
-    }
+    const template = `${backArrow}<div class="user-main-div">
+						<div class="user-main-content">
+							<div class="title-div match-history-title-div">
+								<h1>${trad[this.lang].matchHistory.pageTitle}</h1>
+							</div>
+							<div class="match-history-main-div">
+							${
+                this.matchHistory && Object.keys(this.matchHistory).length
+                  ? Object.values(this.matchHistory)
+                      .map(
+                        (value) =>
+                          `<div class="match-history-main-game-div">
+								<div class="match-history-game-div ${value.score_player1 > value.score_player2 ? `${trad[this.lang].matchHistory.won}` : `${trad[this.lang].matchHistory.lost}`}">
+									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
+									<h3 class="mh-player">${value.player1}</h3>
+									<h3 class="mh-score">${value.score_player1}</h3>
+									<span>-</span>
+									<h3 class="mh-score">${value.score_player2}</h3>
+									<h3 class="mh-player">${value.player2}</h3>
+								</div>
+							</div>`
+                      )
+                      .join("")
+                  : `<div class="match-history-main-div">
+				  		<div class="match-history-main-game-div">
+							<h3>${trad[this.lang].matchHistory.noContent}</h3>
+						</div>
+					</div>`
+              }
+						</div>
+						</div>
+					</div>`;
     const sanitizedTemplate = DOMPurify.sanitize(template);
     return sanitizedTemplate;
   }

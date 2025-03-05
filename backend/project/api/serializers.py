@@ -1,6 +1,8 @@
 from rest_framework import serializers;
 from api.models import Game, User, Tournament, Match, Stats, FriendRequest
 from drf_extra_fields.fields import Base64ImageField
+from django.core.validators import RegexValidator
+import re
 
 class GameSerializer(serializers.ModelSerializer):
     # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
@@ -20,12 +22,26 @@ class GameSerializer(serializers.ModelSerializer):
         return representation
 
 class SimpleUserSerializer(serializers.ModelSerializer):
+    is_online = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar']
+        fields = ['id', 'username', 'avatar', 'is_online']
+
+    def get_is_online(self, obj):
+        return obj.is_online()
 
 class UserSerializer(serializers.ModelSerializer):
     # id = serializers.UUIDField(format='hex')
+    username = serializers.CharField(min_length=4, max_length=10, required=True, error_messages={'min_length': 'Username must be a least 4 characters long', 'max_length': 'Username must be at maximum 10 characters long'})
+    alias = serializers.CharField(min_length=4, max_length=10, required=False, error_messages={'min_length': 'Alias must be a least 4 characters long', 'max_length': 'Alias must be at maximum 10 characters long'})
+    email = serializers.EmailField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True, validators=[
+            RegexValidator(
+                r'^\+33[1-9]\d{8}$',
+                message="Wrong phone number format"
+            )
+        ])
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
@@ -39,6 +55,14 @@ class UserSerializer(serializers.ModelSerializer):
             'is_superuser': {'read_only': True}  # Empêche la modification via l'API
         }
 
+    def validate_phone_number(self, value):
+        regex = r'^\+33[1-9]\d{8}$'
+        if value and not re.match(regex, value):
+            raise serializers.ValidationError(
+				"Phone number format (ex: +33606060606)"
+			)
+        return value
+
     def create(self, validated_data):
         avatar = validated_data.get('avatar', None)
         if not avatar:
@@ -46,13 +70,16 @@ class UserSerializer(serializers.ModelSerializer):
         alias = validated_data.get('alias', None)
         if not alias:
             validated_data['alias'] = validated_data.get('username')
+        lang = validated_data.get('lang', None)
+        if not lang:
+            validated_data['lang'] = "EN"
         user = User.objects.create_user(**validated_data)
         return user
 
 class PublicUserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ['id', 'avatar', 'username', 'alias']
+    class Meta:
+        model = User
+        fields = ['id', 'avatar', 'username', 'alias']
 
 """
 	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre

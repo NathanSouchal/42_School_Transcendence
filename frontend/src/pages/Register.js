@@ -1,7 +1,13 @@
 import DOMPurify from "dompurify";
 import API from "../services/api.js";
-import { handleHeader, updateView, createBackArrow, checkUserStatus } from "../utils.js";
+import {
+  handleHeader,
+  updateView,
+  createBackArrow,
+  setDisable,
+} from "../utils.js";
 import { router } from "../app.js";
+import { trad } from "../trad.js";
 
 export default class Register {
   constructor(state) {
@@ -16,7 +22,7 @@ export default class Register {
       passwordConfirmation: "",
     };
     this.eventListeners = [];
-    this.cssLink;
+    this.lang = null;
   }
 
   async initialize(routeParams = {}) {
@@ -50,26 +56,49 @@ export default class Register {
     const registerForm = document.getElementById("register-form");
     if (registerForm) {
       const handleSubmitBound = this.handleSubmit.bind(this);
-      registerForm.addEventListener("submit", handleSubmitBound);
-      this.eventListeners.push({
-        name: "register-form",
-        element: registerForm,
-        listener: handleSubmitBound,
-      });
+      if (!this.eventListeners.some((e) => e.name === "register-form")) {
+        registerForm.addEventListener("submit", handleSubmitBound);
+        this.eventListeners.push({
+          name: "register-form",
+          type: "submit",
+          element: registerForm,
+          listener: handleSubmitBound,
+        });
+      }
+    }
+
+    const popup = document.getElementById("popup-div");
+    if (popup) {
+      const showPopup = this.showPopup.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "popup")) {
+        popup.addEventListener("click", showPopup);
+        this.eventListeners.push({
+          name: "popup",
+          type: "click",
+          element: popup,
+          listener: showPopup,
+        });
+      }
     }
 
     const inputs = document.querySelectorAll("input");
     inputs.forEach((input) => {
-      const handleChangeBound = (e) => {
-        this.handleChange(e.target.name, e.target.value, e.target);
-      };
-      input.addEventListener("input", handleChangeBound);
-      this.eventListeners.push({
-        name: input.name,
-        element: input,
-        listener: handleChangeBound,
-      });
+      if (!this.eventListeners.some((e) => e.element === input)) {
+        const handleChangeBound = this.handleChange.bind(this);
+        input.addEventListener("input", handleChangeBound);
+        this.eventListeners.push({
+          name: input.name,
+          type: "input",
+          element: input,
+          listener: handleChangeBound,
+        });
+      }
     });
+  }
+
+  showPopup() {
+    const popup = document.getElementById("popup");
+    if (popup) popup.classList.toggle("show");
   }
 
   handleNavigation(e) {
@@ -81,7 +110,11 @@ export default class Register {
     }
   }
 
-  handleChange(key, value, inputElement) {
+  handleChange(e) {
+    let key = e.target.name;
+    let value = e.target.value;
+    let inputElement = e.target;
+
     if (key === "username") {
       if (value.length < 4) {
         inputElement.classList.remove("is-valid");
@@ -119,10 +152,11 @@ export default class Register {
 
   async handleSubmit(e) {
     e.preventDefault();
+    setDisable(true, "register-form");
     if (
-      this.formState.username.length < 4 ||
-      this.formState.password.length < 4 ||
-      this.formState.passwordConfirmation.length < 4
+      !this.formState.username?.length ||
+      !this.formState.password?.length ||
+      !this.formState.passwordConfirmation?.length
     ) {
       return console.error("Please complete all fields");
     }
@@ -130,28 +164,53 @@ export default class Register {
       const response = await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
-      console.error(`Error while trying to post data : ${error}`);
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data
+      ) {
+        const errorData = error.response.data;
+        if (errorData.username)
+          this.displayRegisterErrorMessage(Object.values(errorData.username));
+        else if (errorData.password_match)
+          this.displayRegisterErrorMessage(errorData.password_match);
+        else if (errorData.password_format)
+          this.displayRegisterErrorMessage(errorData.password_format);
+      } else if (error.response && error.response.status === 409)
+        this.displayRegisterErrorMessage("This username is already used");
     } finally {
-      this.formState.username = "";
-      this.formState.password = "";
-      this.formState.passwordConfirmation = "";
+      setDisable(false, "register-form");
+      this.formState = {};
+      const inputs = document.querySelectorAll("input");
+      inputs.forEach((input) => {
+        input.value = "";
+        input.classList.remove("is-valid");
+        input.classList.remove("is-invalid");
+      });
     }
   }
 
   async handleStateChange(newState) {
-    console.log("NEWGameHasLoaded : " + newState.gameHasLoaded);
-    console.log("PREVGameHasLoaded2 : " + this.previousState.gameHasLoaded);
-    if (newState.gameHasLoaded && !this.previousState.gameHasLoaded) {
-      console.log("GameHasLoaded state changed, rendering Home page");
+    if (
+      (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
+      newState.lang !== this.previousState.lang
+    ) {
+      this.previousState = { ...newState };
       await updateView(this);
-    }
-    this.previousState = { ...newState };
+    } else this.previousState = { ...newState };
+  }
+
+  displayRegisterErrorMessage(errorMsg) {
+    const errorTitle = document.getElementById("register-error-message");
+    if (errorTitle) errorTitle.textContent = errorMsg;
   }
 
   removeEventListeners() {
-    this.eventListeners.forEach(({ name, element, listener }) => {
-      element.removeEventListener(element, listener);
-      console.log("Removed eventListener fron input");
+    this.eventListeners.forEach(({ element, listener, type }) => {
+      if (element) {
+        element.removeEventListener(type, listener);
+        console.log(`Removed ${type} eventListener from input`);
+      }
     });
     this.eventListeners = [];
   }
@@ -159,62 +218,73 @@ export default class Register {
   destroy() {
     this.removeEventListeners();
     if (this.isSubscribed) {
-      this.state.unsubscribe(this.handleStateChange); // Nettoyage de l'abonnement
+      this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
   }
 
   async render(routeParams = {}) {
-    try {
-      await checkUserStatus();
-    } catch (error) {
-      console.error(error);
+    if (!this.isSubscribed) {
+      this.state.subscribe(this.handleStateChange);
+      this.isSubscribed = true;
+      console.log("Register page subscribed to state");
     }
-    handleHeader(this.state.isUserLoggedIn, false);
+    if (this.lang !== this.state.state.lang)
+      handleHeader(this.state.isUserLoggedIn, false, true);
+    else handleHeader(this.state.isUserLoggedIn, false, false);
+    this.lang = this.state.state.lang;
     const userData = this.state.data.username;
     const sanitizedData = DOMPurify.sanitize(userData || "");
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}
         <form id="register-form" class="form-div-login-register">
-          <h1 class="global-page-title">Register</h1>
+          <h1 class="global-page-title">${trad[this.lang].register.pageTitle}</h1>
           <div class="inputs-button-form-login-register">
             <input
               type="text"
               class="form-control"
-              placeholder="Enter username"
+              placeholder="${trad[this.lang].register.enterUsername}"
               minLength="4"
               maxLength="10"
-              value="${this.formState.username}"
+              value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
+			  autocomplete="username"
               required
             />
             <input
               type="password"
               class="form-control"
-              placeholder="Enter password"
-              value="${this.formState.password}"
-			  minLength="4"
+              placeholder="${trad[this.lang].register.enterPassword}"
+              value="${this.formState.password ? this.formState.password : ``}"
+			  minLength="8"
 			  maxLength="20"
               name="password"
               aria-label="Password"
+			  autocomplete="nwe-password"
               required
             />
             <input
               type="password"
               class="form-control"
-              placeholder="Confirm password"
-              value="${this.formState.passwordConfirmation}"
-			  minLength="4"
+              placeholder="${trad[this.lang].register.confirmPassword}"
+              value="${this.formState.passwordConfirmation ? this.formState.passwordConfirmation : ``}"
+			  minLength="8"
 			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
+			  autocomplete="nwe-password"
               required
             />
             <button type="submit" class="form-button-login-register">
-              Sign up
+			${trad[this.lang].register.signUp}
             </button>
+			<div class="popup" id="popup-div">
+			<h3>Password restrictions</h3>
+				<span class="popup-text" id="popup">${trad[this.lang].register.restrictions}</span>
+			</div>
+			<h2 class="register-error-message" id="register-error-message"></h2>
           </div>
         </form>`;
   }

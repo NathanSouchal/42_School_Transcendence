@@ -1,4 +1,4 @@
-from .auth_view import RegisterView, LoginView, LogoutView, RefreshTokenView, AccessTokenView, IsAuth
+from .auth_view import RegisterView, LoginView, LogoutView, RefreshTokenView, AccessTokenView, IsAuthView, Verify2FAView, GenerateTOTPQRCodeView
 from .game_view import GameView, GameListView
 from .match_view import MatchView, MatchListView
 from .tournament_view import TournamentView, TournamentListView
