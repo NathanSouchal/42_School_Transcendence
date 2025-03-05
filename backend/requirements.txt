@@ -63,7 +63,6 @@ twilio==9.4.5
 Twisted==24.11.0
 txaio==23.1.1
 typing_extensions==4.12.2
-daphne
 channels
 channels-redis
 django_extensions

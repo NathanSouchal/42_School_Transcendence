@@ -1,5 +1,4 @@
 services:
-
   backend:
     container_name: backend
     networks:
@@ -11,6 +10,25 @@ services:
     restart: on-failure
     depends_on:
       - postgres
+    volumes:
+      - ./backend:/app  # ✅ Monte le dossier backend pour le hot reload
+      - backend_static:/app/static  # ✅ Stocker les fichiers statiques de Django
+    ports:
+      - "8000:8000"  # API Django
+
+  frontend:
+    container_name: frontend
+    networks:
+      - transcendence
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app  # ✅ Monte le dossier frontend pour le hot reload
+    ports:
+      - "3000:3000"  # Vite.js expose le frontend en dev
 
   postgres:
     image: postgres:15
@@ -29,16 +47,18 @@ services:
     networks:
       - transcendence
     build:
-      context: .          # Contexte racine du projet pour englober aussi le dossier frontend 
-      dockerfile: nginx/Dockerfile  # Spécifie le Dockerfile dans le dossier nginx
-    ports:
-      - "8080:80"    # HTTP redirigé vers HTTPS
-      - "8443:443"   # HTTPS sur 8443 pour éviter le besoin de sudo
+      context: .
+      dockerfile: nginx/Dockerfile
     depends_on:
       - backend
+      - frontend
+    ports:
+      - "8080:80"   # HTTP (redirigé vers HTTPS)
+      - "8443:443"  # HTTPS
     volumes:
       - ./nginx/certs/selfsigned.crt:/etc/nginx/selfsigned.crt
       - ./nginx/certs/selfsigned.key:/etc/nginx/selfsigned.key
+      - backend_static:/usr/share/nginx/html/static/  # ✅ Partage les fichiers statiques de Django
 
 networks:
   transcendence:
@@ -46,4 +66,6 @@ networks:
 
 volumes:
   postgres_data:
+    driver: local
+  backend_static:  # ✅ Volume pour stocker les fichiers statiques du backend
     driver: local
