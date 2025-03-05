@@ -19,7 +19,7 @@ SECRET_KEY = "django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.13.12.1", "0.0.0.0"]
 # a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
 # ALLOWED_HOSTS = [
 #     "10.13.12.2",
@@ -30,25 +30,25 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-	"daphne",
+    "daphne",
     "channels",
     "django_extensions",
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-	'api',
-	'corsheaders',
-	'rest_framework',
-	'rest_framework_simplejwt',
-	'rest_framework_simplejwt.token_blacklist',
-	'sslserver',
-	'django_otp',
-	'django_otp.plugins.otp_totp',
-	'django_otp.plugins.otp_static',
-	'django_bleach',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "api",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "sslserver",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_static",
+    "django_bleach",
 ]
 
 
@@ -64,15 +64,15 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-	'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.UpdateLastSeenMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "api.middleware.UpdateLastSeenMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -177,23 +177,25 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOWED_ORIGINS = [
-	# "http://frontend:3000",
-	# "http://localhost:3000",
-	"https://frontend:3000",
-	"https://localhost:3000",
+    "http://frontend:3000",
+    "http://localhost:3000",
+    "https://frontend:3000",
+    "https://localhost:3000",
     "https://10.13.12.2:3000",
-
+    "https://10.13.12.1:3000",
+    "https://0.0.0.0:3000",
+    "https://0.0.0.0:8000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
 
-CSRF_COOKIE_SECURE = True  # Envoie le cookie CSRF uniquement via HTTPS
-SESSION_COOKIE_SECURE = True  # Envoie le cookie de session uniquement via HTTPS
 CSRF_TRUSTED_ORIGINS = [
     "http://frontend:3000",
     "http://localhost:3000",
     "https://localhost:3000",  # Frontend sécurisé
     "https://frontend:3000",
+    "https://0.0.0.0:3000",
+    "https://10.13.12.1:3000",
 ]
 
 
@@ -209,10 +211,10 @@ CHANNEL_LAYERS = {
 }
 
 
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-SECURE_SSL_REDIRECT = True
-CSRF_COOKIE_SECURE = True
-SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = False
+CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = False
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"

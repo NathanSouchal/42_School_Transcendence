@@ -1,15 +1,19 @@
 import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
+// import https from "https";
 
 const API_BASE_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 const API = axios.create({
   // baseURL: API_BASE_URL,
-  baseURL: "http://0.0.0.0:8000",
+  baseURL: "https://0.0.0.0:8000",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  // httpsAgent: new https.Agent({
+  //   rejectUnauthorized: false,
+  // }),
 });
 
 async function getNewAccessToken() {
@@ -68,7 +72,7 @@ API.interceptors.response.use(
       return Promise.reject(error);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default API;
