@@ -151,6 +151,7 @@ class LoginView(APIView):
 		samesite='None',
 		max_age=7 * 24 * 60 * 60  # 7 jours
 		)
+		print("Cookies envoyes :", response.cookies)
 		return response
 
 class Verify2FAView(APIView):
@@ -339,6 +340,7 @@ class IsAuthView(APIView):
 	def get(self, request):
 		try:
 			user = request.user
+			print(f'user.id: {user.id}')
 			return Response({'user authenticated': UserSerializer(user).data, 'user_id': user.id}, status=status.HTTP_200_OK)
 		except AuthenticationFailed:
 			return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)

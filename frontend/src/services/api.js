@@ -16,6 +16,10 @@ const API = axios.create({
   // }),
 });
 
+document.cookie
+  .split("; ")
+  .forEach((cookie) => console.log("🍪 Cookie envoyé :", cookie));
+
 async function getNewAccessToken() {
   console.log("Getting new access token");
   try {

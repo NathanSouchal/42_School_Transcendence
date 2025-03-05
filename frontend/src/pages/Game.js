@@ -288,7 +288,9 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
-    await checkUserStatus();
+    console.log("ICI");
+    // await checkUserStatus();
+    console.log("ICI2");
 
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);

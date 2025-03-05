@@ -176,6 +176,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
+
 CORS_ALLOWED_ORIGINS = [
     "http://frontend:3000",
     "http://localhost:3000",
@@ -187,8 +189,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:3000",
     "https://0.0.0.0:8000",
 ]
-
-CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
 
 CSRF_TRUSTED_ORIGINS = [
     "http://frontend:3000",
