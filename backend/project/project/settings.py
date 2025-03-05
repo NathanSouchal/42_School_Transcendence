@@ -19,13 +19,13 @@ SECRET_KEY = "django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.13.12.1", "0.0.0.0"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.13.12.1", "10.13.12.4", "0.0.0.0"]
 # a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
 # ALLOWED_HOSTS = [
 #     "10.13.12.2",
 #     ]
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -183,7 +183,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://localhost:3000",
     "https://10.13.12.2:3000",
     "https://10.13.12.1:3000",
-    "https://0.0.0.0:3000",
+    "http://10.13.12.4:3000",
+    "http://0.0.0.0:3000",
     "https://0.0.0.0:8000",
 ]
 
@@ -194,8 +195,9 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "https://localhost:3000",  # Frontend sécurisé
     "https://frontend:3000",
-    "https://0.0.0.0:3000",
+    "http://0.0.0.0:3000",
     "https://10.13.12.1:3000",
+	"http://10.13.12.4:3000",
 ]
 
 

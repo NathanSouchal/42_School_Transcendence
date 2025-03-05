@@ -65,21 +65,8 @@ export async function logout() {
 export async function checkUserStatus() {
   try {
     const res = await API.get("/auth/is-auth/");
-
-    // Add more robust error checking
-    if (!res || !res.data) {
-      console.error("No response data");
-      return false;
-    }
-
-    const id = res.data.user_id?.toString();
-    if (!id) {
-      console.error("User ID not found in response");
-      return false;
-    }
-
+    const id = res.data.user_id.toString();
     console.log(id);
-
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
     if (id !== state.state.userId) {
       state.state.userId = id;
@@ -87,18 +74,7 @@ export async function checkUserStatus() {
     }
     return true;
   } catch (error) {
-    console.error("Error checking user status:", error);
-
-    // Detailed error logging
-    if (error.response) {
-      console.error("Response error:", error.response.data);
-      console.error("Status:", error.response.status);
-    } else if (error.request) {
-      console.error("Request error:", error.request);
-    } else {
-      console.error("Error message:", error.message);
-    }
-
+    console.error(`Error while trying to check user status : ${error}`);
     return false;
   }
 }

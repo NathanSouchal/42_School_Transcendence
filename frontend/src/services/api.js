@@ -8,7 +8,7 @@ const API_BASE_URL =
 
 const API = axios.create({
   // baseURL: API_BASE_URL,
-  baseURL: "https://0.0.0.0:8000",
+  baseURL: "http://0.0.0.0:8000",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // httpsAgent: new https.Agent({
@@ -72,7 +72,7 @@ API.interceptors.response.use(
       return Promise.reject(error);
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default API;
