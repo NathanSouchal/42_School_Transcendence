@@ -65,7 +65,7 @@ class Ball:
 
             if abs(x) > 0.01 or abs(y) > 0.01:
                 break
-
+        print(f"🚀 Vitesse initiale: x={x}, y={y}")
         self.bounces = 0
         initial_speed = math.sqrt(x * x + y * y)
         self.bounces_needed = math.log(
@@ -111,6 +111,8 @@ class Ball:
         self.last_collision["side"] = side
         self.last_collision["time"] = current_time
 
+        print(f"🔄 Bounce: Avant rebond, Vitesse={self.velocity}")
+
         if side in ["left", "right"]:
             if paddle_pos is not None:
                 relative_position = self.position.x - paddle_pos
@@ -134,7 +136,10 @@ class Ball:
         elif side in ["top", "bottom"]:
             self.velocity.x *= -1
 
+        print(f"🔄 Bounce: Après rebond, Vitesse={self.velocity}")
+
     def update(self, delta_time):
+        print(f"🔄 Avant update: x={self.position.x}, y={self.position.y}, z={self.position.z}")
         if self.is_falling:
             if self.position.y <= -1:
                 self.velocity.y *= 0.7
@@ -154,6 +159,7 @@ class Ball:
             scaled_velocity = self.velocity.multiply_scalar(
                 delta_time * self.conf["speed"]["deltaFactor"]
             )
+            print(f"🚀 Vitesse appliquée: dx={scaled_velocity.x}, dy={scaled_velocity.y}, dz={scaled_velocity.z}")
             self.position.add(scaled_velocity)
 
             # Check if ball is out of arena
@@ -163,6 +169,7 @@ class Ball:
             ):
                 self.start_falling()
 
+        print(f"🕹️ Après update: Position={self.position}, Vitesse={self.velocity}")
         return "continue"
 
     def start_falling(self):

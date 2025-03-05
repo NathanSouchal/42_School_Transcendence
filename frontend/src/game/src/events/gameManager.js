@@ -40,8 +40,10 @@ export class GameManager {
 
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      console.log("Message Websocket recu du backend :", data);
       switch (data.type) {
         case "positions":
+          console.log("Mise a jour recue :", data.positions);
           this.updatePositions(data.positions);
           break;
         case "hasFoundOpponent":
@@ -86,13 +88,19 @@ export class GameManager {
   }
 
   updatePositions(state) {
-    if (state.paddle_left) {
+    console.log("🎯 Mise à jour des paddles:", state);
+    if (state.paddle_left !== undefined) {
+      console.log(`🎾 Paddle gauche mis à jour: ${state.paddle_left}`);
       this.game.paddleLeft.obj.position.x = state.paddle_left;
     }
-    if (state.paddle_right) {
+    if (state.paddle_right !== undefined) {
+      console.log(`🏓 Paddle droit mis à jour: ${state.paddle_right}`);
       this.game.paddleRight.obj.position.x = state.paddle_right;
     }
     if (state.ball) {
+      console.log(
+        `⚽ Ball mise à jour: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`
+      );
       this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
@@ -102,6 +110,8 @@ export class GameManager {
       //console.log(
       //  `ball is now at: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`,
       //);
+    } else {
+      console.warn("⚠️ Aucun état de balle reçu !");
     }
   }
 
