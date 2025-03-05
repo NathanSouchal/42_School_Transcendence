@@ -145,10 +145,6 @@ export default class Stats {
             <h2>${trad[this.lang].stats.averageScore}</h2>
             <p>${this.stats.average_score || 0}</p>
           </div>
-					<div class="stats-item">
-            <h2>${trad[this.lang].stats.lastGame}</h2>
-            <p>${this.stats.last_game || 0}</p>
-          </div>
 				</div>
 			</div>`;
     } else {
