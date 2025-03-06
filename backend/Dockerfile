@@ -1,4 +1,4 @@
-FROM python:3.13
+FROM python:3.10.12
 
 WORKDIR /app
 
@@ -7,13 +7,23 @@ RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/ap
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
+# mode Prode
+# COPY . .
+# RUN chmod +x conf/entrypoint.sh
 
-COPY . .
+# mode Dev
+VOLUME /app
+COPY conf/entrypoint.sh /app/conf/entrypoint.sh
+RUN chmod +x /app/conf/entrypoint.sh
 
-RUN chmod +x conf/entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["conf/entrypoint.sh"]
+ENTRYPOINT ["/app/conf/entrypoint.sh"]
 
-CMD ["python3", "project/manage.py", "runserver", "0.0.0.0:8000"]
+ENV PYTHONPATH=/app:/app/project
+
+
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "project.asgi:application"]
+
+

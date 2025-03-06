@@ -1,16 +1,4 @@
 services:
-  frontend:
-    container_name: frontend
-    networks:
-      - transcendence
-    build:
-      context: frontend
-      dockerfile: Dockerfile
-    env_file: .env
-    ports:
-      - "3000:3000"
-    restart: unless-stopped
-
   backend:
     container_name: backend
     networks:
@@ -19,11 +7,29 @@ services:
       context: backend
       dockerfile: Dockerfile
     env_file: .env
-    ports:
-      - "8000:8000"
     restart: on-failure
     depends_on:
       - postgres
+      - redis
+    volumes:
+      - ./backend:/app  # ✅ Monte le dossier backend pour le hot reload
+      - backend_static:/app/static  # ✅ Stocker les fichiers statiques de Django
+    ports:
+      - "8000:8000"  # API Django
+
+  frontend:
+    container_name: frontend
+    networks:
+      - transcendence
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    env_file: .env
+    restart: unless-stopped
+    volumes:
+      - ./frontend:/app  # ✅ Monte le dossier frontend pour le hot reload
+    ports:
+      - "3000:3000"  # Vite.js expose le frontend en dev
 
   postgres:
     image: postgres:15
@@ -36,14 +42,38 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  nginx:
+    container_name: nginx
+    networks:
+      - transcendence
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    depends_on:
+      - backend
+      - frontend
     ports:
-      - "5432:5432"
+      - "8080:80"   # HTTP (redirigé vers HTTPS)
+      - "8443:443"  # HTTPS
+    volumes:
+      - ./nginx/certs/selfsigned.crt:/etc/nginx/selfsigned.crt
+      - ./nginx/certs/selfsigned.key:/etc/nginx/selfsigned.key
+      - backend_static:/usr/share/nginx/html/static/  # ✅ Partage les fichiers statiques de Django
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - transcendence
 
 
-networks:
+networks: 
   transcendence:
     driver: bridge
 
 volumes:
   postgres_data:
+    driver: local
+  backend_static:  # ✅ Volume pour stocker les fichiers statiques du backend
     driver: local

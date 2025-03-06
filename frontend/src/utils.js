@@ -64,14 +64,18 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
+    console.log("Lancement de checkUserStatus");
     const res = await API.get("/auth/is-auth/");
+    console.log("Reponse recue de Auth");
     const id = res.data.user_id.toString();
+    console.log("ID recupere");
     console.log(id);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
     if (id !== state.state.userId) {
       state.state.userId = id;
       state.saveState();
     }
+    console.log("Fin de checkUserStatus");
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);

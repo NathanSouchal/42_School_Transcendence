@@ -21,13 +21,13 @@ class Arena {
     try {
       const raftModel = await this.loadModel(
         "/game/assets/raft.glb",
-        new THREE.Vector3(11, 10, 10)
+        new THREE.Vector3(11, 10, 10),
       );
       this.raft.add(raftModel);
 
       const barrel = await this.loadModel(
         "/game/assets/barril.glb",
-        new THREE.Vector3(3, 3, 3)
+        new THREE.Vector3(3, 3, 3),
       );
 
       await Promise.all([
@@ -40,21 +40,6 @@ class Arena {
       console.error("Error loading objects: ", error);
       throw error;
     }
-  }
-
-  computeBoundingBoxes() {
-    const bottomBBox = new THREE.Box3().setFromObject(this.borderBottom, true);
-    this.BBoxes.push({
-      box: bottomBBox,
-      side: "bottom",
-    });
-    const topBBox = new THREE.Box3().setFromObject(this.borderTop, true);
-    this.BBoxes.push({
-      box: topBBox,
-      side: "top",
-    });
-    //this.boxHelperBottom = new THREE.Box3Helper(bottomBBox, 0xff0000);
-    //this.boxHelperTop = new THREE.Box3Helper(topBBox, 0xff0000);
   }
 
   addBarrelsToBorder(border, barrel, side) {
@@ -85,7 +70,7 @@ class Arena {
         (error) => {
           console.error(error);
           reject(error);
-        }
+        },
       );
     });
   }

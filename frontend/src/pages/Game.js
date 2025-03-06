@@ -8,6 +8,8 @@ export default class GamePage {
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
+    this.container = null;
+    this.isMatchmaking = false;
     this.isSubscribed = false;
     this.isInitialized = false;
     this.eventListeners = [];
@@ -22,7 +24,7 @@ export default class GamePage {
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("GamePage subscribed to state");
+      // console.log("GamePage subscribed to state");
     }
     await updateView(this, {});
   }
@@ -60,6 +62,7 @@ export default class GamePage {
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },
       { id: "start-pvr-game", action: "start-pvr-game" },
+      { id: "start-online-pvp-game", action: "start-online-pvp-game" },
       { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },
@@ -111,6 +114,14 @@ export default class GamePage {
         this.haveToSelectBotDifficulty = false;
         // this.state.setGameStarted("PVR");
         break;
+      case "start-online-pvp-game":
+        if (!this.state.state.isSearching) {
+          this.state.startMatchmaking();
+        } else {
+          this.state.cancelMatchmaking();
+        }
+        console.log(`isSearching: ${this.state.state.isSearching}`);
+        break;
       case "resume-game":
         this.state.togglePause();
         break;
@@ -131,6 +142,7 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
+    // console.log("Checking if state has changed");
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
@@ -152,7 +164,7 @@ export default class GamePage {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
+        // console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -163,7 +175,7 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Game page unsubscribed from state");
+      // console.log("Game page unsubscribed from state");
     }
   }
 
@@ -184,6 +196,7 @@ export default class GamePage {
   }
 
   renderGameMenu() {
+    const { isSearching } = this.state.state;
     const backArrow = createBackArrow(this.state.state.lastRoute);
     return `${backArrow}
             <div>
@@ -197,6 +210,16 @@ export default class GamePage {
                   </div>
                   <div id="start-local-tournament" class="global-nav-items">
                      <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
+                  </div>
+
+                  <div class="global-nav-items">
+                    <button id="start-online-pvp-game">
+                      ${
+                        isSearching
+                          ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
+                          : "Online PVP"
+                      }
+                    </button>
                   </div>
               </div>
             </div>
@@ -265,7 +288,9 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
+    console.log("ICI");
     await checkUserStatus();
+    console.log("ICI2");
 
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);

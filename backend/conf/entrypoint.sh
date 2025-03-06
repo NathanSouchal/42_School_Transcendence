@@ -24,6 +24,9 @@ done
 
 echo "PostgreSQL is ready!"
 
+# forcer la creation des migrations par precaution
+python project/manage.py makemigrations
+
 # Appliquer les migrations
 python project/manage.py migrate
 
