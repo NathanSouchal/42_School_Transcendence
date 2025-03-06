@@ -1,4 +1,4 @@
-import { logout } from "../utils";
+import { logout, setDisable } from "../utils";
 import { router } from "../app";
 import { trad } from "../trad";
 
@@ -117,7 +117,11 @@ export class Header {
       setTimeout(() => {
         header.style.zIndex = "0";
       }, 500);
-      if (key === "logout") await logout();
+      if (key === "logout") {
+        setDisable(true, key);
+        await logout();
+        setDisable(false, key);
+      }
     }
   }
 

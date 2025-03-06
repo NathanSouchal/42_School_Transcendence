@@ -4,6 +4,7 @@ import {
   updateView,
   createBackArrow,
   checkUserStatus,
+  setDisable,
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
