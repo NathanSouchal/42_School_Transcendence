@@ -40,10 +40,7 @@ export default class User {
       this.isSubscribed = true;
       console.log("User page subscribed to state");
     }
-
     this.pageId = routeParams.id;
-    console.log("Newage id : " + newPageId);
-    console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, routeParams || {});
   }
@@ -188,6 +185,7 @@ export default class User {
   }
 
   async handleFriend(key, value) {
+    setDisable(true, key);
     if (key === "cancel-friend-request") {
       await this.cancelFriendRequest();
     } else if (key === "send-friend-request") {
@@ -201,6 +199,7 @@ export default class User {
     }
     await this.getMyFriends();
     updateView(this, this.routeParams || {});
+    setDisable(false, key);
   }
 
   async checkFriendStatus() {

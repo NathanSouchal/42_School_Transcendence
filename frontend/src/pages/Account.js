@@ -221,9 +221,8 @@ export default class Account {
   }
 
   async handleClick(key) {
+    setDisable(true, key);
     if (key === "cancel-button" || key === "update-user-info") {
-      if (key == "cancel-button") setDisable(true, "cancel-button");
-      if (key == "update-user-info") setDisable(true, "update-user-info");
       this.isForm = !this.isForm;
       await updateView(this, {});
       if (this.isForm) {
@@ -232,21 +231,14 @@ export default class Account {
           await this.getQrcode();
         }
       }
-      if (key == "cancel-button") setDisable(false, "cancel-button");
-      if (key == "update-user-info") setDisable(false, "update-user-info");
     } else if (key === "delete-user-button") {
-      setDisable(true, "delete-user-button");
       await this.deleteUser();
-      setDisable(false, "delete-user-button");
     } else if (key === "confirm-delete-user") {
-      setDisable(true, "confirm-delete-user");
       await this.confirmDeleteUser(this.state.state.userId);
-      setDisable(false, "confirm-delete-user");
     } else if (key === "cancel-delete-user") {
-      setDisable(true, "cancel-delete-user");
       await this.cancelDeleteUser();
-      setDisable(true, "cancel-delete-user");
     }
+    setDisable(false, key);
   }
 
   async handleSubmit(e) {
