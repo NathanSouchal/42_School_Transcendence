@@ -40,17 +40,17 @@ export class GameManager {
 
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      console.log("Message Websocket recu du backend :", data);
+      //   console.log("Message Websocket recu du backend :", data);
       switch (data.type) {
         case "positions":
-          console.log("Mise a jour recue :", data.positions);
+          //   console.log("Mise a jour recue :", data.positions);
           this.updatePositions(data.positions);
           break;
         case "hasFoundOpponent":
-          console.log(
-            "gameManager caught 'hasFoundOpponent', assigned side is ",
-            data.side
-          );
+          //   console.log(
+          //     "gameManager caught 'hasFoundOpponent', assigned side is ",
+          //     data.side
+          //   );
           this.side = data.side;
           state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
           state.isSourceOfTruth = data.isSourceOfTruth;
@@ -88,19 +88,19 @@ export class GameManager {
   }
 
   updatePositions(state) {
-    console.log("🎯 Mise à jour des paddles:", state);
+    // console.log("🎯 Mise à jour des paddles:", state);
     if (state.paddle_left !== undefined) {
-      console.log(`🎾 Paddle gauche mis à jour: ${state.paddle_left}`);
+      //   console.log(`🎾 Paddle gauche mis à jour: ${state.paddle_left}`);
       this.game.paddleLeft.obj.position.x = state.paddle_left;
     }
     if (state.paddle_right !== undefined) {
-      console.log(`🏓 Paddle droit mis à jour: ${state.paddle_right}`);
+      //   console.log(`🏓 Paddle droit mis à jour: ${state.paddle_right}`);
       this.game.paddleRight.obj.position.x = state.paddle_right;
     }
     if (state.ball) {
-      console.log(
-        `⚽ Ball mise à jour: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`
-      );
+      //   console.log(
+      //     `⚽ Ball mise à jour: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`
+      //   );
       this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
