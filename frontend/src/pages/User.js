@@ -24,10 +24,12 @@ export default class User {
     this.friendStatus = "";
     this.friendRequestId = null;
     this.lang = null;
+    this.routeParams;
   }
 
   async initialize(routeParams = {}) {
     const newPageId = routeParams.id;
+    this.routeParams = routeParams;
 
     if (this.pageId === newPageId) this.isRouteId = true;
     if (this.isRouteId && this.isInitialized) return;
@@ -43,7 +45,7 @@ export default class User {
     console.log("Newage id : " + newPageId);
     console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
-    else await updateView(this);
+    else await updateView(this, routeParams || {});
   }
 
   attachEventListeners() {
@@ -198,7 +200,7 @@ export default class User {
       await this.deleteRecievedFriendRequest();
     }
     await this.getMyFriends();
-    updateView(this);
+    updateView(this, this.routeParams || {});
   }
 
   async checkFriendStatus() {
@@ -248,7 +250,7 @@ export default class User {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      await updateView(this);
+      await updateView(this, this.routeParams || {});
     } else this.previousState = { ...newState };
   }
 
@@ -282,15 +284,12 @@ export default class User {
 
   async render(routeParams = {}) {
     const { id } = routeParams;
-    try {
-      await checkUserStatus();
-      await this.getPublicUserInfo();
-      await this.getMyFriends();
-    } catch (error) {
-      this.state.state.lastLastRoute = this.state.state.lastRoute;
-      console.error(error);
-      return "";
-    }
+    const isAuthenticated = await checkUserStatus();
+    if (!isAuthenticated) return;
+
+    await this.getPublicUserInfo();
+    await this.getMyFriends();
+
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;

@@ -10,6 +10,7 @@ services:
     restart: on-failure
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./backend:/app  # ✅ Monte le dossier backend pour le hot reload
       - backend_static:/app/static  # ✅ Stocker les fichiers statiques de Django
@@ -60,7 +61,14 @@ services:
       - ./nginx/certs/selfsigned.key:/etc/nginx/selfsigned.key
       - backend_static:/usr/share/nginx/html/static/  # ✅ Partage les fichiers statiques de Django
 
-networks:
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - transcendence
+
+
+networks: 
   transcendence:
     driver: bridge
 

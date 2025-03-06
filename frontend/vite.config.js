@@ -17,7 +17,8 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
-  }
+  },
+  envDir: '/home/nsouchal/PROJECTS/transcendence/.env',
 });
 
 

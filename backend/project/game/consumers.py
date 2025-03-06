@@ -51,11 +51,12 @@ class GameState(AsyncWebsocketConsumer):
     }
 
     async def connect(self):
+        print(f"🔗 WebSocket CONNECTED: {self.scope['client']}")
         query_params = parse_qs(self.scope["query_string"].decode("utf-8"))
 
         room_type = query_params.get("type", [None])[0]
 
-        print(f"Launching consumer: room_type is {room_type}")
+        # print(f"Launching consumer: room_type is {room_type}")
 
         if room_type == "online":
             self.game_mode = GameMode.ONLINE
@@ -77,14 +78,18 @@ class GameState(AsyncWebsocketConsumer):
                     self.room = room_name
                     roomFound = True
                     break
-        if roomFound is False or self.game_mode is not GameMode.ONLINE:
+        if not roomFound or self.game_mode != GameMode.ONLINE:
             self.room = str(uuid.uuid4())
         await self.accept()
 
         if self.room not in self.rooms:
             await self.initializeRoom()
 
-        await self.channel_layer.group_add(self.room, self.channel_name)
+        if self.channel_layer is not None:
+            await self.channel_layer.group_add(self.room, self.channel_name)
+        else:
+            print("⚠️ Erreur: `channel_layer` est None. Channels est-il bien configuré ?")
+
         if self.channel_name not in self.rooms[self.room]["players"]:
             self.rooms[self.room]["players"].append(self.channel_name)
 
@@ -94,19 +99,30 @@ class GameState(AsyncWebsocketConsumer):
         else:
             self.isSourceOfTruth = False
 
-        print(f"rooms number: {len(self.rooms)}")
+        # print(f"rooms number: {len(self.rooms)}")
         for room, details in self.rooms.items():
             print(f"Room {room}: {details['players']}")
-        self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
+        if self.room not in self.game_loops:
+            # print(f"🚀 Lancement du game_loop pour la salle {self.room}")
+            self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
+            # print(f"✅ game_loop lancé avec succès pour {self.room}")
+        else:
+            print(f"⚠️ game_loop déjà actif pour {self.room}")
 
     async def initializeRoom(self):
         self.rooms[self.room] = copy.deepcopy(self.DEFAULT_STATE)
         self.rooms[self.room]["game_mode"] = self.game_mode
-        self.rooms[self.room]["paddles"] = {
+        try:
+            self.rooms[self.room]["paddles"] = {
             "left": Paddle(initial_x=0),
             "right": Paddle(initial_x=0),
-        }
-        self.rooms[self.room]["ball"] = Ball()
+            }
+            self.rooms[self.room]["ball"] = Ball()
+            # print(f"✅ Balle créée pour la salle {self.room}: {self.rooms[self.room]['ball']}")
+        except Exception as e:
+            print(f"⚠️ Erreur lors de l'initialisation de la salle : {e}")
+            del self.rooms[self.room]  # Supprime la salle corrompue
+
 
     async def manage_online_players(self):
         print(
@@ -123,11 +139,13 @@ class GameState(AsyncWebsocketConsumer):
                 print(f"Assigned players to right side")
 
             while (
-                len(self.rooms[self.room]["players"]) < 2
+                self.room in self.rooms
+                and len(self.rooms[self.room]["players"]) < 2
                 and len(self.rooms[self.room]["players"]) > 0
             ):
                 print(f"Waiting for second player, this is {self.channel_name}")
                 await asyncio.sleep(2)
+
             print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
             if len(self.rooms[self.room]["players"]) == 2:
@@ -151,17 +169,22 @@ class GameState(AsyncWebsocketConsumer):
             last_time = time.time()
             while True:
                 if room in self.rooms:
-
                     # print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
                     if (self.game_mode == GameMode.LOCAL) and self.rooms[self.room][
                         "isPaused"
                     ]:
+                        await asyncio.sleep(1 / 60)
                         continue
                     current_time = time.time()
                     delta_time = current_time - last_time
                     last_time = current_time
 
+                    if "ball" not in self.rooms[room]:
+                        print(f"ERREUR: Aucune balle trouvee pour la salle {room}")
+                        continue
                     ball = self.rooms[room]["ball"]
+                    # print(f"🎾 Avant update: Ball position = {ball.position}")
+                    # print(f"Appel de Ball.update() avec delta_time={delta_time}")
                     left_paddle_pos = self.rooms[room]["positions"]["paddle_left"]
                     right_paddle_pos = self.rooms[room]["positions"]["paddle_right"]
 
@@ -177,7 +200,7 @@ class GameState(AsyncWebsocketConsumer):
 
                     ball_state = ball.update(delta_time)
                     self.rooms[room]["positions"]["ball"] = ball.get_current_position()
-
+                    # print(f"🎾 Après update: Ball position = {self.rooms[room]['positions']['ball']}")
                     wall_collision, paddle_collision = ball.check_collision(
                         left_paddle_pos, right_paddle_pos
                     )
@@ -214,6 +237,7 @@ class GameState(AsyncWebsocketConsumer):
                 await asyncio.sleep(1 / 60)
 
         except asyncio.CancelledError:
+            print(f"game_loop anulle pour la salle {room}")
             pass
         except Exception as e:
             print(f"Error in game loop: {e}")
@@ -239,19 +263,26 @@ class GameState(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
+            # print(f"📩 Message reçu : {data}")
 
             if data.get("type") == "paddle_move":
                 direction = data.get("direction")
                 side = data.get("side")
-                positions = self.rooms[self.room]["positions"]
                 delta_time = float(data.get("deltaTime"))
-
+                positions = self.rooms[self.room]["positions"]
+                # print(f"🎮 Avant mise à jour: paddle_{side} = {positions[f'paddle_{side}']}")
                 positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][
                     side
                 ].move(direction, delta_time)
+                # print(f"✅ Après mise à jour: paddle_{side} = {self.rooms[self.room]['positions'][f'paddle_{side}']}")
+                # print(f"⚽ Avant mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}")
+                self.rooms[self.room]["positions"]["ball"] = self.rooms[self.room]["ball"].get_current_position()
+                # print(f"⚽ Après mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}")  # ✅ DEBUG
+                await self.sendPositions()
+                # print(f"📤 Envoi des nouvelles positions après paddle_move")
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")
-                print(f"{data.get('bool')}")
+                # print(f"{data.get('bool')}")
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
@@ -259,7 +290,7 @@ class GameState(AsyncWebsocketConsumer):
     async def sendPointScored(self, ball_state):
         scored_side = "left" if ball_state == "point_scored_left" else "right"
 
-        if self.game_mode is not GameMode.ONLINE:
+        if self.game_mode != GameMode.ONLINE:
             await self.send(
                 text_data=json.dumps(
                     {
@@ -322,6 +353,8 @@ class GameState(AsyncWebsocketConsumer):
 
     async def sendPositions(self):
         positions = self.rooms[self.room]["positions"]
+        # print(f"📤 Envoi des positions mises à jour : {positions}")  # ✅ DEBUG
+        # print(f"⚽ Position actuelle de la balle : {self.rooms[self.room]['positions']['ball']}")
         if self.game_mode is not GameMode.ONLINE:
             await self.send(
                 text_data=json.dumps(
@@ -353,7 +386,10 @@ class GameState(AsyncWebsocketConsumer):
         )
 
     async def disconnect(self, close_code):
+        print(f"❌ WebSocket DISCONNECTED: {self.scope['client']}, Code: {close_code}")
         print("      player disconnected !!")
+        if close_code is None:
+            print("⚠️ WebSocket fermé sans code, peut-être une déconnexion inattendue ?")
 
         # termine proprement la tache manage_online_players qui tourne en arriere plan
         if hasattr(self, "manage_task"):
@@ -363,7 +399,7 @@ class GameState(AsyncWebsocketConsumer):
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
 
-        if self.room in self.rooms:
+        if hasattr(self, "room") and self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
 

@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y libnss3-tools curl && \
 RUN mkdir -p /etc/nginx/certs
 
 # Générer un certificat auto-signé pour HTTPS local
-RUN mkcert -key-file /etc/nginx/certs/selfsigned.key -cert-file /etc/nginx/certs/selfsigned.crt localhost
+RUN mkcert -key-file /etc/nginx/certs/selfsigned.key -cert-file /etc/nginx/certs/selfsigned.crt localhost 10.13.12.2 10.13.12.1 10.13.12.4
 
 # Copier la configuration Nginx spécifique au développement
 COPY nginx/confDev/nginx.conf /etc/nginx/nginx.conf
