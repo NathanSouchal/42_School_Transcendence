@@ -1,14 +1,20 @@
-FROM node:14
+# Utilise une image officielle Node.js
+FROM node:20
 
+# Définit le dossier de travail
 WORKDIR /app
 
+# Copie uniquement les fichiers de dépendances pour optimiser le cache
 COPY package.json package-lock.json ./
-RUN npm i
 
-COPY . .
+# Installation des dépendances
+RUN npm install
 
-RUN npm run build
+# Monte le projet avec Docker volume pour éviter de copier les fichiers à chaque build
+VOLUME /app
 
+# Expose le port de Vite.js
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Lance Vite en mode développement avec HMR (Hot Module Reload)
+CMD ["npm", "run", "dev"]

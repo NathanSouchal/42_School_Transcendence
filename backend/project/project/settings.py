@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
+from decouple import config
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,13 +19,13 @@ SECRET_KEY = "django-insecure-6##c03+m4+(gkp9!t349)dzev49djb2wc6_m4y&kt15@0)%jik
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "10.13.12.1", "10.13.12.4", "0.0.0.0", "10.13.12.2"]
 # a utiliser lorsqu'on veut pouvoir se connecter sur differents ordi et quon lance le back avec cette ip
 # ALLOWED_HOSTS = [
 #     "10.13.12.2",
 #     ]
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "api",
+    "game",
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     "django_otp",
     "django_otp.plugins.otp_totp",
     "django_otp.plugins.otp_static",
+    "django_bleach",
 ]
 
 
@@ -63,15 +65,15 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-	'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'api.middleware.UpdateLastSeenMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+	"api.middleware.UpdateLastSeenMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -99,24 +101,24 @@ WSGI_APPLICATION = "project.wsgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Database pour le deploiement en utilisant docker
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('POSTGRES_DB'),
-#         'USER': config('POSTGRES_USER'),
-#         'PASSWORD': config('POSTGRES_PASSWORD'),
-#         'HOST': config('POSTGRES_HOST'),
-#         'PORT': config('POSTGRES_PORT', default=5432, cast=int),
-#     }
-# }
-
-# Database pour le developpement (sans passer par docker)
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('POSTGRES_DB'),
+        'USER': config('POSTGRES_USER'),
+        'PASSWORD': config('POSTGRES_PASSWORD'),
+        'HOST': config('POSTGRES_HOST'),
+        'PORT': config('POSTGRES_PORT', default=5432, cast=int),
     }
 }
+
+# Database pour le developpement (sans passer par docker)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
@@ -175,24 +177,32 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOWED_ORIGINS = [
-	# "http://frontend:3000",
-	# "http://localhost:3000",
-	"https://frontend:3000",
-	"https://localhost:3000",
-    "https://10.13.12.2:3000",
-
-]
-
 CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
 
-CSRF_COOKIE_SECURE = True  # Envoie le cookie CSRF uniquement via HTTPS
-SESSION_COOKIE_SECURE = True  # Envoie le cookie de session uniquement via HTTPS
+CORS_ALLOWED_ORIGINS = [
+    "http://frontend:3000",
+    "http://localhost:3000",
+    "https://frontend:3000",
+    "https://localhost:3000",
+    "https://10.13.12.2:3000",
+    "https://10.13.12.2:8443",
+    "https://10.13.12.1:3000",
+    "http://10.13.12.4:3000",
+    "http://0.0.0.0:3000",
+    "https://0.0.0.0:8000",
+    
+]
+
 CSRF_TRUSTED_ORIGINS = [
     "http://frontend:3000",
     "http://localhost:3000",
     "https://localhost:3000",  # Frontend sécurisé
     "https://frontend:3000",
+    "http://0.0.0.0:3000",
+    "https://10.13.12.1:3000",
+	"http://10.13.12.4:3000",
+    "https://10.13.12.2:8443",
+
 ]
 
 
@@ -202,14 +212,17 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("redis", 6379)],
         },
     },
 }
 
 
-# SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-# SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587

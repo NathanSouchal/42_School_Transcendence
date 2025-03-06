@@ -6,15 +6,11 @@ import Arena from "./game/arena.js";
 import Paddle from "./game/paddle.js";
 import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
-import Stats from "three/addons/libs/stats.module.js";
 import SkyGenerator from "./terrain/sky.js";
 import FishFactory from "./terrain/creatures/FishFactory.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";
-import {
-  updateLoadingTime,
-  printPerformanceReport,
-} from "./performance_utils.js";
+import { updateLoadingTime } from "./performance_utils.js";
 
 export class GameScene {
   constructor() {
@@ -41,27 +37,22 @@ export class GameScene {
     window.addEventListener("resize", this.handleResize);
   }
 
-  start() {
-    this.ball.reset();
+  resetControls() {
     if (this.state.gameMode === "OnlineRight") {
-      console.log(`Starting game on the right side`);
       this.paddleRight.choosePlayer("player");
       this.paddleLeft.choosePlayer("none");
     } else if (this.state.gameMode === "OnlineLeft") {
-      console.log(`Starting game on the left side`);
       this.paddleLeft.choosePlayer("player");
       this.paddleRight.choosePlayer("none");
     } else {
       this.paddleLeft.choosePlayer(state.players.left);
       this.paddleRight.choosePlayer(state.players.right);
     }
-    this.paddleLeft.setInitialPos();
-    this.paddleRight.setInitialPos();
   }
 
-  handleStateChange(newState) {
+  handleStateChange() {
     if (this.state.state.gameNeedsReset === true) {
-      this.start();
+      this.resetControls();
       this.state.setGameNeedsReset(false);
     }
   }
@@ -71,7 +62,6 @@ export class GameScene {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
     }
-
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(window.devicePixelRatio);
   }
@@ -118,11 +108,6 @@ export class GameScene {
     await this.paddleLeft.init();
     await this.paddleRight.init();
     await this.ball.init();
-
-    this.arena.computeBoundingBoxes(this.scene);
-    this.paddleLeft.computeBoundingBoxes(this.scene);
-    this.paddleRight.computeBoundingBoxes(this.scene);
-    this.ball.computeBoundingBoxes();
 
     this.pivot = new THREE.Group();
     this.pivot.add(

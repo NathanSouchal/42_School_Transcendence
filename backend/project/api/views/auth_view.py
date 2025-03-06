@@ -39,7 +39,7 @@ class RegisterView(APIView):
 			return Response({'password_match': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 		regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
 		if not re.match(regex, password):
-			return Response({'password_format': 'Wrong password fornat'}, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'password_format': 'Wrong password format'}, status=status.HTTP_400_BAD_REQUEST)
 		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
 			try:
@@ -49,8 +49,9 @@ class RegisterView(APIView):
 				return Response(
                     {'error': 'Username is already taken.'},
                     status=status.HTTP_409_CONFLICT
-                )
+				)
 			except Exception as e:
+				print(f"Register error: {e}")
 				return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -151,6 +152,7 @@ class LoginView(APIView):
 		samesite='None',
 		max_age=7 * 24 * 60 * 60  # 7 jours
 		)
+		print("Cookies envoyes :", response.cookies)
 		return response
 
 class Verify2FAView(APIView):
@@ -339,6 +341,7 @@ class IsAuthView(APIView):
 	def get(self, request):
 		try:
 			user = request.user
+			print(f'user.id: {user.id}')
 			return Response({'user authenticated': UserSerializer(user).data, 'user_id': user.id}, status=status.HTTP_200_OK)
 		except AuthenticationFailed:
 			return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)

@@ -41,7 +41,7 @@ class Renderer {
         this.game.ball.spawn_sparks(state.collisionPoint);
         state.ballCollided = false;
       }
-      // this.game.ball.animate_sparks();
+      this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
       this.pivotUpdate(deltaTime);

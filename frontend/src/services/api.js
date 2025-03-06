@@ -1,16 +1,25 @@
 import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
+// import https from "https";
 
 const API_BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+  import.meta.env.VITE_BACKEND_URL || "blablabla";
 
+  console.log("API_BASE_URL", API_BASE_URL);
 const API = axios.create({
-  // baseURL: API_BASE_URL,
-  baseURL: "http://localhost:8000",
+  baseURL: API_BASE_URL,
+  // baseURL: "https://localhost:8443/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  // httpsAgent: new https.Agent({
+  //   rejectUnauthorized: false,
+  // }),
 });
+
+document.cookie
+  .split("; ")
+  .forEach((cookie) => console.log("🍪 Cookie envoyé :", cookie));
 
 async function getNewAccessToken() {
   console.log("Getting new access token");
@@ -68,7 +77,7 @@ API.interceptors.response.use(
       return Promise.reject(error);
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export default API;

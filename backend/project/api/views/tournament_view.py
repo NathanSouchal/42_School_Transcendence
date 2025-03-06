@@ -8,6 +8,7 @@ from api.serializers import TournamentSerializer, MatchSerializer
 from rest_framework.permissions import AllowAny
 from django.http import Http404
 from django.db.models import ProtectedError
+from api.utils import sanitize_input
 
 
 class TournamentView(APIView):
@@ -77,6 +78,20 @@ class TournamentListView(APIView):
 
 	def post(self, request):
 		try:
+			participants = request.data.get('participants', [])
+
+			if not isinstance(participants, list):
+				return Response({'error': 'Participants must be a list.'}, status=status.HTTP_400_BAD_REQUEST)
+
+			# Nettoyer chaque participant
+			sanitized_participants = [sanitize_input(p) for p in participants]
+
+			# Vérifier s'il y a des doublons
+			if len(sanitized_participants) != len(set(sanitized_participants)):
+				return Response({'error': 'Duplicate participants are not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
+
+			# Mettre à jour la requête avec les données nettoyées
+			request.data['participants'] = sanitized_participants
 			serializer = TournamentSerializer(data=request.data)
 			print(f"Data : ${request.data}")
 			if serializer.is_valid():
@@ -88,7 +103,7 @@ class TournamentListView(APIView):
                     {'message': 'Tournament created successfully', 'tournament': TournamentSerializer(tournament).data,
 					 'FirstMatch': MatchSerializer(firstMatch).data},
                     status=status.HTTP_201_CREATED)
-			return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

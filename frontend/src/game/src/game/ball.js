@@ -17,7 +17,6 @@ class Ball {
       left: new THREE.Vector3(0, 0, -1),
     };
     this.isFalling = false;
-    //this.boxHelper = new THREE.Box3Helper(new THREE.Box3(), 0xff0000);
     this.pos = new position();
     this.lastCollision = {
       side: null,
@@ -26,23 +25,16 @@ class Ball {
     this.collisionCooldown = 0.1;
   }
 
-  computeBoundingBoxes() {
-    this.box = new THREE.Box3().setFromObject(this.obj, true);
-    this.velocity = this.random_initial_velocity();
-    this.pos.set(0, 2.7, 0);
-    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
-    this.make_sparks();
-    //this.boxHelper.box.copy(this.box);
-  }
-
   async init() {
+    this.velocity = new THREE.Vector3();
+    // this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
+    this.make_sparks();
+
     await this.loadModel(
       "/game/assets/duck.glb",
       new THREE.Vector3(0.007, 0.007, 0.007),
     );
     this.obj.add(this.asset);
-    //this.box = new THREE.Box3().setFromObject(this.obj, true);
-    //this.boxHelper.box.copy(this.box);
   }
 
   loadModel(path, scale) {
@@ -62,91 +54,6 @@ class Ball {
         },
       );
     });
-  }
-
-  bounce(bbox) {
-    const currentTime = performance.now() / 1000;
-    if (
-      bbox.side === this.lastCollision.side &&
-      currentTime - this.lastCollision.time < this.collisionCooldown
-    ) {
-      return;
-    }
-
-    this.lastCollision.side = bbox.side;
-    this.lastCollision.time = currentTime;
-
-    const normal = this.reflectionNormals[bbox.side];
-    if (bbox.side === "right" || bbox.side === "left") {
-      const ballCenter = this.pos.clone();
-      const paddleCenter = bbox.box.getCenter(new THREE.Vector3());
-      const relativePosition = ballCenter.x - paddleCenter.x;
-      const normalizedRelativePosition =
-        relativePosition / this.size.paddle_width;
-
-      const currentSpeed = this.velocity.length();
-      const newAngle = normalizedRelativePosition * this.maxAngle;
-      const yDirection = bbox.side === "left" ? 1 : -1;
-      this.velocity.x = currentSpeed * Math.sin(newAngle);
-      this.velocity.z =
-        yDirection * Math.abs(currentSpeed * Math.cos(newAngle));
-      this.velocity.z *= -1;
-      this.bounces++;
-      if (this.bounces < this.bouncesNeeded) {
-        this.velocity.multiplyScalar(this.conf.speed.incrementFactor);
-      }
-      this.speedRatio = this.bounces / this.bouncesNeeded;
-    }
-
-    const reflection = this.velocity.clone().reflect(normal);
-    this.velocity.copy(reflection);
-    this.rotationSpeed *= -1;
-  }
-
-  isOutOfArena(renderer) {
-    return (
-      this.pos.z < -(renderer.zMax / 2) + renderer.depth / 2 - 3 ||
-      this.pos.z > renderer.zMax / 2 - renderer.depth / 2 + 3
-    );
-  }
-
-  startFalling() {
-    if (!this.isFalling) {
-      this.elapsedTime = 0;
-      this.isFalling = true;
-      this.velocity.multiplyScalar(0.7);
-      this.velocity.y = -0.2;
-    }
-  }
-
-  random_initial_velocity() {
-    let x =
-      Math.random() *
-        (this.conf.speed.initialMax - this.conf.speed.initialMin) +
-      this.conf.speed.initialMin;
-    x *= Math.random() < 0.5 ? 1 : -1;
-    let y =
-      Math.random() *
-        (this.conf.speed.initialMax - this.conf.speed.initialMin) +
-      this.conf.speed.initialMin;
-    y *= Math.random() < 0.5 ? 1 : -1;
-    if (x < 0.01 && x > -0.01 && y < 0.01 && y > -0.01) {
-      return this.random_initial_velocity();
-    }
-    const z = 0;
-    const initialSpeed = Math.sqrt(x * x + y * y);
-    this.bounces = 0;
-    this.bouncesNeeded =
-      Math.log(this.conf.speed.max / initialSpeed) /
-      Math.log(this.conf.speed.incrementFactor);
-    return new THREE.Vector3(x, z, y); // DO NOT CHANGE
-  }
-
-  reset() {
-    this.elapsedTime = 0;
-    this.isFalling = false;
-    this.pos.set(0, 2.7, 0);
-    this.velocity = this.random_initial_velocity();
   }
 
   updateRotation(deltaTime) {

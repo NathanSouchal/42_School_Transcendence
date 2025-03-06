@@ -61,3 +61,7 @@ npm start
 mkdir -p ./ssl
 openssl req -x509 -newkey rsa:4096 -keyout ./ssl/key.pem -out ./ssl/cert.pem -days 365 -nodes
 ```
+
+#### Supprimer les volumes de postgres si probleme de migration
+
+docker volume rm $(docker volume ls -q | grep postgres)

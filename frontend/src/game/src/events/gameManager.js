@@ -6,12 +6,18 @@ export class GameManager {
     this.gameScene = gameScene;
     this.side = null;
     this.isConnected = false;
+    this.socket = null;
   }
 
   connect() {
-    if (this.socket)
-      this.socket.close();
-    const baseUrl = `ws://${window.location.hostname}:8000/ws/`;
+    // if (this.socket) this.socket.close();
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
+      this.socket.close(); // 🔥 Ferme la connexion précédente avant d'en créer une nouvelle
+    }
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+    const baseUrl = `${protocol}://${window.location.hostname}:8443/ws/`;
+    // const baseUrl = "wss://0.0.0.0:8443/ws/";
 
     switch (state.gameMode) {
       case "PVP":
@@ -28,20 +34,23 @@ export class GameManager {
     console.log(`Socket is : ${this.socket.url}`);
 
     this.socket.onopen = () => {
+      console.log("✅ WebSocket ouvert !");
       this.isConnected = true;
     };
 
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
+      //   console.log("Message Websocket recu du backend :", data);
       switch (data.type) {
         case "positions":
+          //   console.log("Mise a jour recue :", data.positions);
           this.updatePositions(data.positions);
           break;
         case "hasFoundOpponent":
-          console.log(
-            "gameManager caught 'hasFoundOpponent', assigned side is ",
-            data.side,
-          );
+          //   console.log(
+          //     "gameManager caught 'hasFoundOpponent', assigned side is ",
+          //     data.side
+          //   );
           this.side = data.side;
           state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
           state.isSourceOfTruth = data.isSourceOfTruth;
@@ -58,46 +67,64 @@ export class GameManager {
     };
 
     this.socket.onerror = (error) => {
-      console.error("WebSocket Error:", error);
+      console.error("❌ WebSocket Error:", error);
       this.isConnected = false;
     };
 
-    this.socket.onclose = () => {
-      console.log("WebSocket Closed");
+    this.socket.onclose = (event) => {
+      console.warn(
+        `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+      );
       this.isConnected = false;
-      setTimeout(() => this.reconnect(), 2000);
+      this.socket = null;
+      if (event.code !== 1000) {
+        // ✅ Ne pas reconnecter si la fermeture est normale
+        console.log("🔄 Tentative de reconnexion WebSocket...");
+        setTimeout(() => this.reconnect(), 2000);
+      } else {
+        console.log("✅ WebSocket fermé proprement, pas de reconnexion.");
+      }
     };
   }
 
   updatePositions(state) {
-    if (state.paddle_left) {
+    // console.log("🎯 Mise à jour des paddles:", state);
+    if (state.paddle_left !== undefined) {
+      //   console.log(`🎾 Paddle gauche mis à jour: ${state.paddle_left}`);
       this.game.paddleLeft.obj.position.x = state.paddle_left;
     }
-    if (state.paddle_right) {
+    if (state.paddle_right !== undefined) {
+      //   console.log(`🏓 Paddle droit mis à jour: ${state.paddle_right}`);
       this.game.paddleRight.obj.position.x = state.paddle_right;
     }
     if (state.ball) {
+      //   console.log(
+      //     `⚽ Ball mise à jour: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`
+      //   );
       this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,
-        state.ball.vel_z,
+        state.ball.vel_z
       );
       //console.log(
       //  `ball is now at: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`,
       //);
+    } else {
+      console.warn("⚠️ Aucun état de balle reçu !");
     }
   }
 
   reconnect() {
-    if (this.socket.readyState === WebSocket.CLOSED) {
+    if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
+      console.log("Tentative de reconnexion WebSocket...");
       this.connect();
     }
   }
 
   sendMessage(data) {
-    if (!this.socket.readyState) return;
-    if (this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket && !this.socket.readyState) return;
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(data));
     } else {
       console.warn("WebSocket is not in OPEN state");
@@ -111,6 +138,15 @@ export class GameManager {
       side: side,
       direction: direction,
       deltaTime: deltaTime,
+    });
+  }
+
+  sendPause(bool) {
+    // const strBool = bool == true ? "true" : "false";
+    // console.log(`sent pause: ${bool}`);
+    this.sendMessage({
+      type: "pausedOrUnpaused",
+      bool: bool,
     });
   }
 }

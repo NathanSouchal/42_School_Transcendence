@@ -1,29 +1,25 @@
 import { deepMerge } from "./utils.js";
 
 export const DEFAULT_CONFIG = {
-  paddle: {
-    left: {
-      deltaFactor: 30,
-      movementSpeed: 0.5,
-      mouseControl: false,
-      keyboardControl: true,
-      keyboardKeys: {
-        // bottom: "x",
-        // top: "c",
+  keymaps: {
+    online: {
+      left: {
+        bottom: "ArrowDown",
+        top: "ArrowUp",
+      },
+      right: {
         bottom: "ArrowDown",
         top: "ArrowUp",
       },
     },
-    right: {
-      deltaFactor: 30,
-      movementSpeed: 0.5,
-      mouseControl: false,
-      keyboardControl: true,
-      keyboardKeys: {
-        // bottom: ",",
-        // top: ".",
-        bottom: "ArrowDown",
-        top: "ArrowUp",
+    local: {
+      left: {
+        bottom: "x",
+        top: "c",
+      },
+      right: {
+        bottom: ",",
+        top: ".",
       },
     },
   },
@@ -135,8 +131,12 @@ export class GameConfig {
       this.config.size.ball_ratio * this.config.size.arena_width * 0.7;
   }
 
-  getPaddleConfig(side) {
-    return this.config.paddle[side];
+  getPlayerKeymaps(side, gameMode) {
+    const mode =
+      gameMode == "OnlineLeft" || gameMode == "OnlineRight"
+        ? "online"
+        : "local";
+    return this.config.keymaps[mode][side];
   }
   getCameraConfig() {
     return this.config.camera;
@@ -155,12 +155,5 @@ export class GameConfig {
   }
   getSize() {
     return this.config.size;
-  }
-
-  update(section, newConfig) {
-    if (this.config[section]) {
-      this.config[section] = deepMerge(this.config[section], newConfig);
-    }
-    return this;
   }
 }

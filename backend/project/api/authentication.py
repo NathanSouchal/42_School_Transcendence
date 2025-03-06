@@ -3,6 +3,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 class CookieJWTAuthentication(JWTAuthentication):
 	def authenticate(self, request):
 		# Vérifier si le cookie "access_token" est présent
+		print("🔍 Cookies reçus par Django :", request.COOKIES)
 		token = request.COOKIES.get('access_token')
 		if token is None:
 			return None  # Aucun token trouvé dans les cookies

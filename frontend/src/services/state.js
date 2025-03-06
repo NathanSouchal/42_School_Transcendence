@@ -186,6 +186,7 @@ export default class State {
   togglePause(bool) {
     if (bool) this.state.gameIsPaused = bool;
     else this.state.gameIsPaused = !this.state.gameIsPaused;
+    // this.gameManager.sendPause(this.state.gameIsPaused);
     this.notifyListeners();
   }
 
