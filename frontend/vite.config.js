@@ -1,6 +1,9 @@
 import { defineConfig } from "vite";
+import dotenv from 'dotenv';
+import path from 'path';
 // import fs from "fs";
 
+dotenv.config({ path: path.resolve(__dirname, '../.env')});
 // MODE DEV
 export default defineConfig({
   server: {
@@ -18,7 +21,10 @@ export default defineConfig({
   build: {
     target: "esnext",
   },
-  envDir: '/home/nsouchal/PROJECTS/transcendence/.env',
+  envDir: path.resolve(__dirname, '../'),
+//  define: {
+//   'process.env': process.env,
+//  }
 });
 
 
