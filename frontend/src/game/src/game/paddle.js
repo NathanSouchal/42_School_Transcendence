@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import PaddleControls from "./paddle_controls";
 import Robot from "./robot";
+import { position } from "../events/gameManager.js";
+import state from "../../../app";
 
 class Paddle {
   constructor(arena, side, player_type, config) {
@@ -10,46 +12,30 @@ class Paddle {
     this.size = config.getSize();
     this.player_type = player_type;
     this.needsRemoving = false;
-    this.controls = config.getPaddleConfig(side);
     this.obj = new THREE.Object3D();
+    this.pos = new position();
+    this.config = config;
     this.choosePlayer(player_type);
   }
 
   choosePlayer(player_type) {
+    this.keymaps = this.config.getPlayerKeymaps(this.side, state.gameMode);
     if (player_type === "player") {
       this.player_type = player_type;
-      this.player = new PaddleControls(this, this.controls, this.size);
-    } else {
+      this.player = new PaddleControls(this, this.keymaps, this.size);
+    } else if (player_type === "robot") {
       if (this.needsRemoving === true) {
         this.player.dispose();
         this.needsRemoving = false;
       }
       this.player = new Robot(this, this.size);
+    } else if (player_type === "none") {
+      if (this.needsRemoving === true) {
+        this.player.dispose();
+        this.needsRemoving = false;
+        this.player = null;
+      }
     }
-  }
-
-  setInitialPos() {
-    const zMax = this.size.arena_depth;
-    const z =
-      this.side === "left"
-        ? -(zMax / 2) + this.size.paddle_depth / 2  
-        : zMax / 2 - this.size.paddle_depth / 2;
-    this.obj.position.set(0, 2.5, z);
-  }
-
-  computeBoundingBoxes() {
-    this.setInitialPos();
-    if (this.side === "right") {
-      this.obj.rotateY(Math.PI);
-    }
-    this.box = new THREE.Box3().setFromObject(this.obj, true);
-    this.arena.BBoxes.push({
-      box: this.box,
-      side: this.side,
-    });
-    let boxsize = new THREE.Vector3();
-    this.box.getSize(boxsize);
-    this.paddle_half_width = boxsize.x * 0.5;
   }
 
   async init() {
@@ -58,6 +44,16 @@ class Paddle {
       new THREE.Vector3(1.5, 1.3, 1.5),
     );
     this.obj.add(this.asset);
+    const zMax = this.size.arena_depth;
+    const z =
+      this.side === "left"
+        ? -(zMax / 2) + this.size.paddle_depth / 2
+        : zMax / 2 - this.size.paddle_depth / 2;
+    this.pos.set(0, 2.5, z);
+    this.obj.position.set(this.pos.x, this.pos.y, this.pos.z);
+    if (this.side === "right") {
+      this.obj.rotateY(Math.PI);
+    }
   }
 
   loadModel(path, scale) {
@@ -94,21 +90,8 @@ class Paddle {
     }
   }
 
-  update(deltaTime, position, velocity) {
-    this.player.update(deltaTime, position, velocity);
-
-    const newBox = new THREE.Box3().setFromObject(this.obj, true);
-    const paddleBoxIndex = this.arena.BBoxes.findIndex(
-      (bbox) => bbox.side === this.side,
-    );
-    if (paddleBoxIndex !== -1) {
-      this.arena.BBoxes[paddleBoxIndex] = {
-        box: newBox,
-        side: this.side,
-      };
-    }
+  animation_update(deltaTime) {
     this.mixer.update(deltaTime);
-
     if (this.player.state.bottom) {
       if (!this.gauche.isRunning()) {
         this.gauche.play();
@@ -116,7 +99,6 @@ class Paddle {
     } else if (!this.player.state.bottom) {
       if (this.gauche.isRunning()) this.gauche.setEffectiveTimeScale(0.5);
     }
-
     if (this.player.state.top) {
       if (!this.droite.isRunning()) {
         this.droite.play();
@@ -124,7 +106,6 @@ class Paddle {
     } else if (!this.player.state.top) {
       if (this.droite.isRunning()) this.droite.setEffectiveTimeScale(0.5);
     }
-
     this.coupElapsedTime += deltaTime;
     if (this.coupElapsedTime >= 1) {
       this.coup_de_pince.stop();

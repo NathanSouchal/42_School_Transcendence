@@ -80,7 +80,7 @@ export class Header {
     }
   }
 
-  handleToggleButton() {
+  async handleToggleButton() {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
@@ -96,12 +96,12 @@ export class Header {
         header.style.zIndex = "1";
         app.style.pointerEvents = "none";
       } else {
-        this.closeMenu();
+        await this.closeMenu();
       }
     }
   }
 
-  closeMenu(key) {
+  async closeMenu(key) {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
@@ -117,7 +117,7 @@ export class Header {
       setTimeout(() => {
         header.style.zIndex = "0";
       }, 500);
-      if (key === "logout") logout();
+      if (key === "logout") await logout();
     }
   }
 

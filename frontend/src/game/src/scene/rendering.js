@@ -26,39 +26,31 @@ class Renderer {
     return needResize;
   }
 
-  markPoints() {
-    if (state.players.left === "robot" && state.players.right === "robot")
-      return;
-    if (this.game.ball.obj.position.z < -(this.zMax / 2) + this.depth / 2 - 3) {
-      state.updateScore("right", 1);
-    } else if (
-      this.game.ball.obj.position.z >
-      this.zMax / 2 - this.depth / 2 + 3
-    ) {
-      state.updateScore("left", 1);
-    }
-  }
-
-  animate() {
+  animate(gameManager) {
     const render = () => {
       const currentTime = performance.now();
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime);
-        this.pivotUpdate(deltaTime);
-        this.collisionsUpdate(deltaTime);
+        this.gameElementsUpdate(deltaTime, gameManager);
       }
 
+      this.game.ball.updateRotation(deltaTime);
+      if (state.ballCollided) {
+        this.game.ball.spawn_sparks(state.collisionPoint);
+        state.ballCollided = false;
+      }
+      this.game.ball.animate_sparks();
+      this.game.paddleRight.animation_update(deltaTime);
+      this.game.paddleLeft.animation_update(deltaTime);
+      this.pivotUpdate(deltaTime);
       this.terrainElementsUpdate(deltaTime);
-
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
         this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
         this.camera.updateProjectionMatrix();
       }
-
       this.renderer.render(this.scene, this.camera);
       requestAnimationFrame(render);
     };
@@ -71,49 +63,29 @@ class Renderer {
     this.game.pivot.rotation.z = rockingAngle;
   }
 
-  gameElementsUpdate(deltaTime) {
-    this.game.ball.update(deltaTime, this.scene, this);
-    this.game.paddleRight.update(
-      deltaTime,
-      this.game.ball.obj.position,
-      this.game.ball.velocity,
-    ),
-      this.game.paddleLeft.update(
+  gameElementsUpdate(deltaTime, gameManager) {
+    if (state.gameMode != "OnlineLeft") {
+      this.game.paddleRight.player.update(
         deltaTime,
+        gameManager,
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
+    }
+    if (state.gameMode != "OnlineRight") {
+      this.game.paddleLeft.player.update(
+        deltaTime,
+        gameManager,
+        this.game.ball.obj.position,
+        this.game.ball.velocity,
+      );
+    }
   }
 
   terrainElementsUpdate(deltaTime) {
     this.game.sea.update(deltaTime);
     for (let creature of this.game.fishFactory.creatures) {
       creature.update(deltaTime);
-    }
-  }
-
-  collisionsUpdate(deltaTime) {
-    for (const bbox of this.game.arena.BBoxes) {
-      if (this.game.ball.box.intersectsBox(bbox.box)) {
-        this.game.ball.bounce(bbox);
-        this.game.ball.update(deltaTime, this.scene, this);
-        if (bbox.side === "right") {
-          this.game.paddleLeft.controls.other_has_hit = true;
-          this.game.paddleRight.controls.other_has_hit = false;
-          this.game.paddleRight.tap_animation(deltaTime);
-        } else if (bbox.side === "left") {
-          this.game.paddleLeft.controls.other_has_hit = false;
-          this.game.paddleRight.controls.other_has_hit = true;
-          this.game.paddleLeft.tap_animation(deltaTime);
-        }
-        const collisionPoint = new THREE.Vector3(
-          this.game.ball.obj.position.x,
-          this.game.ball.obj.position.y,
-          this.game.ball.obj.position.z,
-        );
-        this.game.ball.spawn_sparks(collisionPoint);
-        break;
-      }
     }
   }
 }

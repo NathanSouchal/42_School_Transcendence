@@ -592,7 +592,7 @@ export default class Account {
             : `
 			  <div id="userinfo-main-div">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-				${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+				${this.userData.avatar ? `<img src="https://localhost:8443/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">
