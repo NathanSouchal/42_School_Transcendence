@@ -49,6 +49,32 @@ export default class LocalTournament {
   }
 
   attachEventListeners() {
+    const nbPlayers = [
+      { id: "crab4", value: 4 },
+      { id: "crab8", value: 8 },
+      { id: "crab16", value: 16 },
+      { id: "crab32", value: 32 },
+    ];
+
+    nbPlayers.forEach(({ id, value }) => {
+      const crab = document.getElementById(id);
+      if (crab) {
+        const handleNbPlayersChange = this.handleNbPlayersChange.bind(
+          this,
+          value
+        );
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          crab.addEventListener("click", handleNbPlayersChange);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: crab,
+            listener: handleNbPlayersChange,
+          });
+        }
+      }
+    });
+
     const links = document.querySelectorAll("a");
     links.forEach((link) => {
       if (!this.eventListeners.some((e) => e.element === link)) {
@@ -62,20 +88,6 @@ export default class LocalTournament {
         });
       }
     });
-
-    const selectNbPlayers = document.getElementById("select-nb-players");
-    if (selectNbPlayers) {
-      const handleNbPlayersChange = this.handleNbPlayersChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "selectNbPlayersEvent")) {
-        selectNbPlayers.addEventListener("change", handleNbPlayersChange);
-      }
-      this.eventListeners.push({
-        name: "selectNbPlayersEvent",
-        type: "change",
-        element: selectNbPlayers,
-        listener: handleNbPlayersChange,
-      });
-    }
 
     const inputPlayerName = document.getElementById("input-player-name");
     if (inputPlayerName) {
@@ -143,13 +155,10 @@ export default class LocalTournament {
     }
   }
 
-  async handleNbPlayersChange(e) {
-    const selectedValue = e.target.value;
-    if (selectedValue) {
-      this.nbPlayers = parseInt(selectedValue, 10);
-      console.log(this.nbPlayers);
-      await updateView(this, {});
-    }
+  async handleNbPlayersChange(value) {
+    this.nbPlayers = value;
+    console.log(this.nbPlayers);
+    await updateView(this, {});
   }
 
   async handlePlayersName(e) {
@@ -315,16 +324,13 @@ export default class LocalTournament {
 
   renderSelectNbPlayers() {
     return `<div class="select-container">
-                <label for="select-nb-players">${trad[this.lang].localTournament.playersNum}</label>
-                <select id="select-nb-players">
-                  <option value="" disabled selected>${trad[this.lang].localTournament.select}</option>
-                  ${this.possibleNbPlayers
-                    .map(
-                      (element) =>
-                        `<option value="${element}">${element}</option>`
-                    )
-                    .join("")}
-                </select>
+                <h2>${trad[this.lang].localTournament.playersNum}</h2>
+				<div class="crab-playernb-div">
+                    <img src="/crab4.png" alt="crab4img" class="crab-playernb-select" id="crab4">
+                    <img src="/crab8.png" alt="crab8img" class="crab-playernb-select" id="crab8">
+                    <img src="/crab16.png" alt="crab16img" class="crab-playernb-select" id="crab16">
+                    <img src="/crab32.png" alt="crab32img" class="crab-playernb-select" id="crab32">
+                 </div>
               </div>`;
   }
 
