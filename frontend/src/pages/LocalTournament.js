@@ -1,4 +1,4 @@
-import { updateView, checkUserStatus } from "../utils";
+import { updateView, checkUserStatus, setDisable } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -22,6 +22,7 @@ export default class LocalTournament {
     this.tournamentWinner = null;
     this.userAlias = "";
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -156,9 +157,12 @@ export default class LocalTournament {
   }
 
   async handleNbPlayersChange(value) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     this.nbPlayers = value;
     console.log(this.nbPlayers);
     await updateView(this, {});
+    this.isProcessing = false;
   }
 
   async handlePlayersName(e) {
@@ -227,12 +231,16 @@ export default class LocalTournament {
   }
 
   handleStartButton() {
+    setDisable(true, "btn-start-match");
     this.state.setGameStarted("PVP");
+    setDisable(false, "btn-start-match");
   }
 
   handleGameMenuButton() {
+    setDisable(true, "game-menu-button");
     this.resetAttributes();
     router.navigate("/game");
+    setDisable(false, "game-menu-button");
   }
 
   async matchFinished() {

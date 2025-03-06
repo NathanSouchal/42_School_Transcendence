@@ -1,4 +1,9 @@
-import { handleHeader, updateView, checkUserStatus } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  checkUserStatus,
+  setDisable,
+} from "../utils";
 import { router } from "../app.js";
 import { createBackArrow } from "../utils";
 import { trad } from "../trad.js";
@@ -18,6 +23,7 @@ export default class GamePage {
     this.lang = null;
     this.haveToSelectBotDifficulty = false;
     this.formState = {};
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -97,14 +103,18 @@ export default class GamePage {
   }
 
   handleDifficultyChange(e) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     const selectedValue = e.target.value;
     if (selectedValue) {
       this.state.botDifficulty = selectedValue;
       this.state.setGameStarted("PVR");
     }
+    this.isProcessing = false;
   }
 
   async handleClick(param) {
+    setDisable(true, param);
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
@@ -141,6 +151,7 @@ export default class GamePage {
         this.state.togglePause();
         break;
     }
+    setDisable(false, param);
   }
 
   //   {
@@ -170,7 +181,6 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
-    console.log("state changed");
     if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
       await this.saveGame();
     if (

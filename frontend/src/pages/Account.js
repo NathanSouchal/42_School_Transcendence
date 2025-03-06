@@ -23,6 +23,7 @@ export default class Account {
     this.eventListeners = [];
     this.deleteUserVerification = false;
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -185,6 +186,7 @@ export default class Account {
   }
 
   async handleFile(key, file) {
+    setDisable(true, "avatar");
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const maxSize = 5 * 1024 * 1024; // 5MB
@@ -215,10 +217,13 @@ export default class Account {
         reader.readAsDataURL(fileInput);
       } else label.textContent = "Upload file";
     }
+    setDisable(false, "avatar");
   }
 
   async handleClick(key) {
-    if (key == "cancel-button" || key == "update-user-info") {
+    if (key === "cancel-button" || key === "update-user-info") {
+      if (key == "cancel-button") setDisable(true, "cancel-button");
+      if (key == "update-user-info") setDisable(true, "update-user-info");
       this.isForm = !this.isForm;
       await updateView(this, {});
       if (this.isForm) {
@@ -227,17 +232,27 @@ export default class Account {
           await this.getQrcode();
         }
       }
+      if (key == "cancel-button") setDisable(false, "cancel-button");
+      if (key == "update-user-info") setDisable(false, "update-user-info");
     } else if (key === "delete-user-button") {
+      setDisable(true, "delete-user-button");
       await this.deleteUser();
+      setDisable(false, "delete-user-button");
     } else if (key === "confirm-delete-user") {
+      setDisable(true, "confirm-delete-user");
       await this.confirmDeleteUser(this.state.state.userId);
+      setDisable(false, "confirm-delete-user");
     } else if (key === "cancel-delete-user") {
+      setDisable(true, "cancel-delete-user");
       await this.cancelDeleteUser();
+      setDisable(true, "cancel-delete-user");
     }
   }
 
   async handleSubmit(e) {
     e.preventDefault();
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     try {
       await this.updateUserInfo(this.state.state.userId);
       await this.fetchData(this.userData.id);
@@ -245,10 +260,15 @@ export default class Account {
       await updateView(this, {});
     } catch (error) {
       console.error(error);
+    } finally {
+      this.isProcessing = false;
     }
   }
 
   async handleCheckBox(checkbox, inputField, checkboxes) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+
     checkboxes.forEach(({ id }) => {
       const otherCheckbox = document.getElementById(id);
       if (otherCheckbox !== checkbox) otherCheckbox.checked = false;
@@ -288,6 +308,8 @@ export default class Account {
     if (!document.getElementById("app2FA-checkbox").checked) {
       document.getElementById("totp-qr-code").style.display = "none";
     }
+
+    this.isProcessing = false;
   }
 
   async fetchData(id) {
@@ -363,7 +385,9 @@ export default class Account {
   }
 
   async deleteUser() {
-    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteVerificationDiv = document.getElementById(
+      "delete-verification-div"
+    );
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteVerificationDiv && deleteUserButton) {
       deleteVerificationDiv.style.display = "block";
@@ -372,14 +396,16 @@ export default class Account {
   }
 
   async cancelDeleteUser() {
-    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteVerificationDiv = document.getElementById(
+      "delete-verification-div"
+    );
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteVerificationDiv && deleteUserButton) {
       deleteVerificationDiv.style.display = "none";
       deleteUserButton.style.display = "block";
     }
   }
-  
+
   async confirmDeleteUser(id) {
     this.deleteUserVerification = false;
     setDisable(true, "confirm-delete-user");

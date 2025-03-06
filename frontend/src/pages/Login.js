@@ -129,7 +129,6 @@ export default class Login {
 
   async handleSubmit(e) {
     e.preventDefault();
-    setDisable(true, "2fa-login-form");
     setDisable(true, "login-form");
     if (!this.formState.username.length || !this.formState.password.length) {
       return console.error("Please complete all fields");
@@ -152,18 +151,18 @@ export default class Login {
         }
       }
     } finally {
-      setDisable(false, "2fa-login-form");
-      setDisable(false, "login-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {
         input.value = "";
       });
+      setDisable(false, "login-form");
     }
   }
 
   async handleSubmit2FA(e) {
     e.preventDefault();
+    setDisable(true, "2fa-login-form");
     console.log("Sending 2FA verification:", this.formState.code);
     if (!this.formState.code?.length) {
       return console.error("Please enter your code");
@@ -190,6 +189,7 @@ export default class Login {
       inputs.forEach((input) => {
         input.value = "";
       });
+      setDisable(false, "2fa-login-form");
     }
   }
 

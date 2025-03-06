@@ -22,6 +22,7 @@ export default class Register {
     };
     this.eventListeners = [];
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -96,8 +97,11 @@ export default class Register {
   }
 
   showPopup() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     const popup = document.getElementById("popup");
     if (popup) popup.classList.toggle("show");
+    this.isProcessing = false;
   }
 
   handleNavigation(e) {
@@ -144,9 +148,6 @@ export default class Register {
     }
 
     this.formState[key] = value;
-    console.log(this.formState.username);
-    console.log(this.formState.password);
-    console.log(this.formState.passwordConfirmation);
   }
 
   async handleSubmit(e) {
@@ -178,7 +179,6 @@ export default class Register {
       } else if (error.response && error.response.status === 409)
         this.displayRegisterErrorMessage("This username is already used");
     } finally {
-      setDisable(false, "register-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {
@@ -186,6 +186,7 @@ export default class Register {
         input.classList.remove("is-valid");
         input.classList.remove("is-invalid");
       });
+      setDisable(false, "register-form");
     }
   }
 
