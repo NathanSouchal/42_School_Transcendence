@@ -10,11 +10,10 @@ export class GameManager {
   }
 
   connect() {
-    // if (this.socket) this.socket.close();
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
-      this.socket.close(); // 🔥 Ferme la connexion précédente avant d'en créer une nouvelle
-    }
+    if (this.socket) this.socket.close();
+    // if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    //   console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
+    // }
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const baseUrl = `${protocol}://${window.location.hostname}:8443/ws/`;
     // const baseUrl = "wss://0.0.0.0:8443/ws/";

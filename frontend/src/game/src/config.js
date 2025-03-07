@@ -14,8 +14,8 @@ export const DEFAULT_CONFIG = {
     },
     local: {
       left: {
-        bottom: "ArrowDown",
-        top: "ArrowUp",
+        bottom: "q",
+        top: "p",
       },
       right: {
         bottom: "ArrowDown",

@@ -108,7 +108,7 @@ class GameState(AsyncWebsocketConsumer):
         for room, details in self.rooms.items():
             print(f"Room {room}: {details['players']}")
         if self.room not in self.game_loops:
-            # print(f"🚀 Lancement du game_loop pour la salle {self.room}")
+            print(f"🚀 Lancement du game_loop pour la salle {self.room}")
             self.game_loops[self.room] = asyncio.create_task(self.game_loop(self.room))
             # print(f"✅ game_loop lancé avec succès pour {self.room}")
         else:
@@ -174,9 +174,10 @@ class GameState(AsyncWebsocketConsumer):
             while True:
                 if room in self.rooms:
                     # print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
-                    if (self.game_mode == GameMode.LOCAL) and self.rooms[self.room][
-                        "isPaused"
-                    ]:
+                    if (
+                        self.game_mode == GameMode.LOCAL
+                        and self.rooms[self.room]["isPaused"] == "true"
+                    ):
                         await asyncio.sleep(1 / 60)
                         continue
                     current_time = time.time()
@@ -187,8 +188,8 @@ class GameState(AsyncWebsocketConsumer):
                         print(f"ERREUR: Aucune balle trouvee pour la salle {room}")
                         continue
                     ball = self.rooms[room]["ball"]
-                    print(f"🎾 Avant update: Ball position = {ball.position}")
-                    print(f"Appel de Ball.update() avec delta_time={delta_time}")
+                    # print(f"🎾 Avant update: Ball position = {ball.position}")
+                    # print(f"Appel de Ball.update() avec delta_time={delta_time}")
                     if self.rooms[room]["positions"]["paddle_left"] is None:
                         self.rooms[room]["positions"]["paddle_left"] = 0
                     if self.rooms[room]["positions"]["paddle_right"] is None:
@@ -261,23 +262,31 @@ class GameState(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
-            # print(f"📩 Message reçu : {data}")
+            print(f"📩 Message reçu : {data}")
 
             if data.get("type") == "paddle_move":
                 direction = data.get("direction")
                 side = data.get("side")
                 delta_time = float(data.get("deltaTime"))
                 positions = self.rooms[self.room]["positions"]
-                # print(f"🎮 Avant mise à jour: paddle_{side} = {positions[f'paddle_{side}']}")
+                # print(
+                #     f"🎮 Avant mise à jour: paddle_{side} = {positions[f'paddle_{side}']}"
+                # )
                 positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][
                     side
                 ].move(direction, delta_time)
-                # print(f"✅ Après mise à jour: paddle_{side} = {self.rooms[self.room]['positions'][f'paddle_{side}']}")
-                # print(f"⚽ Avant mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}")
+                # print(
+                #     f"✅ Après mise à jour: paddle_{side} = {self.rooms[self.room]['positions'][f'paddle_{side}']}"
+                # )
+                # print(
+                #     f"⚽ Avant mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}"
+                # )
                 self.rooms[self.room]["positions"]["ball"] = self.rooms[self.room][
                     "ball"
                 ].get_current_position()
-                # print(f"⚽ Après mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}")  # ✅ DEBUG
+                # print(
+                #     f"⚽ Après mise à jour du paddle, position balle = {self.rooms[self.room]['positions']['ball']}"
+                # )  # ✅ DEBUG
                 await self.sendPositions()
                 # print(f"📤 Envoi des nouvelles positions après paddle_move")
             elif data.get("type") == "pausedOrUnpaused":
@@ -353,8 +362,10 @@ class GameState(AsyncWebsocketConsumer):
 
     async def sendPositions(self):
         positions = self.rooms[self.room]["positions"]
-        print(f"📤 Envoi des positions mises à jour : {positions}")  # ✅ DEBUG
-        print(f"⚽ Position actuelle de la balle : {self.rooms[self.room]['positions']['ball']}")
+        # print(f"📤 Envoi des positions mises à jour : {positions}")  # ✅ DEBUG
+        # print(
+        #     f"⚽ Position actuelle de la balle : {self.rooms[self.room]['positions']['ball']}"
+        # )
         if self.game_mode is not GameMode.ONLINE:
             await self.send(
                 text_data=json.dumps(
