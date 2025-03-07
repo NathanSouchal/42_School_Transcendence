@@ -45,9 +45,8 @@ export const trad = {
       guestMode: "Guest Mode",
     },
     localTournament: {
-      pageTtitle: "TOURNAMENT",
-      playersNum: "Number of Players",
-      select: "Select...",
+      pageTitle: "TOURNAMENT",
+      playersNum: "Choose number of players",
       player: "Player n°",
       namePlayer: "Name for player n°",
       winner: "Winner :",
@@ -85,6 +84,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Search...",
+      searchResult: "User not found",
       friends: "FRIENDS",
       online: "Online",
       offline: "Offline",
@@ -164,9 +164,8 @@ export const trad = {
       guestMode: "Mode invité",
     },
     localTournament: {
-      pageTtitle: "TOURNOI",
-      playersNum: "Nombre de joueurs",
-      select: "Selection...",
+      pageTitle: "TOURNOI",
+      playersNum: "Choisissez le nombre de joueurs",
       player: "Joueur n°",
       namePlayer: "Nom du joueur n°",
       winner: "Gagnant :",
@@ -204,6 +203,7 @@ export const trad = {
     social: {
       pageTitle: "Amis",
       search: "Recherche...",
+      searchResult: "Utilisateur non trouvé",
       friends: "AMIS",
       online: "En ligne",
       offline: "Hors ligne",
@@ -283,9 +283,8 @@ export const trad = {
       guestMode: "Modo Invitado",
     },
     localTournament: {
-      pageTtitle: "TORNEO",
-      playersNum: "Número de jugadores",
-      select: "Seleccionar...",
+      pageTitle: "TORNEO",
+      playersNum: "Elige el número de jugadores",
       player: "Jugador n°",
       namePlayer: "Nombre del jugador n°",
       winner: "Ganador:",
@@ -323,6 +322,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Buscar...",
+      searchResult: "Usuario no encontrado",
       friends: "AMIGOS",
       online: "En línea",
       offline: "Desconectado",
@@ -402,9 +402,8 @@ export const trad = {
       guestMode: "Crab Mode",
     },
     localTournament: {
-      pageTtitle: "CRABNAMENT",
-      playersNum: "Number of Crabbers",
-      select: "Crablect...",
+      pageTitle: "CRABNAMENT",
+      playersNum: "Crab number of Crabbers",
       player: "Crabber n°",
       namePlayer: "Crabname for Crabber n°",
       winner: "Crabwinner:",
@@ -442,6 +441,7 @@ export const trad = {
     social: {
       pageTitle: "Crabial",
       search: "Crabch...",
+      searchResult: "Crab no Crabbed",
       friends: "CRABENDS",
       online: "Crabline",
       offline: "Offcrab",

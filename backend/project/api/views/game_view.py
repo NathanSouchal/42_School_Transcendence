@@ -9,8 +9,7 @@ from api.permissions import IsAuthenticated
 from django.http import Http404
 from django.db.models import ProtectedError
 from rest_framework.permissions import AllowAny
-
-
+from api.models import Stats
 
 
 class GameView(APIView):
@@ -84,10 +83,36 @@ class GameListView(APIView):
 			if serializer.is_valid():
 				game = serializer.save()
 				game.player1.match_history.add(game)
-				game.player2.match_history.add(game)
+				if game.player2:
+					game.player2.match_history.add(game)
+				self.update_stats(game)
 				return Response({'game': GameSerializer(game).data, 'message': 'Game created successfully.'}, status=status.HTTP_201_CREATED)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+	def update_stats(self, game):
+
+		def update_player_stats(player, score, opponent_score):
+			if player:
+				stats, created = Stats.objects.get_or_create(user=player)
+
+				if score > opponent_score:
+					stats.wins += 1
+				else:
+					stats.losses += 1
+
+				stats.last_game = game
+				stats.nb_games = stats.calculate_nb_games()
+				stats.win_ratio = stats.calculate_ratio()
+
+				total_score = ((stats.nb_games - 1) * stats.average_score) + score
+				stats.average_score = round(total_score / stats.nb_games, 2) if stats.nb_games > 0 else 0
+
+				stats.save()
+
+		update_player_stats(game.player1, game.score_player1, game.score_player2)
+		update_player_stats(game.player2, game.score_player2, game.score_player1)

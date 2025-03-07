@@ -5,12 +5,12 @@ import {
   checkUserStatus,
   setDisable,
 } from "../utils";
-import { createBackArrow } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Account {
   constructor(state) {
+	this.pageName = "Account";
     this.state = state;
     this.previousState = { ...state.state };
     this.isSubscribed = false;
@@ -23,6 +23,7 @@ export default class Account {
     this.eventListeners = [];
     this.deleteUserVerification = false;
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -185,6 +186,7 @@ export default class Account {
   }
 
   async handleFile(key, file) {
+    setDisable(true, "avatar");
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
       const maxSize = 5 * 1024 * 1024; // 5MB
@@ -215,10 +217,12 @@ export default class Account {
         reader.readAsDataURL(fileInput);
       } else label.textContent = "Upload file";
     }
+    setDisable(false, "avatar");
   }
 
   async handleClick(key) {
-    if (key == "cancel-button" || key == "update-user-info") {
+    setDisable(true, key);
+    if (key === "cancel-button" || key === "update-user-info") {
       this.isForm = !this.isForm;
       await updateView(this, {});
       if (this.isForm) {
@@ -234,10 +238,13 @@ export default class Account {
     } else if (key === "cancel-delete-user") {
       await this.cancelDeleteUser();
     }
+    setDisable(false, key);
   }
 
   async handleSubmit(e) {
     e.preventDefault();
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     try {
       await this.updateUserInfo(this.state.state.userId);
       await this.fetchData(this.userData.id);
@@ -245,10 +252,15 @@ export default class Account {
       await updateView(this, {});
     } catch (error) {
       console.error(error);
+    } finally {
+      this.isProcessing = false;
     }
   }
 
   async handleCheckBox(checkbox, inputField, checkboxes) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+
     checkboxes.forEach(({ id }) => {
       const otherCheckbox = document.getElementById(id);
       if (otherCheckbox !== checkbox) otherCheckbox.checked = false;
@@ -288,6 +300,8 @@ export default class Account {
     if (!document.getElementById("app2FA-checkbox").checked) {
       document.getElementById("totp-qr-code").style.display = "none";
     }
+
+    this.isProcessing = false;
   }
 
   async fetchData(id) {
@@ -363,7 +377,9 @@ export default class Account {
   }
 
   async deleteUser() {
-    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteVerificationDiv = document.getElementById(
+      "delete-verification-div"
+    );
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteVerificationDiv && deleteUserButton) {
       deleteVerificationDiv.style.display = "block";
@@ -372,14 +388,16 @@ export default class Account {
   }
 
   async cancelDeleteUser() {
-    const deleteVerificationDiv = document.getElementById("delete-verification-div");
+    const deleteVerificationDiv = document.getElementById(
+      "delete-verification-div"
+    );
     const deleteUserButton = document.getElementById("delete-user-button");
     if (deleteVerificationDiv && deleteUserButton) {
       deleteVerificationDiv.style.display = "none";
       deleteUserButton.style.display = "block";
     }
   }
-  
+
   async confirmDeleteUser(id) {
     this.deleteUserVerification = false;
     setDisable(true, "confirm-delete-user");
@@ -445,8 +463,7 @@ export default class Account {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="user-main-div account-main-div">
+    return `<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
                             <h1>${trad[this.lang].account.pageTitle}</h1>

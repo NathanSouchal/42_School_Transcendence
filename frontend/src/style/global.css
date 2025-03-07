@@ -245,9 +245,8 @@ canvas#c {
   padding-right: 0.3em;
   padding-left: 0.3em;
   border-radius: 20px;
-  margin-bottom: 2.5rem;
   transition: all 0.3s ease;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.3rem;
   text-decoration: none;
   color: var(--primary-color);
 }
@@ -269,27 +268,6 @@ canvas#c {
   .global-nav-section {
     font-size: 1.3em;
   }
-}
-
-.lang-div {
-  z-index: 10000;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: rgba(54, 54, 54, 0.6);
-  overflow: hidden;
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  border: 2px solid rgba(95, 95, 95, 0.6);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
-  border-radius: 25px;
-  width: 100px;
-  height: 45px;
-  transition:
-    height 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
 }
 
 .selected-lang-div {
@@ -320,10 +298,49 @@ canvas#c {
 
 .lang-div {
   opacity: 1;
+  cursor: pointer;
+  z-index: 10000;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: rgba(54, 54, 54, 0.6);
+  overflow: hidden;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  border: 2px solid rgba(95, 95, 95, 0.6);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 25px;
+  width: 100px;
+  height: 45px;
+  transition: all 0.2s ease;
+}
+
+.lang-div:hover {
+  scale: 1.1;
 }
 
 .lang-div.hidden {
   opacity: 0;
+}
+
+.lang-div:active {
+  scale: 1;
+}
+
+.lang-div.open {
+  scale: 1.1;
+  height: 240px;
+  border-radius: 25px;
+}
+
+.lang-div.open .lang-menu {
+  display: block;
+}
+
+.lang-div.open .lang-arrow {
+  transform: rotate(135deg) translateX(5px) translateY(-5px);
 }
 
 .lang-name {
@@ -382,15 +399,31 @@ canvas#c {
   background: rgba(95, 95, 95, 0.8);
 }
 
-.lang-div.open {
-  height: 240px;
-  border-radius: 25px;
+.home-img-div {
+  width: 50px;
+  height: 50px;
+  margin-left: 1.5rem;
+  opacity: 1;
+  transition: all 0.2s ease-in-out;
 }
 
-.lang-div.open .lang-menu {
-  display: block;
+.home-img {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.lang-div.open .lang-arrow {
-  transform: rotate(135deg) translateX(5px) translateY(-5px);
+.home-img:hover {
+  scale: 1.2;
+}
+
+.home-img:active {
+  scale: 0.9;
+}
+
+@media (max-width: 400px) {
+  .home-img-div {
+    margin-left: 0.5rem;
+  }
 }

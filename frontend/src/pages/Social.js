@@ -2,14 +2,15 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
+  setDisable,
 } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Social {
   constructor(state) {
+    this.pageName = "Social";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -85,78 +86,74 @@ export default class Social {
       }
     });
 
-    const validate_button = document.getElementById("validate_invit");
+    const validateBtn = document.getElementById("validate_invit");
     if (
-      validate_button &&
+      validateBtn &&
       !this.eventListeners.some((e) => e.name === "validate_invit")
     ) {
-      const validate_btn_fctn = this.validate_btn_fctn.bind(this);
-      validate_button.addEventListener("click", validate_btn_fctn);
+      const validateInviteRequest = this.validateInviteRequest.bind(this);
+      validateBtn.addEventListener("click", validateInviteRequest);
       this.eventListeners.push({
         name: "validate_invit",
         type: "click",
-        element: validate_button,
-        listener: validate_btn_fctn,
+        element: validateBtn,
+        listener: validateInviteRequest,
       });
     }
 
-    const cancel_button = document.getElementById("cancel_decline_invit");
+    const cancelBtn = document.getElementById("cancel_decline_invit");
     if (
-      cancel_button &&
+      cancelBtn &&
       !this.eventListeners.some((e) => e.name === "cancel_decline_invit")
     ) {
-      const cancel_btn_fctn = this.cancel_btn_fctn.bind(this);
-      cancel_button.addEventListener("click", cancel_btn_fctn);
+      const cancelInviteRequest = this.cancelInviteRequest.bind(this);
+      cancelBtn.addEventListener("click", cancelInviteRequest);
       this.eventListeners.push({
         name: "cancel_decline_invit",
         type: "click",
-        element: cancel_button,
-        listener: cancel_btn_fctn,
+        element: cancelBtn,
+        listener: cancelInviteRequest,
       });
     }
 
-    const search_bar_user = document.getElementById("search_bar_user");
+    const searchFriendForm = document.getElementById("search-friend-form");
     if (
-      search_bar_user &&
-      !this.eventListeners.some((e) => e.name === "search_bar_user")
+      searchFriendForm &&
+      !this.eventListeners.some((e) => e.name === "search-friend-form")
     ) {
-      const search_bar_user_fctn = this.search_bar_user_fctn.bind(this);
-      search_bar_user.addEventListener("keydown", search_bar_user_fctn);
+      const searchBarUserRequest = this.searchBarUserRequest.bind(this);
+      searchFriendForm.addEventListener("submit", searchBarUserRequest);
       this.eventListeners.push({
-        name: "search_bar_user",
-        type: "input",
-        element: search_bar_user,
-        listener: search_bar_user_fctn,
+        name: "search-friend-form",
+        type: "submit",
+        element: searchFriendForm,
+        listener: searchBarUserRequest,
       });
     }
   }
 
-  async validate_btn_fctn(e) {
-    const invit_id = e.target.value;
-    console.log(invit_id);
-    await this.validate_invit_request(invit_id);
-  }
-
-  async validate_invit_request(invit_id) {
+  async validateInviteRequest(e) {
+    e.preventDefault();
+    setDisable(true, "validate_invit");
+    const inviteId = e.target.value;
     try {
-      await API.put(`/friend-requests/${invit_id}/`, {
+      await API.put(`/friend-requests/${inviteId}/`, {
         accepted: "true",
       });
       await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
+    } finally {
+      setDisable(false, "validate_invit");
     }
   }
 
-  async cancel_btn_fctn(e) {
-    const invit_id = e.target.value;
-    console.log(invit_id);
-    await this.cancel_invit_request(invit_id);
-  }
-
-  async cancel_invit_request(invit_id) {
+  async cancelInviteRequest(e) {
+    e.preventDefault();
+    setDisable(true, "cancel_decline_invit");
+    const inviteId = e.target.value;
     try {
-      await API.put(`/friend-requests/${invit_id}/`, {
+      await API.put(`/friend-requests/${inviteId}/`, {
         accepted: "false",
       });
       await updateView(this, {});
@@ -164,23 +161,34 @@ export default class Social {
       console.error(
         `Error while trying to cancel or denie friend request : ${error}`
       );
+    } finally {
+      setDisable(false, "cancel_decline_invit");
     }
   }
 
-  async search_bar_user_fctn(e) {
-    if (e.key === "Enter") {
-      console.log(e.target.value);
+  async searchBarUserRequest(e) {
+    e.preventDefault();
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    try {
+      let usernameToSearch = "";
+      const searchBarUser = document.getElementById("search_bar_user");
+      if (searchBarUser) usernameToSearch = searchBarUser.value;
       const searchResultDiv = document.getElementById("search_result");
-      searchResultDiv.innerHTML = "";
-      await this.search_bar_user_request(e.target.value);
+      if (searchResultDiv) searchResultDiv.innerHTML = "";
+      const res = await API.get(`/user/${usernameToSearch}/`);
+      this.search_result = res.data.user;
+      this.updateSearchResult();
+      console.log(this.search_result);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
+        const searchResultDiv = document.getElementById("search_result");
+        if (searchResultDiv)
+          searchResultDiv.innerHTML = trad[this.lang].social.searchResult;
+      }
+    } finally {
+      this.isProcessing = false;
     }
-  }
-
-  async search_bar_user_request(username_to_search) {
-    const res = await API.get(`/user/${username_to_search}/`);
-    this.search_result = res.data.user;
-    this.updateSearchResult();
-    console.log(this.search_result);
   }
 
   handleNavigation(e) {
@@ -249,17 +257,18 @@ export default class Social {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
     if (this.friends && this.invitations) {
       return `
-        ${backArrow}
         <div class="main-div-social">
           <h1 class="global-page-title">${trad[this.lang].social.pageTitle}</h1>
           <div class="content-social">
             <div class="search-bar-and-result-social">
-              <input type="text" id="search_bar_user" placeholder="${trad[this.lang].social.search}" />
-              <div id="search_result"></div>
+				<form id="search-friend-form" class="search-input-div">
+              		<input minLength="4" maxLength="10" type="text" id="search_bar_user" placeholder="${trad[this.lang].social.search}" />
+			  		<button type="submit">${trad[this.lang].social.search.slice(0, -3)}</button>
+			  	</form>
+              <h2 id="search_result"></h2>
             </div>
             <div class="friends-and-invitations-social">
               <div class="friends-div-social">
@@ -347,7 +356,6 @@ export default class Social {
       `;
     } else {
       return `
-        ${backArrow}
         <h1>No data</h1>
       `;
     }

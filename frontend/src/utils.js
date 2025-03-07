@@ -5,6 +5,14 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
+  const homeImg = document.getElementById("home-img-div");
+  if (homeImg) {
+    if (context.pageName === "Home") {
+      homeImg.style.opacity = 0;
+    } else {
+      homeImg.style.opacity = 1;
+    }
+  }
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render(routeParams);
@@ -21,7 +29,8 @@ export async function updateView(context, routeParams = {}) {
 }
 
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
-  if (header.isUserRendered || header.isGuestRendered) {
+  if (needsToDestroy && !langChange) header.destroy();
+  else if (header.isUserRendered || header.isGuestRendered) {
     if (needsToDestroy) header.destroy();
     else if (langChange) {
       console.log("Lang reset in handleHeader");
@@ -81,8 +90,4 @@ export async function checkUserStatus() {
     console.error(`Error while trying to check user status : ${error}`);
     return false;
   }
-}
-
-export function createBackArrow(route) {
-  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

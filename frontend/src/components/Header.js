@@ -1,4 +1,4 @@
-import { logout } from "../utils";
+import { logout, setDisable } from "../utils";
 import { router } from "../app";
 import { trad } from "../trad";
 
@@ -36,6 +36,20 @@ export class Header {
           type: "click",
           element: toggleButton,
           listener: handleToggleButton,
+        });
+      }
+    }
+
+    const homeButton = document.getElementById("home-img-div");
+    if (homeButton) {
+      const redirectHome = this.redirectHome.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "home-img-div")) {
+        homeButton.addEventListener("click", redirectHome);
+        this.eventListeners.push({
+          name: "home-img-div",
+          type: "click",
+          element: homeButton,
+          listener: redirectHome,
         });
       }
     }
@@ -80,14 +94,22 @@ export class Header {
     }
   }
 
-  handleToggleButton() {
+  redirectHome(e) {
+    e.preventDefault();
+    const homeImg = document.getElementById("home-img-div");
+    if (homeImg) homeImg.style.opacity = 0;
+    router.navigate("/");
+  }
+
+  async handleToggleButton() {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
     const app = document.getElementById("app");
+    const homeImg = document.getElementById("home-img-div");
 
-    if (toggleButton && navBar && navbarLinks && header) {
+    if (toggleButton && navBar && navbarLinks && header && homeImg) {
       const isOpen = navBar.classList.toggle("show-nav");
       navbarLinks.classList.toggle("show-nav");
       if (isOpen) {
@@ -95,21 +117,24 @@ export class Header {
         navBar.classList.remove("closed");
         header.style.zIndex = "1";
         app.style.pointerEvents = "none";
+        homeImg.style.opacity = 0;
       } else {
-        this.closeMenu();
+        await this.closeMenu();
       }
     }
   }
 
-  closeMenu(key) {
+  async closeMenu(key) {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
     const app = document.getElementById("app");
+    const homeImg = document.getElementById("home-img-div");
 
-    if (toggleButton && navBar && navbarLinks && header) {
+    if (toggleButton && navBar && navbarLinks && header && homeImg) {
       toggleButton.classList.remove("open");
+      if (window.location.pathname !== "/") homeImg.style.opacity = 1;
       navBar.classList.add("closed");
       navbarLinks.classList.remove("show-nav");
       navBar.classList.remove("show-nav");
@@ -117,7 +142,11 @@ export class Header {
       setTimeout(() => {
         header.style.zIndex = "0";
       }, 500);
-      if (key === "logout") logout();
+      if (key === "logout") {
+        setDisable(true, key);
+        await logout();
+        setDisable(false, key);
+      }
     }
   }
 

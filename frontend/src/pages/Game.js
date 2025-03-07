@@ -1,10 +1,16 @@
-import { handleHeader, updateView, checkUserStatus } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  checkUserStatus,
+  setDisable,
+} from "../utils";
 import { router } from "../app.js";
-import { createBackArrow } from "../utils";
 import { trad } from "../trad.js";
+import API from "../services/api.js";
 
 export default class GamePage {
   constructor(state) {
+    this.pageName = "Game";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -16,6 +22,8 @@ export default class GamePage {
     this.oldscore = state.score;
     this.lang = null;
     this.haveToSelectBotDifficulty = false;
+    this.formState = {};
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -95,14 +103,18 @@ export default class GamePage {
   }
 
   handleDifficultyChange(e) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     const selectedValue = e.target.value;
     if (selectedValue) {
       this.state.botDifficulty = selectedValue;
       this.state.setGameStarted("PVR");
     }
+    this.isProcessing = false;
   }
 
   async handleClick(param) {
+    setDisable(true, param);
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
@@ -139,10 +151,38 @@ export default class GamePage {
         this.state.togglePause();
         break;
     }
+    setDisable(false, param);
+  }
+
+  //   {
+  //     "player1": "2e9d99d6-e811-494d-b0a0-b49acb0257df",
+  //     "player2": "50c7d428-094a-43cc-a0b1-8a7d23e05b76",
+  //     "score_player1": 8,
+  //     "score_player2": 2
+  // }
+
+  async saveGame() {
+    const { left, right } = this.state.score;
+    console.log("left: " + left + "right: " + right);
+    if (!this.state.isUserLoggedIn) {
+      alert("no user logged in");
+      return;
+    }
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    this.formState.score_player1 = parseInt(right);
+    this.formState.score_player2 = parseInt(left);
+    try {
+      const res = await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      alert("saveGame error");
+      console.error(error);
+    }
   }
 
   async handleStateChange(newState) {
-    // console.log("Checking if state has changed");
+    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
+      await this.saveGame();
     if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
@@ -180,8 +220,7 @@ export default class GamePage {
   }
 
   renderSelectBotDifficulty() {
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
             <div class="container-selector">
               <div class="select-container">
                 <label for="select-difficulty">Difficulty</label>
@@ -197,8 +236,7 @@ export default class GamePage {
 
   renderGameMenu() {
     const { isSearching } = this.state.state;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
             <div>
             <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
               <div class="global-nav-section nav-section-game">
@@ -263,9 +301,8 @@ export default class GamePage {
 
   renderGameEnded() {
     const { left, right } = this.state.score;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    return `${backArrow}
+    return `
 			<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
@@ -288,9 +325,7 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
-    console.log("ICI");
     await checkUserStatus();
-    console.log("ICI2");
 
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);

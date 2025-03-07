@@ -85,57 +85,18 @@
   justify-content: center;
   height: 50%;
   width: 100%;
-  max-width: 300px;
   margin: 1em auto;
   position: relative;
 }
 
-.select-container label {
-  font-size: 1.2rem;
+.select-container h2 {
+  font-size: 1.5rem;
   font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 0.5em;
-  text-transform: uppercase;
+  color: var(--tertiary-color);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
   letter-spacing: 1px;
-}
-
-.select-container select {
-  appearance: none;
-  width: 100%;
-  padding: 0.5em;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: var(--secondary-color);
-  color: var(--tertiary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.select-container::after {
-  content: "▼";
-  font-size: 1rem;
-  color: var(--primary-color);
-  position: absolute;
-  right: 15px;
-  top: 59%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.select-container select:hover {
-  background-color: #ffddaa;
-  border-color: #ff6600;
-}
-
-.select-container select option {
-  background: var(--secondary-color);
-  color: var(--tertiary-color);
-  font-size: 1rem;
-  font-weight: bold;
-  padding: 10px;
 }
 
 .input-player-name {
@@ -250,16 +211,16 @@
 }
 
 .next-match-main-div button {
-  background-color: #54e254; /* Couleur principale */
+  background-color: #54e254;
   margin-top: 0;
 }
 
 .next-match-main-div button:hover {
-  background-color: #4aca4a; /* Couleur légèrement plus sombre */
+  background-color: #4aca4a;
 }
 
 .next-match-main-div button:active {
-  background-color: #3da43d; /* Couleur encore plus sombre au clic */
+  background-color: #3da43d;
 }
 
 .upcoming-match-main-div {
@@ -316,6 +277,27 @@
   width: 33%;
   display: flex;
   justify-content: center;
+}
+
+.crab-playernb-div {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.crab-playernb-select {
+  height: 90px;
+  width: 90px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.crab-playernb-select:hover {
+  scale: 1.2;
+}
+
+.crab-playernb-select:active {
+  scale: 0.9;
 }
 
 @media (max-width: 600px) {
