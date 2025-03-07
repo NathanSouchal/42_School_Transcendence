@@ -134,7 +134,7 @@ export class Header {
 
     if (toggleButton && navBar && navbarLinks && header && homeImg) {
       toggleButton.classList.remove("open");
-      homeImg.style.opacity = 1;
+      if (window.location.pathname !== "/") homeImg.style.opacity = 1;
       navBar.classList.add("closed");
       navbarLinks.classList.remove("show-nav");
       navBar.classList.remove("show-nav");

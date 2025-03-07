@@ -245,9 +245,8 @@ canvas#c {
   padding-right: 0.3em;
   padding-left: 0.3em;
   border-radius: 20px;
-  margin-bottom: 2.5rem;
   transition: all 0.3s ease;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.3rem;
   text-decoration: none;
   color: var(--primary-color);
 }
