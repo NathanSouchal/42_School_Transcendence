@@ -19,7 +19,7 @@ clean :
 	@docker-compose -f docker-compose.yml down
 	@docker system prune -a -f
 	@docker buildx prune -af
-	@docker volume rm transcendence_postgres_data
+	# @docker volume rm transcendence_postgres_data
 
 re : clean up
 
