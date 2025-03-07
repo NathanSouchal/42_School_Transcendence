@@ -96,8 +96,8 @@ export default class Home {
     return `
     <div class="home-main-div">
       <div class="home-title">
-        <h1>PONG</h1>
-        <h1>GAME</h1>
+        <h1>SURIMI</h1>
+        <h1>SMASH</h1>
       </div>
       <div>
         <div class="global-nav-section">
