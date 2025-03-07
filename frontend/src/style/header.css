@@ -99,6 +99,16 @@ header .global-nav-section {
   height: 25px;
   cursor: pointer;
   justify-content: space-between;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  scale: 1.2;
+}
+
+.toggle-button:active {
+  scale: 0.9;
 }
 
 .toggle-button .bar2 {

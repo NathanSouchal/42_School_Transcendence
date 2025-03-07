@@ -116,17 +116,17 @@ export default class Social {
       });
     }
 
-    const searchBarUser = document.getElementById("search_bar_user");
+    const searchFriendForm = document.getElementById("search-friend-form");
     if (
-      searchBarUser &&
-      !this.eventListeners.some((e) => e.name === "search_bar_user")
+      searchFriendForm &&
+      !this.eventListeners.some((e) => e.name === "search-friend-form")
     ) {
       const searchBarUserRequest = this.searchBarUserRequest.bind(this);
-      searchBarUser.addEventListener("keydown", searchBarUserRequest);
+      searchFriendForm.addEventListener("submit", searchBarUserRequest);
       this.eventListeners.push({
-        name: "search_bar_user",
-        type: "input",
-        element: searchBarUser,
+        name: "search-friend-form",
+        type: "submit",
+        element: searchFriendForm,
         listener: searchBarUserRequest,
       });
     }
@@ -167,22 +167,27 @@ export default class Social {
   }
 
   async searchBarUserRequest(e) {
-    if (e.key === "Enter") {
-      if (this.isProcessing) return;
-      this.isProcessing = true;
-      try {
-        const usernameToSearch = e.target.value;
+    e.preventDefault();
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    try {
+      let usernameToSearch = "";
+      const searchBarUser = document.getElementById("search_bar_user");
+      if (searchBarUser) usernameToSearch = searchBarUser.value;
+      const searchResultDiv = document.getElementById("search_result");
+      if (searchResultDiv) searchResultDiv.innerHTML = "";
+      const res = await API.get(`/user/${usernameToSearch}/`);
+      this.search_result = res.data.user;
+      this.updateSearchResult();
+      console.log(this.search_result);
+    } catch (error) {
+      if (error.response && error.response.status === 404) {
         const searchResultDiv = document.getElementById("search_result");
-        if (searchResultDiv) searchResultDiv.innerHTML = "";
-        const res = await API.get(`/user/${usernameToSearch}/`);
-        this.search_result = res.data.user;
-        this.updateSearchResult();
-        console.log(this.search_result);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        this.isProcessing = false;
+        if (searchResultDiv)
+          searchResultDiv.innerHTML = trad[this.lang].social.searchResult;
       }
+    } finally {
+      this.isProcessing = false;
     }
   }
 
@@ -261,8 +266,11 @@ export default class Social {
           <h1 class="global-page-title">${trad[this.lang].social.pageTitle}</h1>
           <div class="content-social">
             <div class="search-bar-and-result-social">
-              <input type="text" id="search_bar_user" placeholder="${trad[this.lang].social.search}" />
-              <div id="search_result"></div>
+				<form id="search-friend-form" class="search-input-div">
+              		<input minLength="4" maxLength="10" type="text" id="search_bar_user" placeholder="${trad[this.lang].social.search}" />
+			  		<button type="submit">${trad[this.lang].social.search.slice(0, -3)}</button>
+			  	</form>
+              <h2 id="search_result"></h2>
             </div>
             <div class="friends-and-invitations-social">
               <div class="friends-div-social">

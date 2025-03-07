@@ -271,27 +271,6 @@ canvas#c {
   }
 }
 
-.lang-div {
-  z-index: 10000;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  background-color: rgba(54, 54, 54, 0.6);
-  overflow: hidden;
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  border: 2px solid rgba(95, 95, 95, 0.6);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  padding: 0.5rem;
-  border-radius: 25px;
-  width: 100px;
-  height: 45px;
-  transition:
-    height 0.3s ease-in-out,
-    border-radius 0.3s ease-in-out;
-}
-
 .selected-lang-div {
   position: absolute;
   top: 8px;
@@ -320,10 +299,49 @@ canvas#c {
 
 .lang-div {
   opacity: 1;
+  cursor: pointer;
+  z-index: 10000;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  background-color: rgba(54, 54, 54, 0.6);
+  overflow: hidden;
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  border: 2px solid rgba(95, 95, 95, 0.6);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem;
+  border-radius: 25px;
+  width: 100px;
+  height: 45px;
+  transition: all 0.2s ease;
+}
+
+.lang-div:hover {
+  scale: 1.1;
 }
 
 .lang-div.hidden {
   opacity: 0;
+}
+
+.lang-div:active {
+  scale: 1;
+}
+
+.lang-div.open {
+  scale: 1.1;
+  height: 240px;
+  border-radius: 25px;
+}
+
+.lang-div.open .lang-menu {
+  display: block;
+}
+
+.lang-div.open .lang-arrow {
+  transform: rotate(135deg) translateX(5px) translateY(-5px);
 }
 
 .lang-name {
@@ -380,17 +398,4 @@ canvas#c {
 
 .lang-menu li:hover {
   background: rgba(95, 95, 95, 0.8);
-}
-
-.lang-div.open {
-  height: 240px;
-  border-radius: 25px;
-}
-
-.lang-div.open .lang-menu {
-  display: block;
-}
-
-.lang-div.open .lang-arrow {
-  transform: rotate(135deg) translateX(5px) translateY(-5px);
 }

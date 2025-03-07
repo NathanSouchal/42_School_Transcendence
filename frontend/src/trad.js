@@ -84,6 +84,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Search...",
+      searchResult: "User not found",
       friends: "FRIENDS",
       online: "Online",
       offline: "Offline",
@@ -202,6 +203,7 @@ export const trad = {
     social: {
       pageTitle: "Amis",
       search: "Recherche...",
+      searchResult: "Utilisateur non trouvé",
       friends: "AMIS",
       online: "En ligne",
       offline: "Hors ligne",
@@ -320,6 +322,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Buscar...",
+      searchResult: "Usuario no encontrado",
       friends: "AMIGOS",
       online: "En línea",
       offline: "Desconectado",
@@ -438,6 +441,7 @@ export const trad = {
     social: {
       pageTitle: "Crabial",
       search: "Crabch...",
+      searchResult: "Crab no Crabbed",
       friends: "CRABENDS",
       online: "Crabline",
       offline: "Offcrab",

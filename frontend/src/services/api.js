@@ -3,10 +3,9 @@ import state from "../app.js";
 import { router } from "../app.js";
 // import https from "https";
 
-const API_BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "blablabla";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
 
-  console.log("API_BASE_URL", API_BASE_URL);
+console.log("API_BASE_URL", API_BASE_URL);
 const API = axios.create({
   baseURL: API_BASE_URL,
   // baseURL: "https://localhost:8443/api",
@@ -70,7 +69,11 @@ API.interceptors.response.use(
         console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
-    } else if (error.response && error.response.status === 404) {
+    } else if (
+      error.response &&
+      error.response.status === 404 &&
+      window.location.pathname !== "/social"
+    ) {
       setTimeout(() => {
         router.navigate("/404");
       }, 100);

@@ -211,16 +211,16 @@
 }
 
 .next-match-main-div button {
-  background-color: #54e254; /* Couleur principale */
+  background-color: #54e254;
   margin-top: 0;
 }
 
 .next-match-main-div button:hover {
-  background-color: #4aca4a; /* Couleur légèrement plus sombre */
+  background-color: #4aca4a;
 }
 
 .next-match-main-div button:active {
-  background-color: #3da43d; /* Couleur encore plus sombre au clic */
+  background-color: #3da43d;
 }
 
 .upcoming-match-main-div {
