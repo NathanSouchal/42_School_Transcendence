@@ -10,8 +10,10 @@ export class GameManager {
   }
 
   connect() {
-    if (this.socket) this.socket.close();
-    // if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+    if (this.socket) {
+      console.log("connect() -> called this.socket.close()");
+      this.socket.close();
+    } // if (this.socket && this.socket.readyState === WebSocket.OPEN) {
     //   console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
     // }
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
@@ -71,18 +73,18 @@ export class GameManager {
     };
 
     this.socket.onclose = (event) => {
-      console.warn(
+      console.error(
         `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
       );
       this.isConnected = false;
       this.socket = null;
-      if (event.code !== 1000) {
-        // ✅ Ne pas reconnecter si la fermeture est normale
-        console.log("🔄 Tentative de reconnexion WebSocket...");
-        setTimeout(() => this.reconnect(), 2000);
-      } else {
-        console.log("✅ WebSocket fermé proprement, pas de reconnexion.");
-      }
+      // if (event.code !== 1000) {
+      //   // ✅ Ne pas reconnecter si la fermeture est normale
+      //   console.log("🔄 Tentative de reconnexion WebSocket...");
+      //   setTimeout(() => this.reconnect(), 2000);
+      // } else {
+      //   console.log("✅ WebSocket fermé proprement, pas de reconnexion.");
+      // }
     };
   }
 

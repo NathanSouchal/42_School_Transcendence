@@ -170,6 +170,7 @@ export default class State {
   }
 
   setGameEnded() {
+    console.log("setGameEnded()");
     this.state.gameIsPaused = false;
     this.scores.push(this.score);
     this.state.gameStarted = false;

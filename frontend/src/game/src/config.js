@@ -50,7 +50,7 @@ export const DEFAULT_CONFIG = {
       deltaFactor: 30,
       initialMin: 0.5,
       initialMax: 0.6,
-      max: 1.5,
+      max: 1.5  
       incrementFactor: 1.03,
     },
     color: 0x938a8f,
