@@ -14,12 +14,12 @@ export const DEFAULT_CONFIG = {
     },
     local: {
       left: {
-        bottom: "x",
-        top: "c",
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
       right: {
-        bottom: ",",
-        top: ".",
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
     },
   },

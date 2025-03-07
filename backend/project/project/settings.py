@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 from dotenv import load_dotenv
 
@@ -73,7 +74,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-	"api.middleware.UpdateLastSeenMiddleware",
+    "api.middleware.UpdateLastSeenMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -102,13 +103,13 @@ WSGI_APPLICATION = "project.wsgi.application"
 
 # Database pour le deploiement en utilisant docker
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB'),
-        'USER': config('POSTGRES_USER'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('POSTGRES_HOST'),
-        'PORT': config('POSTGRES_PORT', default=5432, cast=int),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("POSTGRES_DB"),
+        "USER": config("POSTGRES_USER"),
+        "PASSWORD": config("POSTGRES_PASSWORD"),
+        "HOST": config("POSTGRES_HOST"),
+        "PORT": config("POSTGRES_PORT", default=5432, cast=int),
     }
 }
 
@@ -215,6 +216,39 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("redis", 6379)],
+        },
+    },
+}
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+            "stream": "ext://sys.stdout",  # Explicitly use stdout
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        # Add this for your consumers
+        "project.game.consumers": {  # Replace with your actual consumer module path
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": True,
         },
     },
 }
