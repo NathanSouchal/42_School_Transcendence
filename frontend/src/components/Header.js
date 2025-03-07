@@ -96,6 +96,8 @@ export class Header {
 
   redirectHome(e) {
     e.preventDefault();
+    const homeImg = document.getElementById("home-img-div");
+    if (homeImg) homeImg.style.opacity = 0;
     router.navigate("/");
   }
 

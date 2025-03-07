@@ -10,6 +10,7 @@ import { trad } from "../trad.js";
 
 export default class Account {
   constructor(state) {
+	this.pageName = "Account";
     this.state = state;
     this.previousState = { ...state.state };
     this.isSubscribed = false;

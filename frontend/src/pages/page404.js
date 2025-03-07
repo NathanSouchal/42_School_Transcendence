@@ -4,6 +4,7 @@ import { trad } from "../trad.js";
 
 export default class page404 {
   constructor(state) {
+	this.pageName = "page404";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

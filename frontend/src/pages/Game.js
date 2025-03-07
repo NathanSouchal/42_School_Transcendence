@@ -10,6 +10,7 @@ import API from "../services/api.js";
 
 export default class GamePage {
   constructor(state) {
+    this.pageName = "Game";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -324,9 +325,7 @@ export default class GamePage {
   }
 
   async render(routeParams = {}) {
-    console.log("ICI");
     await checkUserStatus();
-    console.log("ICI2");
 
     if (!this.isSubscribed) {
       this.state.subscribe(this.handleStateChange);

@@ -1,9 +1,10 @@
-import { handleHeader, updateView} from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class page500 {
   constructor(state) {
+    this.pageName = "page500";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

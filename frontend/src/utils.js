@@ -5,6 +5,14 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
+  const homeImg = document.getElementById("home-img-div");
+  if (homeImg) {
+    if (context.pageName === "Home") {
+      homeImg.style.opacity = 0;
+    } else {
+      homeImg.style.opacity = 1;
+    }
+  }
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render(routeParams);

@@ -1,14 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  setDisable,
-} from "../utils.js";
+import { handleHeader, updateView, setDisable } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Register {
   constructor(state) {
+    this.pageName = "Register";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

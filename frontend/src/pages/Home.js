@@ -5,6 +5,7 @@ import { trad } from "../trad.js";
 
 export default class Home {
   constructor(state) {
+    this.pageName = "Home";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

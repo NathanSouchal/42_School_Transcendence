@@ -1,14 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  checkUserStatus,
-} from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Stats {
   constructor(state) {
+    this.pageName = "Stats";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

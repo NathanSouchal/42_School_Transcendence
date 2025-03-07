@@ -9,6 +9,7 @@ import { trad } from "../trad.js";
 
 export default class Login {
   constructor(state) {
+	this.pageName = "Login";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);

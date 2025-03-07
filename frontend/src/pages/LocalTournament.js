@@ -6,6 +6,7 @@ import { trad } from "../trad.js";
 
 export default class LocalTournament {
   constructor(state) {
+	this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
