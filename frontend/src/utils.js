@@ -21,7 +21,8 @@ export async function updateView(context, routeParams = {}) {
 }
 
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
-  if (header.isUserRendered || header.isGuestRendered) {
+  if (needsToDestroy && !langChange) header.destroy();
+  else if (header.isUserRendered || header.isGuestRendered) {
     if (needsToDestroy) header.destroy();
     else if (langChange) {
       console.log("Lang reset in handleHeader");
@@ -81,8 +82,4 @@ export async function checkUserStatus() {
     console.error(`Error while trying to check user status : ${error}`);
     return false;
   }
-}
-
-export function createBackArrow(route) {
-  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

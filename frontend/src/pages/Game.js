@@ -5,7 +5,6 @@ import {
   setDisable,
 } from "../utils";
 import { router } from "../app.js";
-import { createBackArrow } from "../utils";
 import { trad } from "../trad.js";
 import API from "../services/api.js";
 
@@ -220,8 +219,7 @@ export default class GamePage {
   }
 
   renderSelectBotDifficulty() {
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
             <div class="container-selector">
               <div class="select-container">
                 <label for="select-difficulty">Difficulty</label>
@@ -237,8 +235,7 @@ export default class GamePage {
 
   renderGameMenu() {
     const { isSearching } = this.state.state;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
             <div>
             <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
               <div class="global-nav-section nav-section-game">
@@ -303,9 +300,8 @@ export default class GamePage {
 
   renderGameEnded() {
     const { left, right } = this.state.score;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    return `${backArrow}
+    return `
 			<div>
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">

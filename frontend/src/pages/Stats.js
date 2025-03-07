@@ -2,7 +2,6 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
@@ -119,9 +118,8 @@ export default class Stats {
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
     );
     let template;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.stats && Object.keys(this.stats).length > 0) {
-      template = `${backArrow}
+      template = `
       <div class="main-div-stats">
         <h1 class="global-page-title">${trad[this.lang].stats.pageTitle}</h1>
 				<div class="stats-list">
@@ -148,7 +146,7 @@ export default class Stats {
 				</div>
 			</div>`;
     } else {
-      template = `${backArrow}<div class="d-flex flex-column m-5">
+      template = `<div class="d-flex flex-column m-5">
           <h1>No data</h1>
       </div>`;
     }

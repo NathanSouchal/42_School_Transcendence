@@ -2,7 +2,6 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
   setDisable,
 } from "../utils.js";
@@ -257,11 +256,9 @@ export default class Social {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
     if (this.friends && this.invitations) {
       return `
-        ${backArrow}
         <div class="main-div-social">
           <h1 class="global-page-title">${trad[this.lang].social.pageTitle}</h1>
           <div class="content-social">
@@ -358,7 +355,6 @@ export default class Social {
       `;
     } else {
       return `
-        ${backArrow}
         <h1>No data</h1>
       `;
     }

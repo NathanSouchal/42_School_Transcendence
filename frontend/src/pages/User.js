@@ -2,7 +2,6 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
   setDisable,
 } from "../utils";
@@ -299,9 +298,8 @@ export default class User {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
-    return `${backArrow}
+    return `
 			<div class="user-main-div">
 			<div class="user-main-content">
 				<div class="title-div">

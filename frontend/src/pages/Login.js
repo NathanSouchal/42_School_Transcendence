@@ -2,7 +2,6 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   setDisable,
 } from "../utils.js";
 import { router } from "../app.js";
@@ -293,10 +292,9 @@ export default class Login {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.is2fa) return this.render2FA();
     else
-      return `${backArrow}
+      return `
         <form id="login-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
           <div class="inputs-button-form-login-register">

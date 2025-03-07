@@ -1,4 +1,4 @@
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { handleHeader, updateView} from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
@@ -71,8 +71,7 @@ export default class page404 {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    return `${backArrow}<div class="main-error-container">
+    return `<div class="main-error-container">
 				<div class="error-title-container">
 					<h1>${trad[this.lang].page404.pageTitle}</h1>
 					<h2>${trad[this.lang].page404.message}</h2>

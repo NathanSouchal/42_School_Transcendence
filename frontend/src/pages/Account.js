@@ -5,7 +5,6 @@ import {
   checkUserStatus,
   setDisable,
 } from "../utils";
-import { createBackArrow } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
@@ -463,8 +462,7 @@ export default class Account {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="user-main-div account-main-div">
+    return `<div class="user-main-div account-main-div">
 						<div class="user-main-content">
                           <div class="title-div">
                             <h1>${trad[this.lang].account.pageTitle}</h1>

@@ -2,7 +2,6 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
 } from "../utils";
 import { router } from "../app.js";
@@ -119,8 +118,7 @@ export default class MatchHistory {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="user-main-div">
+    return `<div class="user-main-div">
 						<div class="user-main-content">
 							<div class="title-div match-history-title-div">
 								<h1>${trad[this.lang].matchHistory.pageTitle}</h1>

@@ -40,6 +40,20 @@ export class Header {
       }
     }
 
+    const homeButton = document.getElementById("home-img-div");
+    if (homeButton) {
+      const redirectHome = this.redirectHome.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "home-img-div")) {
+        homeButton.addEventListener("click", redirectHome);
+        this.eventListeners.push({
+          name: "home-img-div",
+          type: "click",
+          element: homeButton,
+          listener: redirectHome,
+        });
+      }
+    }
+
     const links = Array.from(document.querySelectorAll(".navbar-link a"));
     links.forEach((link) => {
       const closeMenu = this.closeMenu.bind(this, "");
@@ -80,14 +94,20 @@ export class Header {
     }
   }
 
+  redirectHome(e) {
+    e.preventDefault();
+    router.navigate("/");
+  }
+
   async handleToggleButton() {
     const toggleButton = document.getElementsByClassName("toggle-button")[0];
     const navbarLinks = document.getElementsByClassName("navbar-links")[0];
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
     const app = document.getElementById("app");
+    const homeImg = document.getElementById("home-img-div");
 
-    if (toggleButton && navBar && navbarLinks && header) {
+    if (toggleButton && navBar && navbarLinks && header && homeImg) {
       const isOpen = navBar.classList.toggle("show-nav");
       navbarLinks.classList.toggle("show-nav");
       if (isOpen) {
@@ -95,6 +115,7 @@ export class Header {
         navBar.classList.remove("closed");
         header.style.zIndex = "1";
         app.style.pointerEvents = "none";
+        homeImg.style.opacity = 0;
       } else {
         await this.closeMenu();
       }
@@ -107,9 +128,11 @@ export class Header {
     const navBar = document.querySelector(".navbar");
     const header = document.getElementById("header");
     const app = document.getElementById("app");
+    const homeImg = document.getElementById("home-img-div");
 
-    if (toggleButton && navBar && navbarLinks && header) {
+    if (toggleButton && navBar && navbarLinks && header && homeImg) {
       toggleButton.classList.remove("open");
+      homeImg.style.opacity = 1;
       navBar.classList.add("closed");
       navbarLinks.classList.remove("show-nav");
       navBar.classList.remove("show-nav");
