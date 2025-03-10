@@ -9,6 +9,7 @@ export class Header {
     this.isGuestRendered = false;
     this.eventListeners = [];
     this.lang = null;
+    this.isProcessing = false;
   }
 
   attachEventListeners() {
@@ -90,7 +91,8 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
-      router.navigate(path);
+      if (path === "/") redirectHome();
+      else router.navigate(path);
     }
   }
 
@@ -102,51 +104,65 @@ export class Header {
   }
 
   async handleToggleButton() {
-    const toggleButton = document.getElementsByClassName("toggle-button")[0];
-    const navbarLinks = document.getElementsByClassName("navbar-links")[0];
-    const navBar = document.querySelector(".navbar");
-    const header = document.getElementById("header");
-    const app = document.getElementById("app");
-    const homeImg = document.getElementById("home-img-div");
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    try {
+      const toggleButton = document.getElementsByClassName("toggle-button")[0];
+      const navbarLinks = document.querySelector(".navbar-links");
+      const navBar = document.querySelector(".navbar");
+      const header = document.getElementById("header");
+      const app = document.getElementById("app");
+      const homeImg = document.getElementById("home-img-div");
 
-    if (toggleButton && navBar && navbarLinks && header && homeImg) {
-      const isOpen = navBar.classList.toggle("show-nav");
-      navbarLinks.classList.toggle("show-nav");
-      if (isOpen) {
-        toggleButton.classList.add("open");
-        navBar.classList.remove("closed");
-        header.style.zIndex = "1";
-        app.style.pointerEvents = "none";
-        homeImg.style.opacity = 0;
-      } else {
-        await this.closeMenu();
+      if (toggleButton && navBar && navbarLinks && header && homeImg) {
+        const isOpen = navBar.classList.toggle("show-nav");
+        navbarLinks.classList.toggle("show-nav");
+
+        if (isOpen) {
+          toggleButton.classList.add("open");
+          navBar.classList.remove("closed");
+          header.style.zIndex = "1";
+          app.style.pointerEvents = "none";
+          homeImg.style.opacity = 0;
+        } else await this.closeMenu();
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        this.isProcessing = false;
+      }, 500);
     }
   }
 
   async closeMenu(key) {
-    const toggleButton = document.getElementsByClassName("toggle-button")[0];
-    const navbarLinks = document.getElementsByClassName("navbar-links")[0];
-    const navBar = document.querySelector(".navbar");
-    const header = document.getElementById("header");
-    const app = document.getElementById("app");
-    const homeImg = document.getElementById("home-img-div");
+    if (key === "logout") setDisable(true, key);
 
-    if (toggleButton && navBar && navbarLinks && header && homeImg) {
-      toggleButton.classList.remove("open");
-      if (window.location.pathname !== "/") homeImg.style.opacity = 1;
-      navBar.classList.add("closed");
-      navbarLinks.classList.remove("show-nav");
-      navBar.classList.remove("show-nav");
-      app.style.pointerEvents = "auto";
-      setTimeout(() => {
-        header.style.zIndex = "0";
-      }, 500);
-      if (key === "logout") {
-        setDisable(true, key);
-        await logout();
-        setDisable(false, key);
+    try {
+      const toggleButton = document.getElementsByClassName("toggle-button")[0];
+      const navbarLinks = document.querySelector(".navbar-links");
+      const navBar = document.querySelector(".navbar");
+      const header = document.getElementById("header");
+      const app = document.getElementById("app");
+      const homeImg = document.getElementById("home-img-div");
+
+      if (toggleButton && navBar && navbarLinks && header && homeImg) {
+        toggleButton.classList.remove("open");
+        if (window.location.pathname !== "/") homeImg.style.opacity = 1;
+        navBar.classList.add("closed");
+        navbarLinks.classList.remove("show-nav");
+        navBar.classList.remove("show-nav");
+        app.style.pointerEvents = "auto";
+        setTimeout(() => {
+          header.style.zIndex = "0";
+        }, 500);
+        if (key === "logout") await logout();
       }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      if (key === "logout") setDisable(false, key);
     }
   }
 
