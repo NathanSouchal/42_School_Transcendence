@@ -3,41 +3,47 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract StoreTournamentLogic is Initializable {
 
-    address owner; 
-    event   ContractInitialized(address _owner);
-    event   TournamentStored(uint _tournamentID, address _submittedBy);
-    struct  tournamentMatch {
+    address private _owner; 
+    event   ContractInitialized(address owner);
+    event   TournamentStored(uint tournamentId, address submittedBy);
+    struct  TournamentMatch {
         string  player1;
         string  player2;
         uint    scorePlayer1;
         uint    scorePlayer2;
     }
-    struct  round {
+    struct  Round {
         uint                roundID;
-        tournamentMatch[]   matches;
+        TournamentMatch[]   matches;
     }
-    mapping(uint => round[]) public allTournamentsScores;
+    mapping(uint => Round[]) public allTournamentsScores;
 
     function initialize() public initializer {
-        owner = msg.sender;
-        emit ContractInitialized(owner);
+        _owner = msg.sender;
+        emit ContractInitialized(_owner);
     }
 
-    function storeRound(round memory _round, uint _tournamentID) private {
-        allTournamentsScores[_tournamentID].push(_round);
-    }
+    //Ici on ne peut pas directement stocker _round dans allTournamentsScores, car stocker un struct[] qui est en memory dans un mapping qui est en storage n'est pas possible
+    function _storeRound(Round memory _round, uint _tournamentId) private {
+        Round storage newRound = allTournamentsScores[_tournamentId].push();
 
-    function storeFullTournament(round[] memory _rounds, uint _tournamentID) public {
-        require(_rounds.length > 0, "Tournament must have at least one round.");
-        for (uint i = 0; i < _rounds.length; i++) {
-            storeRound(_rounds[i], _tournamentID);
+        newRound.roundID = _round.roundID;
+        for(uint i = 0; i < _round.matches.length; i++) {
+            newRound.matches.push(_round.matches[i]);
         }
-        emit TournamentStored(_tournamentID, msg.sender);
     }
 
-    function getTournament(uint _tournamentID) public view 
+    function storeFullTournament(Round[] memory rounds, uint tournamentId) public {
+        require(rounds.length > 0, "Tournament must have at least one round.");
+        for (uint i = 0; i < rounds.length; i++) {
+            _storeRound(rounds[i], tournamentId);
+        }
+        emit TournamentStored(tournamentId, msg.sender);
+    }
+
+    function getTournament(uint tournamentId) public view 
     returns(uint[] memory roundIDs, string[] memory player1s, string[] memory player2s, uint[] memory scorePlayer1s, uint[] memory scorePlayer2s) {
-        round[] memory rounds = allTournamentsScores[_tournamentID];
+        Round[] memory rounds = allTournamentsScores[tournamentId];
         uint totalTournamentMatches = 0;
         uint matchIndex = 0;
 
