@@ -99,7 +99,7 @@ export default class State {
 
   setGameHasLoaded() {
     this.state.gameHasLoaded = true;
-    console.log("gameHasLoaded set to true in state");
+    // console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");

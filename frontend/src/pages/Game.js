@@ -118,7 +118,7 @@ export default class GamePage {
     switch (param) {
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
-        console.log("coucou");
+        // console.log("coucou");
         break;
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
@@ -192,7 +192,7 @@ export default class GamePage {
       this.state.score["right"] !== this.oldscore["right"] ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("State changed, rendering Game page");
+      // console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await updateView(this, {});
