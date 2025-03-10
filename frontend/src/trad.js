@@ -55,6 +55,8 @@ export const trad = {
       play: "PLAY",
       gameMenu: "Game menu",
       stop: "Stop Tournament",
+      resume: "Resume game",
+      paused: "Game paused",
     },
     login: {
       pageTitle: "Login",
@@ -174,6 +176,8 @@ export const trad = {
       play: "JOUER",
       gameMenu: "Menu du jeu",
       stop: "Arrêter le tournoi",
+      resume: "Reprendre",
+      paused: "Jeu en pause",
     },
     login: {
       pageTitle: "Connexion",
@@ -293,6 +297,8 @@ export const trad = {
       play: "JUGAR",
       gameMenu: "Menú del juego",
       stop: "Detener torneo",
+      resume: "Reanudar juego",
+      paused: "Juego pausado",
     },
     login: {
       pageTitle: "Iniciar sesión",
@@ -412,6 +418,8 @@ export const trad = {
       play: "CRAB PLAY",
       gameMenu: "Crab Menu",
       stop: "Stop Crabnament",
+      resume: "Resume Crab",
+      paused: "Crab Paused",
     },
     login: {
       pageTitle: "Crabin",

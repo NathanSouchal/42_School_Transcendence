@@ -48,6 +48,20 @@ export default class LocalTournament {
   }
 
   attachEventListeners() {
+    const links = document.querySelectorAll("a");
+    links.forEach((link) => {
+      if (!this.eventListeners.some((e) => e.element === link)) {
+        const handleNavigation = this.handleNavigation.bind(this);
+        link.addEventListener("click", handleNavigation);
+        this.eventListeners.push({
+          name: link.getAttribute("href") || "unknown-link",
+          type: "click",
+          element: link,
+          listener: handleNavigation,
+        });
+      }
+    });
+
     const nbPlayers = [
       { id: "crab4", value: 4 },
       { id: "crab8", value: 8 },
@@ -74,17 +88,27 @@ export default class LocalTournament {
       }
     });
 
-    const links = document.querySelectorAll("a");
-    links.forEach((link) => {
-      if (!this.eventListeners.some((e) => e.element === link)) {
-        const handleNavigation = this.handleNavigation.bind(this);
-        link.addEventListener("click", handleNavigation);
-        this.eventListeners.push({
-          name: link.getAttribute("href") || "unknown-link",
-          type: "click",
-          element: link,
-          listener: handleNavigation,
-        });
+    const buttons = [
+      { id: "pause-game" },
+      { id: "resume-game" },
+      { id: "exit-tournament" },
+      { id: "game-menu-button" },
+      { id: "btn-start-match" },
+    ];
+
+    buttons.forEach(({ id }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleBtn = this.handleBtn.bind(this, id);
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          button.addEventListener("click", handleBtn);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: button,
+            listener: handleBtn,
+          });
+        }
       }
     });
 
@@ -99,34 +123,6 @@ export default class LocalTournament {
         type: "keydown",
         element: inputPlayerName,
         listener: handlePlayersName,
-      });
-    }
-
-    const btnToStartMatch = document.getElementById("btn-start-match");
-    if (btnToStartMatch) {
-      const handleStartButton = this.handleStartButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "btnToStartMatch")) {
-        btnToStartMatch.addEventListener("click", handleStartButton);
-      }
-      this.eventListeners.push({
-        name: "btnToStartMatch",
-        type: "click",
-        element: btnToStartMatch,
-        listener: handleStartButton,
-      });
-    }
-
-    const gameMenueButton = document.getElementById("game-menu-button");
-    if (gameMenueButton) {
-      const handleGameMenuButton = this.handleGameMenuButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "gameMenueButton")) {
-        gameMenueButton.addEventListener("click", handleGameMenuButton);
-      }
-      this.eventListeners.push({
-        name: "gameMenueButton",
-        type: "click",
-        element: gameMenueButton,
-        listener: handleGameMenuButton,
       });
     }
 
@@ -202,42 +198,62 @@ export default class LocalTournament {
   }
 
   async handleStateChange(newState) {
+    alert("1");
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
+      alert("2");
       await updateView(this, {});
-    } else if (newState.gameStarted && !this.previousState.gameStarted) {
-      console.log("Game has started");
+    } else if (
+      (newState.gameStarted && !this.previousState.gameStarted) ||
+      (!newState.gameIsPaused && this.previousState.gameIsPaused)
+    ) {
       const container = document.getElementById("app");
       if (container) {
+        container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
+        alert("3");
         await updateView(this, {});
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.matchFinished();
+      try {
+        await this.matchFinished();
+      } catch (error) {
+        console.error(error);
+      }
       const container = document.getElementById("app");
       if (container) {
+        container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
+        alert("4");
+        await updateView(this, {});
+      }
+    } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
+      const container = document.getElementById("app");
+      if (container) {
+        container.innerHTML = "";
+        container.className = "app";
+        this.previousState = { ...newState };
+        alert("5");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
   }
 
-  handleStartButton() {
-    setDisable(true, "btn-start-match");
-    this.state.setGameStarted("PVP");
-    setDisable(false, "btn-start-match");
-  }
-
-  handleGameMenuButton() {
-    setDisable(true, "game-menu-button");
-    this.resetAttributes();
-    router.navigate("/game");
-    setDisable(false, "game-menu-button");
+  handleBtn(key) {
+    setDisable(true, key);
+    if (key === "pause-game") this.state.togglePause();
+    else if (key === "resume-game") this.state.togglePause();
+    else if (key === "exit-tournament" || key === "game-menu-button") {
+      this.state.setGameEnded();
+      this.resetAttributes();
+      router.navigate("/game");
+    } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
+    setDisable(false, key);
   }
 
   async matchFinished() {
@@ -325,6 +341,7 @@ export default class LocalTournament {
       this.isSubscribed = false;
       console.log("LocalTournament page unsubscribed from state");
     }
+    this.resetAttributes();
   }
 
   renderSelectNbPlayers() {
@@ -348,6 +365,24 @@ export default class LocalTournament {
 			  	OK
 			  </button>
 				    </div>`;
+  }
+
+  renderPauseMenu() {
+    return `
+				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					<div class="global-nav-section">
+						<div class="game-paused-title">
+							<h1>${trad[this.lang].localTournament.paused}</h1>
+						</div>
+						<div class="global-nav-items">
+							<button id="resume-game">${trad[this.lang].localTournament.resume}</button>
+						</div>
+						<div class="global-nav-items">
+							<button id="exit-tournament">${trad[this.lang].localTournament.stop}</button>
+						</div>
+					</div>
+				</div>
+  `;
   }
 
   renderTournament() {
@@ -415,14 +450,16 @@ export default class LocalTournament {
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
 
-    return `
+    return this.state.state.gameIsPaused
+      ? this.renderPauseMenu()
+      : `
           <div class="tournament-game-hud">
             <div class="tournament-game-score">
               <h1>${leftPlayerName}</h1>
               <h1>${left} - ${right}</h1>
               <h1>${rightPlayerName}</h1>
             </div>
-            <button id="toggle-pause" class="pause-play-btn">
+            <button id="pause-game" class="pause-play-btn">
               <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
             </button>
           </div>
@@ -439,11 +476,12 @@ export default class LocalTournament {
     }
     if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
     else this.userAlias = "";
-    if (this.state.state.gameStarted === true)
+    if (this.state.state.gameStarted)
       handleHeader(this.state.isUserLoggedIn, true, false);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    return this.state.state.gameStarted === true
+
+    return this.state.state.gameStarted
       ? this.getGameHUDTemplate()
       : `
           <div class="main-div-tournament">
