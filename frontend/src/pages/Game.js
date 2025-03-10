@@ -23,7 +23,6 @@ export default class GamePage {
     this.lang = null;
     this.haveToSelectBotDifficulty = false;
     this.formState = {};
-    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -74,6 +73,9 @@ export default class GamePage {
       { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },
+      { id: "easy-btn", action: "easy-btn" },
+      { id: "normal-btn", action: "normal-btn" },
+      { id: "difficult-btn", action: "difficult-btn" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -102,23 +104,25 @@ export default class GamePage {
     }
   }
 
-  handleDifficultyChange(e) {
-    if (this.isProcessing) return;
-    this.isProcessing = true;
-    const selectedValue = e.target.value;
-    if (selectedValue) {
-      this.state.botDifficulty = selectedValue;
-      this.state.setGameStarted("PVR");
-    }
-    this.isProcessing = false;
+  handleDifficultyChange(param) {
+    this.state.botDifficulty = param;
+    this.state.setGameStarted("PVR");
   }
 
   async handleClick(param) {
     setDisable(true, param);
     switch (param) {
+      case "easy-btn":
+        this.handleDifficultyChange("Easy");
+        break;
+      case "normal-btn":
+        this.handleDifficultyChange("Normal");
+        break;
+      case "difficult-btn":
+        this.handleDifficultyChange("Hard");
+        break;
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
-        console.log("coucou");
         break;
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
@@ -164,18 +168,14 @@ export default class GamePage {
   async saveGame() {
     const { left, right } = this.state.score;
     console.log("left: " + left + "right: " + right);
-    if (!this.state.isUserLoggedIn) {
-      alert("no user logged in");
-      return;
-    }
+    if (!this.state.isUserLoggedIn) return;
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = null;
     this.formState.score_player1 = parseInt(right);
     this.formState.score_player2 = parseInt(left);
     try {
-      const res = await API.post(`/game/list/`, this.formState);
+      await API.post(`/game/list/`, this.formState);
     } catch (error) {
-      alert("saveGame error");
       console.error(error);
     }
   }
@@ -221,16 +221,10 @@ export default class GamePage {
 
   renderSelectBotDifficulty() {
     return `
-            <div class="container-selector">
-              <div class="select-container">
-                <label for="select-difficulty">Difficulty</label>
-                <select id="select-difficulty">
-                  <option value="" disabled selected>Select...</option>
-                  <option value="4">Easy</option>
-                  <option value="5">Normal</option>
-                  <option value="6">Hard</option>
-                </select>
-              </div>
+            <div class="select-difficulty" id="select-difficulty">
+				<button id="easy-btn">Easy</button>
+				<button id="normal-btn">Normal</button>
+				<button id="difficult-btn">Difficult</button>
             </div>`;
   }
 

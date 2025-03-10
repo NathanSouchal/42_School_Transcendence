@@ -6,7 +6,7 @@ import { trad } from "../trad.js";
 
 export default class LocalTournament {
   constructor(state) {
-	this.pageName = "LocalTournament";
+    this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -35,9 +35,6 @@ export default class LocalTournament {
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
-
-    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
-    else this.userAlias = "";
     await updateView(this, {});
   }
 
@@ -178,7 +175,6 @@ export default class LocalTournament {
         const regex = /^\w+$/;
         if (input.value) {
           if (!regex.test(input.value)) {
-            alert("regex");
             return this.displayTournamentErrorMessage(
               "Invalid participant name : only letters, numbers and underscores are allowed"
             );
@@ -316,7 +312,7 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log("Removed ${type} eventListener from input");
+        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -441,6 +437,8 @@ export default class LocalTournament {
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
+    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
+    else this.userAlias = "";
     if (this.state.state.gameStarted === true)
       handleHeader(this.state.isUserLoggedIn, true, false);
     else handleHeader(this.state.isUserLoggedIn, false, false);

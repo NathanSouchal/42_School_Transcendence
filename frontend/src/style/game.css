@@ -38,6 +38,41 @@
   height: 70%;
 }
 
+.select-difficulty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.select-difficulty button {
+  width: 100%;
+  color: #fff;
+  font-family: "Press Start 2P", cursive;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  margin: 1rem;
+}
+
+#easy-btn {
+  background-color: var(--validate-color);
+}
+
+#normal-btn {
+  background-color: var(--orange);
+}
+
+#difficult-btn {
+  background-color: var(--danger-color);
+}
+
 @media (max-width: 900px) {
   .game-paused-title h1 {
     font-size: 2rem;
