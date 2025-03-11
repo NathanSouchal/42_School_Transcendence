@@ -264,8 +264,10 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
-    const leftPlayerName = "Computer";
-    const rightPlayerName = "No Name";
+    const leftPlayerName = trad[this.lang].game.computer;
+    const rightPlayerName = this.state.isUserLoggedIn
+      ? "MyUsername"
+      : trad[this.lang].game.player;
 
     return `<div class="game-hud">
 				  <div class="game-score">
@@ -307,8 +309,8 @@ export default class GamePage {
 			  <div>
 				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					  <div class="global-nav-section">
-						  <div class="game-score">
-							  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+						  <div class="game-ended-score">
+							  <h1>${left} - ${right}</h1>
 						  </div>
 						  <h2 class="mt-2">
 							  ${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}

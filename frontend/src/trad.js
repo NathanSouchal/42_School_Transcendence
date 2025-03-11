@@ -41,6 +41,8 @@ export const trad = {
       easy: "Easy",
       normal: "Normal",
       difficult: "Difficult",
+      computer: "Computer",
+      player: "Player",
     },
     home: {
       play: "Play",
@@ -165,6 +167,8 @@ export const trad = {
       easy: "Facile",
       normal: "Normal",
       difficult: "Difficile",
+      computer: "Ordinateur",
+      player: "Joueur",
     },
     home: {
       play: "Jouer",
@@ -289,6 +293,8 @@ export const trad = {
       easy: "Fácil",
       normal: "Normal",
       difficult: "Difícil",
+      computer: "Computadora",
+      player: "Jugador",
     },
     home: {
       play: "Jugar",
@@ -413,6 +419,8 @@ export const trad = {
       easy: "EasyCrab",
       normal: "NormaCrab",
       difficult: "DiffiCrab",
+      computer: "CompuCrab",
+      player: "Crabber",
     },
     home: {
       play: "Crabby",
