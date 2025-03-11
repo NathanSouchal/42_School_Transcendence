@@ -171,15 +171,21 @@ class GameState(AsyncWebsocketConsumer):
     async def game_loop(self, room):
         try:
             last_time = time.time()
+            was_paused = False
             while True:
                 if room in self.rooms:
-                    print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
-                    if (
+                    is_paused = (
                         self.game_mode == GameMode.LOCAL
                         and self.rooms[self.room]["isPaused"] == True
-                    ):
+                    )
+                    if is_paused:
+                        was_paused = True
                         await asyncio.sleep(1 / 60)
                         continue
+                    if was_paused:
+                        last_time = time.time()
+                        was_paused = False
+
                     current_time = time.time()
                     delta_time = current_time - last_time
                     last_time = current_time
