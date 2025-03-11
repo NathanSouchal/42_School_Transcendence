@@ -11,10 +11,6 @@ export function init_camera(renderer, arena, CameraConfig) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = false;
   controls.screenSpacePanning = false;
-  //controls.minDistance = 2000;
-  //controls.maxDistance = 1000;
-  //controls.maxPolarAngle = Math.PI / 2;
-
   const centerOfScene = new THREE.Vector3();
   const box = new THREE.Box3().setFromObject(arena, true);
   box.getCenter(centerOfScene);
