@@ -205,7 +205,7 @@ export default class LocalTournament {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      alert("Game loaded or lang change");
+      //   alert("Game loaded or lang change");
       console.log(
         newState.gameHasLoaded,
         this.previousState.gameHasLoaded,
@@ -222,7 +222,7 @@ export default class LocalTournament {
         container.className = "";
         this.previousState = { ...newState };
         await updateView(this, {});
-        alert("Game started or game paused set to false");
+        // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.matchFinished();
@@ -230,7 +230,7 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        alert("Game won");
+        // alert("Game won");
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -238,7 +238,7 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        alert("Game paused set to true");
+        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -252,6 +252,7 @@ export default class LocalTournament {
       this.state.setGameEnded();
       this.resetAttributes();
       this.state.state.gameHasBeenWon = false;
+      this.state.backToBackgroundPlay();
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
