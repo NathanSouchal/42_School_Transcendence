@@ -31,6 +31,7 @@ export default class LocalTournament {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
@@ -199,30 +200,29 @@ export default class LocalTournament {
 
   async handleStateChange(newState) {
     let container = document.getElementById("app");
-
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      //   alert("2");
+      alert("Game loaded or lang change");
+      console.log(
+        newState.gameHasLoaded,
+        this.previousState.gameHasLoaded,
+        newState.lang,
+        this.previousState.lang
+      );
       await updateView(this, {});
     } else if (
       (newState.gameStarted && !this.previousState.gameStarted) ||
       (!newState.gameIsPaused && this.previousState.gameIsPaused)
     ) {
-      //   alert(
-      //     "newState.gameStarted: " +
-      //       newState.gameStarted +
-      //       ", newState.gameIsPaused : " +
-      //       newState.gameIsPaused
-      //   );
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
         await updateView(this, {});
-        // alert("3");
+        alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.matchFinished();
@@ -230,7 +230,7 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("4");
+        alert("Game won");
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -238,7 +238,7 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("5");
+        alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -251,7 +251,7 @@ export default class LocalTournament {
     else if (key === "exit-tournament" || key === "game-menu-button") {
       this.state.setGameEnded();
       this.resetAttributes();
-      this.state.gameHasBeenWon = false;
+      //   this.state.gameHasBeenWon = false;
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
@@ -471,6 +471,7 @@ export default class LocalTournament {
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
@@ -481,7 +482,6 @@ export default class LocalTournament {
       handleHeader(this.state.isUserLoggedIn, true, false);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-
     return this.state.state.gameStarted
       ? this.getGameHUDTemplate()
       : `

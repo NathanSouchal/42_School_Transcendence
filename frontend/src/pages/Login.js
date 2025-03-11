@@ -27,6 +27,7 @@ export default class Login {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
@@ -285,6 +286,7 @@ export default class Login {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");

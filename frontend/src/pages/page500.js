@@ -65,6 +65,7 @@ export default class page500 {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
     }

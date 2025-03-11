@@ -10,7 +10,7 @@ import { trad } from "../trad.js";
 
 export default class Account {
   constructor(state) {
-	this.pageName = "Account";
+    this.pageName = "Account";
     this.state = state;
     this.previousState = { ...state.state };
     this.isSubscribed = false;
@@ -30,6 +30,7 @@ export default class Account {
     if (this.isInitialized) return;
     this.isInitialized = true;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
@@ -455,6 +456,7 @@ export default class Account {
     await this.fetchData(this.state.state.userId);
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Account page subscribed to state");
