@@ -108,6 +108,7 @@ export default class GamePage {
   handleDifficultyChange(param) {
     this.state.botDifficulty = param;
     this.state.setGameStarted("PVR");
+    this.haveToSelectBotDifficulty = false;
   }
 
   async handleClick(param) {
