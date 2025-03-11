@@ -167,13 +167,22 @@ export default class GamePage {
   // }
 
   async saveGame() {
+    if (!this.state.isUserLoggedIn) return;
+    //No user logged in so no score to save in database
+    if (!this.state.state.userSide || this.state.state.userSide === "left")
+      return;
+    //Right player posts data only
     const { left, right } = this.state.score;
     console.log("left: " + left + "right: " + right);
-    if (!this.state.isUserLoggedIn) return;
+    console.log("this.state.state.opponentId: " + this.state.state.opponentId);
+
     this.formState.player1 = this.state.state.userId;
-    this.formState.player2 = null;
+    this.formState.player2 = this.state.state.opponentId;
     this.formState.score_player1 = parseInt(right);
     this.formState.score_player2 = parseInt(left);
+    this.state.state.opponentId = null;
+    this.state.state.opponentUsername = null;
+    this.state.state.userSide = null;
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
@@ -264,9 +273,11 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
-    const leftPlayerName = trad[this.lang].game.computer;
+    const leftPlayerName = this.state.state.opponentUsername
+      ? this.state.state.opponentUsername
+      : trad[this.lang].game.computer;
     const rightPlayerName = this.state.isUserLoggedIn
-      ? "MyUsername"
+      ? this.state.state.alias
       : trad[this.lang].game.player;
 
     return `<div class="game-hud">

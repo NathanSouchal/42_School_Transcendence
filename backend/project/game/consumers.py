@@ -71,6 +71,12 @@ class GameState(AsyncWebsocketConsumer):
         await self.setup_room()
 
     async def setup_room(self):
+        user = self.scope["user"]
+        if not user.is_authenticated:
+            print("User not logged in, room access denied")
+            await self.close()
+            return
+
         roomFound = False
         if self.game_mode == GameMode.ONLINE:
             for room_name, room_data in self.rooms.items():
@@ -78,9 +84,10 @@ class GameState(AsyncWebsocketConsumer):
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
                 ):
-                    self.room = room_name
-                    roomFound = True
-                    break
+                    if all(player["user_id"] is not None for player in room_data["players"]):
+                        self.room = room_name
+                        roomFound = True
+                        break
         if not roomFound or self.game_mode != GameMode.ONLINE:
             self.room = str(uuid.uuid4())
         await self.accept()
@@ -95,8 +102,14 @@ class GameState(AsyncWebsocketConsumer):
                 "⚠️ Erreur: `channel_layer` est None. Channels est-il bien configuré ?"
             )
 
-        if self.channel_name not in self.rooms[self.room]["players"]:
-            self.rooms[self.room]["players"].append(self.channel_name)
+        player_info = {
+            "channel_name": self.channel_name,
+            "user_id": user.id if user.is_authenticated else None,
+            "username": user.username if user.is_authenticated else "Anonymous",
+        }
+
+        if player_info not in self.rooms[self.room]["players"]:
+            self.rooms[self.room]["players"].append(player_info)
 
         # Lancement en tâche de fond pour pouvoir l'annuler facilement en cas de déconnexion
         if self.game_mode == GameMode.ONLINE:
@@ -153,33 +166,45 @@ class GameState(AsyncWebsocketConsumer):
             print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
             if len(self.rooms[self.room]["players"]) == 2:
-                # sending only to one player, as both of them will go through this function eventually
-                await self.send(
-                    text_data=json.dumps(
-                        {
-                            "type": "hasFoundOpponent",
-                            "side": self.player_side,
-                            "isSourceOfTruth": self.isSourceOfTruth,
-                        },
+                if all(player["user_id"] is not None for player in self.rooms[self.room]["players"]):
+                    # sending only to one player, as both of them will go through this function eventually
+                    opponent_index = 1 if self.player_side == "left" else 0
+                    opponent = self.rooms[self.room]["players"][opponent_index]
+                    print(f"Envoi des infos de l'adversaire: {opponent}")
+                    await self.send(
+                        text_data=json.dumps(
+                            {
+                                "type": "hasFoundOpponent",
+                                "side": self.player_side,
+                                "isSourceOfTruth": self.isSourceOfTruth,
+                                "opponent_id": str(self.rooms[self.room]["players"][1 if self.player_side == "left" else 0]["user_id"]),
+                                "opponent_username": self.rooms[self.room]["players"][1 if self.player_side == "left" else 0]["username"],
+                            },
                         cls=NumericEncoder,
+                        )
                     )
-                )
-                print(f"Second player has been found")
-        else:
-            await self.close()
+                    print(f"Second player has been found")
+            else:
+                await self.close()
 
     async def game_loop(self, room):
         try:
             last_time = time.time()
+            was_paused = False
             while True:
                 if room in self.rooms:
-                    print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
-                    if (
+                    is_paused = (
                         self.game_mode == GameMode.LOCAL
                         and self.rooms[self.room]["isPaused"] == True
-                    ):
+                    )
+                    if is_paused:
+                        was_paused = True
                         await asyncio.sleep(1 / 60)
                         continue
+                    if was_paused:
+                        last_time = time.time()
+                        was_paused = False
+
                     current_time = time.time()
                     delta_time = current_time - last_time
                     last_time = current_time

@@ -18,6 +18,11 @@ export default class State {
       isSearching: false,
       userId: "0",
       lang: "EN",
+      opponentId: null,
+      opponentUsername: null,
+      userSide: null,
+      username: null,
+      userAlias: null,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
@@ -27,6 +32,8 @@ export default class State {
       this.isUserLoggedIn = savedState.isUserLoggedIn || false;
       this.state.userId = parseInt(savedState.userId) || "0";
       this.state.lang = savedState.lang || "EN";
+      this.state.username = savedState.username || null;
+      this.state.userAlias = savedState.userAlias || null;
     } else this.saveState();
 
     document.getElementById("app").classList.add("hidden");
@@ -81,6 +88,8 @@ export default class State {
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,
+      username: this.state.username,
+      userAlias: this.state.userAlias,
       lang: this.state.lang,
     };
     localStorage.setItem("pongState", JSON.stringify(stateToSave));
