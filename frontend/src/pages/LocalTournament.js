@@ -198,47 +198,47 @@ export default class LocalTournament {
   }
 
   async handleStateChange(newState) {
-    alert("1");
+    let container = document.getElementById("app");
+
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      alert("2");
+      //   alert("2");
       await updateView(this, {});
     } else if (
       (newState.gameStarted && !this.previousState.gameStarted) ||
       (!newState.gameIsPaused && this.previousState.gameIsPaused)
     ) {
-      const container = document.getElementById("app");
+      //   alert(
+      //     "newState.gameStarted: " +
+      //       newState.gameStarted +
+      //       ", newState.gameIsPaused : " +
+      //       newState.gameIsPaused
+      //   );
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
-        alert("3");
         await updateView(this, {});
+        // alert("3");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      try {
-        await this.matchFinished();
-      } catch (error) {
-        console.error(error);
-      }
-      const container = document.getElementById("app");
+      await this.matchFinished();
       if (container) {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        alert("4");
+        // alert("4");
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
-      const container = document.getElementById("app");
       if (container) {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        alert("5");
+        // alert("5");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -246,11 +246,12 @@ export default class LocalTournament {
 
   handleBtn(key) {
     setDisable(true, key);
-    if (key === "pause-game") this.state.togglePause();
-    else if (key === "resume-game") this.state.togglePause();
+    if (key === "pause-game") this.state.togglePause(true);
+    else if (key === "resume-game") this.state.togglePause(false);
     else if (key === "exit-tournament" || key === "game-menu-button") {
       this.state.setGameEnded();
       this.resetAttributes();
+      this.state.gameHasBeenWon = false;
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);

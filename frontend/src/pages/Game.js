@@ -192,7 +192,7 @@ export default class GamePage {
       this.state.score["right"] !== this.oldscore["right"] ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("State changed, rendering Game page");
+      // console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await updateView(this, {});
@@ -330,7 +330,7 @@ export default class GamePage {
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
+    if ((!gameStarted && !gameHasBeenWon) || !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)

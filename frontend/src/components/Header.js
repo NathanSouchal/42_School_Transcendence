@@ -212,7 +212,7 @@ export class Header {
   }
 
   renderUserLoggedIn() {
-    console.log("renderUserLoggedIn Header");
+    // console.log("renderUserLoggedIn Header");
     this.lang = this.state.state.lang;
     this.isUserRendered = true;
     this.isGuestRendered = false;

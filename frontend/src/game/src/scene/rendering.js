@@ -26,14 +26,14 @@ class Renderer {
     return needResize;
   }
 
-  animate(gameManager) {
+  animate() {
     const render = () => {
       const currentTime = performance.now();
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime, gameManager);
+        this.gameElementsUpdate(deltaTime);
       }
 
       this.game.ball.updateRotation(deltaTime);
@@ -63,11 +63,11 @@ class Renderer {
     this.game.pivot.rotation.z = rockingAngle;
   }
 
-  gameElementsUpdate(deltaTime, gameManager) {
+  gameElementsUpdate(deltaTime) {
     if (state.gameMode != "OnlineLeft") {
       this.game.paddleRight.player.update(
         deltaTime,
-        gameManager,
+        state.gameManager,
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
@@ -75,7 +75,7 @@ class Renderer {
     if (state.gameMode != "OnlineRight") {
       this.game.paddleLeft.player.update(
         deltaTime,
-        gameManager,
+        state.gameManager,
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
