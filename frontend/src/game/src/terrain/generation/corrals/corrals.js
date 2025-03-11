@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import Cell from "./cell";
 import MarchingCubes from "./marchingCubes";
 import BasicTerrain from "../basic_terrain";

@@ -44,7 +44,7 @@ class Renderer {
       this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
-      this.pivotUpdate(deltaTime);
+      this.sceneRotationUpdate(deltaTime);
       this.terrainElementsUpdate(deltaTime);
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
@@ -57,10 +57,17 @@ class Renderer {
     requestAnimationFrame(render);
   }
 
-  pivotUpdate(deltaTime) {
+  sceneRotationUpdate(deltaTime) {
     this.elapsedTime += deltaTime;
+    // Rocking
     const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    this.game.pivot.rotation.z = rockingAngle;
+    this.game.sceneToRotateWithCamera.rotation.z = rockingAngle;
+
+    // Rotation
+    const rotationAngle = 0.02;
+    this.game.sceneToRotateWithCamera.rotation.y =
+      rotationAngle * this.elapsedTime;
+    // this.camera.rotation.y =
   }
 
   gameElementsUpdate(deltaTime) {

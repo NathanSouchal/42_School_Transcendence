@@ -108,18 +108,6 @@ export class GameScene {
     await this.paddleLeft.init();
     await this.paddleRight.init();
     await this.ball.init();
-
-    this.pivot = new THREE.Group();
-    this.pivot.add(
-      this.arena.obj,
-      this.ball.obj,
-      this.paddleLeft.obj,
-      this.paddleRight.obj,
-      this.ball.sparks.group,
-    );
-
-    this.pivot.position.set(0, 0, 0);
-    this.scene.add(this.pivot);
   }
 
   async makeTerrain() {
@@ -144,6 +132,31 @@ export class GameScene {
     this.scene.add(this.sea.obj);
   }
 
+  makeRotatingGroups() {
+    this.sceneToRotateWithCamera = new THREE.Group();
+    this.sceneToRotateWithCamera.add(
+      this.arena.obj,
+      this.ball.obj,
+      this.paddleLeft.obj,
+      this.paddleRight.obj,
+      this.ball.sparks.group,
+      this.camera,
+    );
+    this.sceneToRotateWithCamera.position.set(0, 0, 0);
+    this.scene.add(this.sceneToRotateWithCamera);
+
+    // this.sceneToRotateWithoutCamera = new THREE.Group();
+    // this.sceneToRotateWithoutCamera.add(
+    //   this.arena.obj,
+    //   this.ball.obj,
+    //   this.paddleLeft.obj,
+    //   this.paddleRight.obj,
+    //   this.ball.sparks.group,
+    // );
+    // this.sceneToRotateWithoutCamera.position.set(0, 0, 0);
+    // this.scene.add(this.sceneToRotateWithoutCamera);
+  }
+
   async init() {
     await this.makeArena();
     await this.makeTerrain();
@@ -153,6 +166,8 @@ export class GameScene {
       this.arena.obj,
       this.config.getCameraConfig(),
     );
+
+    this.makeRotatingGroups();
 
     this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj, true);
     this.renderer.shadowMap.enabled = true;
@@ -168,7 +183,8 @@ export class GameScene {
       sea: this.sea,
       fishFactory: this.fishFactory,
       players: this.players,
-      pivot: this.pivot,
+      sceneToRotateWithCamera: this.sceneToRotateWithCamera,
+      // sceneToRotateWithoutCamera: this.sceneToRotateWithoutCamera,
     };
 
     this.rendererInstance = new Renderer(
