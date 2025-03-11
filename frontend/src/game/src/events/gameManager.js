@@ -9,107 +9,134 @@ export class GameManager {
     this.socket = null;
   }
 
-  connect() {
-    // if (this.socket) this.socket.close();
+  async connect() {
+    console.log("connect()");
+
+    // Close any existing connection first
+    await this.closeExistingConnection();
+
+    // Create a new connection
+    this.createNewConnection();
+
+    // Set up all event handlers
+    this.setupSocketEventHandlers();
+  }
+
+  async closeExistingConnection() {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
-      this.socket.close(); // 🔥 Ferme la connexion précédente avant d'en créer une nouvelle
+
+      await new Promise((resolve) => {
+        const closeHandler = () => {
+          this.socket.removeEventListener("close", closeHandler);
+          resolve();
+        };
+        this.socket.addEventListener("close", closeHandler);
+        this.socket.close();
+      });
+
+      this.socket = null;
     }
+  }
+
+  createNewConnection() {
     const protocol = window.location.protocol === "https:" ? "wss" : "ws";
     const baseUrl = `${protocol}://${window.location.hostname}:8443/ws/`;
-    // const baseUrl = "wss://0.0.0.0:8443/ws/";
+
+    let endpoint = "game/?type=";
 
     switch (state.gameMode) {
       case "PVP":
       case "PVR":
-        this.socket = new WebSocket(`${baseUrl}game/?type=local`);
+        endpoint += "local";
         break;
       case "Online":
-        this.socket = new WebSocket(`${baseUrl}game/?type=online`);
+        endpoint += "online";
         break;
-      case "default":
-        this.socket = new WebSocket(`${baseUrl}game/?type=bg`);
+      default:
+        endpoint += "bg";
         break;
     }
+
+    this.socket = new WebSocket(`${baseUrl}${endpoint}`);
     console.log(`Socket is : ${this.socket.url}`);
+  }
 
-    this.socket.onopen = () => {
-      console.log("✅ WebSocket ouvert !");
-      this.isConnected = true;
-    };
+  setupSocketEventHandlers() {
+    if (!this.socket) return;
 
-    this.socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      //   console.log("Message Websocket recu du backend :", data);
-      switch (data.type) {
-        case "positions":
-          //   console.log("Mise a jour recue :", data.positions);
-          this.updatePositions(data.positions);
-          break;
-        case "hasFoundOpponent":
-          //   console.log(
-          //     "gameManager caught 'hasFoundOpponent', assigned side is ",
-          //     data.side
-          //   );
-          this.side = data.side;
-          state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
-          state.isSourceOfTruth = data.isSourceOfTruth;
-          state.setIsSearching(false);
-          break;
-        case "collision":
-          state.ballCollided = true;
-          state.collisionPoint = data.collision;
-          break;
-        case "scored_side":
-          state.updateScore(data.scored_side, 1);
-          break;
-      }
-    };
+    this.socket.onclose = this.handleClose.bind(this);
+    this.socket.onopen = this.handleOpen.bind(this);
+    this.socket.onmessage = this.handleMessage.bind(this);
+    this.socket.onerror = this.handleError.bind(this);
+  }
 
-    this.socket.onerror = (error) => {
-      console.error("❌ WebSocket Error:", error);
-      this.isConnected = false;
-    };
+  handleClose(event) {
+    console.error(
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+    );
+    this.isConnected = false;
+    // this.socket = null;
+  }
 
-    this.socket.onclose = (event) => {
-      console.warn(
-        `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
-      );
-      this.isConnected = false;
-      this.socket = null;
-      if (event.code !== 1000) {
-        // ✅ Ne pas reconnecter si la fermeture est normale
-        console.log("🔄 Tentative de reconnexion WebSocket...");
-        setTimeout(() => this.reconnect(), 2000);
-      } else {
-        console.log("✅ WebSocket fermé proprement, pas de reconnexion.");
-      }
-    };
+  handleOpen() {
+    console.log("✅ WebSocket ouvert !");
+    this.isConnected = true;
+  }
+
+  handleMessage(event) {
+    const data = JSON.parse(event.data);
+    switch (data.type) {
+      case "positions":
+        this.updatePositions(data.positions);
+        break;
+      case "hasFoundOpponent":
+        this.handleOpponentFound(data);
+        break;
+      case "collision":
+        this.handleCollision(data);
+        break;
+      case "scored_side":
+        this.handleScored(data);
+        break;
+    }
+  }
+
+  handleOpponentFound(data) {
+    this.side = data.side;
+    state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
+    state.isSourceOfTruth = data.isSourceOfTruth;
+    state.setIsSearching(false);
+  }
+
+  handleCollision(data) {
+    state.ballCollided = true;
+    state.collisionPoint = data.collision;
+  }
+
+  handleScored(data) {
+    state.updateScore(data.scored_side, 1);
+  }
+
+  handleError(error) {
+    console.error("❌ WebSocket Error:", error);
+    this.isConnected = false;
   }
 
   updatePositions(state) {
-    // console.log("🎯 Mise à jour des paddles:", state);
     if (state.paddle_left !== undefined) {
-      //   console.log(`🎾 Paddle gauche mis à jour: ${state.paddle_left}`);
       this.game.paddleLeft.obj.position.x = state.paddle_left;
     }
     if (state.paddle_right !== undefined) {
-      //   console.log(`🏓 Paddle droit mis à jour: ${state.paddle_right}`);
       this.game.paddleRight.obj.position.x = state.paddle_right;
     }
     if (state.ball) {
-      //   console.log(
-      //     `⚽ Ball mise à jour: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`
-      //   );
       this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,
         state.ball.vel_z
       );
-      //console.log(
-      //  `ball is now at: ${state.ball.x}, ${state.ball.y}, ${state.ball.z}`,
-      //);
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");
     }
@@ -123,13 +150,16 @@ export class GameManager {
   }
 
   sendMessage(data) {
-    if (this.socket && !this.socket.readyState) return;
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(data));
-    } else {
+    if (!this.isSocketReady()) {
       console.warn("WebSocket is not in OPEN state");
       this.reconnect();
+      return;
     }
+    this.socket.send(JSON.stringify(data));
+  }
+
+  isSocketReady() {
+    return this.socket && this.socket.readyState === WebSocket.OPEN;
   }
 
   sendPaddleMove(direction, side, deltaTime) {
@@ -142,8 +172,6 @@ export class GameManager {
   }
 
   sendPause(bool) {
-    // const strBool = bool == true ? "true" : "false";
-    // console.log(`sent pause: ${bool}`);
     this.sendMessage({
       type: "pausedOrUnpaused",
       bool: bool,

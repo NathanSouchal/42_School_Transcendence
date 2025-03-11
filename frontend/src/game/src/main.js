@@ -17,8 +17,7 @@ let gameManager = new GameManager(
 state.gameManager = gameManager;
 state.setGameStarted("default");
 
-while (!gameManager.isConnected) {
+while (!state.gameManager.isConnected) {
   await new Promise((resolve) => setTimeout(resolve, 300));
 }
-
-gameScene.rendererInstance.animate(gameManager);
+gameScene.rendererInstance.animate();

@@ -1,4 +1,4 @@
-import { updateView, checkUserStatus } from "../utils";
+import { updateView, checkUserStatus, setDisable } from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -8,6 +8,7 @@ import { connectWallet, storeTournament } from "../../blockchain/ContractInterac
 
 export default class LocalTournament {
   constructor(state) {
+    this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -26,6 +27,7 @@ export default class LocalTournament {
     this.tournamentWinner = null;
     this.userAlias = "";
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -33,13 +35,11 @@ export default class LocalTournament {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
-
-    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
-    else this.userAlias = "";
     await updateView(this, {});
   }
 
@@ -67,19 +67,55 @@ export default class LocalTournament {
       }
     });
 
-    const selectNbPlayers = document.getElementById("select-nb-players");
-    if (selectNbPlayers) {
-      const handleNbPlayersChange = this.handleNbPlayersChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "selectNbPlayersEvent")) {
-        selectNbPlayers.addEventListener("change", handleNbPlayersChange);
+    const nbPlayers = [
+      { id: "crab4", value: 4 },
+      { id: "crab8", value: 8 },
+      { id: "crab16", value: 16 },
+      { id: "crab32", value: 32 },
+    ];
+
+    nbPlayers.forEach(({ id, value }) => {
+      const crab = document.getElementById(id);
+      if (crab) {
+        const handleNbPlayersChange = this.handleNbPlayersChange.bind(
+          this,
+          value
+        );
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          crab.addEventListener("click", handleNbPlayersChange);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: crab,
+            listener: handleNbPlayersChange,
+          });
+        }
       }
-      this.eventListeners.push({
-        name: "selectNbPlayersEvent",
-        type: "change",
-        element: selectNbPlayers,
-        listener: handleNbPlayersChange,
-      });
-    }
+    });
+
+    const buttons = [
+      { id: "pause-game" },
+      { id: "resume-game" },
+      { id: "exit-tournament" },
+      { id: "game-menu-button" },
+      { id: "btn-start-match" },
+    ];
+
+    buttons.forEach(({ id }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleBtn = this.handleBtn.bind(this, id);
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          button.addEventListener("click", handleBtn);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: button,
+            listener: handleBtn,
+          });
+        }
+      }
+    });
 
     const inputPlayerName = document.getElementById("input-player-name");
     if (inputPlayerName) {
@@ -92,34 +128,6 @@ export default class LocalTournament {
         type: "keydown",
         element: inputPlayerName,
         listener: handlePlayersName,
-      });
-    }
-
-    const btnToStartMatch = document.getElementById("btn-start-match");
-    if (btnToStartMatch) {
-      const handleStartButton = this.handleStartButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "btnToStartMatch")) {
-        btnToStartMatch.addEventListener("click", handleStartButton);
-      }
-      this.eventListeners.push({
-        name: "btnToStartMatch",
-        type: "click",
-        element: btnToStartMatch,
-        listener: handleStartButton,
-      });
-    }
-
-    const gameMenueButton = document.getElementById("game-menu-button");
-    if (gameMenueButton) {
-      const handleGameMenuButton = this.handleGameMenuButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "gameMenueButton")) {
-        gameMenueButton.addEventListener("click", handleGameMenuButton);
-      }
-      this.eventListeners.push({
-        name: "gameMenueButton",
-        type: "click",
-        element: gameMenueButton,
-        listener: handleGameMenuButton,
       });
     }
 
@@ -161,13 +169,13 @@ export default class LocalTournament {
     }
   }
 
-  async handleNbPlayersChange(e) {
-    const selectedValue = e.target.value;
-    if (selectedValue) {
-      this.nbPlayers = parseInt(selectedValue, 10);
-      console.log(this.nbPlayers);
-      await updateView(this, {});
-    }
+  async handleNbPlayersChange(value) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    this.nbPlayers = value;
+    console.log(this.nbPlayers);
+    await updateView(this, {});
+    this.isProcessing = false;
   }
 
   async handlePlayersName(e) {
@@ -182,7 +190,6 @@ export default class LocalTournament {
         const regex = /^\w+$/;
         if (input.value) {
           if (!regex.test(input.value)) {
-            alert("regex");
             return this.displayTournamentErrorMessage(
               "Invalid participant name : only letters, numbers and underscores are allowed"
             );
@@ -210,38 +217,63 @@ export default class LocalTournament {
   }
 
   async handleStateChange(newState) {
+    let container = document.getElementById("app");
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
+      //   alert("Game loaded or lang change");
+      console.log(
+        newState.gameHasLoaded,
+        this.previousState.gameHasLoaded,
+        newState.lang,
+        this.previousState.lang
+      );
       await updateView(this, {});
-    } else if (newState.gameStarted && !this.previousState.gameStarted) {
-      console.log("Game has started");
-      const container = document.getElementById("app");
+    } else if (
+      (newState.gameStarted && !this.previousState.gameStarted) ||
+      (!newState.gameIsPaused && this.previousState.gameIsPaused)
+    ) {
       if (container) {
+        container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
         await updateView(this, {});
+        // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.matchFinished();
-      const container = document.getElementById("app");
       if (container) {
+        container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
+        // alert("Game won");
+        await updateView(this, {});
+      }
+    } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
+      if (container) {
+        container.innerHTML = "";
+        container.className = "app";
+        this.previousState = { ...newState };
+        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
   }
 
-  handleStartButton() {
-    this.state.setGameStarted("PVP");
-  }
-
-  handleGameMenuButton() {
-    this.resetAttributes();
-    router.navigate("/game");
+  handleBtn(key) {
+    setDisable(true, key);
+    if (key === "pause-game") this.state.togglePause(true);
+    else if (key === "resume-game") this.state.togglePause(false);
+    else if (key === "exit-tournament" || key === "game-menu-button") {
+      this.state.setGameEnded();
+      this.resetAttributes();
+      this.state.state.gameHasBeenWon = false;
+      this.state.backToBackgroundPlay();
+      router.navigate("/game");
+    } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
+    setDisable(false, key);
   }
 
   async handleBlockchainStorage() {
@@ -368,7 +400,7 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log("Removed ${type} eventListener from input");
+        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -381,20 +413,18 @@ export default class LocalTournament {
       this.isSubscribed = false;
       console.log("LocalTournament page unsubscribed from state");
     }
+    this.resetAttributes();
   }
 
   renderSelectNbPlayers() {
     return `<div class="select-container">
-                <label for="select-nb-players">${trad[this.lang].localTournament.playersNum}</label>
-                <select id="select-nb-players">
-                  <option value="" disabled selected>${trad[this.lang].localTournament.select}</option>
-                  ${this.possibleNbPlayers
-                    .map(
-                      (element) =>
-                        `<option value="${element}">${element}</option>`
-                    )
-                    .join("")}
-                </select>
+                <h2>${trad[this.lang].localTournament.playersNum}</h2>
+				<div class="crab-playernb-div">
+                    <img src="/crab4.png" alt="crab4img" class="crab-playernb-select" id="crab4">
+                    <img src="/crab8.png" alt="crab8img" class="crab-playernb-select" id="crab8">
+                    <img src="/crab16.png" alt="crab16img" class="crab-playernb-select" id="crab16">
+                    <img src="/crab32.png" alt="crab32img" class="crab-playernb-select" id="crab32">
+                 </div>
               </div>`;
   }
 
@@ -407,6 +437,24 @@ export default class LocalTournament {
 			  	OK
 			  </button>
 				    </div>`;
+  }
+
+  renderPauseMenu() {
+    return `
+				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					<div class="global-nav-section">
+						<div class="game-paused-title">
+							<h1>${trad[this.lang].localTournament.paused}</h1>
+						</div>
+						<div class="global-nav-items">
+							<button id="resume-game">${trad[this.lang].localTournament.resume}</button>
+						</div>
+						<div class="global-nav-items">
+							<button id="exit-tournament">${trad[this.lang].localTournament.stop}</button>
+						</div>
+					</div>
+				</div>
+  `;
   }
 
   renderTournament() {
@@ -478,14 +526,16 @@ export default class LocalTournament {
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
 
-    return `
+    return this.state.state.gameIsPaused
+      ? this.renderPauseMenu()
+      : `
           <div class="tournament-game-hud">
             <div class="tournament-game-score">
               <h1>${leftPlayerName}</h1>
               <h1>${left} - ${right}</h1>
               <h1>${rightPlayerName}</h1>
             </div>
-            <button id="toggle-pause" class="pause-play-btn">
+            <button id="pause-game" class="pause-play-btn">
               <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
             </button>
           </div>
@@ -496,15 +546,18 @@ export default class LocalTournament {
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
-    if (this.state.state.gameStarted === true)
+    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
+    else this.userAlias = "";
+    if (this.state.state.gameStarted)
       handleHeader(this.state.isUserLoggedIn, true, false);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    return this.state.state.gameStarted === true
+    return this.state.state.gameStarted
       ? this.getGameHUDTemplate()
       : `
           <div class="main-div-tournament">

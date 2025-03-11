@@ -4,15 +4,15 @@ FROM nginx:latest
 
 # Installer mkcert pour gérer le HTTPS auto-signé
 RUN apt-get update && apt-get install -y libnss3-tools curl && \
-    curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64 -o /usr/local/bin/mkcert && \
-    chmod +x /usr/local/bin/mkcert && \
-    mkcert -install
+  curl -L https://github.com/FiloSottile/mkcert/releases/download/v1.4.4/mkcert-v1.4.4-linux-amd64 -o /usr/local/bin/mkcert && \
+  chmod +x /usr/local/bin/mkcert && \
+  mkcert -install
 
 # Créer un dossier pour stocker les certificats SSL
 RUN mkdir -p /etc/nginx/certs
 
 # Générer un certificat auto-signé pour HTTPS local
-RUN mkcert -key-file /etc/nginx/certs/selfsigned.key -cert-file /etc/nginx/certs/selfsigned.crt localhost 10.13.12.2 10.13.12.1 10.13.12.4
+RUN mkcert -key-file /etc/nginx/certs/selfsigned.key -cert-file /etc/nginx/certs/selfsigned.crt localhost 0.0.0.0 10.13.12.2 10.13.12.1 10.13.12.4 10.19.239.218 192.168.1.30
 
 # Copier la configuration Nginx spécifique au développement
 COPY nginx/confDev/nginx.conf /etc/nginx/nginx.conf

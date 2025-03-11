@@ -8,12 +8,11 @@ export class Lang {
 
   async updateUserLang(langText) {
     try {
-      const res = API.put(`/user/${this.state.state.userId}/`, {
+      const res = await API.put(`/user/${this.state.state.userId}/`, {
         lang: langText,
       });
     } catch (error) {
       console.error(error);
-      throw error;
     }
   }
 
@@ -23,7 +22,7 @@ export class Lang {
     const langMenu = document.getElementById("lang-menu");
 
     if (langDiv && dropdownBtn && langMenu) {
-      dropdownBtn.addEventListener("click", (e) => {
+      langDiv.addEventListener("click", (e) => {
         langDiv.classList.toggle("open");
         e.stopPropagation();
       });
@@ -56,11 +55,11 @@ export class Lang {
           this.state.updateLang(langText);
           if (this.state.isUserLoggedIn) await this.updateUserLang(langText);
           console.log("this.state.state.lang : " + this.state.state.lang);
-          langDiv.classList.remove("open");
 
           selectedLangImg.classList.add("fade-out");
 
           setTimeout(() => {
+            langDiv.classList.remove("open");
             selectedLangImg.src = newLang;
             selectedLangImg.classList.remove("fade-out");
           }, 250);

@@ -38,6 +38,9 @@ export const trad = {
       rightWins: "Right player wins !",
       playAgain: "Play again",
       back: "Back to menu",
+      easy: "Easy",
+      normal: "Normal",
+      difficult: "Difficult",
     },
     home: {
       play: "Play",
@@ -45,9 +48,8 @@ export const trad = {
       guestMode: "Guest Mode",
     },
     localTournament: {
-      pageTtitle: "TOURNAMENT",
-      playersNum: "Number of Players",
-      select: "Select...",
+      pageTitle: "TOURNAMENT",
+      playersNum: "Choose number of players",
       player: "Player n°",
       namePlayer: "Name for player n°",
       winner: "Winner :",
@@ -56,6 +58,8 @@ export const trad = {
       play: "PLAY",
       gameMenu: "Game menu",
       stop: "Stop Tournament",
+      resume: "Resume game",
+      paused: "Game paused",
     },
     login: {
       pageTitle: "Login",
@@ -85,6 +89,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Search...",
+      searchResult: "User not found",
       friends: "FRIENDS",
       online: "Online",
       offline: "Offline",
@@ -157,6 +162,9 @@ export const trad = {
       rightWins: "Le joueur de droite gagne !",
       playAgain: "Recommencer",
       back: "Retour au menu",
+      easy: "Facile",
+      normal: "Normal",
+      difficult: "Difficile",
     },
     home: {
       play: "Jouer",
@@ -164,9 +172,8 @@ export const trad = {
       guestMode: "Mode invité",
     },
     localTournament: {
-      pageTtitle: "TOURNOI",
-      playersNum: "Nombre de joueurs",
-      select: "Selection...",
+      pageTitle: "TOURNOI",
+      playersNum: "Choisissez le nombre de joueurs",
       player: "Joueur n°",
       namePlayer: "Nom du joueur n°",
       winner: "Gagnant :",
@@ -175,6 +182,8 @@ export const trad = {
       play: "JOUER",
       gameMenu: "Menu du jeu",
       stop: "Arrêter le tournoi",
+      resume: "Reprendre",
+      paused: "Jeu en pause",
     },
     login: {
       pageTitle: "Connexion",
@@ -204,6 +213,7 @@ export const trad = {
     social: {
       pageTitle: "Amis",
       search: "Recherche...",
+      searchResult: "Utilisateur non trouvé",
       friends: "AMIS",
       online: "En ligne",
       offline: "Hors ligne",
@@ -276,6 +286,9 @@ export const trad = {
       rightWins: "¡Jugador de la derecha gana!",
       playAgain: "Jugar de nuevo",
       back: "Volver al menú",
+      easy: "Fácil",
+      normal: "Normal",
+      difficult: "Difícil",
     },
     home: {
       play: "Jugar",
@@ -283,9 +296,8 @@ export const trad = {
       guestMode: "Modo Invitado",
     },
     localTournament: {
-      pageTtitle: "TORNEO",
-      playersNum: "Número de jugadores",
-      select: "Seleccionar...",
+      pageTitle: "TORNEO",
+      playersNum: "Elige el número de jugadores",
       player: "Jugador n°",
       namePlayer: "Nombre del jugador n°",
       winner: "Ganador:",
@@ -294,6 +306,8 @@ export const trad = {
       play: "JUGAR",
       gameMenu: "Menú del juego",
       stop: "Detener torneo",
+      resume: "Reanudar juego",
+      paused: "Juego pausado",
     },
     login: {
       pageTitle: "Iniciar sesión",
@@ -323,6 +337,7 @@ export const trad = {
     social: {
       pageTitle: "Social",
       search: "Buscar...",
+      searchResult: "Usuario no encontrado",
       friends: "AMIGOS",
       online: "En línea",
       offline: "Desconectado",
@@ -395,6 +410,9 @@ export const trad = {
       rightWins: "Right Crab Wins!",
       playAgain: "Crab Again",
       back: "Back to Crab Menu",
+      easy: "EasyCrab",
+      normal: "NormaCrab",
+      difficult: "DiffiCrab",
     },
     home: {
       play: "Crabby",
@@ -402,9 +420,8 @@ export const trad = {
       guestMode: "Crab Mode",
     },
     localTournament: {
-      pageTtitle: "CRABNAMENT",
-      playersNum: "Number of Crabbers",
-      select: "Crablect...",
+      pageTitle: "CRABNAMENT",
+      playersNum: "Crab number of Crabbers",
       player: "Crabber n°",
       namePlayer: "Crabname for Crabber n°",
       winner: "Crabwinner:",
@@ -413,6 +430,8 @@ export const trad = {
       play: "CRAB PLAY",
       gameMenu: "Crab Menu",
       stop: "Stop Crabnament",
+      resume: "Resume Crab",
+      paused: "Crab Paused",
     },
     login: {
       pageTitle: "Crabin",
@@ -442,6 +461,7 @@ export const trad = {
     social: {
       pageTitle: "Crabial",
       search: "Crabch...",
+      searchResult: "Crab no Crabbed",
       friends: "CRABENDS",
       online: "Crabline",
       offline: "Offcrab",

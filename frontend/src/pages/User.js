@@ -2,14 +2,15 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
+  setDisable,
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class User {
   constructor(state) {
+    this.pageName = "User";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -36,14 +37,12 @@ export default class User {
     if (!this.isInitialized) this.isInitialized = true;
     this.pageId = newPageId;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
     }
-
     this.pageId = routeParams.id;
-    console.log("Newage id : " + newPageId);
-    console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, routeParams || {});
   }
@@ -188,6 +187,7 @@ export default class User {
   }
 
   async handleFriend(key, value) {
+    setDisable(true, key);
     if (key === "cancel-friend-request") {
       await this.cancelFriendRequest();
     } else if (key === "send-friend-request") {
@@ -201,6 +201,7 @@ export default class User {
     }
     await this.getMyFriends();
     updateView(this, this.routeParams || {});
+    setDisable(false, key);
   }
 
   async checkFriendStatus() {
@@ -291,6 +292,7 @@ export default class User {
     await this.getMyFriends();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
@@ -299,9 +301,8 @@ export default class User {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
-    return `${backArrow}
+    return `
 			<div class="user-main-div">
 			<div class="user-main-content">
 				<div class="title-div">

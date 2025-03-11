@@ -5,6 +5,14 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
+  const homeImg = document.getElementById("home-img-div");
+  if (homeImg) {
+    if (context.pageName === "Home") {
+      homeImg.style.opacity = 0;
+    } else {
+      homeImg.style.opacity = 1;
+    }
+  }
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render(routeParams);
@@ -21,7 +29,8 @@ export async function updateView(context, routeParams = {}) {
 }
 
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
-  if (header.isUserRendered || header.isGuestRendered) {
+  if (needsToDestroy && !langChange) header.destroy();
+  else if (header.isUserRendered || header.isGuestRendered) {
     if (needsToDestroy) header.destroy();
     else if (langChange) {
       console.log("Lang reset in handleHeader");
@@ -64,25 +73,21 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
-    console.log("Lancement de checkUserStatus");
+    // console.log("Lancement de checkUserStatus");
     const res = await API.get("/auth/is-auth/");
-    console.log("Reponse recue de Auth");
+    // console.log("Reponse recue de Auth");
     const id = res.data.user_id.toString();
-    console.log("ID recupere");
-    console.log(id);
+    // console.log("ID recupere");
+    // console.log(id);
     if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
     if (id !== state.state.userId) {
       state.state.userId = id;
       state.saveState();
     }
-    console.log("Fin de checkUserStatus");
+    // console.log("Fin de checkUserStatus");
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
     return false;
   }
-}
-
-export function createBackArrow(route) {
-  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

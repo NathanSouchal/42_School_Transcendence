@@ -12,10 +12,16 @@ services:
       - postgres
       - redis
     volumes:
-      - ./backend:/app  # ✅ Monte le dossier backend pour le hot reload
-      - backend_static:/app/static  # ✅ Stocker les fichiers statiques de Django
+      - ./backend:/app # ✅ Monte le dossier backend pour le hot reload
+      - backend_static:/app/static # ✅ Stocker les fichiers statiques de Django
     ports:
-      - "8000:8000"  # API Django
+      - "8000:8000" # API Django
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        mode: "non-blocking"
 
   frontend:
     container_name: frontend
@@ -27,9 +33,10 @@ services:
     env_file: .env
     restart: unless-stopped
     volumes:
-      - ./frontend:/app  # ✅ Monte le dossier frontend pour le hot reload
+      - ./frontend:/app # ✅ Monte le dossier frontend pour le hot reload
+      - node_modules:/app/node_modules
     ports:
-      - "3000:3000"  # Vite.js expose le frontend en dev
+      - "3000:3000" # Vite.js expose le frontend en dev
 
   postgres:
     image: postgres:15
@@ -54,12 +61,12 @@ services:
       - backend
       - frontend
     ports:
-      - "8080:80"   # HTTP (redirigé vers HTTPS)
-      - "8443:443"  # HTTPS
+      - "8080:80" # HTTP (redirigé vers HTTPS)
+      - "8443:443" # HTTPS
     volumes:
       - ./nginx/certs/selfsigned.crt:/etc/nginx/selfsigned.crt
       - ./nginx/certs/selfsigned.key:/etc/nginx/selfsigned.key
-      - backend_static:/usr/share/nginx/html/static/  # ✅ Partage les fichiers statiques de Django
+      - backend_static:/usr/share/nginx/html/static/ # ✅ Partage les fichiers statiques de Django
 
   redis:
     image: redis:alpine
@@ -67,13 +74,13 @@ services:
     networks:
       - transcendence
 
-
-networks: 
+networks:
   transcendence:
     driver: bridge
 
 volumes:
   postgres_data:
     driver: local
-  backend_static:  # ✅ Volume pour stocker les fichiers statiques du backend
+  backend_static: # ✅ Volume pour stocker les fichiers statiques du backend
     driver: local
+  node_modules:

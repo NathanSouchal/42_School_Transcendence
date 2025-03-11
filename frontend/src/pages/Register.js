@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  setDisable,
-} from "../utils.js";
+import { handleHeader, updateView, setDisable } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Register {
   constructor(state) {
+    this.pageName = "Register";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -22,6 +18,7 @@ export default class Register {
     };
     this.eventListeners = [];
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -29,6 +26,7 @@ export default class Register {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
@@ -96,8 +94,11 @@ export default class Register {
   }
 
   showPopup() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     const popup = document.getElementById("popup");
     if (popup) popup.classList.toggle("show");
+    this.isProcessing = false;
   }
 
   handleNavigation(e) {
@@ -144,9 +145,6 @@ export default class Register {
     }
 
     this.formState[key] = value;
-    console.log(this.formState.username);
-    console.log(this.formState.password);
-    console.log(this.formState.passwordConfirmation);
   }
 
   async handleSubmit(e) {
@@ -178,7 +176,6 @@ export default class Register {
       } else if (error.response && error.response.status === 409)
         this.displayRegisterErrorMessage("This username is already used");
     } finally {
-      setDisable(false, "register-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {
@@ -186,6 +183,7 @@ export default class Register {
         input.classList.remove("is-valid");
         input.classList.remove("is-invalid");
       });
+      setDisable(false, "register-form");
     }
   }
 
@@ -225,6 +223,7 @@ export default class Register {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
@@ -233,8 +232,7 @@ export default class Register {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
         <form id="register-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].register.pageTitle}</h1>
           <div class="inputs-button-form-login-register">

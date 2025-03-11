@@ -48,7 +48,7 @@ export class Router {
   }
 
   async navigate(path, shouldPushState = true) {
-    if (this.currentPath === path) return; // Éviter de naviguer vers la même route
+    // if (this.currentPath === path) return; // Éviter de naviguer vers la même route
     console.log("Navigating to:", path); // Log ajouté pour vérifier l'appel
 
     state.state.lastRoute = this.currentPath;

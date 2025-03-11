@@ -1,10 +1,16 @@
-import { handleHeader, updateView, checkUserStatus } from "../utils";
+import {
+  handleHeader,
+  updateView,
+  checkUserStatus,
+  setDisable,
+} from "../utils";
 import { router } from "../app.js";
-import { createBackArrow } from "../utils";
 import { trad } from "../trad.js";
+import API from "../services/api.js";
 
 export default class GamePage {
   constructor(state) {
+    this.pageName = "Game";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -16,12 +22,14 @@ export default class GamePage {
     this.oldscore = state.score;
     this.lang = null;
     this.haveToSelectBotDifficulty = false;
+    this.formState = {};
   }
 
   async initialize(routeParams = {}) {
     if (this.isInitialized) return;
     this.isInitialized = true;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       // console.log("GamePage subscribed to state");
@@ -66,6 +74,9 @@ export default class GamePage {
       { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },
+      { id: "easy-btn", action: "easy-btn" },
+      { id: "normal-btn", action: "normal-btn" },
+      { id: "difficult-btn", action: "difficult-btn" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -94,24 +105,30 @@ export default class GamePage {
     }
   }
 
-  handleDifficultyChange(e) {
-    const selectedValue = e.target.value;
-    if (selectedValue) {
-      this.state.botDifficulty = selectedValue;
-      this.state.setGameStarted("PVR");
-    }
+  handleDifficultyChange(param) {
+    this.state.botDifficulty = param;
+    this.state.setGameStarted("PVR");
+    this.haveToSelectBotDifficulty = false;
   }
 
   async handleClick(param) {
+    setDisable(true, param);
     switch (param) {
+      case "easy-btn":
+        this.handleDifficultyChange("Easy");
+        break;
+      case "normal-btn":
+        this.handleDifficultyChange("Normal");
+        break;
+      case "difficult-btn":
+        this.handleDifficultyChange("Hard");
+        break;
       case "start-pvp-game":
         this.state.setGameStarted("PVP");
-        console.log("coucou");
         break;
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
         await updateView(this, {});
-        this.haveToSelectBotDifficulty = false;
         // this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
@@ -139,11 +156,35 @@ export default class GamePage {
         this.state.togglePause();
         break;
     }
+    setDisable(false, param);
+  }
+
+  //   {
+  //     "player1": "2e9d99d6-e811-494d-b0a0-b49acb0257df",
+  //     "player2": "50c7d428-094a-43cc-a0b1-8a7d23e05b76",
+  //     "score_player1": 8,
+  //     "score_player2": 2
+  // }
+
+  async saveGame() {
+    const { left, right } = this.state.score;
+    console.log("left: " + left + "right: " + right);
+    if (!this.state.isUserLoggedIn) return;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    this.formState.score_player1 = parseInt(right);
+    this.formState.score_player2 = parseInt(left);
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async handleStateChange(newState) {
-    // console.log("Checking if state has changed");
-    if (
+    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
+      await this.saveGame();
+    else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
@@ -152,7 +193,7 @@ export default class GamePage {
       this.state.score["right"] !== this.oldscore["right"] ||
       newState.lang !== this.previousState.lang
     ) {
-      console.log("State changed, rendering Game page");
+      // console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await updateView(this, {});
@@ -177,54 +218,47 @@ export default class GamePage {
       this.isSubscribed = false;
       // console.log("Game page unsubscribed from state");
     }
+    this.haveToSelectBotDifficulty = false;
   }
 
   renderSelectBotDifficulty() {
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
-            <div class="container-selector">
-              <div class="select-container">
-                <label for="select-difficulty">Difficulty</label>
-                <select id="select-difficulty">
-                  <option value="" disabled selected>Select...</option>
-                  <option value="4">Easy</option>
-                  <option value="5">Normal</option>
-                  <option value="6">Hard</option>
-                </select>
-              </div>
-            </div>`;
+    return `
+			  <div class="select-difficulty" id="select-difficulty">
+				  <button id="easy-btn">${trad[this.lang].game.easy}</button>
+				  <button id="normal-btn">${trad[this.lang].game.normal}</button>
+				  <button id="difficult-btn">${trad[this.lang].game.difficult}</button>
+			  </div>`;
   }
 
   renderGameMenu() {
     const { isSearching } = this.state.state;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
-            <div>
-            <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-              <div class="global-nav-section nav-section-game">
-                  <div class="global-nav-items">
-                    <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
-                  </div>
-                  <div class="global-nav-items">
-                    <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
-                  </div>
-                  <div id="start-local-tournament" class="global-nav-items">
-                     <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
-                  </div>
+    return `
+			  <div>
+			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				<div class="global-nav-section nav-section-game">
+					<div class="global-nav-items">
+					  <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
+					</div>
+					<div class="global-nav-items">
+					  <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
+					</div>
+					<div id="start-local-tournament" class="global-nav-items">
+					   <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
+					</div>
 
-                  <div class="global-nav-items">
-                    <button id="start-online-pvp-game">
-                      ${
-                        isSearching
-                          ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
-                          : "Online PVP"
-                      }
-                    </button>
-                  </div>
-              </div>
-            </div>
-          </div>
-        `;
+					<div class="global-nav-items">
+					  <button id="start-online-pvp-game">
+						${
+              isSearching
+                ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
+                : "Online PVP"
+            }
+					  </button>
+					</div>
+				</div>
+			  </div>
+			</div>
+		  `;
   }
 
   renderGameHUD() {
@@ -232,72 +266,76 @@ export default class GamePage {
     const { gameIsPaused } = this.state.state;
 
     return `<div class="game-hud">
-				<div class="game-score">
-					<h1 class="display-4 mb-0">${left} - ${right}</h1>
-				</div>
-					<button id="toggle-pause" class="pause-play-btn">
-					<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
-				</button>
-			</div>
-  `;
+				  <div class="game-score">
+					  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+				  </div>
+					  <button id="toggle-pause" class="pause-play-btn">
+					  <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+				  </button>
+			  </div>
+	`;
   }
 
   renderPauseMenu() {
     return `<div>
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-					<div class="global-nav-section">
-						<div class="game-paused-title">
-							<h1>${trad[this.lang].game.paused}</h1>
-						</div>
-						<div class="global-nav-items">
-							<button id="resume-game">${trad[this.lang].game.resume}</button>
-						</div>
-						<div class="global-nav-items">
-							<button id="exit-game">${trad[this.lang].game.quit}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-  `;
+				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					  <div class="global-nav-section">
+						  <div class="game-paused-title">
+							  <h1>${trad[this.lang].game.paused}</h1>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="resume-game">${trad[this.lang].game.resume}</button>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="exit-game">${trad[this.lang].game.quit}</button>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+	`;
   }
 
   renderGameEnded() {
     const { left, right } = this.state.score;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
 
-    return `${backArrow}
-			<div>
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-					<div class="global-nav-section">
-						<div class="game-score">
-							<h1 class="display-4 mb-0">${left} - ${right}</h1>
-						</div>
-						<h2 class="mt-2">
-							${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
-						</h2>
-						<div class="global-nav-items">
-							<button id="restart-game">${trad[this.lang].game.playAgain}</button>
-						</div>
-						<div class="global-nav-items">
-							<button id="exit-game">${trad[this.lang].game.back}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-  `;
+    return `
+			  <div>
+				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					  <div class="global-nav-section">
+						  <div class="game-score">
+							  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+						  </div>
+						  <h2 class="mt-2">
+							  ${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
+						  </h2>
+						  <div class="global-nav-items">
+							  <button id="restart-game">${trad[this.lang].game.playAgain}</button>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="exit-game">${trad[this.lang].game.back}</button>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+	`;
   }
 
   async render(routeParams = {}) {
-    console.log("ICI");
     await checkUserStatus();
-    console.log("ICI2");
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
+    console.log(
+      "gameStarted :" + gameStarted,
+      " gameIsPaused :" + gameIsPaused,
+      " gameHasBeenWon : " + gameHasBeenWon,
+      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty
+    );
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 

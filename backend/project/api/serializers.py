@@ -7,7 +7,7 @@ import re
 class GameSerializer(serializers.ModelSerializer):
     # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
     player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
 
     class Meta:
         model = Game

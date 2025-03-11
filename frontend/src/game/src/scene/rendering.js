@@ -26,14 +26,14 @@ class Renderer {
     return needResize;
   }
 
-  animate(gameManager) {
+  animate() {
     const render = () => {
       const currentTime = performance.now();
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime, gameManager);
+        this.gameElementsUpdate(deltaTime);
       }
 
       this.game.ball.updateRotation(deltaTime);
@@ -44,7 +44,7 @@ class Renderer {
       this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
-      this.pivotUpdate(deltaTime);
+      this.sceneRotationUpdate(deltaTime);
       this.terrainElementsUpdate(deltaTime);
       if (this.resizeRendererToDisplaySize()) {
         const canvas = this.renderer.domElement;
@@ -57,17 +57,24 @@ class Renderer {
     requestAnimationFrame(render);
   }
 
-  pivotUpdate(deltaTime) {
+  sceneRotationUpdate(deltaTime) {
     this.elapsedTime += deltaTime;
+    // Rocking
     const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    this.game.pivot.rotation.z = rockingAngle;
+    this.game.sceneToRotateWithCamera.rotation.z = rockingAngle;
+
+    // Rotation
+    const rotationAngle = 0.02;
+    this.game.sceneToRotateWithCamera.rotation.y =
+      rotationAngle * this.elapsedTime;
+    // this.camera.rotation.y =
   }
 
-  gameElementsUpdate(deltaTime, gameManager) {
+  gameElementsUpdate(deltaTime) {
     if (state.gameMode != "OnlineLeft") {
       this.game.paddleRight.player.update(
         deltaTime,
-        gameManager,
+        state.gameManager,
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
@@ -75,7 +82,7 @@ class Renderer {
     if (state.gameMode != "OnlineRight") {
       this.game.paddleLeft.player.update(
         deltaTime,
-        gameManager,
+        state.gameManager,
         this.game.ball.obj.position,
         this.game.ball.velocity,
       );
