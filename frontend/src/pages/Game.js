@@ -264,10 +264,14 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state;
+    const leftPlayerName = "Computer";
+    const rightPlayerName = "No Name";
 
     return `<div class="game-hud">
 				  <div class="game-score">
-					  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+					<h1>${leftPlayerName}</h1>
+					<h1>${left} - ${right}</h1>
+					<h1>${rightPlayerName}</h1>
 				  </div>
 					  <button id="toggle-pause" class="pause-play-btn">
 					  <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
@@ -297,6 +301,7 @@ export default class GamePage {
 
   renderGameEnded() {
     const { left, right } = this.state.score;
+    console.log("left :" + left + "right : " + right);
 
     return `
 			  <div>

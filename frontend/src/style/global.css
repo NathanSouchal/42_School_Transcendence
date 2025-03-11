@@ -165,6 +165,13 @@ canvas#c {
   font-family: 48px;
 }
 
+.game-score h1 {
+  width: 33%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
 .pause-play-btn {
   position: absolute;
   top: 30px;
