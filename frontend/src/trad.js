@@ -38,6 +38,9 @@ export const trad = {
       rightWins: "Right player wins !",
       playAgain: "Play again",
       back: "Back to menu",
+      easy: "Easy",
+      normal: "Normal",
+      difficult: "Difficult",
     },
     home: {
       play: "Play",
@@ -159,6 +162,9 @@ export const trad = {
       rightWins: "Le joueur de droite gagne !",
       playAgain: "Recommencer",
       back: "Retour au menu",
+      easy: "Facile",
+      normal: "Normal",
+      difficult: "Difficile",
     },
     home: {
       play: "Jouer",
@@ -280,6 +286,9 @@ export const trad = {
       rightWins: "¡Jugador de la derecha gana!",
       playAgain: "Jugar de nuevo",
       back: "Volver al menú",
+      easy: "Fácil",
+      normal: "Normal",
+      difficult: "Difícil",
     },
     home: {
       play: "Jugar",
@@ -401,6 +410,9 @@ export const trad = {
       rightWins: "Right Crab Wins!",
       playAgain: "Crab Again",
       back: "Back to Crab Menu",
+      easy: "EasyCrab",
+      normal: "NormaCrab",
+      difficult: "DiffiCrab",
     },
     home: {
       play: "Crabby",

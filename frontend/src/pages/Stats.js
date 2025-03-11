@@ -21,6 +21,7 @@ export default class Stats {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");
@@ -102,6 +103,7 @@ export default class Stats {
     await this.getStats(this.state.state.userId);
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");

@@ -55,11 +55,11 @@ export class Lang {
           this.state.updateLang(langText);
           if (this.state.isUserLoggedIn) await this.updateUserLang(langText);
           console.log("this.state.state.lang : " + this.state.state.lang);
-          langDiv.classList.remove("open");
 
           selectedLangImg.classList.add("fade-out");
 
           setTimeout(() => {
+            langDiv.classList.remove("open");
             selectedLangImg.src = newLang;
             selectedLangImg.classList.remove("fade-out");
           }, 250);

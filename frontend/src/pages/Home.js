@@ -18,6 +18,7 @@ export default class Home {
     if (this.isInitialized) return;
     this.isInitialized = true;
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
@@ -85,6 +86,7 @@ export default class Home {
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");

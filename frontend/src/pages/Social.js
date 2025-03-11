@@ -28,6 +28,7 @@ export default class Social {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
@@ -249,6 +250,7 @@ export default class Social {
     await this.getInvitations(this.state.state.userId);
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");

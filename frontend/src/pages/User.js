@@ -37,6 +37,7 @@ export default class User {
     if (!this.isInitialized) this.isInitialized = true;
     this.pageId = newPageId;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
@@ -291,6 +292,7 @@ export default class User {
     await this.getMyFriends();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");

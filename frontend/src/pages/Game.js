@@ -29,6 +29,7 @@ export default class GamePage {
     if (this.isInitialized) return;
     this.isInitialized = true;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       // console.log("GamePage subscribed to state");
@@ -107,6 +108,7 @@ export default class GamePage {
   handleDifficultyChange(param) {
     this.state.botDifficulty = param;
     this.state.setGameStarted("PVR");
+    this.haveToSelectBotDifficulty = false;
   }
 
   async handleClick(param) {
@@ -127,7 +129,6 @@ export default class GamePage {
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
         await updateView(this, {});
-        this.haveToSelectBotDifficulty = false;
         // this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
@@ -183,7 +184,7 @@ export default class GamePage {
   async handleStateChange(newState) {
     if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
       await this.saveGame();
-    if (
+    else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
@@ -217,14 +218,15 @@ export default class GamePage {
       this.isSubscribed = false;
       // console.log("Game page unsubscribed from state");
     }
+    this.haveToSelectBotDifficulty = false;
   }
 
   renderSelectBotDifficulty() {
     return `
 			  <div class="select-difficulty" id="select-difficulty">
-				  <button id="easy-btn">Easy</button>
-				  <button id="normal-btn">Normal</button>
-				  <button id="difficult-btn">Difficult</button>
+				  <button id="easy-btn">${trad[this.lang].game.easy}</button>
+				  <button id="normal-btn">${trad[this.lang].game.normal}</button>
+				  <button id="difficult-btn">${trad[this.lang].game.difficult}</button>
 			  </div>`;
   }
 
@@ -322,6 +324,7 @@ export default class GamePage {
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("GamePage subscribed to state");
@@ -349,7 +352,6 @@ export default class GamePage {
       !gameHasBeenWon &&
       this.haveToSelectBotDifficulty
     ) {
-      alert("ici");
       if (this.lang !== this.state.state.lang)
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);

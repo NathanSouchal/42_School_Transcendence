@@ -73,6 +73,14 @@
   background-color: var(--danger-color);
 }
 
+.select-difficulty button:hover {
+  transform: scale(1.1);
+}
+
+.select-difficulty button:active {
+  transform: scale(1);
+}
+
 @media (max-width: 900px) {
   .game-paused-title h1 {
     font-size: 2rem;
