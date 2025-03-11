@@ -38,8 +38,8 @@ class MatchView(APIView):
 					nextMatchToPlay = match.tournament.find_next_match_to_play(id)
 					if nextMatchToPlay is None:
 						match.tournament.is_finished
-						return Response({'tournamentIsFinished': True, 'tournament': TournamentSerializer(nextMatchToPlay.tournament).data, 'message': 'tournament is finished.'}, status=status.HTTP_200_OK)
-					return Response({'tournamentIsFinished': False,'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data, 'tournament': TournamentSerializer(nextMatchToPlay.tournament).data,
+						return Response({'tournamentIsFinished': True, 'tournament': TournamentSerializer(match.tournament).data, 'message': 'tournament is finished.'}, status=status.HTTP_200_OK)
+					return Response({'tournamentIsFinished': False, 'nextMatchToPlay': MatchSerializer(nextMatchToPlay).data, 'tournament': TournamentSerializer(nextMatchToPlay.tournament).data,
 					   'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
 				return Response({'match': MatchSerializer(match).data, 'message': f'Match with id {id} has been modified.'}, status=status.HTTP_200_OK)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

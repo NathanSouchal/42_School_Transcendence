@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import TournamentABI from "./ContractStoreTournamentABI.json";
 
+const CONTRACT_ABI = TournamentABI.abi;
 const CONTRACT_ADDRESS = "0x769E22976a9B5630e680a4E3b9F1434520aA1A73";
 
 export async function connectWallet() {
@@ -20,7 +21,7 @@ export async function connectWallet() {
 }
 
 function getContract(signer) {
-    return new ethers.Contract(CONTRACT_ADDRESS, TournamentABI, signer);
+    return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 }
 
 export async function storeTournament(rounds, tournamentId) {
@@ -33,10 +34,13 @@ export async function storeTournament(rounds, tournamentId) {
         // Connexion au provider et récupération du signer
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
+        console.log("Metamask account utilisé :", await signer.getAddress());
         const contract = getContract(signer);
 
         // Envoyer la transaction
-        const tx = await contract.storeFullTournament(rounds, tournamentId);
+        const tx = await contract.storeFullTournament(rounds, tournamentId, {
+            gasLimit: 500000
+        });        
         console.log("Transaction send :", tx.hash);
 
         await tx.wait(); // Attente de la confirmation

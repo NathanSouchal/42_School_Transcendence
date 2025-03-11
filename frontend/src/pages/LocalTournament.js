@@ -149,7 +149,7 @@ export default class LocalTournament {
     if (storeBlockchainButton) {
       const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
       if (!this.eventListeners.some((e) => e.name === "storeBlockchainButton")) {
-        playerBtn.addEventListener("click", handleBlockchainStorage);
+        storeBlockchainButton.addEventListener("click", handleBlockchainStorage);
       }
       this.eventListeners.push({
         name: "storeBlockchainButton",
@@ -296,6 +296,7 @@ export default class LocalTournament {
     }
     const tournamentId = this.tournamentId;
     const rounds = this.formatTournamentData();
+    console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2));
 
     console.log("Envoi du tournoi sur la blockchain...", rounds);
 
@@ -313,7 +314,7 @@ export default class LocalTournament {
   }
 
   formatTournamentData() {
-    formatedTournament = this.allTournamentScores.map((round, index) => ({
+    const formatedTournament = this.allTournamentScores.map((round, index) => ({
       roundID: index + 1,
       matches: round.map(match => ({
           player1: match.player1,
