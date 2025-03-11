@@ -221,42 +221,42 @@ export default class GamePage {
 
   renderSelectBotDifficulty() {
     return `
-            <div class="select-difficulty" id="select-difficulty">
-				<button id="easy-btn">Easy</button>
-				<button id="normal-btn">Normal</button>
-				<button id="difficult-btn">Difficult</button>
-            </div>`;
+			  <div class="select-difficulty" id="select-difficulty">
+				  <button id="easy-btn">Easy</button>
+				  <button id="normal-btn">Normal</button>
+				  <button id="difficult-btn">Difficult</button>
+			  </div>`;
   }
 
   renderGameMenu() {
     const { isSearching } = this.state.state;
     return `
-            <div>
-            <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-              <div class="global-nav-section nav-section-game">
-                  <div class="global-nav-items">
-                    <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
-                  </div>
-                  <div class="global-nav-items">
-                    <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
-                  </div>
-                  <div id="start-local-tournament" class="global-nav-items">
-                     <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
-                  </div>
+			  <div>
+			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				<div class="global-nav-section nav-section-game">
+					<div class="global-nav-items">
+					  <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
+					</div>
+					<div class="global-nav-items">
+					  <button id="start-pvr-game">${trad[this.lang].game.pvr}</button>
+					</div>
+					<div id="start-local-tournament" class="global-nav-items">
+					   <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
+					</div>
 
-                  <div class="global-nav-items">
-                    <button id="start-online-pvp-game">
-                      ${
-                        isSearching
-                          ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
-                          : "Online PVP"
-                      }
-                    </button>
-                  </div>
-              </div>
-            </div>
-          </div>
-        `;
+					<div class="global-nav-items">
+					  <button id="start-online-pvp-game">
+						${
+              isSearching
+                ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
+                : "Online PVP"
+            }
+					  </button>
+					</div>
+				</div>
+			  </div>
+			</div>
+		  `;
   }
 
   renderGameHUD() {
@@ -264,58 +264,58 @@ export default class GamePage {
     const { gameIsPaused } = this.state.state;
 
     return `<div class="game-hud">
-				<div class="game-score">
-					<h1 class="display-4 mb-0">${left} - ${right}</h1>
-				</div>
-					<button id="toggle-pause" class="pause-play-btn">
-					<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
-				</button>
-			</div>
-  `;
+				  <div class="game-score">
+					  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+				  </div>
+					  <button id="toggle-pause" class="pause-play-btn">
+					  <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+				  </button>
+			  </div>
+	`;
   }
 
   renderPauseMenu() {
     return `<div>
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-					<div class="global-nav-section">
-						<div class="game-paused-title">
-							<h1>${trad[this.lang].game.paused}</h1>
-						</div>
-						<div class="global-nav-items">
-							<button id="resume-game">${trad[this.lang].game.resume}</button>
-						</div>
-						<div class="global-nav-items">
-							<button id="exit-game">${trad[this.lang].game.quit}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-  `;
+				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					  <div class="global-nav-section">
+						  <div class="game-paused-title">
+							  <h1>${trad[this.lang].game.paused}</h1>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="resume-game">${trad[this.lang].game.resume}</button>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="exit-game">${trad[this.lang].game.quit}</button>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+	`;
   }
 
   renderGameEnded() {
     const { left, right } = this.state.score;
 
     return `
-			<div>
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
-					<div class="global-nav-section">
-						<div class="game-score">
-							<h1 class="display-4 mb-0">${left} - ${right}</h1>
-						</div>
-						<h2 class="mt-2">
-							${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
-						</h2>
-						<div class="global-nav-items">
-							<button id="restart-game">${trad[this.lang].game.playAgain}</button>
-						</div>
-						<div class="global-nav-items">
-							<button id="exit-game">${trad[this.lang].game.back}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-  `;
+			  <div>
+				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					  <div class="global-nav-section">
+						  <div class="game-score">
+							  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+						  </div>
+						  <h2 class="mt-2">
+							  ${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
+						  </h2>
+						  <div class="global-nav-items">
+							  <button id="restart-game">${trad[this.lang].game.playAgain}</button>
+						  </div>
+						  <div class="global-nav-items">
+							  <button id="exit-game">${trad[this.lang].game.back}</button>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+	`;
   }
 
   async render(routeParams = {}) {
@@ -327,10 +327,16 @@ export default class GamePage {
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
+    console.log(
+      "gameStarted :" + gameStarted,
+      " gameIsPaused :" + gameIsPaused,
+      " gameHasBeenWon : " + gameHasBeenWon,
+      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty
+    );
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if ((!gameStarted && !gameHasBeenWon) || !this.haveToSelectBotDifficulty) {
+    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)
@@ -343,6 +349,7 @@ export default class GamePage {
       !gameHasBeenWon &&
       this.haveToSelectBotDifficulty
     ) {
+      alert("ici");
       if (this.lang !== this.state.state.lang)
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);
