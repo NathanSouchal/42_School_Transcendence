@@ -24,7 +24,11 @@ async function main() {
     console.log("Estimated Total Cost in ETH:", ethers.formatEther(estimatedCost));
 
     // Déploiement du contrat
-    const tournament = await upgrades.deployProxy(TournamentContract, [], { initializer: "initialize" });
+    const tournament = await upgrades.deployProxy(TournamentContract, [], {
+        initializer: "initialize",
+        timeout: 120000, // temps en millisecondes (par exemple, 60 secondes)
+        pollingInterval: 5000 // intervalle de vérification
+    });    
     await tournament.waitForDeployment();
     console.log("Smart contract deployed at:", await tournament.getAddress());
 }
