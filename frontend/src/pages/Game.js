@@ -327,10 +327,16 @@ export default class GamePage {
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
+    console.log(
+      "gameStarted :" + gameStarted,
+      " gameIsPaused :" + gameIsPaused,
+      " gameHasBeenWon : " + gameHasBeenWon,
+      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty
+    );
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if ((!gameStarted && !gameHasBeenWon) || !this.haveToSelectBotDifficulty) {
+    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)
@@ -343,6 +349,7 @@ export default class GamePage {
       !gameHasBeenWon &&
       this.haveToSelectBotDifficulty
     ) {
+      alert("ici");
       if (this.lang !== this.state.state.lang)
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);

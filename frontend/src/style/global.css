@@ -341,7 +341,7 @@ canvas#c {
 }
 
 .lang-div.open .lang-menu {
-  display: block;
+  opacity: 1;
 }
 
 .lang-div.open .lang-arrow {
@@ -376,7 +376,7 @@ canvas#c {
 }
 
 .lang-menu {
-  display: none;
+  opacity: 0;
   width: 100%;
   position: absolute;
   top: 45px;
