@@ -3,6 +3,8 @@ import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import { connectWallet, storeTournament } from "../../blockchain/ContractInteraction.js";
+
 
 export default class LocalTournament {
   constructor(state) {
@@ -13,6 +15,8 @@ export default class LocalTournament {
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
+    this.tournamentId = -1;
+    this.allTournamentScores = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
@@ -132,6 +136,20 @@ export default class LocalTournament {
         listener: handlePlayersName,
       });
     }
+
+    const storeBlockchainButton = document.getElementById("store-blockchain-button");
+    if (storeBlockchainButton) {
+      const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "storeBlockchainButton")) {
+        playerBtn.addEventListener("click", handleBlockchainStorage);
+      }
+      this.eventListeners.push({
+        name: "storeBlockchainButton",
+        type: "click",
+        element: storeBlockchainButton,
+        listener: handleBlockchainStorage,
+      });
+    }
   }
 
   handleNavigation(e) {
@@ -226,6 +244,56 @@ export default class LocalTournament {
     router.navigate("/game");
   }
 
+  async handleBlockchainStorage() {
+    if (!this.tournamentFinished) {
+        alert("Tournament is not finished !");
+        return;
+    }
+
+    // Vérifier si Metamask est connecté
+    const userAddress = await connectWallet();
+    if (!userAddress) {
+        alert("Metamask connexion is required !");
+        return;
+    }
+
+    // Récupérer les données du tournoi à envoyer
+    if (this.tournamentId < 0) {
+      alert("Tournament is not yet created !");
+      return;
+    }
+    const tournamentId = this.tournamentId;
+    const rounds = this.formatTournamentData();
+
+    console.log("Envoi du tournoi sur la blockchain...", rounds);
+
+    try {
+        const success = await storeTournament(rounds, tournamentId);
+        if (success) {
+            alert("Tournoi enregistré avec succès sur la blockchain !");
+        } else {
+            alert("Erreur lors de l'enregistrement du tournoi.");
+        }
+    } catch (error) {
+        console.error("Erreur blockchain :", error);
+        alert("Une erreur est survenue, vérifie la console.");
+    }
+  }
+
+  formatTournamentData() {
+    formatedTournament = this.allTournamentScores.map((round, index) => ({
+      roundID: index + 1,
+      matches: round.map(match => ({
+          player1: match.player1,
+          player2: match.player2,
+          scorePlayer1: match.score_player1 || 0,
+          scorePlayer2: match.score_player2 || 0
+      }))
+    }));
+    return formatedTournament;
+  }
+
+
   async matchFinished() {
     let winner = "";
     if (this.state.score.left > this.state.score.right)
@@ -238,11 +306,12 @@ export default class LocalTournament {
         winner: winner,
       });
       console.log(res);
-      if (res.status === 200) {
+      if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
-      } else {
+      } else if (res.status === 200 && res.data.tournamentIsFinished){
+        this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
       }
@@ -260,6 +329,7 @@ export default class LocalTournament {
       });
       this.currentRound = res.data.tournament.rounds_tree[0];
       this.MatchToPlay = res.data.FirstMatch;
+      this.tournamentId = res.data.tournament.id;
       await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
@@ -343,7 +413,11 @@ export default class LocalTournament {
     return `
         ${
           this.tournamentFinished
-            ? `<h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>`
+            ? ` <div class="tournament-finished-div">
+                  <h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>
+                  <button class="store-score-blockchain" id="store-blockchain-button">Store the tournament's results on the blockchain</button>
+                </div>
+              `
             : !this.MatchToPlay.next_match
               ? `<h2 class="round-title">${trad[this.lang].localTournament.final}</h2>`
               : `<h2 class="round-title">${trad[this.lang].localTournament.round}${this.MatchToPlay.round_number}</h2>`
