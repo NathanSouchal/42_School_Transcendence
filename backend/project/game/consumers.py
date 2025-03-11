@@ -280,7 +280,6 @@ class GameState(AsyncWebsocketConsumer):
                 ].get_current_position()
                 await self.sendPositions()
             elif data.get("type") == "pausedOrUnpaused":
-                print(f"gamePaused: {data.get('bool')}")
                 self.rooms[self.room]["isPaused"] = data.get("bool")
         except Exception as e:
             print(f"Error processing message: {text_data}")
