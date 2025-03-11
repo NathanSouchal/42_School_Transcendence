@@ -251,7 +251,7 @@ export default class LocalTournament {
     else if (key === "exit-tournament" || key === "game-menu-button") {
       this.state.setGameEnded();
       this.resetAttributes();
-      //   this.state.gameHasBeenWon = false;
+      this.state.state.gameHasBeenWon = false;
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);

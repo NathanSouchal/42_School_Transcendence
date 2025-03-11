@@ -352,7 +352,6 @@ export default class GamePage {
       !gameHasBeenWon &&
       this.haveToSelectBotDifficulty
     ) {
-      alert("ici");
       if (this.lang !== this.state.state.lang)
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);
