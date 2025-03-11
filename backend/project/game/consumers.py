@@ -173,10 +173,10 @@ class GameState(AsyncWebsocketConsumer):
             last_time = time.time()
             while True:
                 if room in self.rooms:
-                    # print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
+                    print(f"isPaused ? {self.rooms[self.room]['isPaused']}")
                     if (
                         self.game_mode == GameMode.LOCAL
-                        and self.rooms[self.room]["isPaused"] == "true"
+                        and str(self.rooms[self.room]["isPaused"]).lower() == "true"
                     ):
                         await asyncio.sleep(1 / 60)
                         continue
@@ -291,7 +291,7 @@ class GameState(AsyncWebsocketConsumer):
                 # print(f"📤 Envoi des nouvelles positions après paddle_move")
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")
-                # print(f"{data.get('bool')}")
+                print(f"Pause message recieved from frontend : {data.get('bool')}")
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")

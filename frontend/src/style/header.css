@@ -1,10 +1,9 @@
-/* Style des liens de la navbar */
 #header {
   position: absolute;
   font-family: var(--secondary-font);
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -45%); /* Conserve le centrage */
+  transform: translate(-50%, -45%);
   height: 70vh;
   width: 60%;
   min-width: 320px;
@@ -52,8 +51,8 @@
 .navbar-link a:hover {
   color: var(--secondary-color);
   background: var(--primary-color);
-  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
-  transform: translateY(-3px); /* Légère élévation */
+  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5);
+  transform: translateY(-3px);
 }
 
 header .global-nav-section {
@@ -61,20 +60,16 @@ header .global-nav-section {
   white-space: nowrap;
 }
 
-/* Lorsque le menu est ouvert, les liens prennent toute la largeur */
 .navbar.show-nav .navbar-links {
   width: 100%;
   opacity: 1;
 }
 
-/* Liens dans la navbar */
 .navbar-links li {
   list-style: none;
   margin: 0.2rem 0;
   color: var(--primary-color);
 }
-
-/* Bouton burger */
 
 .toggle-button-container {
   position: absolute;

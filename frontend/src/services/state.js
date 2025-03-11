@@ -137,7 +137,7 @@ export default class State {
     if (this.gameMode != "OnlineLeft" && this.gameMode != "OnlineRight") {
       this.gameManager.connect();
     }
-    this.state.gameIsPaused = false;
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.resetScore();
     if (gameMode && gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
@@ -171,7 +171,7 @@ export default class State {
 
   setGameEnded() {
     console.log("setGameEnded()");
-    this.state.gameIsPaused = false;
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.scores.push(this.score);
     this.state.gameStarted = false;
     this.setGameNeedsReset(true);
@@ -187,7 +187,7 @@ export default class State {
   togglePause(bool) {
     if (bool) this.state.gameIsPaused = bool;
     else this.state.gameIsPaused = !this.state.gameIsPaused;
-    // this.gameManager.sendPause(this.state.gameIsPaused);
+    this.gameManager.sendPause(this.state.gameIsPaused);
     this.notifyListeners();
   }
 
@@ -198,7 +198,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();

@@ -72,7 +72,8 @@ API.interceptors.response.use(
     } else if (
       error.response &&
       error.response.status === 404 &&
-      window.location.pathname !== "/social"
+      window.location.pathname !== "/social" &&
+      window.location.pathname !== "/local-tournament"
     ) {
       setTimeout(() => {
         router.navigate("/404");
