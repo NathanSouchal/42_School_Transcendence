@@ -56,7 +56,22 @@ class Ball {
   }
 
   updateRotation(deltaTime) {
-    this.obj.rotateY(3.0 * deltaTime * this.velocity.length());
+    if (this.velocity.length() > 0) {
+      const horizontalVelocity = new THREE.Vector3(
+        this.velocity.x,
+        0,
+        this.velocity.z,
+      );
+      const forwardVector = new THREE.Vector3(0, 0, 1);
+      const crossProduct = new THREE.Vector3().crossVectors(
+        forwardVector,
+        horizontalVelocity,
+      );
+      const rotationDirection = Math.sign(crossProduct.y);
+      const rotationAmount =
+        3.0 * deltaTime * horizontalVelocity.length() * rotationDirection;
+      this.obj.rotateY(rotationAmount);
+    }
   }
 
   make_sparks() {
