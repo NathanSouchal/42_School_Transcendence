@@ -106,7 +106,7 @@ export class GameManager {
     this.side = data.side;
     if (data.opponent_id) {
       console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
       );
     } else {
       console.warn("⚠️ Aucun opponent_id reçu !");
@@ -121,8 +121,11 @@ export class GameManager {
   }
 
   handleCollision(data) {
-    state.ballCollided = true;
-    state.collisionPoint = data.collision;
+    state.collision.ballCollided = true;
+    state.collision.point = data.collision.point;
+    if (data.collision.touchedPaddle) {
+      state.collision.touchedPaddle = data.collision.touchedPaddle;
+    }
   }
 
   handleScored(data) {

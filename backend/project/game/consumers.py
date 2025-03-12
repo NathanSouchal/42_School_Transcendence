@@ -86,7 +86,9 @@ class GameState(AsyncWebsocketConsumer):
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
                 ):
-                    if all(player["user_id"] is not None for player in room_data["players"]):
+                    if all(
+                        player["user_id"] is not None for player in room_data["players"]
+                    ):
                         self.room = room_name
                         roomFound = True
                         break
@@ -168,7 +170,10 @@ class GameState(AsyncWebsocketConsumer):
             print(f"outt!!!!! {len(self.rooms[self.room]['players'])}")
 
             if len(self.rooms[self.room]["players"]) == 2:
-                if all(player["user_id"] is not None for player in self.rooms[self.room]["players"]):
+                if all(
+                    player["user_id"] is not None
+                    for player in self.rooms[self.room]["players"]
+                ):
                     # sending only to one player, as both of them will go through this function eventually
                     opponent_index = 1 if self.player_side == "left" else 0
                     opponent = self.rooms[self.room]["players"][opponent_index]
@@ -179,10 +184,16 @@ class GameState(AsyncWebsocketConsumer):
                                 "type": "hasFoundOpponent",
                                 "side": self.player_side,
                                 "isSourceOfTruth": self.isSourceOfTruth,
-                                "opponent_id": str(self.rooms[self.room]["players"][1 if self.player_side == "left" else 0]["user_id"]),
-                                "opponent_username": self.rooms[self.room]["players"][1 if self.player_side == "left" else 0]["username"],
+                                "opponent_id": str(
+                                    self.rooms[self.room]["players"][
+                                        1 if self.player_side == "left" else 0
+                                    ]["user_id"]
+                                ),
+                                "opponent_username": self.rooms[self.room]["players"][
+                                    1 if self.player_side == "left" else 0
+                                ]["username"],
                             },
-                        cls=NumericEncoder,
+                            cls=NumericEncoder,
                         )
                     )
                     print(f"Second player has been found")
@@ -230,7 +241,7 @@ class GameState(AsyncWebsocketConsumer):
 
                     try:
                         if wall_collision or paddle_collision:
-                            await self.sendCollision(ball.position)
+                            await self.sendCollision(ball.position, paddle_collision)
 
                             if paddle_collision:
                                 ball.bounce(
@@ -339,17 +350,15 @@ class GameState(AsyncWebsocketConsumer):
             )
         )
 
-    async def sendCollision(self, collision):
-
-        collision_data = collision
-        if not isinstance(collision, dict):
-            # Create a simple dict for the vector
-            collision_data = {
+    async def sendCollision(self, collision, touchedPaddle):
+        collision_data = {
+            "point": {
                 "x": collision.x,
                 "y": collision.y,
                 "z": collision.z,
-                "_type": "vector3",
-            }
+            },
+            "touchedPaddle": touchedPaddle,
+        }
 
         if self.game_mode is not GameMode.ONLINE:
             await self.send(
@@ -383,10 +392,6 @@ class GameState(AsyncWebsocketConsumer):
 
     async def sendPositions(self):
         positions = self.rooms[self.room]["positions"]
-        # print(f"📤 Envoi des positions mises à jour : {positions}")  # ✅ DEBUG
-        # print(
-        #     f"⚽ Position actuelle de la balle : {self.rooms[self.room]['positions']['ball']}"
-        # )
         if self.game_mode is not GameMode.ONLINE:
             await self.send(
                 text_data=json.dumps(

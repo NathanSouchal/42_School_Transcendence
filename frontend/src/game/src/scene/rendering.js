@@ -35,9 +35,17 @@ class Renderer {
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime);
         this.game.ball.updateRotation(deltaTime);
-        if (state.ballCollided) {
-          this.game.ball.spawn_sparks(state.collisionPoint);
-          state.ballCollided = false;
+        if (state.collision.ballCollided) {
+          this.game.ball.spawn_sparks(state.collision.point);
+          console.log(`${state.collision.touchedPaddle}`);
+          if (state.collision.touchedPaddle) {
+            if (state.collision.touchedPaddle === "left")
+              this.game.paddleLeft.tap_animation(deltaTime);
+            else if (state.collision.touchedPaddle === "right")
+              this.game.paddleRight.tap_animation(deltaTime);
+            state.collision = {};
+          }
+          state.collision.ballCollided = false;
         }
         this.game.ball.animate_sparks(deltaTime);
       }
