@@ -70,14 +70,16 @@ class GameState(AsyncWebsocketConsumer):
         else:
             self.game_mode = GameMode.LOCAL
 
+        self.room = None
+
         await self.setup_room()
 
     async def setup_room(self):
         user = self.scope["user"]
-        if not user.is_authenticated:
-            print("User not logged in, room access denied")
-            await self.close()
-            return
+        # if not user.is_authenticated:
+        #     print("User not logged in, room access denied")
+        #     await self.close()
+        #     return
 
         roomFound = False
         if self.game_mode == GameMode.ONLINE:
@@ -431,11 +433,13 @@ class GameState(AsyncWebsocketConsumer):
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
 
-        if hasattr(self, "room") and self.room in self.rooms:
+        if hasattr(self, "room") and self.room and self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
 
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
-
-        await self.channel_layer.group_discard(self.room, self.channel_name)
+            if self.channel_layer is not None and isinstance(self.room, str):
+                await self.channel_layer.group_discard(self.room, self.channel_name)
+            else:
+                print("⚠️ Erreur: `self.room` est invalide ou `channel_layer` est None")
