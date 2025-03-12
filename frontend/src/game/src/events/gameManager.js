@@ -104,9 +104,20 @@ export class GameManager {
 
   handleOpponentFound(data) {
     this.side = data.side;
+    if (data.opponent_id) {
+      console.log(
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
+      );
+    } else {
+      console.warn("⚠️ Aucun opponent_id reçu !");
+    }
     state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
     state.isSourceOfTruth = data.isSourceOfTruth;
     state.setIsSearching(false);
+
+    state.state.opponentId = data.opponent_id;
+    state.state.opponentUsername = data.opponent_username;
+    state.state.userSide = data.side;
   }
 
   handleCollision(data) {

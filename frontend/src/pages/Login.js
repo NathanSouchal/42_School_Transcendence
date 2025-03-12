@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  setDisable,
-} from "../utils.js";
+import { handleHeader, updateView, setDisable } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Login {
   constructor(state) {
-	this.pageName = "Login";
+    this.pageName = "Login";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -27,7 +23,7 @@ export default class Login {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
@@ -197,6 +193,8 @@ export default class Login {
   updateUserInfo(data) {
     this.state.state.lang = data.lang;
     this.state.state.userId = data.id.toString();
+    this.state.state.username = data.username;
+    this.state.state.userAlias = data.alias;
     this.state.saveState();
     const selectedLangImg = document.getElementById("selected-lang-img");
     const loading = document.querySelector(".loading-h2");
@@ -286,7 +284,7 @@ export default class Login {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");

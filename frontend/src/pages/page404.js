@@ -1,10 +1,10 @@
-import { handleHeader, updateView} from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class page404 {
   constructor(state) {
-	this.pageName = "page404";
+    this.pageName = "page404";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -65,7 +65,7 @@ export default class page404 {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
     }
