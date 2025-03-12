@@ -26,9 +26,12 @@ async function main() {
     // Déploiement du contrat
     const tournament = await upgrades.deployProxy(TournamentContract, [], {
         initializer: "initialize",
-        timeout: 120000, // temps en millisecondes (par exemple, 60 secondes)
-        pollingInterval: 5000 // intervalle de vérification
-    });    
+        gasPrice: ethers.parseUnits("500", "gwei"),
+        timeout: 30000,          // 5 minutes
+        pollingInterval: 10000,   // Vérification toutes les 10 sec
+    });
+    
+          
     await tournament.waitForDeployment();
     console.log("Smart contract deployed at:", await tournament.getAddress());
 }

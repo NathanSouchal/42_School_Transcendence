@@ -1,16 +1,10 @@
 {
   "manifestVersion": "3.2",
-  "proxies": [
-    {
-      "address": "0xB68419ae2A9b666d5bCF983a87567a4F0ED95Bb4",
-      "txHash": "0xc4678d8b434c197f6e6b694a28261bc94f91efe909f763ba21290fc300d4c296",
-      "kind": "transparent"
-    }
-  ],
+  "proxies": [],
   "impls": {
-    "6b0fb2f8c33711f5d14a2f24203dbb30753b0d25bdb929ee346e4a21c0828fbf": {
-      "address": "0x17f716624C6e7769747c5DDc68345B465e126d24",
-      "txHash": "0xb598f79e3b43e589a8e88f326b2e82955b72f40868ac18c85734743e24af40f8",
+    "a1e369b2ef6b2cabe5e71a14d99c27d54f0a58a4e53168897cf5c721db7c0cd7": {
+      "address": "0xD31884709763A4e6025F258cB6E56d9F33140831",
+      "txHash": "0x061502f87eb2eb82dd218713d3a6fa2d665b4d2a3fffeb86af34075ef464b0ff",
       "layout": {
         "solcVersion": "0.8.28",
         "storage": [
@@ -26,9 +20,9 @@
             "label": "allTournamentsScores",
             "offset": 0,
             "slot": "1",
-            "type": "t_mapping(t_uint256,t_array(t_struct(Round)286_storage)dyn_storage)",
+            "type": "t_mapping(t_uint256,t_array(t_struct(Round)298_storage)dyn_storage)",
             "contract": "StoreTournamentLogic",
-            "src": "contracts/StoreTournamentLogic.sol:19"
+            "src": "contracts/StoreTournamentLogic.sol:22"
           }
         ],
         "types": {
@@ -62,15 +56,15 @@
             "label": "address",
             "numberOfBytes": "20"
           },
-          "t_array(t_struct(Round)286_storage)dyn_storage": {
+          "t_array(t_struct(Round)298_storage)dyn_storage": {
             "label": "struct StoreTournamentLogic.Round[]",
             "numberOfBytes": "32"
           },
-          "t_array(t_struct(TournamentMatch)279_storage)dyn_storage": {
+          "t_array(t_struct(TournamentMatch)291_storage)dyn_storage": {
             "label": "struct StoreTournamentLogic.TournamentMatch[]",
             "numberOfBytes": "32"
           },
-          "t_mapping(t_uint256,t_array(t_struct(Round)286_storage)dyn_storage)": {
+          "t_mapping(t_uint256,t_array(t_struct(Round)298_storage)dyn_storage)": {
             "label": "mapping(uint256 => struct StoreTournamentLogic.Round[])",
             "numberOfBytes": "32"
           },
@@ -78,7 +72,7 @@
             "label": "string",
             "numberOfBytes": "32"
           },
-          "t_struct(Round)286_storage": {
+          "t_struct(Round)298_storage": {
             "label": "struct StoreTournamentLogic.Round",
             "members": [
               {
@@ -89,14 +83,14 @@
               },
               {
                 "label": "matches",
-                "type": "t_array(t_struct(TournamentMatch)279_storage)dyn_storage",
+                "type": "t_array(t_struct(TournamentMatch)291_storage)dyn_storage",
                 "offset": 0,
                 "slot": "1"
               }
             ],
             "numberOfBytes": "64"
           },
-          "t_struct(TournamentMatch)279_storage": {
+          "t_struct(TournamentMatch)291_storage": {
             "label": "struct StoreTournamentLogic.TournamentMatch",
             "members": [
               {

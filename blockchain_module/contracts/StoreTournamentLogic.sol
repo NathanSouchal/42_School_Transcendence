@@ -6,6 +6,9 @@ contract StoreTournamentLogic is Initializable {
     address private _owner; 
     event   ContractInitialized(address owner);
     event   TournamentStored(uint tournamentId, address submittedBy);
+    event Debug(string message, uint value);
+    event DebugAddress(string message, address sender);
+
     struct  TournamentMatch {
         string  player1;
         string  player2;
@@ -25,21 +28,33 @@ contract StoreTournamentLogic is Initializable {
 
     //Ici on ne peut pas directement stocker _round dans allTournamentsScores, car stocker un struct[] qui est en memory dans un mapping qui est en storage n'est pas possible
     function _storeRound(Round memory _round, uint _tournamentId) private {
-        Round storage newRound = allTournamentsScores[_tournamentId].push();
+    emit Debug("Entree dans _storeRound", _round.roundID);
 
-        newRound.roundID = _round.roundID;
-        for(uint i = 0; i < _round.matches.length; i++) {
-            newRound.matches.push(_round.matches[i]);
-        }
+    Round storage newRound = allTournamentsScores[_tournamentId].push();
+    newRound.roundID = _round.roundID;
+
+    for (uint i = 0; i < _round.matches.length; i++) {
+        emit Debug("Ajout du match", i);
+        newRound.matches.push(_round.matches[i]);
     }
+}
+
 
     function storeFullTournament(Round[] memory rounds, uint tournamentId) public {
-        require(rounds.length > 0, "Tournament must have at least one round.");
-        for (uint i = 0; i < rounds.length; i++) {
-            _storeRound(rounds[i], tournamentId);
-        }
-        emit TournamentStored(tournamentId, msg.sender);
+    emit Debug("Debut de storeFullTournament", tournamentId);
+    emit DebugAddress("Transaction envoyee par", msg.sender);
+
+    require(rounds.length > 0, "Tournament must have at least one round.");
+    emit Debug("Nombre de rounds recus", rounds.length);
+
+    for (uint i = 0; i < rounds.length; i++) {
+        emit Debug("Traitement du round", rounds[i].roundID);
+        _storeRound(rounds[i], tournamentId);
     }
+
+    emit TournamentStored(tournamentId, msg.sender);
+}
+
 
     function getTournament(uint tournamentId) public view 
     returns(uint[] memory roundIDs, string[] memory player1s, string[] memory player2s, uint[] memory scorePlayer1s, uint[] memory scorePlayer2s) {
