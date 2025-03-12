@@ -78,6 +78,7 @@ export default class GamePage {
       { id: "easy-btn", action: "easy-btn" },
       { id: "normal-btn", action: "normal-btn" },
       { id: "difficult-btn", action: "difficult-btn" },
+      { id: "cancel-pvp-search", action: "cancel-pvp-search" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -135,8 +136,10 @@ export default class GamePage {
       case "start-online-pvp-game":
         if (!this.state.state.isSearching) {
           this.state.startMatchmaking();
+          await updateView(this, {});
         } else {
           this.state.cancelMatchmaking();
+          await updateView(this, {});
         }
         console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
@@ -153,16 +156,33 @@ export default class GamePage {
       case "toggle-pause":
         this.state.togglePause();
         break;
+      case "cancel-pvp-search":
+        this.state.cancelMatchmaking();
+        await updateView(this, {});
+        break;
     }
     setDisable(false, param);
   }
 
-  //   {
-  //     "player1": "2e9d99d6-e811-494d-b0a0-b49acb0257df",
-  //     "player2": "50c7d428-094a-43cc-a0b1-8a7d23e05b76",
-  //     "score_player1": 8,
-  //     "score_player2": 2
-  // }
+  renderOnlinePVP() {
+    let template;
+
+    if (this.state.state.isSearching)
+      template = `<div class="global-nav-items online-pvp-div">
+					<div class="loading-pvp-game" id="loading-pvp-game">
+						<h2 class="searching-online-pvp">${trad[this.lang].game.searching}</h2>
+						<span class="dot">.</span>
+						<span class="dot">.</span>
+						<span class="dot">.</span>
+					</div>
+					<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>
+				</div>`;
+    else
+      template = `<div class="global-nav-items">
+					<button id="start-online-pvp-game">${trad[this.lang].game.onlineGame}</button>
+				</div>`;
+    return template;
+  }
 
   async saveGame() {
     if (!this.state.isUserLoggedIn) return;
@@ -220,6 +240,7 @@ export default class GamePage {
 
   destroy() {
     this.removeEventListeners();
+    if (this.state.state.isSearching) this.state.cancelMatchmaking();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
@@ -238,9 +259,7 @@ export default class GamePage {
   }
 
   renderGameMenu() {
-    const { isSearching } = this.state.state;
     return `
-			  <div>
 			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 				<div class="global-nav-section nav-section-game">
 					<div class="global-nav-items">
@@ -252,19 +271,9 @@ export default class GamePage {
 					<div id="start-local-tournament" class="global-nav-items">
 					   <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
 					</div>
-
-					<div class="global-nav-items">
-					  <button id="start-online-pvp-game">
-						${
-              isSearching
-                ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
-                : "Online PVP"
-            }
-					  </button>
-					</div>
+					${this.state.isUserLoggedIn ? this.renderOnlinePVP() : ``}
 				</div>
 			  </div>
-			</div>
 		  `;
   }
 

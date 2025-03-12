@@ -219,6 +219,11 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
+    this.formState = {
+      username: "",
+      password: "",
+      passwordConfirmation: "",
+    };
   }
 
   async render(routeParams = {}) {
