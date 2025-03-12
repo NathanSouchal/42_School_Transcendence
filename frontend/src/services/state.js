@@ -41,7 +41,7 @@ export default class State {
     document.getElementById("lang-div").classList.add("hidden");
 
     // this.gamePoints = 10;
-    this.gamePoints = 1;
+    this.gamePoints = 5;
 
     this.botDifficulty = 6;
 

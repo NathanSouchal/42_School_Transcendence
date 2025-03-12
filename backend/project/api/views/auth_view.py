@@ -345,7 +345,7 @@ class IsAuthView(APIView):
 		try:
 			user = request.user
 			print(f'user.id: {user.id}')
-			return Response({'user authenticated': UserSerializer(user).data, 'user_id': user.id, 'username': user.username, 'alias': user.alias}, status=status.HTTP_200_OK)
+			return Response({'user': UserSerializer(user).data, 'user_id': user.id, 'username': user.username, 'alias': user.alias}, status=status.HTTP_200_OK)
 		except AuthenticationFailed:
 			return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

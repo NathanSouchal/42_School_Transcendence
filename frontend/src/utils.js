@@ -73,18 +73,17 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
-    // console.log("Lancement de checkUserStatus");
     const res = await API.get("/auth/is-auth/");
-    // console.log("Reponse recue de Auth");
-    const id = res.data.user_id.toString();
-    // console.log("ID recupere");
-    // console.log(id);
-    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
-    if (id !== state.state.userId) {
-      state.state.userId = id;
-      state.saveState();
+
+    if (!state.isUserLoggedIn) {
+      state.setIsUserLoggedIn(true);
+      return true;
     }
-    // console.log("Fin de checkUserStatus");
+    state.state.lang = res.data.user.lang;
+    state.state.userId = res.data.user.id.toString();
+    state.state.username = res.data.user.username;
+    state.state.userAlias = res.data.user.alias;
+    state.saveState();
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
