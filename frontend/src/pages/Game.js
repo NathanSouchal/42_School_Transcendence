@@ -240,6 +240,7 @@ export default class GamePage {
 
   destroy() {
     this.removeEventListeners();
+    if (this.state.state.isSearching) this.state.cancelMatchmaking();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;

@@ -76,10 +76,10 @@ class GameState(AsyncWebsocketConsumer):
 
     async def setup_room(self):
         user = self.scope["user"]
-        # if not user.is_authenticated:
-        #     print("User not logged in, room access denied")
-        #     await self.close()
-        #     return
+        if not user.is_authenticated:
+            print("User not logged in, room access denied")
+            await self.close()
+            return
 
         roomFound = False
         if self.game_mode == GameMode.ONLINE:
@@ -87,6 +87,7 @@ class GameState(AsyncWebsocketConsumer):
                 if (
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
+                    and room_data["players"][0]["user_id"] != user.id
                 ):
                     if all(player["user_id"] is not None for player in room_data["players"]):
                         self.room = room_name
@@ -422,6 +423,7 @@ class GameState(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         print(f"❌ WebSocket DISCONNECTED: {self.scope['client']}, Code: {close_code}")
         print("      player disconnected !!")
+
         if close_code is None:
             print("⚠️ WebSocket fermé sans code, peut-être une déconnexion inattendue ?")
 
@@ -434,12 +436,23 @@ class GameState(AsyncWebsocketConsumer):
                 print("manage_online_players cancelled properly")
 
         if hasattr(self, "room") and self.room and self.room in self.rooms:
-            if self.channel_name in self.rooms[self.room]["players"]:
-                self.rooms[self.room]["players"].remove(self.channel_name)
+            # Trouver et retirer le joueur de la room
+            leaving_player = next(
+                (player for player in self.rooms[self.room]["players"] if player["channel_name"] == self.channel_name),
+                None
+            )
 
-            if not self.rooms[self.room]["players"]:
-                del self.rooms[self.room]
-            if self.channel_layer is not None and isinstance(self.room, str):
-                await self.channel_layer.group_discard(self.room, self.channel_name)
-            else:
-                print("⚠️ Erreur: `self.room` est invalide ou `channel_layer` est None")
+        if leaving_player:
+            print(f"Removing player {leaving_player['username']} from room {self.room}")
+            self.rooms[self.room]["players"].remove(leaving_player)
+
+        # Supprimer la room si elle est vide
+        if not self.rooms[self.room]["players"]:
+            print(f"Room {self.room} is now empty. Deleting it.")
+            del self.rooms[self.room]
+
+        # Retirer le joueur du groupe Channels
+        if self.channel_layer is not None:
+            await self.channel_layer.group_discard(self.room, self.channel_name)
+        else:
+            print("⚠️ Erreur: `channel_layer` est None")
