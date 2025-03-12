@@ -67,16 +67,30 @@ class GameState(AsyncWebsocketConsumer):
                 print("manage_online_players cancelled properly")
 
         if hasattr(self, "room") and self.room and self.room in self.rooms:
-            if self.channel_name in self.rooms[self.room]["players"]:
-                self.rooms[self.room]["players"].remove(self.channel_name)
+            # Trouver et retirer le joueur de la room
+            leaving_player = next(
+                (
+                    player
+                    for player in self.rooms[self.room]["players"]
+                    if player["channel_name"] == self.channel_name
+                ),
+                None,
+            )
 
-            if not self.rooms[self.room]["players"]:
-                del self.rooms[self.room]
+        if leaving_player:
+            print(f"Removing player {leaving_player['username']} from room {self.room}")
+            self.rooms[self.room]["players"].remove(leaving_player)
 
-        if self.channel_layer is not None and isinstance(self.room, str):
+        # Supprimer la room si elle est vide
+        if not self.rooms[self.room]["players"]:
+            print(f"Room {self.room} is now empty. Deleting it.")
+            del self.rooms[self.room]
+
+        # Retirer le joueur du groupe Channels
+        if self.channel_layer is not None:
             await self.channel_layer.group_discard(self.room, self.channel_name)
         else:
-            print("⚠️ Erreur: `self.room` est invalide ou `channel_layer` est None")
+            print("⚠️ Erreur: `channel_layer` est None")
 
     async def receive(self, text_data):
         try:

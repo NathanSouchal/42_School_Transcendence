@@ -13,10 +13,10 @@ class RoomInitialization:
 
     async def setup_room(self):
         user = self.consumer.scope["user"]
-        # if not user.is_authenticated:
-        #     print("User not logged in, room access denied")
-        #     await self.consumer.close()
-        #     return
+        if not user.is_authenticated:
+            print("User not logged in, room access denied")
+            await self.consumer.close()
+            return
 
         roomFound = False
         if self.consumer.game_mode == GameMode.ONLINE:
