@@ -22,7 +22,6 @@ class Ball {
       side: null,
       time: 0,
     };
-    this.collisionCooldown = 0.1;
   }
 
   async init() {
@@ -74,7 +73,7 @@ class Ball {
 
     this.sparks.material = new THREE.PointsMaterial({
       color: 0xf56342,
-      size: 0.15,
+      size: 0.17,
       transparent: true,
       opacity: 1.0,
     });
@@ -99,18 +98,20 @@ class Ball {
     this.sparks.geometry.attributes.position.needsUpdate = true;
   }
 
-  animate_sparks() {
+  animate_sparks(deltaTime) {
     if (this.sparks.material.opacity > 0) {
-      this.sparks.material.opacity -= 0.03;
-    }
+      this.sparks.material.opacity -= 3.0 * deltaTime;
 
-    let positions = this.sparks.geometry.attributes.position.array;
-    for (let i = 0; i < this.sparks.count; i++) {
-      positions[i * 3] *= 1.2;
-      positions[i * 3 + 1] *= 1.2;
-      positions[i * 3 + 2] *= 1.2;
+      let positions = this.sparks.geometry.attributes.position.array;
+      const expansionRate = 5.0 * deltaTime;
+
+      for (let i = 0; i < this.sparks.count; i++) {
+        positions[i * 3] *= 1 + expansionRate;
+        positions[i * 3 + 1] *= 1 + expansionRate * 0.3;
+        positions[i * 3 + 2] *= 1 + expansionRate;
+      }
+      this.sparks.geometry.attributes.position.needsUpdate = true;
     }
-    this.sparks.geometry.attributes.position.needsUpdate = true;
   }
 }
 
