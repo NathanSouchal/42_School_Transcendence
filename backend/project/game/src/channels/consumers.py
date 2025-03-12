@@ -50,7 +50,7 @@ class GameState(AsyncWebsocketConsumer):
             self.game_mode = GameMode.BACKGROUND
         else:
             self.game_mode = GameMode.LOCAL
-
+        self.room = None
         await self.room_initialization.setup_room()
 
     async def disconnect(self, close_code):
@@ -73,7 +73,10 @@ class GameState(AsyncWebsocketConsumer):
             if not self.rooms[self.room]["players"]:
                 del self.rooms[self.room]
 
-        await self.channel_layer.group_discard(self.room, self.channel_name)
+        if self.channel_layer is not None and isinstance(self.room, str):
+            await self.channel_layer.group_discard(self.room, self.channel_name)
+        else:
+            print("⚠️ Erreur: `self.room` est invalide ou `channel_layer` est None")
 
     async def receive(self, text_data):
         try:
