@@ -132,7 +132,7 @@ export class GameScene {
     this.scene.add(this.sea.obj);
   }
 
-  makeRotatingGroups() {
+  makeSceneGroups() {
     this.sceneToRotateWithCamera = new THREE.Group();
     this.sceneToRotateWithCamera.add(
       this.arena.obj,
@@ -144,17 +144,6 @@ export class GameScene {
     );
     this.sceneToRotateWithCamera.position.set(0, 0, 0);
     this.scene.add(this.sceneToRotateWithCamera);
-
-    // this.sceneToRotateWithoutCamera = new THREE.Group();
-    // this.sceneToRotateWithoutCamera.add(
-    //   this.arena.obj,
-    //   this.ball.obj,
-    //   this.paddleLeft.obj,
-    //   this.paddleRight.obj,
-    //   this.ball.sparks.group,
-    // );
-    // this.sceneToRotateWithoutCamera.position.set(0, 0, 0);
-    // this.scene.add(this.sceneToRotateWithoutCamera);
   }
 
   async init() {
@@ -167,9 +156,8 @@ export class GameScene {
       this.config.getCameraConfig(),
     );
 
-    this.makeRotatingGroups();
+    this.makeSceneGroups();
 
-    this.arena.arenaBox = new THREE.Box3().setFromObject(this.arena.obj, true);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.render(this.scene, this.camera);
@@ -184,7 +172,6 @@ export class GameScene {
       fishFactory: this.fishFactory,
       players: this.players,
       sceneToRotateWithCamera: this.sceneToRotateWithCamera,
-      // sceneToRotateWithoutCamera: this.sceneToRotateWithoutCamera,
     };
 
     this.rendererInstance = new Renderer(

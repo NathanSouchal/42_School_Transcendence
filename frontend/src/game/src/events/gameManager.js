@@ -73,7 +73,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
     );
     this.isConnected = false;
     // this.socket = null;
@@ -146,7 +146,7 @@ export class GameManager {
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,
-        state.ball.vel_z
+        state.ball.vel_z,
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");

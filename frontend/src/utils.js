@@ -46,6 +46,9 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   } else if (!header.isUserRendered && !header.isGuestRendered) {
     if (isUserLoggedIn) header.renderUserLoggedIn();
     else header.renderGuestUser();
+  } else {
+    if (isUserLoggedIn) header.renderUserLoggedIn();
+    else header.renderGuestUser();
   }
 }
 

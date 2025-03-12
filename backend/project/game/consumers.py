@@ -26,6 +26,8 @@ class NumericEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (Decimal, float)):
             return float(obj)
+        elif hasattr(obj, "x") and hasattr(obj, "y") and hasattr(obj, "z"):
+            return {"x": obj.x, "y": obj.y, "z": obj.z, "_type": "vector3"}
         return super().default(obj)
 
 
@@ -228,7 +230,7 @@ class GameState(AsyncWebsocketConsumer):
 
                     try:
                         if wall_collision or paddle_collision:
-                            await self.sendCollision(ball.position.x)
+                            await self.sendCollision(ball.position)
 
                             if paddle_collision:
                                 ball.bounce(
@@ -299,7 +301,6 @@ class GameState(AsyncWebsocketConsumer):
                 ].get_current_position()
                 await self.sendPositions()
             elif data.get("type") == "pausedOrUnpaused":
-                print(f"gamePaused: {data.get('bool')}")
                 self.rooms[self.room]["isPaused"] = data.get("bool")
         except Exception as e:
             print(f"Error processing message: {text_data}")
@@ -339,12 +340,23 @@ class GameState(AsyncWebsocketConsumer):
         )
 
     async def sendCollision(self, collision):
+
+        collision_data = collision
+        if not isinstance(collision, dict):
+            # Create a simple dict for the vector
+            collision_data = {
+                "x": collision.x,
+                "y": collision.y,
+                "z": collision.z,
+                "_type": "vector3",
+            }
+
         if self.game_mode is not GameMode.ONLINE:
             await self.send(
                 text_data=json.dumps(
                     {
                         "type": "collision",
-                        "collision": collision,
+                        "collision": collision_data,
                     },
                     cls=NumericEncoder,
                 )
@@ -354,7 +366,7 @@ class GameState(AsyncWebsocketConsumer):
                 self.room,
                 {
                     "type": "collision",
-                    "collision": collision,
+                    "collision": collision_data,
                 },
             )
 

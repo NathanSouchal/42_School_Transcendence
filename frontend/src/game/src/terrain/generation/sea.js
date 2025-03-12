@@ -7,10 +7,10 @@ class Sea extends BasicTerrain {
   constructor(size, world) {
     super(size, world, false);
     const geometry = new THREE.PlaneGeometry(
-      this.width * 3,
-      this.depth * 3,
-      this.width * 9,
-      this.depth * 9,
+      this.width,
+      this.depth,
+      this.width * 18,
+      this.depth * 18,
     );
 
     this.material = new THREE.ShaderMaterial({

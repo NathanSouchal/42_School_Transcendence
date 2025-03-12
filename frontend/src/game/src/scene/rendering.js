@@ -34,14 +34,14 @@ class Renderer {
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
         this.gameElementsUpdate(deltaTime);
+        this.game.ball.updateRotation(deltaTime);
+        if (state.ballCollided) {
+          this.game.ball.spawn_sparks(state.collisionPoint);
+          state.ballCollided = false;
+        }
+        this.game.ball.animate_sparks(deltaTime);
       }
 
-      this.game.ball.updateRotation(deltaTime);
-      if (state.ballCollided) {
-        this.game.ball.spawn_sparks(state.collisionPoint);
-        state.ballCollided = false;
-      }
-      this.game.ball.animate_sparks();
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
       this.sceneRotationUpdate(deltaTime);
@@ -67,7 +67,6 @@ class Renderer {
     const rotationAngle = 0.02;
     this.game.sceneToRotateWithCamera.rotation.y =
       rotationAngle * this.elapsedTime;
-    // this.camera.rotation.y =
   }
 
   gameElementsUpdate(deltaTime) {
