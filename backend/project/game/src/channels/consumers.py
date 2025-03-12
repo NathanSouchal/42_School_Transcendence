@@ -66,7 +66,7 @@ class GameState(AsyncWebsocketConsumer):
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
 
-        if hasattr(self, "room") and self.room in self.rooms:
+        if hasattr(self, "room") and self.room and self.room in self.rooms:
             if self.channel_name in self.rooms[self.room]["players"]:
                 self.rooms[self.room]["players"].remove(self.channel_name)
 
