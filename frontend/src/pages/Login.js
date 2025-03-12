@@ -249,6 +249,8 @@ export default class Login {
       console.log("Login page unsubscribed from state");
     }
     this.is2fa = false;
+    this.method2fa = null;
+    this.formState = {};
   }
 
   render2FA() {
