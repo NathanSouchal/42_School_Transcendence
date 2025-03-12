@@ -45,10 +45,11 @@
   flex-direction: column;
 }
 
-.select-difficulty button {
+.select-difficulty button,
+.online-pvp-div button {
   width: 100%;
   color: #fff;
-  font-family: "Press Start 2P", cursive;
+  font-family: var(--button-font);
   font-size: 1.2rem;
   font-weight: bold;
   padding: 10px 20px;
@@ -61,6 +62,16 @@
   margin: 1rem;
 }
 
+.online-pvp-div button {
+  width: 40%;
+  font-size: 1rem;
+}
+
+.searching-online-pvp {
+  font-family: var(--button-font);
+  font-size: 1.2rem;
+}
+
 #easy-btn {
   background-color: var(--validate-color);
 }
@@ -69,16 +80,30 @@
   background-color: var(--orange);
 }
 
-#difficult-btn {
+#difficult-btn,
+.online-pvp-div button {
   background-color: var(--danger-color);
 }
 
-.select-difficulty button:hover {
+.select-difficulty button:hover,
+.online-pvp-div button:hover {
   transform: scale(1.1);
 }
 
-.select-difficulty button:active {
+.select-difficulty button:active,
+.online-pvp-div button:active {
   transform: scale(1);
+}
+
+.loading-pvp-game {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex-direction: row;
+}
+
+.loading-pvp-game h2 {
+  margin: auto;
 }
 
 @media (max-width: 900px) {

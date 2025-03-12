@@ -148,29 +148,29 @@
 .main-div-tournament button {
   background-color: #bd352e;
   width: fit-content;
-  color: #fff; /* Couleur du texte */
-  font-family: "Press Start 2P", cursive;
-  font-size: 1.2rem; /* Taille du texte */
+  color: #fff;
+  font-family: var(--button-font);
+  font-size: 1.2rem;
   font-weight: bold;
-  padding: 10px 20px; /* Espace intérieur */
-  border: none; /* Pas de bordure */
-  border-radius: 8px; /* Bordures arrondies */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
-  cursor: pointer; /* Curseur au survol */
-  transition: all 0.3s ease; /*Transition pour un effet fluide */
-  letter-spacing: 1px; /* Espacement des lettres */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
 
 .main-div-tournament button:hover {
   background-color: #a13331;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Augmentation de l'ombre */
-  transform: translateY(-2px); /* Légère élévation */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .main-div-tournament button:active {
   background-color: #792525;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduction de l'ombre */
-  transform: translateY(0); /* Annule l'élévation */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
 }
 
 .stop-button-div {
