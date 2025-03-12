@@ -37,7 +37,6 @@ class Renderer {
         this.game.ball.updateRotation(deltaTime);
         if (state.collision.ballCollided) {
           this.game.ball.spawn_sparks(state.collision.point);
-          console.log(`${state.collision.touchedPaddle}`);
           if (state.collision.touchedPaddle) {
             if (state.collision.touchedPaddle === "left")
               this.game.paddleLeft.tap_animation(deltaTime);
