@@ -196,7 +196,7 @@
 }
 
 .tournament-finished-button-div button:hover {
-  background-color: var(--tertiary-color);
+  background-color: #84300c;
 }
 
 .store-blockchain-button {
