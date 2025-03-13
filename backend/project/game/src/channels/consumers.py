@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from .send_helpers import SendHelpers
 from .room_initialization import RoomInitialization
-from ..utils import GameMode
+from ..utils import GameMode, NumericEncoder
 from ..loop import Loop
 
 
@@ -66,6 +66,8 @@ class GameState(AsyncWebsocketConsumer):
             except asyncio.CancelledError:
                 print("manage_online_players cancelled properly")
 
+        leaving_player = None
+
         if hasattr(self, "room") and self.room and self.room in self.rooms:
             # Trouver et retirer le joueur de la room
             leaving_player = next(
@@ -82,15 +84,18 @@ class GameState(AsyncWebsocketConsumer):
             self.rooms[self.room]["players"].remove(leaving_player)
 
         # Supprimer la room si elle est vide
-        if not self.rooms[self.room]["players"]:
+        if self.room in self.rooms and not self.rooms[self.room]["players"]:
             print(f"Room {self.room} is now empty. Deleting it.")
             del self.rooms[self.room]
 
         # Retirer le joueur du groupe Channels
-        if self.channel_layer is not None:
-            await self.channel_layer.group_discard(self.room, self.channel_name)
+        if self.room:
+            if self.channel_layer is not None:
+                await self.channel_layer.group_discard(self.room, self.channel_name)
+            else:
+                print("⚠️ Erreur: `channel_layer` est None")
         else:
-            print("⚠️ Erreur: `channel_layer` est None")
+            print("⚠️ Impossible de quitter le groupe Channels : self.room est None")
 
     async def receive(self, text_data):
         try:
@@ -112,3 +117,33 @@ class GameState(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
+
+    # async def positions(self, event):
+    #     """Gère les messages de type 'positions' envoyés via group_send()"""
+    #     await self.send(
+    #         text_data=json.dumps({
+    #             "type": "positions",
+    #             "positions": event["positions"],
+    #         }, cls=NumericEncoder)
+    #     )
+
+    # async def collision(self, event):
+    #     """Gère les messages de type 'collision' envoyés via group_send()"""
+    #     await self.send(
+    #         text_data=json.dumps({
+    #             "type": "collision",
+    #             "collision": event["collision"],
+    #         }, cls=NumericEncoder)
+    #     )
+
+    # async def scored_side(self, event):
+    #     """Gère les messages 'scored_side' envoyés via group_send()"""
+    #     await self.send(
+    #         text_data=json.dumps({
+    #             "type": "scored_side",
+    #             "scored_side": event["scored_side"],
+    #         }, cls=NumericEncoder)
+    #     )
+
+
+

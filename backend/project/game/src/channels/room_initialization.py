@@ -59,7 +59,7 @@ class RoomInitialization:
         # Lancement en tâche de fond pour pouvoir l'annuler facilement en cas de déconnexion
         if self.consumer.game_mode == GameMode.ONLINE:
             self.consumer.manage_task = asyncio.create_task(
-                self.consumer.manage_online_players()
+                self.manage_online_players()
             )
         else:
             self.consumer.isSourceOfTruth = False
@@ -122,7 +122,7 @@ class RoomInitialization:
                         opponent_index
                     ]
                     print(f"Envoi des infos de l'adversaire: {opponent}")
-                    await self.consumer.send_helpers.send(
+                    await self.consumer.send(
                         text_data=json.dumps(
                             {
                                 "type": "hasFoundOpponent",
