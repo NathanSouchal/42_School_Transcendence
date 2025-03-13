@@ -314,7 +314,12 @@ export default class GamePage {
 					<h1>${this.rightPlayerName}</h1>
 				  </div>
 					  <button id="toggle-pause" class="pause-play-btn">
-					  <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+					  ${
+              this.state.gameMode !== "OnlineLeft" &&
+              this.state.gameMode !== "OnlineRight"
+                ? `<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>`
+                : ``
+            }
 				  </button>
 			  </div>
 	`;
