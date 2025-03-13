@@ -40,17 +40,21 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
     else header.updateLangGuestUser();
   }
 
-  if (isUserLoggedIn && header.isUserRendered) return;
-
-  if (!isUserLoggedIn && header.isGuestRendered) return;
-
-  header.destroy();
-
-  if (isUserLoggedIn) {
-    header.renderUserLoggedIn();
-  } else {
-    header.renderGuestUser();
+  if (
+    (isUserLoggedIn && !header.isUserRendered) ||
+    (!isUserLoggedIn && !header.isGuestRendered)
+  ) {
+    header.destroy();
+    if (isUserLoggedIn) {
+      header.renderUserLoggedIn();
+    } else {
+      header.renderGuestUser();
+    }
+    return;
   }
+
+  if (isUserLoggedIn && header.isUserRendered) return;
+  if (!isUserLoggedIn && header.isGuestRendered) return;
 }
 
 export function setDisable(bool, id) {

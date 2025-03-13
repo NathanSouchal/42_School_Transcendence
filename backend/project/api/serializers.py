@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers;
 from api.models import Game, User, Tournament, Match, Stats, FriendRequest
 from drf_extra_fields.fields import Base64ImageField
@@ -31,6 +32,8 @@ class SimpleUserSerializer(serializers.ModelSerializer):
     def get_is_online(self, obj):
         return obj.is_online()
 
+FORBIDDEN_USERNAMES = {"guest"}
+
 class UserSerializer(serializers.ModelSerializer):
     # id = serializers.UUIDField(format='hex')
     username = serializers.CharField(min_length=4, max_length=10, required=True, validators=[
@@ -55,6 +58,17 @@ class UserSerializer(serializers.ModelSerializer):
     match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
+
+
+    def validate_username(self, value):
+        if value.lower() in FORBIDDEN_USERNAMES:
+            raise ValidationError("This username is not allowed")
+        return value
+
+    def validate_alias(self, value):
+        if value and value.lower() in FORBIDDEN_USERNAMES:
+            raise ValidationError("This alias is not allowed")
+        return value
 
     class Meta:
         model = User

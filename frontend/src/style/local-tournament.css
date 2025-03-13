@@ -293,23 +293,23 @@
 }
 
 .crab-playernb-select:hover {
-  scale: 1.2;
+  transform: scal(1.2);
 }
 
 .crab-playernb-select:active {
-  scale: 0.9;
+  transform: scale(0.9);
 }
 
 @media (max-width: 600px) {
   .main-div-tournament {
     width: 140%;
-    scale: 0.8;
+    transform: scale(0.8);
   }
   .content-page-tournament {
     width: 100%;
   }
 
   .next-match-main-div button {
-    scale: 0.8;
+    transform: scale(0.8);
   }
 }
