@@ -185,6 +185,7 @@ export default class GamePage {
   }
 
   async saveGame() {
+    alert("post");
     if (!this.state.isUserLoggedIn) return;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
@@ -313,14 +314,15 @@ export default class GamePage {
 					<h1>${left} - ${right}</h1>
 					<h1>${this.rightPlayerName}</h1>
 				  </div>
-					  <button id="toggle-pause" class="pause-play-btn">
-					  ${
-              this.state.gameMode !== "OnlineLeft" &&
-              this.state.gameMode !== "OnlineRight"
-                ? `<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>`
-                : ``
-            }
-				  </button>
+				  ${
+            this.state.gameMode !== "OnlineLeft" &&
+            this.state.gameMode !== "OnlineRight"
+              ? `
+					<button id="toggle-pause" class="pause-play-btn">
+					<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+					</button>`
+              : ``
+          }
 			  </div>
 	`;
   }
