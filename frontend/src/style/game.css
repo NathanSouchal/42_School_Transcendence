@@ -112,6 +112,7 @@
   font-weight: 800;
   color: var(--blue);
   transition: all 0.3s ease-in-out;
+  margin-top: 1rem;
 }
 
 .rules-link-div a {

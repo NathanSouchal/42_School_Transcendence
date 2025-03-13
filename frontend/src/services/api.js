@@ -53,7 +53,8 @@ API.interceptors.response.use(
             window.location.pathname !== "/login" &&
             window.location.pathname !== "/register" &&
             window.location.pathname !== "/game" &&
-            window.location.pathname !== "/local-tournament"
+            window.location.pathname !== "/local-tournament" &&
+            window.location.pathname !== "/rules"
           ) {
             router.navigate("/login");
           }

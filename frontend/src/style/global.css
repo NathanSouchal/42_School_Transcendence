@@ -287,6 +287,10 @@ canvas#c {
   color: var(--primary-color);
 }
 
+.nav-section-game a {
+  margin-bottom: 0 !important;
+}
+
 .global-nav-items a:hover {
   color: var(--secondary-color);
   background: var(--primary-color);
