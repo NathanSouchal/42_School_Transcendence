@@ -272,6 +272,9 @@ export default class GamePage {
 					   <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
 					</div>
 					${this.state.isUserLoggedIn ? this.renderOnlinePVP() : ``}
+					<div id="rules" class="rules-link-div">
+					   <a class="nav-link" href="/rules">${trad[this.lang].game.rules}</a>
+					</div>
 				</div>
 			  </div>
 		  `;

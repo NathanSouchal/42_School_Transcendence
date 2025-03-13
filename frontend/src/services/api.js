@@ -16,16 +16,12 @@ const API = axios.create({
   // }),
 });
 
-document.cookie
-  .split("; ")
-  .forEach((cookie) => console.log("🍪 Cookie envoyé :", cookie));
-
 async function getNewAccessToken() {
   console.log("Getting new access token");
   try {
     const response = await API.post(`/auth/custom-token/access/`);
-	const data = response.data.user
-	state.state.lang = data.lang;
+    const data = response.data.user;
+    state.state.lang = data.lang;
     state.state.userId = data.id.toString();
     state.state.username = data.username;
     state.state.userAlias = data.alias;

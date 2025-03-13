@@ -354,7 +354,7 @@ canvas#c {
 }
 
 .lang-div:hover {
-  scale: 1.1;
+  transform: scale(1.1);
 }
 
 .lang-div.hidden {
@@ -362,11 +362,11 @@ canvas#c {
 }
 
 .lang-div:active {
-  scale: 1;
+  transform: scale(1);
 }
 
 .lang-div.open {
-  scale: 1.1;
+  transform: scale(1.1);
   height: 240px;
   border-radius: 25px;
 }
@@ -451,11 +451,11 @@ canvas#c {
 }
 
 .home-img:hover {
-  scale: 1.2;
+  transform: scale(1.2);
 }
 
 .home-img:active {
-  scale: 0.9;
+  transform: scal(0.9);
 }
 
 @media (max-width: 400px) {
