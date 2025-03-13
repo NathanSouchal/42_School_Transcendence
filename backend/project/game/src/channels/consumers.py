@@ -1,12 +1,13 @@
 import asyncio
 import json
 from urllib.parse import parse_qs
+
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from .send_helpers import SendHelpers
-from .room_initialization import RoomInitialization
-from ..utils import GameMode, NumericEncoder
 from ..loop import Loop
+from ..utils import GameMode, NumericEncoder
+from .room_initialization import RoomInitialization
+from .send_helpers import SendHelpers
 
 
 class GameState(AsyncWebsocketConsumer):
@@ -118,32 +119,35 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
 
-    # async def positions(self, event):
-    #     """Gère les messages de type 'positions' envoyés via group_send()"""
-    #     await self.send(
-    #         text_data=json.dumps({
-    #             "type": "positions",
-    #             "positions": event["positions"],
-    #         }, cls=NumericEncoder)
-    #     )
+    async def positions(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "positions",
+                    "positions": event["positions"],
+                },
+                cls=NumericEncoder,
+            )
+        )
 
-    # async def collision(self, event):
-    #     """Gère les messages de type 'collision' envoyés via group_send()"""
-    #     await self.send(
-    #         text_data=json.dumps({
-    #             "type": "collision",
-    #             "collision": event["collision"],
-    #         }, cls=NumericEncoder)
-    #     )
+    async def collision(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "collision",
+                    "collision": event["collision"],
+                },
+                cls=NumericEncoder,
+            )
+        )
 
-    # async def scored_side(self, event):
-    #     """Gère les messages 'scored_side' envoyés via group_send()"""
-    #     await self.send(
-    #         text_data=json.dumps({
-    #             "type": "scored_side",
-    #             "scored_side": event["scored_side"],
-    #         }, cls=NumericEncoder)
-    #     )
-
-
-
+    async def scored_side(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "type": "scored_side",
+                    "scored_side": event["scored_side"],
+                },
+                cls=NumericEncoder,
+            )
+        )
