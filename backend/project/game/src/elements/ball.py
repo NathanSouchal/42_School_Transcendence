@@ -152,7 +152,8 @@ class Ball:
 
             self.elapsed_time += delta_time
             if self.elapsed_time >= 1.2:
-                side = "left" if self.position.x < 0 else "right"
+                # right and left inverted for score
+                side = "right" if self.position.z < 0 else "left"
                 return f"point_scored_{side}"
         else:
             scaled_velocity = self.velocity.multiply_scalar(
