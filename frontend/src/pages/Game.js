@@ -23,6 +23,8 @@ export default class GamePage {
     this.lang = null;
     this.haveToSelectBotDifficulty = false;
     this.formState = {};
+    this.leftPlayerName = "";
+    this.rightPlayerName = "";
   }
 
   async initialize(routeParams = {}) {
@@ -71,12 +73,12 @@ export default class GamePage {
       { id: "start-pvp-game", action: "start-pvp-game" },
       { id: "start-pvr-game", action: "start-pvr-game" },
       { id: "start-online-pvp-game", action: "start-online-pvp-game" },
-      { id: "restart-game", action: "restart-game" },
       { id: "resume-game", action: "resume-game" },
       { id: "exit-game", action: "exit-game" },
       { id: "easy-btn", action: "easy-btn" },
       { id: "normal-btn", action: "normal-btn" },
       { id: "difficult-btn", action: "difficult-btn" },
+      { id: "cancel-pvp-search", action: "cancel-pvp-search" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -134,16 +136,15 @@ export default class GamePage {
       case "start-online-pvp-game":
         if (!this.state.state.isSearching) {
           this.state.startMatchmaking();
+          await updateView(this, {});
         } else {
           this.state.cancelMatchmaking();
+          await updateView(this, {});
         }
         console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
       case "resume-game":
         this.state.togglePause();
-        break;
-      case "restart-game":
-        this.state.restart();
         break;
       case "exit-game":
         this.state.setGameEnded();
@@ -155,29 +156,55 @@ export default class GamePage {
       case "toggle-pause":
         this.state.togglePause();
         break;
+      case "cancel-pvp-search":
+        this.state.cancelMatchmaking();
+        await updateView(this, {});
+        break;
     }
     setDisable(false, param);
   }
 
-  //   {
-  //     "player1": "2e9d99d6-e811-494d-b0a0-b49acb0257df",
-  //     "player2": "50c7d428-094a-43cc-a0b1-8a7d23e05b76",
-  //     "score_player1": 8,
-  //     "score_player2": 2
-  // }
+  renderOnlinePVP() {
+    let template;
+
+    if (this.state.state.isSearching)
+      template = `<div class="global-nav-items online-pvp-div">
+					<div class="loading-pvp-game" id="loading-pvp-game">
+						<h2 class="searching-online-pvp">${trad[this.lang].game.searching}</h2>
+						<span class="dot">.</span>
+						<span class="dot">.</span>
+						<span class="dot">.</span>
+					</div>
+					<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>
+				</div>`;
+    else
+      template = `<div class="global-nav-items">
+					<button id="start-online-pvp-game">${trad[this.lang].game.onlineGame}</button>
+				</div>`;
+    return template;
+  }
 
   async saveGame() {
-    const { left, right } = this.state.score;
-    console.log("left: " + left + "right: " + right);
     if (!this.state.isUserLoggedIn) return;
+    //No user logged in so no score to save in database
+    if (this.state.state.opponentId && this.state.state.userSide === "left")
+      return;
+    //Right player posts data only
+    const { left, right } = this.state.score;
+
     this.formState.player1 = this.state.state.userId;
-    this.formState.player2 = null;
+    this.formState.player2 = this.state.state.opponentId;
     this.formState.score_player1 = parseInt(right);
     this.formState.score_player2 = parseInt(left);
+
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
       console.error(error);
+    } finally {
+      this.state.state.opponentId = null;
+      this.state.state.opponentUsername = null;
+      this.state.state.userSide = null;
     }
   }
 
@@ -213,6 +240,7 @@ export default class GamePage {
 
   destroy() {
     this.removeEventListeners();
+    if (this.state.state.isSearching) this.state.cancelMatchmaking();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
@@ -231,9 +259,7 @@ export default class GamePage {
   }
 
   renderGameMenu() {
-    const { isSearching } = this.state.state;
     return `
-			  <div>
 			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 				<div class="global-nav-section nav-section-game">
 					<div class="global-nav-items">
@@ -245,29 +271,44 @@ export default class GamePage {
 					<div id="start-local-tournament" class="global-nav-items">
 					   <a class="nav-link" href="/local-tournament">${trad[this.lang].game.local}</a>
 					</div>
-
-					<div class="global-nav-items">
-					  <button id="start-online-pvp-game">
-						${
-              isSearching
-                ? '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Searching opponent...</span></div>'
-                : "Online PVP"
-            }
-					  </button>
-					</div>
+					${this.state.isUserLoggedIn ? this.renderOnlinePVP() : ``}
 				</div>
 			  </div>
-			</div>
 		  `;
   }
 
   renderGameHUD() {
     const { left, right } = this.state.score;
-    const { gameIsPaused } = this.state.state;
+    const { gameIsPaused } = this.state.state.gameIsPaused;
+
+    if (this.state.gameMode === "PVP") {
+      this.leftPlayerName = trad[this.lang].game.player1;
+      this.rightPlayerName = this.state.isUserLoggedIn
+        ? this.state.state.userAlias
+        : trad[this.lang].game.player2;
+    } else if (this.state.gameMode === "PVR") {
+      this.leftPlayerName = trad[this.lang].game.computer;
+      this.rightPlayerName = this.state.isUserLoggedIn
+        ? this.state.state.userAlias
+        : trad[this.lang].game.player;
+    } else if (
+      this.state.gameMode === "OnlineLeft" ||
+      this.state.gameMode === "OnlineRight"
+    ) {
+      if (this.state.state.userSide === "left") {
+        this.leftPlayerName = this.state.state.userAlias;
+        this.rightPlayerName = this.state.state.opponentUsername;
+      } else {
+        this.leftPlayerName = this.state.state.opponentUsername;
+        this.rightPlayerName = this.state.state.userAlias;
+      }
+    }
 
     return `<div class="game-hud">
 				  <div class="game-score">
-					  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+					<h1>${this.leftPlayerName}</h1>
+					<h1>${left} - ${right}</h1>
+					<h1>${this.rightPlayerName}</h1>
 				  </div>
 					  <button id="toggle-pause" class="pause-play-btn">
 					  <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
@@ -297,20 +338,18 @@ export default class GamePage {
 
   renderGameEnded() {
     const { left, right } = this.state.score;
+    console.log("left :" + left + "right : " + right);
 
     return `
 			  <div>
 				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					  <div class="global-nav-section">
-						  <div class="game-score">
-							  <h1 class="display-4 mb-0">${left} - ${right}</h1>
+						  <div class="game-ended-score">
+							  <h1>${left} - ${right}</h1>
 						  </div>
 						  <h2 class="mt-2">
-							  ${left > right ? `${trad[this.lang].game.leftWins}` : `${trad[this.lang].game.rightWins}`}
+							  ${left > right ? `${this.leftPlayerName} ${trad[this.lang].game.wins}` : `${this.rightPlayerName} ${trad[this.lang].game.wins}`}
 						  </h2>
-						  <div class="global-nav-items">
-							  <button id="restart-game">${trad[this.lang].game.playAgain}</button>
-						  </div>
 						  <div class="global-nav-items">
 							  <button id="exit-game">${trad[this.lang].game.back}</button>
 						  </div>

@@ -26,7 +26,7 @@ export default class Register {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
@@ -219,11 +219,16 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
+    this.formState = {
+      username: "",
+      password: "",
+      passwordConfirmation: "",
+    };
   }
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");

@@ -18,6 +18,11 @@ export default class State {
       isSearching: false,
       userId: "0",
       lang: "EN",
+      opponentId: null,
+      opponentUsername: null,
+      userSide: null,
+      username: null,
+      userAlias: null,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
@@ -27,6 +32,8 @@ export default class State {
       this.isUserLoggedIn = savedState.isUserLoggedIn || false;
       this.state.userId = parseInt(savedState.userId) || "0";
       this.state.lang = savedState.lang || "EN";
+      this.state.username = savedState.username || null;
+      this.state.userAlias = savedState.userAlias || null;
     } else this.saveState();
 
     document.getElementById("app").classList.add("hidden");
@@ -34,7 +41,7 @@ export default class State {
     document.getElementById("lang-div").classList.add("hidden");
 
     // this.gamePoints = 10;
-    this.gamePoints = 1;
+    this.gamePoints = 5;
 
     this.botDifficulty = 6;
 
@@ -67,6 +74,7 @@ export default class State {
     this.scores = [];
     this.data = {};
     this.listeners = [];
+    this.collision = {};
 
     State.instance = this;
   }
@@ -81,6 +89,8 @@ export default class State {
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,
+      username: this.state.username,
+      userAlias: this.state.userAlias,
       lang: this.state.lang,
     };
     localStorage.setItem("pongState", JSON.stringify(stateToSave));
@@ -198,7 +208,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();

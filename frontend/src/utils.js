@@ -6,10 +6,11 @@ import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
   const homeImg = document.getElementById("home-img-div");
+  const open = document.querySelector(".open");
   if (homeImg) {
     if (context.pageName === "Home") {
       homeImg.style.opacity = 0;
-    } else {
+    } else if (!open) {
       homeImg.style.opacity = 1;
     }
   }
@@ -18,7 +19,6 @@ export async function updateView(context, routeParams = {}) {
     const template = await context.render(routeParams);
     const sanitizedTemplate = DOMPurify.sanitize(template);
     container.innerHTML = sanitizedTemplate;
-    // Attendre que le DOM soit mis a jour de façon asynchrone
     if (typeof context.removeEventListeners === "function")
       context.removeEventListeners();
     requestAnimationFrame(() => {
@@ -29,23 +29,27 @@ export async function updateView(context, routeParams = {}) {
 }
 
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
-  if (needsToDestroy && !langChange) header.destroy();
-  else if (header.isUserRendered || header.isGuestRendered) {
-    if (needsToDestroy) header.destroy();
-    else if (langChange) {
-      console.log("Lang reset in handleHeader");
-      if (isUserLoggedIn) header.updateLangUserLoggedIn();
-      else if (!isUserLoggedIn) header.updateLangGuestUser();
-    } else if (isUserLoggedIn && !header.isUserRendered) {
-      header.destroy();
-      header.renderUserLoggedIn();
-    } else if (!isUserLoggedIn && !header.isGuestRendered) {
-      header.destroy();
-      header.renderGuestUser();
-    }
-  } else if (!header.isUserRendered && !header.isGuestRendered) {
-    if (isUserLoggedIn) header.renderUserLoggedIn();
-    else header.renderGuestUser();
+  if (needsToDestroy) {
+    header.destroy();
+    if (!langChange) return;
+  }
+
+  if (langChange) {
+    console.log("Lang reset in handleHeader");
+    if (isUserLoggedIn) header.updateLangUserLoggedIn();
+    else header.updateLangGuestUser();
+  }
+
+  if (isUserLoggedIn && header.isUserRendered) return;
+
+  if (!isUserLoggedIn && header.isGuestRendered) return;
+
+  header.destroy();
+
+  if (isUserLoggedIn) {
+    header.renderUserLoggedIn();
+  } else {
+    header.renderGuestUser();
   }
 }
 
@@ -73,18 +77,17 @@ export async function logout() {
 
 export async function checkUserStatus() {
   try {
-    // console.log("Lancement de checkUserStatus");
     const res = await API.get("/auth/is-auth/");
-    // console.log("Reponse recue de Auth");
-    const id = res.data.user_id.toString();
-    // console.log("ID recupere");
-    // console.log(id);
-    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
-    if (id !== state.state.userId) {
-      state.state.userId = id;
-      state.saveState();
+
+    if (!state.isUserLoggedIn) {
+      state.setIsUserLoggedIn(true);
+      return true;
     }
-    // console.log("Fin de checkUserStatus");
+    state.state.lang = res.data.user.lang;
+    state.state.userId = res.data.user.id.toString();
+    state.state.username = res.data.user.username;
+    state.state.userAlias = res.data.user.alias;
+    state.saveState();
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);

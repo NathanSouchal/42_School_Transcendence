@@ -73,7 +73,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
     );
     this.isConnected = false;
     // this.socket = null;
@@ -104,14 +104,28 @@ export class GameManager {
 
   handleOpponentFound(data) {
     this.side = data.side;
+    if (data.opponent_id) {
+      console.log(
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
+      );
+    } else {
+      console.warn("⚠️ Aucun opponent_id reçu !");
+    }
     state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
     state.isSourceOfTruth = data.isSourceOfTruth;
     state.setIsSearching(false);
+
+    state.state.opponentId = data.opponent_id;
+    state.state.opponentUsername = data.opponent_username;
+    state.state.userSide = data.side;
   }
 
   handleCollision(data) {
-    state.ballCollided = true;
-    state.collisionPoint = data.collision;
+    state.collision.ballCollided = true;
+    state.collision.point = data.collision.point;
+    if (data.collision.touchedPaddle) {
+      state.collision.touchedPaddle = data.collision.touchedPaddle;
+    }
   }
 
   handleScored(data) {
@@ -135,7 +149,7 @@ export class GameManager {
       this.game.ball.velocity.set(
         state.ball.vel_x,
         state.ball.vel_y,
-        state.ball.vel_z
+        state.ball.vel_z,
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");

@@ -10,6 +10,7 @@
   --danger-color: #a71611;
   --primary-font: "Madimi One", sans-serif;
   --secondary-font: "Roboto", sans-serif;
+  --button-font: "Press Start 2P", cursive;
 }
 
 /* Largeur de la barre de scroll */
@@ -163,6 +164,36 @@ canvas#c {
   margin-right: 16px;
   font-family: "Creepster", cursive;
   font-family: 48px;
+}
+
+.game-score h1 {
+  width: 33%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.game-endend-score {
+  width: 50%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4%;
+  color: var(--orange);
+  padding: 16px;
+  border-radius: 8px;
+  margin-right: 16px;
+  font-family: "Creepster", cursive;
+  font-family: 48px;
+}
+
+.game-endend-score h1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: auto;
+  color: var(--orange) !important;
 }
 
 .pause-play-btn {

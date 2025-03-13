@@ -139,7 +139,6 @@ class Ball:
         # print(f"🔄 Bounce: Après rebond, Vitesse={self.velocity}")
 
     def update(self, delta_time):
-        # print(f"🔄 Avant update: x={self.position.x}, y={self.position.y}, z={self.position.z}")
         if self.is_falling:
             if self.position.y <= -1:
                 self.velocity.y *= 0.7
@@ -159,17 +158,13 @@ class Ball:
             scaled_velocity = self.velocity.multiply_scalar(
                 delta_time * self.conf["speed"]["deltaFactor"]
             )
-            # print(f"🚀 Vitesse appliquée: dx={scaled_velocity.x}, dy={scaled_velocity.y}, dz={scaled_velocity.z}")
             self.position.add(scaled_velocity)
-
             # Check if ball is out of arena
             if (
                 self.position.z < -self.ARENA_DEPTH / 2
                 or self.position.z > self.ARENA_DEPTH / 2
             ):
                 self.start_falling()
-
-        # print(f"🕹️ Après update: Position={self.position}, Vitesse={self.velocity}")
         return "continue"
 
     def start_falling(self):

@@ -23,7 +23,13 @@ document.cookie
 async function getNewAccessToken() {
   console.log("Getting new access token");
   try {
-    await API.post(`/auth/custom-token/access/`);
+    const response = await API.post(`/auth/custom-token/access/`);
+	const data = response.data.user
+	state.state.lang = data.lang;
+    state.state.userId = data.id.toString();
+    state.state.username = data.username;
+    state.state.userAlias = data.alias;
+    state.saveState();
   } catch (error) {
     state.setIsUserLoggedIn(false);
     console.error(`Error while trying to get new access token : ${error}`);
