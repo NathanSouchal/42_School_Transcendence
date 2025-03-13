@@ -28,6 +28,7 @@ export default class LocalTournament {
     this.userAlias = "";
     this.lang = null;
     this.isProcessing = false;
+    this.tournamentStoredOnBlockchain = false;
   }
 
   async initialize(routeParams = {}) {
@@ -282,6 +283,10 @@ export default class LocalTournament {
         return;
     }
 
+    if (this.tournamentStoredOnBlockchain){
+      alert("Tournament has already been stored !");
+      return;
+    }
     // Vérifier si Metamask est connecté
     const userAddress = await connectWallet();
     if (!userAddress) {
@@ -296,7 +301,7 @@ export default class LocalTournament {
     }
     const tournamentId = this.tournamentId;
     const rounds = this.formatTournamentData();
-    console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2));
+    console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
 
     console.log("Envoi du tournoi sur la blockchain...", rounds);
 
@@ -304,6 +309,7 @@ export default class LocalTournament {
         const success = await storeTournament(rounds, tournamentId);
         if (success) {
             alert("Tournoi enregistré avec succès sur la blockchain !");
+            this.tournamentStoredOnBlockchain = true;
         } else {
             alert("Erreur lors de l'enregistrement du tournoi.");
         }
@@ -462,11 +468,7 @@ export default class LocalTournament {
     return `
         ${
           this.tournamentFinished
-            ? ` <div class="tournament-finished-div">
-                  <h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>
-                  <button class="store-score-blockchain" id="store-blockchain-button">Store the tournament's results on the blockchain</button>
-                </div>
-              `
+            ? `<h2 class="winner-announce">${trad[this.lang].localTournament.winner}${this.tournamentWinner} !</h2>`
             : !this.MatchToPlay.next_match
               ? `<h2 class="round-title">${trad[this.lang].localTournament.final}</h2>`
               : `<h2 class="round-title">${trad[this.lang].localTournament.round}${this.MatchToPlay.round_number}</h2>`
@@ -513,11 +515,21 @@ export default class LocalTournament {
             )
             .join("")}
         </div>
-        <div class="stop-button-div">
-          <button id="game-menu-button">
-            ${!this.MatchToPlay.next_match ? `${trad[this.lang].localTournament.gameMenu}` : `${trad[this.lang].localTournament.stop}`}
-          </button>
-        </div>
+        ${!this.tournamentFinished
+          ? `<div class="stop-button-div">
+              <button id="game-menu-button">
+                ${`${trad[this.lang].localTournament.stop}`}
+              </button>
+            </div>`
+          : `<div class="tournament-finished-button-div">
+              <button id="game-menu-button">
+              ${`${trad[this.lang].localTournament.gameMenu}`}
+              </button>
+              <button class="store-blockchain-button" id="store-blockchain-button">
+                Store the tournament's results on the blockchain
+              </button>
+            </div>`
+        }
     `;
   }
 
@@ -544,6 +556,7 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 
     if (!this.isSubscribed) {

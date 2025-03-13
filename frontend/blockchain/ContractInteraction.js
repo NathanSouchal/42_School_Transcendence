@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import TournamentABI from "./ContractStoreTournamentABI.json";
 
 const CONTRACT_ABI = TournamentABI.abi;
-const CONTRACT_ADDRESS = "0x769E22976a9B5630e680a4E3b9F1434520aA1A73";
+const CONTRACT_ADDRESS = "0xB68419ae2A9b666d5bCF983a87567a4F0ED95Bb4";
 
 export async function connectWallet() {
     if (!window.ethereum) {

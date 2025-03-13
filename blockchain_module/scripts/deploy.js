@@ -26,7 +26,7 @@ async function main() {
     // Déploiement du contrat
     const tournament = await upgrades.deployProxy(TournamentContract, [], {
         initializer: "initialize",
-        gasPrice: ethers.parseUnits("500", "gwei"),
+        // gasPrice: ethers.parseUnits("500", "gwei"),
         timeout: 30000,          // 5 minutes
         pollingInterval: 10000,   // Vérification toutes les 10 sec
     });

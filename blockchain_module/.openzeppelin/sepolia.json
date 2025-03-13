@@ -1,6 +1,11 @@
 {
   "manifestVersion": "3.2",
-  "proxies": [],
+  "proxies": [
+    {
+      "address": "0xB68419ae2A9b666d5bCF983a87567a4F0ED95Bb4",
+      "kind": "transparent"
+    }
+  ],
   "impls": {
     "a1e369b2ef6b2cabe5e71a14d99c27d54f0a58a4e53168897cf5c721db7c0cd7": {
       "address": "0xD31884709763A4e6025F258cB6E56d9F33140831",
@@ -145,7 +150,11 @@
             }
           ]
         }
-      }
+      },
+      "allAddresses": [
+        "0xD31884709763A4e6025F258cB6E56d9F33140831",
+        "0x17f716624C6e7769747c5DDc68345B465e126d24"
+      ]
     }
   }
 }
