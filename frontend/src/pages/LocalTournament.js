@@ -465,6 +465,7 @@ export default class LocalTournament {
   }
 
   renderTournament() {
+    console.log("MATCH-LIST: ", this.currentRound);
     return `
         ${
           this.tournamentFinished
