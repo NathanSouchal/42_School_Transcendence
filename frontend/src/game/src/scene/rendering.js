@@ -33,7 +33,7 @@ class Renderer {
       this.previousTime = currentTime;
 
       if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
-        this.gameElementsUpdate(deltaTime);
+        this.paddlesInputUpdates(deltaTime);
         this.game.ball.updateRotation(deltaTime);
         if (state.collision.ballCollided) {
           this.game.ball.spawn_sparks(state.collision.point);
@@ -48,6 +48,8 @@ class Renderer {
         }
         this.game.ball.animate_sparks(deltaTime);
       }
+
+      this.updateElementsPositions(deltaTime);
 
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
@@ -64,6 +66,49 @@ class Renderer {
     requestAnimationFrame(render);
   }
 
+  updateElementsPositions() {
+    const positions = this.gameManager.positions;
+
+    // Update paddle positions directly
+    this.game.paddleLeft.obj.position.x = positions.paddles.left.pos;
+    this.game.paddleRight.obj.position.x = positions.paddles.right.pos;
+
+    // Get current client time and server timestamp
+    const currentClientTime = Date.now() / 1000; // Convert to seconds to match Python's time.time()
+    const serverTimestamp = positions.timestamp;
+
+    // Calculate how old the server data is
+    const dataAge = currentClientTime - serverTimestamp;
+
+    // Set a threshold for when to use prediction (e.g., 100ms)
+    const predictionThreshold = 0.02; // seconds
+
+    if (dataAge > predictionThreshold && positions.ball.vel) {
+      // Server data is old, use velocity to predict current position
+      //console.log("predicting");
+      const predictedX = positions.ball.pos.x + positions.ball.vel.x * dataAge;
+      const predictedY = positions.ball.pos.y + positions.ball.vel.y * dataAge;
+      const predictedZ = positions.ball.pos.z + positions.ball.vel.z * dataAge;
+
+      this.game.ball.obj.position.set(predictedX, predictedY, predictedZ);
+    } else {
+      // Server data is recent enough, use it directly
+      //console.log("using server data");
+      this.game.ball.obj.position.set(
+        positions.ball.pos.x,
+        positions.ball.pos.y,
+        positions.ball.pos.z,
+      );
+    }
+
+    // Always predict velocity
+    this.game.ball.velocity.set(
+      positions.ball.vel.x,
+      positions.ball.vel.y,
+      positions.ball.vel.z,
+    );
+  }
+
   sceneRotationUpdate(deltaTime) {
     this.elapsedTime += deltaTime;
     // Rocking
@@ -76,7 +121,7 @@ class Renderer {
       rotationAngle * this.elapsedTime;
   }
 
-  gameElementsUpdate(deltaTime) {
+  paddlesInputUpdates(deltaTime) {
     if (state.gameMode != "OnlineLeft") {
       this.game.paddleRight.player.update(
         deltaTime,

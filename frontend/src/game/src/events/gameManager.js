@@ -7,18 +7,24 @@ export class GameManager {
     this.side = null;
     this.isConnected = false;
     this.socket = null;
+    this.positions = {};
+    this.positions.ball = {};
+    this.positions.paddles = {};
+    this.positions.paddles.left = {};
+    this.positions.paddles.right = {};
+    this.positions.ball.pos = new position();
+    this.positions.ball.vel = new position();
+    this.positions.paddles.left.pos = 0;
+    this.positions.paddles.right.pos = 0;
+    this.positions.paddles.left.vel = 0;
+    this.positions.paddles.right.vel = 0;
   }
 
   async connect() {
     console.log("connect()");
 
-    // Close any existing connection first
     await this.closeExistingConnection();
-
-    // Create a new connection
     this.createNewConnection();
-
-    // Set up all event handlers
     this.setupSocketEventHandlers();
   }
 
@@ -88,7 +94,7 @@ export class GameManager {
     const data = JSON.parse(event.data);
     switch (data.type) {
       case "positions":
-        this.updatePositions(data.positions);
+        this.handlePositions(data.positions, data.timestamp);
         break;
       case "hasFoundOpponent":
         this.handleOpponentFound(data);
@@ -137,23 +143,24 @@ export class GameManager {
     this.isConnected = false;
   }
 
-  updatePositions(state) {
-    if (state.paddle_left !== undefined) {
-      this.game.paddleLeft.obj.position.x = state.paddle_left;
+  handlePositions(data, timestamp) {
+    if (data.paddle_left !== undefined) {
+      this.positions.paddles.left.pos = data.paddle_left;
     }
-    if (state.paddle_right !== undefined) {
-      this.game.paddleRight.obj.position.x = state.paddle_right;
+    if (data.paddle_right !== undefined) {
+      this.positions.paddles.right.pos = data.paddle_right;
     }
-    if (state.ball) {
-      this.game.ball.obj.position.set(state.ball.x, state.ball.y, state.ball.z);
-      this.game.ball.velocity.set(
-        state.ball.vel_x,
-        state.ball.vel_y,
-        state.ball.vel_z,
+    if (data.ball) {
+      this.positions.ball.pos.set(data.ball.x, data.ball.y, data.ball.z);
+      this.positions.ball.vel.set(
+        data.ball.vel_x,
+        data.ball.vel_y,
+        data.ball.vel_z,
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");
     }
+    this.positions.timestamp = timestamp;
   }
 
   reconnect() {
@@ -163,6 +170,10 @@ export class GameManager {
     }
   }
 
+  isSocketReady() {
+    return this.socket && this.socket.readyState === WebSocket.OPEN;
+  }
+
   sendMessage(data) {
     if (!this.isSocketReady()) {
       console.warn("WebSocket is not in OPEN state");
@@ -170,10 +181,6 @@ export class GameManager {
       return;
     }
     this.socket.send(JSON.stringify(data));
-  }
-
-  isSocketReady() {
-    return this.socket && this.socket.readyState === WebSocket.OPEN;
   }
 
   sendPaddleMove(direction, side, deltaTime) {
