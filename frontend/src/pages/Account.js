@@ -8,6 +8,8 @@ import {
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
+
 export default class Account {
   constructor(state) {
     this.pageName = "Account";
@@ -312,6 +314,8 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
+      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      else this.userData.avatar = "/profile.jpeg";
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
       this.formData.email = data.user.email;
@@ -321,6 +325,15 @@ export default class Account {
       console.error("Error while trying to get data:", error);
       this.userData = {};
       throw error;
+    }
+  }
+
+  async buildAvatarImgLink(link) {
+    try {
+      const res = await axios.head(`${API_BASE_URL}${link}`);
+      if (res.status === 200) this.userData.avatar = `${API_BASE_URL}${link}`;
+    } catch (error) {
+      this.userData.avatar = "/profile.jpeg";
     }
   }
 
@@ -479,7 +492,7 @@ export default class Account {
             ? `<div id="userinfo-main-div">
 				<form id="user-form">
 			 	<div class="input-main-div" id="avatar-main-div">
-					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					<img src="${this.userData.avatar}">
 					<div class="input-div file-input-div">
 						<label class="file-label" for="avatar">
 							${trad[this.lang].account.fileLabel}
@@ -614,7 +627,7 @@ export default class Account {
             : `
 			  <div id="userinfo-main-div">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-				${this.userData.avatar ? `<img src="https://localhost:8443/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+				<img src="${this.userData.avatar}">
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">

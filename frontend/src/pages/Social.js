@@ -28,7 +28,7 @@ export default class Social {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
@@ -36,40 +36,6 @@ export default class Social {
 
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, {});
-  }
-
-  async getFriends(id) {
-    try {
-      const res = await API.get(`/friends/list/${id}/`);
-      const data = res.data.friend_list;
-      this.friends = data;
-      console.log(
-        "Friends: " +
-          Object.entries(this.friends).map(
-            ([key, value]) =>
-              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
-          )
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async getInvitations(id) {
-    try {
-      const res = await API.get(`/friend-requests/byuser/${id}/`);
-      const data = res.data.pending_friend_requests;
-      this.invitations = data;
-      console.log(
-        "Invitations: " +
-          Object.entries(this.invitations).map(
-            ([key, value]) =>
-              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
-          )
-      );
-    } catch (error) {
-      console.error(error);
-    }
   }
 
   attachEventListeners() {
@@ -130,6 +96,58 @@ export default class Social {
         element: searchFriendForm,
         listener: searchBarUserRequest,
       });
+    }
+  }
+
+  async buildAvatarImgLink(link) {
+    try {
+      const res = await axios.head(`${API_BASE_URL}${link}`);
+      if (res.status === 200) return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async getFriends(id) {
+    try {
+      const res = await API.get(`/friends/list/${id}/`);
+      this.friends = res.data.friend_list;
+      for (let friend of this.friends) {
+        if (friend.avatar) {
+          const res = await this.buildAvatarImgLink(friend.avatar);
+          if (res) friend.avatar = `${API_BASE_URL}${friend.avatar}`;
+          else friend.avatar = "/profile.jpeg";
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async getInvitations(id) {
+    try {
+      const res = await API.get(`/friend-requests/byuser/${id}/`);
+      this.invitations = res.data.pending_friend_requests;
+      for (let invitation of this.invitations) {
+        if (invitation.from_user && invitation.from_user.avatar) {
+          const res = await this.buildAvatarImgLink(
+            invitation.from_user.avatar
+          );
+          if (res)
+            invitation.from_user.avatar = `${API_BASE_URL}${invitation.from_user.avatar}`;
+          else invitation.from_user.avatar = "/profile.jpeg";
+        }
+      }
+      for (let invitation of this.invitations) {
+        if (invitation.to_user && invitation.to_user.avatar) {
+          const res = await this.buildAvatarImgLink(invitation.to_user.avatar);
+          if (res)
+            invitation.to_user.avatar = `${API_BASE_URL}${invitation.to_user.avatar}`;
+          else invitation.to_user.avatar = "/profile.jpeg";
+        }
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -250,7 +268,7 @@ export default class Social {
     await this.getInvitations(this.state.state.userId);
 
     if (!this.isSubscribed) {
-		this.previousState = { ...this.state.state };
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Social page subscribed to state");
@@ -283,7 +301,7 @@ export default class Social {
                             (value) => `
                       <div class="friends-item-social">
                         <div class="friends-item-img-username">
-                          <img width="50" height="50" src="https://127.0.0.1:8000/${value.avatar}" class="rounded-circle">
+                          <img width="50" height="50" src="${value.avatar}" class="rounded-circle">
                           <a href="/user/${value.id}/">
                             ${value.username}
                           </a>
@@ -319,7 +337,7 @@ export default class Social {
                         <div class="invitation-item-social">
                           <a href="/user/${value.to_user.id}/">
                             <div class="invitation-item-img-username">
-                              <img width="50" height="50" src="https://127.0.0.1:8000/${value.to_user.avatar}" class="rounded-circle">
+                              <img width="50" height="50" src="${value.to_user.avatar}" class="rounded-circle">
                               <p>${value.to_user.username}${trad[this.lang].social.waitingAcceptation}</p>
                             </div>
                           </a>
@@ -330,7 +348,7 @@ export default class Social {
                         <div class="invitation-item-social">
                           <a href="/user/${value.from_user.id}/">
                             <div class="invitation-item-img-username">
-                              <img width="50" height="50" src="https://127.0.0.1:8000/${value.from_user.avatar}" class="rounded-circle">
+                              <img width="50" height="50" src="${value.from_user.avatar}" class="rounded-circle">
                               <p>${value.from_user.username}</p>
                             </div>
                           </a>
