@@ -32,7 +32,7 @@ export default class State {
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
       this.isUserLoggedIn = savedState.isUserLoggedIn || false;
-      this.state.userId = parseInt(savedState.userId) || "0";
+      this.state.userId = savedState.userId || "0";
       this.state.lang = savedState.lang || "EN";
       this.state.username = savedState.username || null;
       this.state.userAlias = savedState.userAlias || null;
