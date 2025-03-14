@@ -96,7 +96,6 @@ export async function logout() {
 export async function checkUserStatus() {
   try {
     const res = await API.get("/auth/is-auth/");
-
     if (!state.isUserLoggedIn) {
       state.setIsUserLoggedIn(true);
       state.state.lang = res.data.user.lang;
@@ -104,9 +103,7 @@ export async function checkUserStatus() {
       state.state.username = res.data.user.username;
       state.state.userAlias = res.data.user.alias;
       state.saveState();
-      return true;
     }
-
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
