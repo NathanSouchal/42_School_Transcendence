@@ -14,6 +14,18 @@ export async function updateView(context, routeParams = {}) {
       homeImg.style.opacity = 1;
     }
   }
+  const selectedLangImg = document.getElementById("selected-lang-img");
+  if ((state.state.lang !== context.lang) & selectedLangImg)
+    if (state.state.lang === "EN") {
+      selectedLangImg.src = "english.jpg";
+    } else if (state.state.lang === "ES") {
+      selectedLangImg.src = "spanish.jpg";
+    } else if (state.state.lang === "FR") {
+      selectedLangImg.src = "french.jpg";
+    } else if (state.state.lang === "CR") {
+      selectedLangImg.src = "crab.jpg";
+    }
+
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render(routeParams);
@@ -70,6 +82,8 @@ export async function logout() {
     state.state.userId = "0";
     state.state.lang = "EN";
     state.saveState();
+    const selectedLangImg = document.getElementById("selected-lang-img");
+    if (selectedLangImg) selectedLangImg.src = "english.jpg";
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);
@@ -85,13 +99,14 @@ export async function checkUserStatus() {
 
     if (!state.isUserLoggedIn) {
       state.setIsUserLoggedIn(true);
+      state.state.lang = res.data.user.lang;
+      state.state.userId = res.data.user.id.toString();
+      state.state.username = res.data.user.username;
+      state.state.userAlias = res.data.user.alias;
+      state.saveState();
       return true;
     }
-    state.state.lang = res.data.user.lang;
-    state.state.userId = res.data.user.id.toString();
-    state.state.username = res.data.user.username;
-    state.state.userAlias = res.data.user.alias;
-    state.saveState();
+
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);

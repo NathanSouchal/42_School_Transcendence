@@ -1,3 +1,5 @@
+import { checkUserStatus } from "../utils";
+
 export default class State {
   constructor() {
     if (State.instance) {
@@ -123,42 +125,37 @@ export default class State {
   }
 
   setGameStarted(gameMode) {
-    // console.log(`setGameStarted called with ${gameMode}`);
-    if (gameMode) {
-      this.gameMode = gameMode;
-      switch (gameMode) {
-        case "PVR":
-          this.players = this.player_types.PVR;
-          break;
-        case "PVP":
-          this.players = this.player_types.PVP;
-          break;
-        case "OnlineLeft":
-          this.players = this.player_types.OnlineLeft;
-          break;
-        case "OnlineRight":
-          this.players = this.player_types.OnlineRight;
-          break;
-        case "default":
-          this.players = this.player_types.default;
-          break;
-      }
-    }
-    if (this.gameMode != "OnlineLeft" && this.gameMode != "OnlineRight") {
+    if (
+      !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
+    )
+      gameMode = "default";
+    this.gameMode = gameMode;
+    this.players = this.player_types[gameMode];
+
+    if (this.gameMode !== "OnlineLeft" && this.gameMode !== "OnlineRight")
       this.gameManager.connect();
-    }
+
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
+
     this.resetScore();
-    if (gameMode && gameMode !== "default") this.state.gameStarted = true;
+    if (gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
   }
 
   async startMatchmaking() {
+    if (this.state.isSearching) {
+      console.warn("Matchmaking is already in progress!");
+      return;
+    }
     this.setIsSearching(true);
     this.gameMode = "Online";
     console.log("Starting Machmaking");
-    this.gameManager.connect();
+    if (this.gameManager) this.gameManager.connect();
+    else {
+      console.error("GameManager is not initialized!");
+      return;
+    }
     while (this.state.isSearching) {
       console.log("Searching for opponent...");
       await new Promise((resolve) => setTimeout(resolve, 300));
@@ -168,7 +165,7 @@ export default class State {
 
   cancelMatchmaking() {
     this.setIsSearching(false);
-    this.gameManager.socket.close();
+    if (this.gameManager?.socket) this.gameManager.socket.close();
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
     this.setGameStarted("default");
@@ -186,7 +183,7 @@ export default class State {
     this.state.gameStarted = false;
     this.setGameNeedsReset(true);
     this.notifyListeners();
-    this.gameManager.socket.close();
+    if (this.gameManager?.socket) this.gameManager.socket.close();
   }
 
   backToBackgroundPlay() {
@@ -208,7 +205,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();
@@ -218,6 +215,10 @@ export default class State {
   }
 
   resetScore() {
+    if (this.state.gameStarted) {
+      console.warn("Attempted to reset score while the game is in progress.");
+      return;
+    }
     this.score = { left: 0, right: 0 };
   }
 
