@@ -352,8 +352,8 @@ export default class Account {
       }
       const res = await API.put(`/user/${id}/`, this.formData);
       console.log(res);
-      this.state.state.username = data.username;
-      this.state.state.userAlias = data.alias;
+      this.state.state.username = res.data.username;
+      this.state.state.userAlias = res.data.alias;
       this.state.saveState();
     } catch (error) {
       if (
