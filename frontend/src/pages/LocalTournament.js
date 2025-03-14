@@ -526,7 +526,7 @@ export default class LocalTournament {
               ${`${trad[this.lang].localTournament.gameMenu}`}
               </button>
               <button class="store-blockchain-button" id="store-blockchain-button">
-                Store the tournament's results on the Sepolia blockchain
+                 ${`${trad[this.lang].localTournament.storeBlockchain}`}
               </button>
             </div>`
         }
