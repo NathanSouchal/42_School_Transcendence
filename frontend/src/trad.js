@@ -262,7 +262,7 @@ export const trad = {
       alias: "Alias :",
       addFriend: "Ajouter",
       unfriend: "Retirer",
-      cancel: "Annuler l'invitation'",
+      cancel: "Annuler l'invitation",
       accept: "Accepter l'invitation",
       delete: "Refuser l'invitation",
     },
