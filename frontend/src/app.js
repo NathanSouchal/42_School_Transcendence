@@ -10,6 +10,7 @@ import State from "./services/state.js";
 import MatchHistory from "./pages/MatchHistory.js";
 import Social from "./pages/Social.js";
 import LocalTournament from "./pages/LocalTournament.js";
+import Rules from "./pages/Rules.js";
 import page404 from "./pages/page404.js";
 import page500 from "./pages/page500.js";
 import { Header } from "./components/Header.js";
@@ -34,6 +35,7 @@ const routes = {
   "/social": new Social(state),
   "/local-tournament": new LocalTournament(state),
   "/user/:id/": new User(state),
+  "/rules": new Rules(state),
   "/404": new page404(state),
   "/500": new page500(state),
 };

@@ -106,6 +106,31 @@
   margin: auto;
 }
 
+.rules-link-div {
+  font-style: italic;
+  font-family: var(--secondary-font);
+  font-weight: 800;
+  color: var(--blue);
+  transition: all 0.3s ease-in-out;
+  margin-top: 1rem;
+}
+
+.rules-link-div a {
+  letter-spacing: 0.1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.rules-link-div a:hover {
+  color: rgb(61, 127, 184);
+  transform: translateY(-2px);
+  transform: translateX(-1px);
+  letter-spacing: 0.3rem;
+}
+
+.rules-link-div a:active {
+  transform: scale(0.9);
+}
+
 @media (max-width: 900px) {
   .game-paused-title h1 {
     font-size: 2rem;
