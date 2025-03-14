@@ -349,6 +349,8 @@ export default class LocalTournament {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
+        this.currentRound.sort((a, b) => a.id - b.id);
+        
       } else if (res.status === 200 && res.data.tournamentIsFinished){
         this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;

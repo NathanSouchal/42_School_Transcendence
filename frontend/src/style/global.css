@@ -21,7 +21,7 @@
 
 /* Fond de la scrollbar */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: transparent;
   border-radius: 10px; /* Coins arrondis */
 }
 
@@ -29,7 +29,6 @@
 ::-webkit-scrollbar-thumb {
   background: #ff660081; /* Couleur de la barre */
   border-radius: 10px;
-  border: 2px solid #f1f1f1; /* Effet d'encadrement */
 }
 
 /* Curseur au survol */
