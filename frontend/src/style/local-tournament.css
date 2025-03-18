@@ -6,6 +6,7 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 1em;
+  margin-top: 10vh;
 }
 
 .round-title {

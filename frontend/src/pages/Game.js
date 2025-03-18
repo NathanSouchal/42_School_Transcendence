@@ -265,7 +265,7 @@ export default class GamePage {
   renderGameMenu() {
     handleLangDiv(false);
     return `
-			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+			  <div class="position-relative d-flex justify-content-center align-items-center">
 				<div class="global-nav-section nav-section-game">
 					<div class="global-nav-items">
 					  <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
