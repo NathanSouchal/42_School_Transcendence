@@ -403,8 +403,8 @@ export default class Account {
         throw new Error(trad[this.lang].errors.phone);
       }
       const res = await API.put(`/user/${id}/`, this.formData);
-      this.state.state.username = res.data.username;
-      this.state.state.userAlias = res.data.alias;
+      this.state.state.username = res.data.user.username;
+      this.state.state.userAlias = res.data.user.alias;
       this.state.saveState();
     } catch (error) {
       if (
@@ -423,7 +423,8 @@ export default class Account {
           this.displayAccountErrorMessage(errorData.no_email);
         else if (errorData.wrong_avatar)
           this.displayAccountErrorMessage(errorData.wrong_avatar);
-      }
+      } else if (error.response && error.response.status === 409)
+        this.displayAccountErrorMessage(error.response.data.error);
       console.error(`Error while trying to update user data : ${error}`);
       throw error;
     } finally {
