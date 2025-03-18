@@ -119,13 +119,10 @@ class GameState(AsyncWebsocketConsumer):
             data = json.loads(text_data)
 
             if data.get("type") == "paddle_move":
-                direction = data.get("direction")
+                action = data.get("action")
                 side = data.get("side")
-                delta_time = float(data.get("deltaTime"))
                 positions = self.rooms[self.room]["positions"]
-                positions["paddles"][f"{side}"]["pos"] = self.rooms[self.room][
-                    "paddles"
-                ][side].move(direction, delta_time)
+                self.rooms[self.room]["paddles"][side].action = action
                 positions["ball"] = self.rooms[self.room]["ball"].getCurrentState()
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")

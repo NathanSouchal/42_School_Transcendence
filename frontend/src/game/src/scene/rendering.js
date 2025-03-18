@@ -68,13 +68,9 @@ class Renderer {
 
   updateElementsPositions() {
     const positions = this.gameManager.positions;
-
-    // Get current client time and server timestamp
     const currentClientTime = Date.now() / 1000; // Convert to seconds to match Python's time.time()
     const serverTimestamp = positions.timestamp;
-    // Calculate how old the server data is
     const dataAge = currentClientTime - serverTimestamp;
-    // Set a threshold for when to use prediction (e.g., 100ms)
     const predictionThreshold = 0.01; // seconds
 
     if (dataAge > predictionThreshold && positions.ball.vel) {

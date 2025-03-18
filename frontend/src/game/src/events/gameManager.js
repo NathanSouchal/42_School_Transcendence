@@ -187,11 +187,11 @@ export class GameManager {
     this.socket.send(JSON.stringify(data));
   }
 
-  sendPaddleMove(direction, side, deltaTime) {
+  sendPaddleMove(action, side, deltaTime) {
     this.sendMessage({
       type: "paddle_move",
       side: side,
-      direction: direction,
+      action: action,
       deltaTime: deltaTime,
     });
   }

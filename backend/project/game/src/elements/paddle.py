@@ -6,15 +6,16 @@ class Paddle:
         self.PADDLE_WIDTH = 6.0
         self.isResetting = False
         self.resetDirection = None
+        self.action = None
 
-    def move(self, direction, delta_time):
+    def update(self, delta_time):
         movement = self.MOVE_SPEED * delta_time
 
         if self.isResetting:
             return
-        if direction == "up":
+        if self.action == "up":
             self.pos += movement
-        elif direction == "down":
+        elif self.action == "down":
             self.pos -= movement
         self._clamp_position()
         return self.pos

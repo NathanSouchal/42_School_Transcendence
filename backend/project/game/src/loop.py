@@ -38,9 +38,17 @@ class Loop:
                     self.checkNoneValues(room)
 
                     ball_state = ball.update(delta_time)
+
                     self.consumer.rooms[room]["positions"][
                         "ball"
                     ] = ball.getCurrentState()
+
+                    self.consumer.rooms[room]["positions"]["paddles"]["left"]["pos"] = (
+                        self.consumer.rooms[room]["paddles"]["left"].update(delta_time)
+                    )
+                    self.consumer.rooms[room]["positions"]["paddles"]["right"][
+                        "pos"
+                    ] = self.consumer.rooms[room]["paddles"]["right"].update(delta_time)
                     await self.collisionLogic(ball, room)
 
                     if (
