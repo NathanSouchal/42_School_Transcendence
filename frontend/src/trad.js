@@ -140,6 +140,10 @@ export const trad = {
       message: "Woooops this page could not be found...",
     },
     page500: { pageTitle: "Error 500", message: "Internal server error" },
+    errors: {
+      imgType: "Only JPG and PNG files are allowed",
+      imgSize: "File size can't exceed 5MB",
+    },
   },
   FR: {
     header: {
@@ -498,7 +502,7 @@ export const trad = {
     },
     login: {
       pageTitle: "Crabin",
-      label2fa: "We've sent a Crab code to your Crabmail",
+      label2fa: "We've sent a Crab code to your Crab",
       oneTimeCode: "Enter Crab Code",
       login: "Crabin",
       retry: "Crabtry",

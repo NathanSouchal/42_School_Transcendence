@@ -248,13 +248,12 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    this.is2fa = false;
+    if (this.is2fa) this.is2fa = false;
     this.method2fa = null;
     this.formState = {};
   }
 
   render2FA() {
-    this.is2fa = false;
     return `
 		<form id="2fa-login-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>

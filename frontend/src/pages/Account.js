@@ -197,13 +197,13 @@ export default class Account {
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
-          this.displayAccountErrorMessage("Only JPG and PNG files are allowed");
-          label.textContent = "Upload file";
+          this.displayAccountErrorMessage(trad[this.lang].errors.imgType);
+          label.textContent = trad[this.lang].account.fileLabel;
           return;
         }
         if (fileInput.size > maxSize) {
-          this.displayAccountErrorMessage("File size can't exceed 5MB");
-          label.textContent = "Upload file";
+          this.displayAccountErrorMessage(trad[this.lang].errors.imgSize);
+          label.textContent = trad[this.lang].account.fileLabel;
           return;
         }
         let filename = fileInput.name;
@@ -218,7 +218,7 @@ export default class Account {
           console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
-      } else label.textContent = "Upload file";
+      } else label.textContent = trad[this.lang].account.fileLabel;
     }
     setDisable(false, "avatar");
   }
