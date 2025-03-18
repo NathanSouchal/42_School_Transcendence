@@ -1,4 +1,9 @@
-import { updateView, checkUserStatus, setDisable } from "../utils";
+import {
+  updateView,
+  checkUserStatus,
+  setDisable,
+  handleLangDiv,
+} from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -347,6 +352,7 @@ export default class LocalTournament {
   }
 
   renderSelectNbPlayers() {
+    handleLangDiv(false);
     return `<div class="select-container">
                 <h2>${trad[this.lang].localTournament.playersNum}</h2>
 				<div class="crab-playernb-div">
@@ -359,6 +365,7 @@ export default class LocalTournament {
   }
 
   renderInputPlayerName() {
+    handleLangDiv(false);
     return `<div class="input-player-name">
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" minLength="4" maxLength="10" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
@@ -370,6 +377,7 @@ export default class LocalTournament {
   }
 
   renderPauseMenu() {
+    handleLangDiv(false);
     return `
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
@@ -388,6 +396,7 @@ export default class LocalTournament {
   }
 
   renderTournament() {
+    handleLangDiv(false);
     return `
         ${
           this.tournamentFinished
@@ -451,6 +460,8 @@ export default class LocalTournament {
     const { gameIsPaused } = this.state.state;
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
+    handleLangDiv(true);
+    alert("render");
 
     return this.state.state.gameIsPaused
       ? this.renderPauseMenu()
