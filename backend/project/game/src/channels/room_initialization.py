@@ -10,11 +10,12 @@ from ..elements.paddle import Paddle
 class RoomInitialization:
     def __init__(self, consumer):
         self.consumer = consumer
+        self.previous_room = None
 
     async def setup_room(self):
         user = self.consumer.scope["user"]
-        if not user.is_authenticated:
-            print("User not logged in, room access denied")
+        if self.consumer.game_mode == GameMode.ONLINE and not user.is_authenticated:
+            print("User not logged in, access to ONLINE mode denied")
             await self.consumer.close()
             return
 
@@ -91,6 +92,8 @@ class RoomInitialization:
             del self.consumer.rooms[self.consumer.room]  # Supprime la salle corrompue
 
     async def manage_online_players(self):
+        # Sauvegarde de la room BACKGROUND
+        self.previous_room = self.consumer.room if self.consumer.game_mode == GameMode.BACKGROUND else None
         if len(self.consumer.rooms[self.consumer.room]["players"]) <= 2:
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 1:
                 self.consumer.player_side = "left"
@@ -112,10 +115,10 @@ class RoomInitialization:
                 await asyncio.sleep(2)
 
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 2:
-                if all(
-                    player["user_id"] is not None
-                    for player in self.consumer.rooms[self.consumer.room]["players"]
-                ):
+                if self.previous_room:
+                    print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
+                    del self.consumer.rooms[self.previous_room]
+                    self.previous_room = None
                     # sending only to one player, as both of them will go through this function eventually
                     opponent_index = 1 if self.consumer.player_side == "left" else 0
                     opponent = self.consumer.rooms[self.consumer.room]["players"][
@@ -146,4 +149,18 @@ class RoomInitialization:
                     )
                     print(f"Second player has been found")
             else:
-                await self.consumer.close()
+                await self.reactivate_background_mode()
+    async def reactivate_background_mode(self):
+        """Réactive la room BACKGROUND si la room ONLINE échoue"""
+        if self.previous_room:
+            print(f"🔄 Restarting BACKGROUND room {self.previous_room}")
+            self.consumer.room = self.previous_room
+            self.previous_room = None
+
+        # Redémarrer la boucle de jeu
+        if self.consumer.room not in self.consumer.game_loops:
+            print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
+            self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
+                self.consumer.loop.game_loop(self.consumer.room)
+            )
+

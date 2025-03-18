@@ -23,7 +23,7 @@ export class Lang {
 
     if (langDiv && dropdownBtn && langMenu) {
       langDiv.addEventListener("click", (e) => {
-        langDiv.classList.toggle("open");
+        langDiv.classList.toggle("open-lang");
         e.stopPropagation();
       });
 
@@ -59,7 +59,7 @@ export class Lang {
           selectedLangImg.classList.add("fade-out");
 
           setTimeout(() => {
-            langDiv.classList.remove("open");
+            langDiv.classList.remove("open-lang");
             selectedLangImg.src = newLang;
             selectedLangImg.classList.remove("fade-out");
           }, 250);
@@ -69,7 +69,7 @@ export class Lang {
       // Fermer le menu quand on clique ailleurs
       document.addEventListener("click", (e) => {
         if (!langDiv.contains(e.target)) {
-          langDiv.classList.remove("open");
+          langDiv.classList.remove("open-lang");
         }
       });
     }
