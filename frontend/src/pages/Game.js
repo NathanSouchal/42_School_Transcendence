@@ -3,6 +3,7 @@ import {
   updateView,
   checkUserStatus,
   setDisable,
+  handleLangDiv,
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
@@ -210,9 +211,10 @@ export default class GamePage {
   }
 
   async handleStateChange(newState) {
-    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon)
+    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.saveGame();
-    else if (
+      this.previousState = { ...newState };
+    } else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
       newState.gameHasBeenWon !== this.previousState.gameHasBeenWon ||
@@ -251,6 +253,7 @@ export default class GamePage {
   }
 
   renderSelectBotDifficulty() {
+    handleLangDiv(false);
     return `
 			  <div class="select-difficulty" id="select-difficulty">
 				  <button id="easy-btn">${trad[this.lang].game.easy}</button>
@@ -260,6 +263,7 @@ export default class GamePage {
   }
 
   renderGameMenu() {
+    handleLangDiv(false);
     return `
 			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 				<div class="global-nav-section nav-section-game">
@@ -284,6 +288,7 @@ export default class GamePage {
   renderGameHUD() {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state.gameIsPaused;
+    handleLangDiv(true);
 
     if (this.state.gameMode === "PVP") {
       this.leftPlayerName = trad[this.lang].game.player1;
@@ -328,6 +333,7 @@ export default class GamePage {
   }
 
   renderPauseMenu() {
+    handleLangDiv(false);
     return `<div>
 				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					  <div class="global-nav-section">
@@ -348,7 +354,7 @@ export default class GamePage {
 
   renderGameEnded() {
     const { left, right } = this.state.score;
-    console.log("left :" + left + "right : " + right);
+    handleLangDiv(false);
 
     return `
 			  <div>

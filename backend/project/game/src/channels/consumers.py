@@ -86,7 +86,12 @@ class GameState(AsyncWebsocketConsumer):
 
         # Supprimer la room si elle est vide
         if self.room in self.rooms and not self.rooms[self.room]["players"]:
-            print(f"Room {self.room} is now empty. Deleting it.")
+            print(f"Room {self.room} is now empty. Checking for BACKGROUND restart...")
+
+            if hasattr(self, "room_initialization"):
+                await self.room_initialization.reactivate_background_mode()
+
+            print(f"Deleting room {self.room}")
             del self.rooms[self.room]
 
         # Retirer le joueur du groupe Channels
