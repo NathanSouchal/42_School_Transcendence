@@ -14,6 +14,7 @@ export default class LocalTournament {
     this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
+    this.oldscore = state.score;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -220,12 +221,15 @@ export default class LocalTournament {
       await updateView(this, {});
     } else if (
       (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused)
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
     ) {
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
         // alert("Game started or game paused set to false");
       }
@@ -247,6 +251,7 @@ export default class LocalTournament {
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
   }
 
   handleBtn(key) {
@@ -461,7 +466,6 @@ export default class LocalTournament {
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
     handleLangDiv(true);
-    alert("render");
 
     return this.state.state.gameIsPaused
       ? this.renderPauseMenu()
