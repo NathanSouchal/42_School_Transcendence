@@ -120,9 +120,9 @@ export default class Rules {
 					<h3>${trad[this.lang].rules.leftPlayer}</h3>
 					<div class="controls-img-div">
 						<h4>${trad[this.lang].rules.up}</h4>
-						<img src="/up.png" alt="upImg" class="img-up">
+						<img src="/x.png" alt="upImg" class="img-up">
 						<h4>${trad[this.lang].rules.down}</h4>
-						<img src="/down.png" alt="downImg" class="img-down">
+						<img src="/c.png" alt="downImg" class="img-down">
 					</div>
 				</div>
 				<div class="player-div player-div2">

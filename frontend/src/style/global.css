@@ -199,7 +199,7 @@ canvas#c {
 .pause-play-btn {
   position: absolute;
   top: 30px;
-  right: 120px;
+  right: 30px;
   background-color: var(--beige);
   border: none;
   border-radius: 50%;
@@ -214,6 +214,7 @@ canvas#c {
     background-color 0.3s,
     transform 0.3s;
   cursor: pointer;
+  z-index: 10000;
 }
 .pause-play-btn:hover {
   transform: scale(1.1);
@@ -339,7 +340,7 @@ canvas#c {
 .lang-div {
   opacity: 1;
   cursor: pointer;
-  z-index: 10000;
+  z-index: 9999;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -369,17 +370,17 @@ canvas#c {
   transform: scale(1);
 }
 
-.lang-div.open {
+.lang-div.open-lang {
   transform: scale(1.1);
   height: 240px;
   border-radius: 25px;
 }
 
-.lang-div.open .lang-menu {
+.lang-div.open-lang .lang-menu {
   opacity: 1;
 }
 
-.lang-div.open .lang-arrow {
+.lang-div.open-lang .lang-arrow {
   transform: rotate(135deg) translateX(5px) translateY(-5px);
 }
 

@@ -40,6 +40,12 @@ export async function updateView(context, routeParams = {}) {
   }
 }
 
+export function handleLangDiv(remove) {
+  const langDiv = document.getElementById("lang-div");
+  if (langDiv && remove) langDiv.classList.add("hidden");
+  else if (langDiv && !remove) langDiv.classList.remove("hidden");
+}
+
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   if (needsToDestroy) {
     header.destroy();
