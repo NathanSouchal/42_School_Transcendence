@@ -394,6 +394,14 @@ export default class Account {
         this.displayAccountErrorMessage(trad[this.lang].errors.aliasMaxlength);
         throw new Error(trad[this.lang].errors.aliasMaxlength);
       }
+      if (
+        document.getElementById("sms2FA-checkbox").checked &&
+        this.formData?.phone_number &&
+        this.formData?.phone_number.slice(0, 3) !== "+33"
+      ) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.phone);
+        throw new Error(trad[this.lang].errors.phone);
+      }
       const res = await API.put(`/user/${id}/`, this.formData);
       this.state.state.username = res.data.username;
       this.state.state.userAlias = res.data.alias;
