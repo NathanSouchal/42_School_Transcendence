@@ -192,18 +192,20 @@ export default class Account {
     setDisable(true, "avatar");
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       const fileInput = file;
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
           this.displayAccountErrorMessage(trad[this.lang].errors.imgType);
           label.textContent = trad[this.lang].account.fileLabel;
+          setDisable(false, "avatar");
           return;
         }
         if (fileInput.size > maxSize) {
           this.displayAccountErrorMessage(trad[this.lang].errors.imgSize);
           label.textContent = trad[this.lang].account.fileLabel;
+          setDisable(false, "avatar");
           return;
         }
         let filename = fileInput.name;
@@ -360,11 +362,39 @@ export default class Account {
         !this.formData.username?.length ||
         !this.formData.alias?.length
       ) {
-        console.error("Please complete all fields");
-        throw new Error("Please complete all fields");
+        this.displayAccountErrorMessage(trad[this.lang].errors.fields);
+        throw new Error(trad[this.lang].errors.fields);
+      }
+      let regex = /^\w+$/;
+      if (!regex.test(this.formData.username)) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.username);
+        throw new Error(trad[this.lang].errors.username);
+      }
+      if (this.formData.username.length < 4) {
+        this.displayAccountErrorMessage(
+          trad[this.lang].errors.usernameMinlength
+        );
+        throw new Error(trad[this.lang].errors.usernameMinlength);
+      }
+      if (this.formData.username.length > 10) {
+        this.displayAccountErrorMessage(
+          trad[this.lang].errors.usernameMaxlength
+        );
+        throw new Error(trad[this.lang].errors.usernameMaxlength);
+      }
+      if (!regex.test(this.formData.alias)) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.alias);
+        throw new Error(trad[this.lang].errors.alias);
+      }
+      if (this.formData.username.alias < 4) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.aliasMinlength);
+        throw new Error(trad[this.lang].errors.aliasMinlength);
+      }
+      if (this.formData.username.alias > 10) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.aliasMaxlength);
+        throw new Error(trad[this.lang].errors.aliasMaxlength);
       }
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res);
       this.state.state.username = res.data.username;
       this.state.state.userAlias = res.data.alias;
       this.state.saveState();

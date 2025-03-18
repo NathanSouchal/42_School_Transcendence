@@ -153,6 +153,12 @@ export const trad = {
       codeInvalid: "Code is invalid",
       codeExpired: "Code is expired",
       enterCode: "Please enter your code",
+      username: "Username can only contain letters, numbers, and underscores",
+      usernameMinlength: "Username must be a least 4 characters long",
+      usernameMaxlength: "Username must be at maximum 10 characters long",
+      alias: "Alias can only contain letters, numbers, and underscores",
+      aliasMinlength: "Alias must be a least 4 characters long",
+      aliasMaxlength: "Alias must be at maximum 10 characters long",
     },
   },
   FR: {
@@ -310,6 +316,16 @@ export const trad = {
       codeInvalid: "Le code est invalide",
       codeExpired: "Le code a expiré",
       enterCode: "Veuillez entrer votre code",
+      username:
+        "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des underscores",
+      usernameMinlength:
+        "Le nom d'utilisateur doit comporter au moins 4 caractères",
+      usernameMaxlength:
+        "Le nom d'utilisateur doit comporter au maximum 10 caractères",
+      alias:
+        "L'alias ne peut contenir que des lettres, des chiffres et des underscores",
+      aliasMinlength: "L'alias doit comporter au moins 4 caractères",
+      aliasMaxlength: "L'alias doit comporter au maximum 10 caractères",
     },
   },
   ES: {
@@ -469,6 +485,16 @@ export const trad = {
       codeInvalid: "El código no es válido",
       codeExpired: "El código ha expirado",
       enterCode: "Por favor, introduzca su código",
+      username:
+        "El nombre de usuario solo puede contener letras, números y guiones bajos",
+      usernameMinlength:
+        "El nombre de usuario debe tener al menos 4 caracteres",
+      usernameMaxlength:
+        "El nombre de usuario debe tener como máximo 10 caracteres",
+      alias:
+        "El nombre de alias solo puede contener letras, números y guiones bajos",
+      aliasMinlength: "El nombre de alias debe tener al menos 4 caracteres",
+      aliasMaxlength: "El nombre de alias debe tener como máximo 10 caracteres",
     },
   },
   CR: {
@@ -589,7 +615,7 @@ export const trad = {
     user: {
       pageTitle: "Crabber",
       username: "Crabname:",
-      alias: "Crablis:",
+      alias: "Crablias:",
       addFriend: "Add Crabend",
       unfriend: "Uncrab",
       cancel: "Cancel Crabquest",
@@ -626,6 +652,14 @@ export const trad = {
       codeInvalid: "Crab Code is invalid",
       codeExpired: "Crab Code has Craspired",
       enterCode: "Please enter your Crabcode",
+      username:
+        "Crabname can only contain Crabetters, Crabbers, and Crabderscores",
+      usernameMinlength: "Crabname must be at least 4 Crabs long",
+      usernameMaxlength: "Crabname must be at most 10 Crabs long",
+      alias:
+        "Crablias can only contain Crabetters, Crabbers, and Crabderscores",
+      aliasMinlength: "Crablias must be at least 4 Crabs long",
+      aliasMaxlength: "Crablias must be at most 10 Crabs long",
     },
   },
 };
