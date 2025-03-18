@@ -1,4 +1,5 @@
 import json
+import time
 
 from ..utils import GameMode, NumericEncoder
 
@@ -22,8 +23,11 @@ class SendHelpers:
             )
 
     async def send_positions(self):
+        current_time = time.time()
         positions = self.consumer.rooms[self.consumer.room]["positions"]
-        await self.send_message("positions", {"positions": positions})
+        await self.send_message(
+            "positions", {"positions": positions, "timestamp": current_time}
+        )
 
     async def send_collision(self, collision_point, touched_paddle):
         collision_data = {
