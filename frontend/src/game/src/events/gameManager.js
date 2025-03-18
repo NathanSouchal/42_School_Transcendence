@@ -144,18 +144,22 @@ export class GameManager {
   }
 
   handlePositions(data, timestamp) {
-    if (data.paddle_left !== undefined) {
-      this.positions.paddles.left.pos = data.paddle_left;
+    if (data.paddles.left !== undefined) {
+      this.positions.paddles.left.pos = data.paddles.left.pos;
     }
-    if (data.paddle_right !== undefined) {
-      this.positions.paddles.right.pos = data.paddle_right;
+    if (data.paddles.right !== undefined) {
+      this.positions.paddles.right.pos = data.paddles.right.pos;
     }
     if (data.ball) {
-      this.positions.ball.pos.set(data.ball.x, data.ball.y, data.ball.z);
+      this.positions.ball.pos.set(
+        data.ball.pos.x,
+        data.ball.pos.y,
+        data.ball.pos.z,
+      );
       this.positions.ball.vel.set(
-        data.ball.vel_x,
-        data.ball.vel_y,
-        data.ball.vel_z,
+        data.ball.vel.x,
+        data.ball.vel.y,
+        data.ball.vel.z,
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");

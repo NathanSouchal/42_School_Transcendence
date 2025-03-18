@@ -1,6 +1,6 @@
 class Paddle:
     def __init__(self, initial_x=0):
-        self.x = initial_x
+        self.pos = initial_x
         self.MOVE_SPEED = 30
         self.ARENA_WIDTH = 24.0
         self.PADDLE_WIDTH = 6.0
@@ -13,11 +13,11 @@ class Paddle:
         if self.isResetting:
             return
         if direction == "up":
-            self.x += movement
+            self.pos += movement
         elif direction == "down":
-            self.x -= movement
+            self.pos -= movement
         self._clamp_position()
-        return self.x
+        return self.pos
 
     def _clamp_position(self):
         if self.ARENA_WIDTH is None or self.PADDLE_WIDTH is None:
@@ -26,24 +26,24 @@ class Paddle:
         half_arena_width = self.ARENA_WIDTH / 2
         half_paddle_width = self.PADDLE_WIDTH / 2
 
-        self.x = max(
+        self.pos = max(
             -half_arena_width + half_paddle_width,
-            min(half_arena_width - half_paddle_width, self.x),
+            min(half_arena_width - half_paddle_width, self.pos),
         )
 
     def chooseResetDir(self):
-        if self.x >= -0.1 and self.x <= 0.1:
+        if self.pos >= -0.1 and self.pos <= 0.1:
             self.isResetting = False
             return
         self.isResetting = True
-        self.resetDirection = "up" if self.x < 0 else "down"
+        self.resetDirection = "up" if self.pos < 0 else "down"
 
     def reset(self, delta_time):
-        if self.x >= -0.1 and self.x <= 0.1:
+        if self.pos >= -0.1 and self.pos <= 0.1:
             self.isResetting = False
             return
-        if (self.resetDirection == "up" and self.x >= 0.1) or (
-            self.resetDirection == "down" and self.x <= -0.1
+        if (self.resetDirection == "up" and self.pos >= 0.1) or (
+            self.resetDirection == "down" and self.pos <= -0.1
         ):
             self.isResetting = False
             self.resetDirection = None
@@ -53,8 +53,8 @@ class Paddle:
         direction = self.resetDirection
 
         if direction == "up":
-            self.x += movement
+            self.pos += movement
         elif direction == "down":
-            self.x -= movement
+            self.pos -= movement
         self._clamp_position()
-        return self.x
+        return self.pos

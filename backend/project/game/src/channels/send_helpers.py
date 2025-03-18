@@ -25,6 +25,7 @@ class SendHelpers:
     async def send_positions(self):
         current_time = time.time()
         positions = self.consumer.rooms[self.consumer.room]["positions"]
+        print(f"sending positions: {positions}")
         await self.send_message(
             "positions", {"positions": positions, "timestamp": current_time}
         )
