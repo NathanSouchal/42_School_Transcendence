@@ -173,16 +173,16 @@ export default class LocalTournament {
         if (input.value) {
           if (!regex.test(input.value)) {
             return this.displayTournamentErrorMessage(
-              "Invalid participant name : only letters, numbers and underscores are allowed"
+              trad[this.lang].errors.playerName
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              "Player name must be at least 4 characters long"
+              trad[this.lang].errors.playerMinlength
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              "Player name must be at most 10 characters long"
+              trad[this.lang].errors.playerMaxlength
             );
         }
         if (playerName) {

@@ -155,7 +155,7 @@ export default class Register {
       !this.formState.password?.length ||
       !this.formState.passwordConfirmation?.length
     ) {
-      return console.error("Please complete all fields");
+      return console.error(trad[this.lang].errors.fields);
     }
     try {
       const response = await API.post("/auth/register/", this.formState);
@@ -167,14 +167,17 @@ export default class Register {
         error.response.data
       ) {
         const errorData = error.response.data;
-        if (errorData.username)
+        if (errorData.username) {
           this.displayRegisterErrorMessage(Object.values(errorData.username));
-        else if (errorData.password_match)
+          alert("ici");
+        } else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
       } else if (error.response && error.response.status === 409)
-        this.displayRegisterErrorMessage("This username is already used");
+        this.displayRegisterErrorMessage(
+          trad[this.lang].errors.usernameUnavailable
+        );
     } finally {
       this.formState = {};
       const inputs = document.querySelectorAll("input");

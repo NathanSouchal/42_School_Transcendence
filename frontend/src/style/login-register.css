@@ -97,9 +97,9 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  margin: auto;
 }
 
-/* The actual popup */
 .popup .popup-text {
   visibility: hidden;
   width: 300px;
@@ -114,7 +114,6 @@
   left: 5%;
 }
 
-/* Popup arrow */
 .popup .popup-text::after {
   content: "";
   position: absolute;
@@ -126,7 +125,6 @@
   border-color: #555 transparent transparent transparent;
 }
 
-/* Toggle this class - hide and show the popup */
 .popup .show {
   visibility: visible;
   -webkit-animation: fadeIn 1s;
@@ -143,7 +141,6 @@
   transition: transform 0.2s;
 }
 
-/* Add animation (fade in the popup) */
 @-webkit-keyframes fadeIn {
   from {
     opacity: 0;
