@@ -92,18 +92,18 @@ class Paddle {
 
   animation_update(deltaTime) {
     this.mixer.update(deltaTime);
-    if (this.player.state.bottom) {
+    if (this.player.action === "down") {
       if (!this.gauche.isRunning()) {
         this.gauche.play();
       }
-    } else if (!this.player.state.bottom) {
+    } else if (!this.player.action === "down") {
       if (this.gauche.isRunning()) this.gauche.setEffectiveTimeScale(0.5);
     }
-    if (this.player.state.top) {
+    if (this.player.action === "up") {
       if (!this.droite.isRunning()) {
         this.droite.play();
       }
-    } else if (!this.player.state.top) {
+    } else if (!this.player.action === "up") {
       if (this.droite.isRunning()) this.droite.setEffectiveTimeScale(0.5);
     }
     this.coupElapsedTime += deltaTime;

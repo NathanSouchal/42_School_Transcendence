@@ -36,9 +36,9 @@ class Ball:
         # Configuration for ball physics
         self.conf = {
             "speed": {
-                "initialMin": 0.3,
-                "initialMax": 0.4,
-                "max": 1.2,
+                "initialMin": 0.5,
+                "initialMax": 0.6,
+                "max": 1.4,
                 "incrementFactor": 1.03,
                 "deltaFactor": 30,
             }
@@ -53,7 +53,6 @@ class Ball:
         self.collision_cooldown = 0.1
 
     def _random_initial_velocity(self):
-        """Generate random initial velocity similar to Three.js implementation"""
         while True:
             x = random.uniform(
                 self.conf["speed"]["initialMin"], self.conf["speed"]["initialMax"]
@@ -111,8 +110,6 @@ class Ball:
         self.last_collision["side"] = side
         self.last_collision["time"] = current_time
 
-        # print(f"🔄 Bounce: Avant rebond, Vitesse={self.velocity}")
-
         if side in ["left", "right"]:
             if paddle_pos is not None:
                 relative_position = self.position.x - paddle_pos
@@ -162,14 +159,13 @@ class Ball:
             self.position.add(scaled_velocity)
             # Check if ball is out of arena
             if (
-                self.position.z < -self.ARENA_DEPTH / 2
-                or self.position.z > self.ARENA_DEPTH / 2
+                self.position.z < -self.ARENA_DEPTH / 2 - 0.2
+                or self.position.z > self.ARENA_DEPTH / 2 + 0.2
             ):
                 self.start_falling()
         return "continue"
 
     def start_falling(self):
-        """Start falling state when ball goes out of bounds"""
         if not self.is_falling:
             self.elapsed_time = 0
             self.is_falling = True
@@ -182,13 +178,16 @@ class Ball:
         self.position = Vector3(0, 2.7, 0)
         self.velocity = self._random_initial_velocity()
 
-    def get_current_position(self):
-        """Get current ball state for network transmission"""
+    def getCurrentState(self):
         return {
-            "x": float(self.position.x),
-            "y": float(self.position.y),
-            "z": float(self.position.z),
-            "vel_x": float(self.velocity.x),
-            "vel_y": float(self.velocity.y),
-            "vel_z": float(self.velocity.z),
+            "pos": {
+                "x": float(self.position.x),
+                "y": float(self.position.y),
+                "z": float(self.position.z),
+            },
+            "vel": {
+                "x": float(self.velocity.x),
+                "y": float(self.velocity.y),
+                "z": float(self.velocity.z),
+            },
         }

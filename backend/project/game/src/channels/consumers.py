@@ -20,18 +20,29 @@ class GameState(AsyncWebsocketConsumer):
         "game_mode": "null",
         "isPaused": "false",
         "positions": {
-            "paddle_left": 0,
-            "paddle_right": 0,
+            "paddles": {
+                "left": {
+                    "vel": 0,
+                    "pos": 0,
+                },
+                "right": {
+                    "vel": 0,
+                    "pos": 0,
+                },
+            },
             "ball": {
-                "x": 0,
-                "y": 0,
-                "z": 0,
-                "vel_x": 0,
-                "vel_y": 0,
-                "vel_z": 0,
+                "pos": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                },
+                "vel": {
+                    "x": 0,
+                    "y": 0,
+                    "z": 0,
+                },
             },
         },
-        "paddles": {},
     }
 
     def __init__(self, *args, **kwargs):
@@ -108,16 +119,11 @@ class GameState(AsyncWebsocketConsumer):
             data = json.loads(text_data)
 
             if data.get("type") == "paddle_move":
-                direction = data.get("direction")
+                action = data.get("action")
                 side = data.get("side")
-                delta_time = float(data.get("deltaTime"))
                 positions = self.rooms[self.room]["positions"]
-                positions[f"paddle_{side}"] = self.rooms[self.room]["paddles"][
-                    side
-                ].move(direction, delta_time)
-                self.rooms[self.room]["positions"]["ball"] = self.rooms[self.room][
-                    "ball"
-                ].get_current_position()
+                self.rooms[self.room]["paddles"][side].action = action
+                positions["ball"] = self.rooms[self.room]["ball"].getCurrentState()
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")
         except Exception as e:
