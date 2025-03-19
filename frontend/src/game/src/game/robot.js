@@ -33,7 +33,7 @@ class Robot {
     return predictedX;
   }
 
-  moveTowardsTarget(deltaTime, gameManager) {
+  moveTowardsTarget() {
     const currentX = this.paddle.pos.x;
 
     if (this.target_x !== this.last_target_x) {
@@ -44,27 +44,24 @@ class Robot {
       this.last_target_x = this.target_x;
     }
     if (currentX + this.half_width < this.target_x - this.offset) {
-      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-    } else if (currentX - this.half_width > this.target_x + this.offset) {
-      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
-    } else {
-      gameManager.sendPaddleMove("stop", this.paddle.side, deltaTime);
+      this.action = "up";
+    }
+    if (currentX - this.half_width > this.target_x + this.offset) {
+      this.action = "down";
+    }
+    if (
+      currentX - this.half_width < this.target_x + this.offset &&
+      currentX + this.half_width > this.target_x - this.offset
+    ) {
+      this.action = "stop";
     }
   }
 
-  sendAction() {
-    if (this.action != this.last_action) {
-      switch (this.action) {
-        case "up":
-          gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-          this.last_action = "up";
-        case "down":
-          gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
-          this.last_action = "down";
-        case "stop":
-          gameManager.sendPaddleMove("stop", this.paddle.side, deltaTime);
-          this.last_action = "stop";
-      }
+  sendAction(deltaTime, gameManager) {
+    if (this.action !== this.last_action) {
+      console.log("sending action: ", this.action);
+      gameManager.sendPaddleMove(this.action, this.paddle.side, deltaTime);
+      this.last_action = this.action;
     }
   }
 
@@ -75,8 +72,8 @@ class Robot {
       this.target_x = this.predictBallPosition(position, velocity);
       this.timeSinceLastView = 0;
     }
-    this.moveTowardsTarget(deltaTime, gameManager);
-    this.sendAction();
+    this.moveTowardsTarget();
+    this.sendAction(deltaTime, gameManager);
   }
 }
 
