@@ -127,6 +127,7 @@ export default class GamePage {
         this.handleDifficultyChange("Hard");
         break;
       case "start-pvp-game":
+        if (this.state.state.isSearching) this.state.cancelMatchmaking();
         this.state.setGameStarted("PVP");
         break;
       case "start-pvr-game":
@@ -412,6 +413,7 @@ export default class GamePage {
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);
       this.lang = this.state.state.lang;
+      if (this.state.state.isSearching) this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
