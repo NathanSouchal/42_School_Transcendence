@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import TournamentABI from "./ContractStoreTournamentABI.json";
 
 const CONTRACT_ABI = TournamentABI.abi;
-const CONTRACT_ADDRESS = "0xB68419ae2A9b666d5bCF983a87567a4F0ED95Bb4";
+const CONTRACT_ADDRESS = "0xD9cf270f8feB4FAFD6F97DF7056d3807C116FA79";
 
 export async function connectWallet() {
     if (!window.ethereum) {
@@ -38,9 +38,11 @@ export async function storeTournament(rounds, tournamentId) {
         const contract = getContract(signer);
 
         // Envoyer la transaction
+        const gasEstimate = await contract.storeFullTournament.estimateGas(rounds, tournamentId);
         const tx = await contract.storeFullTournament(rounds, tournamentId, {
-            gasLimit: 500000
-        });        
+            gasLimit: gasEstimate.mul(2) // Ajout d'une marge de sécurité
+        });
+        
         console.log("Transaction send :", tx.hash);
 
         await tx.wait(); // Attente de la confirmation

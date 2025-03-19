@@ -40,9 +40,9 @@
       "inputs": [
         {
           "indexed": false,
-          "internalType": "uint256",
+          "internalType": "bytes32",
           "name": "tournamentId",
-          "type": "uint256"
+          "type": "bytes32"
         },
         {
           "indexed": false,
@@ -57,9 +57,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "bytes32",
           "name": "",
-          "type": "uint256"
+          "type": "bytes32"
         },
         {
           "internalType": "uint256",
@@ -81,9 +81,9 @@
     {
       "inputs": [
         {
-          "internalType": "uint256",
+          "internalType": "bytes32",
           "name": "tournamentId",
-          "type": "uint256"
+          "type": "bytes32"
         }
       ],
       "name": "getTournament",
@@ -166,9 +166,9 @@
           "type": "tuple[]"
         },
         {
-          "internalType": "uint256",
+          "internalType": "bytes32",
           "name": "tournamentId",
-          "type": "uint256"
+          "type": "bytes32"
         }
       ],
       "name": "storeFullTournament",

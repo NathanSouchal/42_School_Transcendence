@@ -16,7 +16,7 @@ export default class LocalTournament {
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
-    this.tournamentId = -1;
+    this.tournamentId = "";
     this.allTournamentScores = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
@@ -295,27 +295,55 @@ export default class LocalTournament {
     }
 
     // Récupérer les données du tournoi à envoyer
-    if (this.tournamentId < 0) {
+    if (this.tournamentId.length == 0) {
       alert("Tournament is not yet created !");
       return;
     }
-    const tournamentId = this.tournamentId;
+    const tournamentId = uuidToBytes32(this.tournamentId);
     const rounds = this.formatTournamentData();
     console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
-
     console.log("Envoi du tournoi sur la blockchain...", rounds);
+
+    this.display_store_button("storing");
 
     try {
         const success = await storeTournament(rounds, tournamentId);
         if (success) {
             alert("Tournoi enregistré avec succès sur la blockchain !");
+            this.display_store_button("stored");
             this.tournamentStoredOnBlockchain = true;
         } else {
-            alert("Erreur lors de l'enregistrement du tournoi.");
+            this.display_store_button("store");
+            alert("Error during tournament registering.");
         }
     } catch (error) {
         console.error("Erreur blockchain :", error);
         alert("Une erreur est survenue, vérifie la console.");
+    }
+  }
+
+  display_store_button(button_version) {
+    const storeButton = document.getElementById("store-blockchain-button");
+    const storingButton = document.getElementById("storing-blockchain-button");
+    const storedButton = document.getElementById("stored-blockchain-button");
+    if (storeButton && storingButton && storedButton) {
+      switch (button_version) {
+        case "store":
+          storeButton.style.display = "block";
+          storingButton.style.display = "none";
+          storedButton.style.display = "none";
+          break;
+        case "storing":
+          storeButton.style.display = "none";
+          storingButton.style.display = "block";
+          storedButton.style.display = "none";
+          break;
+        case "stored":
+          storeButton.style.display = "none";
+          storingButton.style.display = "none";
+          storedButton.style.display = "block";
+          break;
+      }
     }
   }
 
@@ -331,6 +359,11 @@ export default class LocalTournament {
     }));
     return formatedTournament;
   }
+
+  uuidToBytes32(uuid) {
+    return ethers.keccak256(ethers.toUtf8Bytes(uuid));
+  }
+
 
 
   async matchFinished() {
@@ -528,9 +561,15 @@ export default class LocalTournament {
               <button id="game-menu-button">
               ${`${trad[this.lang].localTournament.gameMenu}`}
               </button>
-              <button class="store-blockchain-button" id="store-blockchain-button">
+              <button style="display: block" id="store-blockchain-button">
                  ${`${trad[this.lang].localTournament.storeBlockchain}`}
               </button>
+              <div class="storing-blockchain-button" style="display: none" id="storing-blockchain-button">
+                <button>Storing on Sepolia blockchain...</button>
+              </div>
+              <div class="stored-blockchain-button" style="display: none" id="stored-blockchain-button">
+                <button>Successfully stored !</button>
+              </div>
             </div>`
         }
     `;
