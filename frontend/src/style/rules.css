@@ -1,5 +1,6 @@
 .rules-main-div {
-  height: 80%;
+  height: 100%;
+  padding-top: 10%;
   overflow-y: scroll;
   scrollbar-width: none;
   display: flex;

@@ -52,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True, validators=[
             RegexValidator(
                 r'^\+33[1-9]\d{8}$',
-                message="Wrong phone number format"
+                message="Phone number must start with +33"
             )
         ])
     match_history = GameSerializer(many=True, read_only=True)

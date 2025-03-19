@@ -47,7 +47,7 @@ class RegisterView(APIView):
 				return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
 			except IntegrityError:
 				return Response(
-                    {'error': 'Username is already taken.'},
+                    {'error': 'This username is already used'},
                     status=status.HTTP_409_CONFLICT
 				)
 			except Exception as e:

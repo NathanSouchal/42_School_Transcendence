@@ -128,7 +128,7 @@ export default class Login {
     e.preventDefault();
     setDisable(true, "login-form");
     if (!this.formState.username.length || !this.formState.password.length) {
-      return console.error("Please complete all fields");
+      return console.error(trad[this.lang].errors.fields);
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
@@ -144,7 +144,7 @@ export default class Login {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
-          this.displayLoginErrorMessage("Invalid credentials");
+          this.displayLoginErrorMessage(trad[this.lang].errors.credentials);
         }
       }
     } finally {
@@ -162,7 +162,7 @@ export default class Login {
     setDisable(true, "2fa-login-form");
     console.log("Sending 2FA verification:", this.formState.code);
     if (!this.formState.code?.length) {
-      return console.error("Please enter your code");
+      return this.displayLoginErrorMessage(trad[this.lang].errors.enterCode);
     }
     try {
       const response = await API.post("/auth/verify-2fa/", this.formState);
@@ -172,9 +172,9 @@ export default class Login {
     } catch (error) {
       if (!this.is2fa) this.is2fa = true;
       if (error.response.data.error == "Invalid OTP") {
-        this.displayLoginErrorMessage("Code is invalid");
+        this.displayLoginErrorMessage(trad[this.lang].errors.codeInvalid);
       } else if (error.response.data.error == "Expired OTP") {
-        this.displayLoginErrorMessage("Code is expired");
+        this.displayLoginErrorMessage(trad[this.lang].errors.codeExpired);
         const retry = document.getElementById("link-to-retry");
         if (retry) retry.style.display = "block";
         this.attachEventListeners();
@@ -248,13 +248,12 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    this.is2fa = false;
+    if (this.is2fa) this.is2fa = false;
     this.method2fa = null;
     this.formState = {};
   }
 
   render2FA() {
-    this.is2fa = false;
     return `
 		<form id="2fa-login-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
