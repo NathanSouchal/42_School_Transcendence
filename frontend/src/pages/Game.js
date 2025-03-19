@@ -221,9 +221,9 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"] ||
-      newState.lang !== this.previousState.lang
+      newState.lang !== this.previousState.lang ||
+      newState.latency !== this.previousState.latency
     ) {
-      // console.log("State changed, rendering Game page");
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await updateView(this, {});
@@ -313,18 +313,31 @@ export default class GamePage {
       }
     }
 
-    return `<div class="game-hud">
+    return `
+        <div class="game-hud">
+          <div class="connection-status">
+                ${
+                  this.state.connectionIssue
+                    ? `
+                        <div class="status-circle bad-latency"></div>`
+                    : `
+                        <div class="status-circle good-latency"></div>`
+                }
+                <span class="latency-text">${this.state.state.latency} ms</span>
+              </div>
+
 				  <div class="game-score">
-					<h1>${this.leftPlayerName}</h1>
-					<h1>${left} - ${right}</h1>
-					<h1>${this.rightPlayerName}</h1>
+            <h1>${this.leftPlayerName}</h1>
+            <h1>${left} - ${right}</h1>
+            <h1>${this.rightPlayerName}</h1>
 				  </div>
+
 				  ${
             this.state.gameMode !== "OnlineLeft" &&
             this.state.gameMode !== "OnlineRight"
               ? `
 					<button id="toggle-pause" class="pause-play-btn">
-					<div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
+            <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
 					</button>`
               : ``
           }
@@ -385,12 +398,12 @@ export default class GamePage {
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    console.log(
-      "gameStarted :" + gameStarted,
-      " gameIsPaused :" + gameIsPaused,
-      " gameHasBeenWon : " + gameHasBeenWon,
-      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty,
-    );
+    //console.log(
+    //  "gameStarted :" + gameStarted,
+    //  " gameIsPaused :" + gameIsPaused,
+    //  " gameHasBeenWon : " + gameHasBeenWon,
+    //  " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty,
+    //);
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 

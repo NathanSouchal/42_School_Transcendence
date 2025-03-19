@@ -25,9 +25,11 @@ export default class State {
       userSide: null,
       username: null,
       userAlias: null,
+      latency: 0,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
+    this.connectionIssue = false;
 
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
@@ -125,6 +127,7 @@ export default class State {
   }
 
   setGameStarted(gameMode) {
+    console.log("setGameStarted()");
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
     )
@@ -168,7 +171,7 @@ export default class State {
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
-    this.setGameStarted("default");
+    //this.setGameStarted("default");
   }
 
   setIsSearching(bool) {
@@ -205,7 +208,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();
