@@ -13,8 +13,6 @@
   color: var(--tertiary-color);
   overflow-y: scroll;
   scrollbar-width: none;
-  padding-top: 10%;
-  height: 100%;
 }
 
 .match-history-main-game-div {

@@ -25,6 +25,7 @@ export default class LocalTournament {
     this.eventListeners = [];
     this.currentRound = [];
     this.MatchToPlay = {};
+    this.formState = {};
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
@@ -234,7 +235,13 @@ export default class LocalTournament {
         // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.matchFinished();
+      if (
+        this.state.isUserLoggedIn &&
+        (this.MatchToPlay.player1 === this.state.state.userAlias ||
+          this.MatchToPlay.player2 === this.state.state.userAlias)
+      )
+        await this.saveGame();
+      else await this.matchFinished();
       if (container) {
         container.innerHTML = "";
         container.className = "app";
@@ -266,6 +273,29 @@ export default class LocalTournament {
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
+  }
+
+  async saveGame() {
+    const { left, right } = this.state.score;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    if (this.MatchToPlay.player1 === this.state.state.userAlias) {
+      this.formState.score_player1 = parseInt(left);
+      this.formState.score_player2 = parseInt(right);
+    } else {
+      this.formState.score_player1 = parseInt(right);
+      this.formState.score_player2 = parseInt(left);
+    }
+    console.warn("posting data for game");
+    console.log(this.formState.player1, this.formState.player2);
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.formState = {};
+      await this.matchFinished();
+    }
   }
 
   async matchFinished() {

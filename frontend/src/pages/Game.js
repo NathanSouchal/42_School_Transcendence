@@ -186,7 +186,7 @@ export default class GamePage {
   }
 
   async saveGame() {
-    alert("post");
+    console.log("posting data for game");
     if (!this.state.isUserLoggedIn) return;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
@@ -207,6 +207,7 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.opponentUsername = null;
       this.state.state.userSide = null;
+      this.formState = {};
     }
   }
 
