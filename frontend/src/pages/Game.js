@@ -186,7 +186,7 @@ export default class GamePage {
   }
 
   async saveGame() {
-    alert("post");
+    //alert("post");
     if (!this.state.isUserLoggedIn) return;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
@@ -389,7 +389,7 @@ export default class GamePage {
       "gameStarted :" + gameStarted,
       " gameIsPaused :" + gameIsPaused,
       " gameHasBeenWon : " + gameHasBeenWon,
-      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty
+      " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty,
     );
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
