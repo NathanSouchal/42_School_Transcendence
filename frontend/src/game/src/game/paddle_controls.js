@@ -37,6 +37,7 @@ class PaddleControls {
 
   update(deltaTime, gameManager) {
     if (this.action !== this.last_action) {
+      //console.log("sending action: ", this.action);
       gameManager.sendPaddleMove(this.action, this.paddle.side, deltaTime);
       this.last_action = this.action;
     }

@@ -68,20 +68,17 @@ class Renderer {
 
   updateElementsPositions() {
     const positions = this.gameManager.positions;
-    const currentClientTime = Date.now() / 1000; // Convert to seconds to match Python's time.time()
+    const currentClientTime = Date.now() / 1000;
     const serverTimestamp = positions.timestamp;
     const dataAge = currentClientTime - serverTimestamp;
-    const predictionThreshold = 0.01; // seconds
+    const predictionThreshold = 0.01;
 
     if (dataAge > predictionThreshold && positions.ball.vel) {
-      // Server data is old, use velocity to predict current position
-      // console.error("Using predictions");
       const predictedX = positions.ball.pos.x + positions.ball.vel.x * dataAge;
       const predictedY = positions.ball.pos.y + positions.ball.vel.y * dataAge;
       const predictedZ = positions.ball.pos.z + positions.ball.vel.z * dataAge;
       this.game.ball.obj.position.set(predictedX, predictedY, predictedZ);
     } else {
-      // console.log("Using server data");
       this.game.ball.obj.position.set(
         positions.ball.pos.x,
         positions.ball.pos.y,
