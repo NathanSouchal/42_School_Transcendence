@@ -4,6 +4,7 @@ import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 import { connectWallet, storeTournament } from "../../blockchain/ContractInteraction.js";
+import { ethers } from "ethers";
 
 
 export default class LocalTournament {
@@ -299,17 +300,17 @@ export default class LocalTournament {
       alert("Tournament is not yet created !");
       return;
     }
-    const tournamentId = uuidToBytes32(this.tournamentId);
+    const tournamentId = this.uuidToBytes32(this.tournamentId);
     const rounds = this.formatTournamentData();
-    console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
-    console.log("Envoi du tournoi sur la blockchain...", rounds);
+    // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
+    // console.log("Envoi du tournoi sur la blockchain...", rounds);
 
     this.display_store_button("storing");
 
     try {
         const success = await storeTournament(rounds, tournamentId);
         if (success) {
-            alert("Tournoi enregistré avec succès sur la blockchain !");
+            // alert("Tournoi enregistré avec succès sur la blockchain !");
             this.display_store_button("stored");
             this.tournamentStoredOnBlockchain = true;
         } else {
@@ -317,8 +318,8 @@ export default class LocalTournament {
             alert("Error during tournament registering.");
         }
     } catch (error) {
-        console.error("Erreur blockchain :", error);
-        alert("Une erreur est survenue, vérifie la console.");
+        console.error("Blockchain error :", error);
+        alert("Error has occured, check the console.");
     }
   }
 
@@ -402,6 +403,7 @@ export default class LocalTournament {
         number_of_players: this.nbPlayers,
       });
       this.currentRound = res.data.tournament.rounds_tree[0];
+      this.currentRound.sort((a, b) => a.id - b.id);
       this.MatchToPlay = res.data.FirstMatch;
       this.tournamentId = res.data.tournament.id;
       await updateView(this, {});

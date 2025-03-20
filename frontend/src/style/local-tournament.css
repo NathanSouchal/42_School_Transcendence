@@ -211,9 +211,16 @@
   opacity: 0.6;
 }
 
+.storing-blockchain-button {
+  width: 100%;
+}
+
 .storing-blockchain-button button {
   background-color:rgb(177, 100, 0);
+  color: var(--secondary-color);
+  opacity: 0.6;
 }
+
 
 .storing-blockchain-button button:hover {
   background-color:rgb(177, 100, 0);
@@ -223,8 +230,15 @@
   background-color:rgb(177, 100, 0);
 }
 
+.stored-blockchain-button {
+  width: 100%;
+}
+
 .stored-blockchain-button button {
   background-color:rgba(38, 168, 21, 0.884);
+  color: var(--secondary-color);
+  opacity: 0.6;
+  width: 100%;
 }
 
 .stored-blockchain-button button:hover {

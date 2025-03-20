@@ -40,7 +40,8 @@ export async function storeTournament(rounds, tournamentId) {
         // Envoyer la transaction
         const gasEstimate = await contract.storeFullTournament.estimateGas(rounds, tournamentId);
         const tx = await contract.storeFullTournament(rounds, tournamentId, {
-            gasLimit: gasEstimate.mul(2) // Ajout d'une marge de sécurité
+            gasLimit: gasEstimate * 2n, // Ajout d'une marge de sécurité
+            // gasPrice: ethers.parseUnits("100", "gwei")
         });
         
         console.log("Transaction send :", tx.hash);
