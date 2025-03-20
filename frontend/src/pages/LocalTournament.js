@@ -37,6 +37,7 @@ export default class LocalTournament {
     this.lang = null;
     this.isProcessing = false;
     this.tournamentStoredOnBlockchain = false;
+    this.buttonBlockchainState = "store";
   }
 
   async initialize(routeParams = {}) {
@@ -279,6 +280,7 @@ export default class LocalTournament {
       }
     } else this.previousState = { ...newState };
     this.oldscore = { ...this.state.score };
+    this.display_store_button(this.buttonBlockchainState);
   }
 
   handleBtn(key) {
@@ -322,18 +324,20 @@ export default class LocalTournament {
     // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
     // console.log("Envoi du tournoi sur la blockchain...", rounds);
 
-    this.display_store_button("storing");
+    this.buttonBlockchainState = "storing";
+    this.display_store_button(this.buttonBlockchainState);
 
     try {
-        const success = await storeTournament(rounds, tournamentId);
-        if (success) {
-            // alert("Tournoi enregistré avec succès sur la blockchain !");
-            this.display_store_button("stored");
-            this.tournamentStoredOnBlockchain = true;
-        } else {
-            this.display_store_button("store");
-            alert("Error during tournament registering.");
-        }
+      const success = await storeTournament(rounds, tournamentId);
+      if (success) {
+          // alert("Tournoi enregistré avec succès sur la blockchain !");
+          this.buttonBlockchainState = "stored";
+          this.display_store_button(this.buttonBlockchainState);
+          this.tournamentStoredOnBlockchain = true;
+      } else {
+        this.buttonBlockchainState = "store";
+        this.display_store_button(this.buttonBlockchainState);
+      }
     } catch (error) {
         console.error("Blockchain error :", error);
         alert("Error has occured, check the console.");
@@ -502,6 +506,7 @@ export default class LocalTournament {
 
   renderSelectNbPlayers() {
     handleLangDiv(false);
+    this.buttonBlockchainState = "store";
     return `<div class="select-container">
                 <h2>${trad[this.lang].localTournament.playersNum}</h2>
 				<div class="crab-playernb-div">

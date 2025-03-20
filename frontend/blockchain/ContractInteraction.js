@@ -50,7 +50,7 @@ export async function storeTournament(rounds, tournamentId) {
         console.log("Tournament's score stored on the blockchain");
         return true;
     } catch (error) {
-        console.error("Error during tournament registration :", error);
+        // console.error("Error during tournament registration :", error);
         return false;
     }
 }
