@@ -610,10 +610,10 @@ export default class LocalTournament {
                  ${`${trad[this.lang].localTournament.storeBlockchain}`}
               </button>
               <div class="storing-blockchain-button" style="display: none" id="storing-blockchain-button">
-                <button>Storing on Sepolia blockchain...</button>
+                <button>${`${trad[this.lang].localTournament.storingBlockchain}`}</button>
               </div>
               <div class="stored-blockchain-button" style="display: none" id="stored-blockchain-button">
-                <button>Successfully stored !</button>
+                <button>${`${trad[this.lang].localTournament.storedBlockchain}`}</button>
               </div>
             </div>`
         }
