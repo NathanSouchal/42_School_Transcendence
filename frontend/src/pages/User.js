@@ -88,12 +88,23 @@ export default class User {
     });
   }
 
+  async buildAvatarImgLink(link) {
+    try {
+      const res = await axios.head(`${API_BASE_URL}${link}`);
+      if (res.status === 200)
+        this.publicUserData.avatar = `${API_BASE_URL}${link}`;
+    } catch (error) {
+      this.publicUserData.avatar = "/profile.jpeg";
+    }
+  }
+
   async getPublicUserInfo() {
     try {
       const response = await API.get(`/user/public-profile/${this.pageId}/`);
       const data = response.data;
       this.publicUserData = data.user;
-      console.log(data);
+      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      else this.publicUserData.avatar = "/profile.jpeg";
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
       throw error;
@@ -310,7 +321,7 @@ export default class User {
 				</div>
 				<div id="user-main-div">
 					<div class="avatar-main-div" id="avatar-main-div">
-					${this.publicUserData.avatar ? `<img src="https://127.0.0.1:8000${this.publicUserData.avatar}">` : `<img src="/profile.jpeg">`}
+					<img src="${this.publicUserData.avatar}">
 					</div>
 					<div class="username-title-div" id="username-main-div">
 						<h2 class="username-title">

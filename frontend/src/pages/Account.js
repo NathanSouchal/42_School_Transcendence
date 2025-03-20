@@ -8,6 +8,8 @@ import {
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
+
 export default class Account {
   constructor(state) {
     this.pageName = "Account";
@@ -190,18 +192,20 @@ export default class Account {
     setDisable(true, "avatar");
     if (key == "avatar") {
       const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       const fileInput = file;
       const label = document.querySelector(".file-label");
       if (fileInput) {
         if (!allowedTypes.includes(fileInput.type)) {
-          this.displayAccountErrorMessage("Only JPG and PNG files are allowed");
-          label.textContent = "Upload file";
+          this.displayAccountErrorMessage(trad[this.lang].errors.imgType);
+          label.textContent = trad[this.lang].account.fileLabel;
+          setDisable(false, "avatar");
           return;
         }
         if (fileInput.size > maxSize) {
-          this.displayAccountErrorMessage("File size can't exceed 5MB");
-          label.textContent = "Upload file";
+          this.displayAccountErrorMessage(trad[this.lang].errors.imgSize);
+          label.textContent = trad[this.lang].account.fileLabel;
+          setDisable(false, "avatar");
           return;
         }
         let filename = fileInput.name;
@@ -216,7 +220,7 @@ export default class Account {
           console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
-      } else label.textContent = "Upload file";
+      } else label.textContent = trad[this.lang].account.fileLabel;
     }
     setDisable(false, "avatar");
   }
@@ -312,6 +316,8 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
+      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      else this.userData.avatar = "/profile.jpeg";
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
       this.formData.email = data.user.email;
@@ -321,6 +327,15 @@ export default class Account {
       console.error("Error while trying to get data:", error);
       this.userData = {};
       throw error;
+    }
+  }
+
+  async buildAvatarImgLink(link) {
+    try {
+      const res = await axios.head(`${API_BASE_URL}${link}`);
+      if (res.status === 200) this.userData.avatar = `${API_BASE_URL}${link}`;
+    } catch (error) {
+      this.userData.avatar = "/profile.jpeg";
     }
   }
 
@@ -347,13 +362,49 @@ export default class Account {
         !this.formData.username?.length ||
         !this.formData.alias?.length
       ) {
-        console.error("Please complete all fields");
-        throw new Error("Please complete all fields");
+        this.displayAccountErrorMessage(trad[this.lang].errors.fields);
+        throw new Error(trad[this.lang].errors.fields);
+      }
+      let regex = /^\w+$/;
+      if (!regex.test(this.formData.username)) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.username);
+        throw new Error(trad[this.lang].errors.username);
+      }
+      if (this.formData.username.length < 4) {
+        this.displayAccountErrorMessage(
+          trad[this.lang].errors.usernameMinlength
+        );
+        throw new Error(trad[this.lang].errors.usernameMinlength);
+      }
+      if (this.formData.username.length > 10) {
+        this.displayAccountErrorMessage(
+          trad[this.lang].errors.usernameMaxlength
+        );
+        throw new Error(trad[this.lang].errors.usernameMaxlength);
+      }
+      if (!regex.test(this.formData.alias)) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.alias);
+        throw new Error(trad[this.lang].errors.alias);
+      }
+      if (this.formData.username.alias < 4) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.aliasMinlength);
+        throw new Error(trad[this.lang].errors.aliasMinlength);
+      }
+      if (this.formData.username.alias > 10) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.aliasMaxlength);
+        throw new Error(trad[this.lang].errors.aliasMaxlength);
+      }
+      if (
+        document.getElementById("sms2FA-checkbox").checked &&
+        this.formData?.phone_number &&
+        this.formData?.phone_number.slice(0, 3) !== "+33"
+      ) {
+        this.displayAccountErrorMessage(trad[this.lang].errors.phone);
+        throw new Error(trad[this.lang].errors.phone);
       }
       const res = await API.put(`/user/${id}/`, this.formData);
-      console.log(res);
-      this.state.state.username = data.username;
-      this.state.state.userAlias = data.alias;
+      this.state.state.username = res.data.user.username;
+      this.state.state.userAlias = res.data.user.alias;
       this.state.saveState();
     } catch (error) {
       if (
@@ -372,7 +423,8 @@ export default class Account {
           this.displayAccountErrorMessage(errorData.no_email);
         else if (errorData.wrong_avatar)
           this.displayAccountErrorMessage(errorData.wrong_avatar);
-      }
+      } else if (error.response && error.response.status === 409)
+        this.displayAccountErrorMessage(error.response.data.error);
       console.error(`Error while trying to update user data : ${error}`);
       throw error;
     } finally {
@@ -479,7 +531,7 @@ export default class Account {
             ? `<div id="userinfo-main-div">
 				<form id="user-form">
 			 	<div class="input-main-div" id="avatar-main-div">
-					${this.userData.avatar ? `<img src="https://127.0.0.1:8000/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+					<img src="${this.userData.avatar}">
 					<div class="input-div file-input-div">
 						<label class="file-label" for="avatar">
 							${trad[this.lang].account.fileLabel}
@@ -614,7 +666,7 @@ export default class Account {
             : `
 			  <div id="userinfo-main-div">
 			 	<div class="avatar-main-div" id="avatar-main-div">
-				${this.userData.avatar ? `<img src="https://localhost:8443/${this.userData.avatar}">` : `<img src="/profile.jpeg">`}
+				<img src="${this.userData.avatar}">
 				</div>
 				<div class="username-title-div" id="username-main-div">
 					<h2 class="username-title">

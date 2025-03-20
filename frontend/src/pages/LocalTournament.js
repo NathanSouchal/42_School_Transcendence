@@ -1,4 +1,9 @@
-import { updateView, checkUserStatus, setDisable } from "../utils";
+import {
+  updateView,
+  checkUserStatus,
+  setDisable,
+  handleLangDiv,
+} from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
@@ -12,6 +17,7 @@ export default class LocalTournament {
     this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
+    this.oldscore = state.score;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
@@ -24,6 +30,7 @@ export default class LocalTournament {
     this.eventListeners = [];
     this.currentRound = [];
     this.MatchToPlay = {};
+    this.formState = {};
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
@@ -193,16 +200,16 @@ export default class LocalTournament {
         if (input.value) {
           if (!regex.test(input.value)) {
             return this.displayTournamentErrorMessage(
-              "Invalid participant name : only letters, numbers and underscores are allowed"
+              trad[this.lang].errors.playerName
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              "Player name must be at least 4 characters long"
+              trad[this.lang].errors.playerMinlength
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              "Player name must be at most 10 characters long"
+              trad[this.lang].errors.playerMaxlength
             );
         }
         if (playerName) {
@@ -235,17 +242,26 @@ export default class LocalTournament {
       await updateView(this, {});
     } else if (
       (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused)
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
     ) {
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
         // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.matchFinished();
+      if (
+        this.state.isUserLoggedIn &&
+        (this.MatchToPlay.player1 === this.state.state.userAlias ||
+          this.MatchToPlay.player2 === this.state.state.userAlias)
+      )
+        await this.saveGame();
+      else await this.matchFinished();
       if (container) {
         container.innerHTML = "";
         container.className = "app";
@@ -262,6 +278,7 @@ export default class LocalTournament {
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
   }
 
   handleBtn(key) {
@@ -367,6 +384,29 @@ export default class LocalTournament {
 
 
 
+  async saveGame() {
+    const { left, right } = this.state.score;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    if (this.MatchToPlay.player1 === this.state.state.userAlias) {
+      this.formState.score_player1 = parseInt(left);
+      this.formState.score_player2 = parseInt(right);
+    } else {
+      this.formState.score_player1 = parseInt(right);
+      this.formState.score_player2 = parseInt(left);
+    }
+    console.warn("posting data for game");
+    console.log(this.formState.player1, this.formState.player2);
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.formState = {};
+      await this.matchFinished();
+    }
+  }
+
   async matchFinished() {
     let winner = "";
     if (this.state.score.left > this.state.score.right)
@@ -461,6 +501,7 @@ export default class LocalTournament {
   }
 
   renderSelectNbPlayers() {
+    handleLangDiv(false);
     return `<div class="select-container">
                 <h2>${trad[this.lang].localTournament.playersNum}</h2>
 				<div class="crab-playernb-div">
@@ -473,6 +514,7 @@ export default class LocalTournament {
   }
 
   renderInputPlayerName() {
+    handleLangDiv(false);
     return `<div class="input-player-name">
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" minLength="4" maxLength="10" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
@@ -484,6 +526,7 @@ export default class LocalTournament {
   }
 
   renderPauseMenu() {
+    handleLangDiv(false);
     return `
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
@@ -502,7 +545,7 @@ export default class LocalTournament {
   }
 
   renderTournament() {
-    console.log("MATCH-LIST: ", this.currentRound);
+    handleLangDiv(false);
     return `
         ${
           this.tournamentFinished
@@ -582,6 +625,7 @@ export default class LocalTournament {
     const { gameIsPaused } = this.state.state;
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
+    handleLangDiv(true);
 
     return this.state.state.gameIsPaused
       ? this.renderPauseMenu()

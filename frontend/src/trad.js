@@ -141,6 +141,27 @@ export const trad = {
       message: "Woooops this page could not be found...",
     },
     page500: { pageTitle: "Error 500", message: "Internal server error" },
+    errors: {
+      imgType: "Only JPG and PNG files are allowed",
+      imgSize: "File size can't exceed 5MB",
+      usernameUnavailable: "This username is already used",
+      playerName:
+        "Invalid participant name : only letters, numbers and underscores are allowed",
+      playerMinlength: "Player name must be at least 4 characters long",
+      playerMaxlength: "Player name must be at most 10 characters long",
+      credentials: "Invalid credentials",
+      fields: "Please complete all fields",
+      codeInvalid: "Code is invalid",
+      codeExpired: "Code is expired",
+      enterCode: "Please enter your code",
+      username: "Username can only contain letters, numbers, and underscores",
+      usernameMinlength: "Username must be a least 4 characters long",
+      usernameMaxlength: "Username must be at maximum 10 characters long",
+      alias: "Alias can only contain letters, numbers, and underscores",
+      aliasMinlength: "Alias must be a least 4 characters long",
+      aliasMaxlength: "Alias must be at maximum 10 characters long",
+      phone: "Phone number must start with +33",
+    },
   },
   FR: {
     header: {
@@ -264,7 +285,7 @@ export const trad = {
       alias: "Alias :",
       addFriend: "Ajouter",
       unfriend: "Retirer",
-      cancel: "Annuler l'invitation'",
+      cancel: "Annuler l'invitation",
       accept: "Accepter l'invitation",
       delete: "Refuser l'invitation",
     },
@@ -284,6 +305,32 @@ export const trad = {
       message: "Woooops cette page est introuvable...",
     },
     page500: { pageTitle: "Erreur 500", message: "Erreur interne du serveur" },
+    errors: {
+      imgType: "Seuls les fichiers JPG et PNG sont autorisés",
+      imgSize: "La taille du fichier ne peut pas dépasser 5 Mo",
+      usernameUnavailable: "Ce nom d'utilisateur est déjà utilisé",
+      playerName:
+        "Nom de participant invalide : seuls les lettres, chiffres et underscores sont autorisés",
+      playerMinlength: "Le nom du joueur doit comporter au moins 4 caractères",
+      playerMaxlength:
+        "Le nom du joueur doit comporter au maximum 10 caractères",
+      credentials: "Identifiants invalides",
+      fields: "Veuillez remplir tous les champs",
+      codeInvalid: "Le code est invalide",
+      codeExpired: "Le code a expiré",
+      enterCode: "Veuillez entrer votre code",
+      username:
+        "Le nom d'utilisateur ne peut contenir que des lettres, des chiffres et des underscores",
+      usernameMinlength:
+        "Le nom d'utilisateur doit comporter au moins 4 caractères",
+      usernameMaxlength:
+        "Le nom d'utilisateur doit comporter au maximum 10 caractères",
+      alias:
+        "L'alias ne peut contenir que des lettres, des chiffres et des underscores",
+      aliasMinlength: "L'alias doit comporter au moins 4 caractères",
+      aliasMaxlength: "L'alias doit comporter au maximum 10 caractères",
+      phone: "Le numéro de téléphone doit commencer par +33",
+    },
   },
   ES: {
     header: {
@@ -429,6 +476,32 @@ export const trad = {
       message: "Woooops no se pudo encontrar esta página...",
     },
     page500: { pageTitle: "Error 500", message: "Error Interno del Servidor" },
+    errors: {
+      imgType: "Solo se permiten archivos JPG y PNG",
+      imgSize: "El tamaño del archivo no puede superar los 5 MB",
+      usernameUnavailable: "Este nombre de usuario ya está en uso",
+      playerName:
+        "Nombre de participante inválido: solo se permiten letras, números y guiones bajos",
+      playerMinlength: "El nombre del jugador debe tener al menos 4 caracteres",
+      playerMaxlength:
+        "El nombre del jugador debe tener como máximo 10 caracteres",
+      credentials: "Credenciales inválidas",
+      fields: "Por favor, complete todos los campos",
+      codeInvalid: "El código no es válido",
+      codeExpired: "El código ha expirado",
+      enterCode: "Por favor, introduzca su código",
+      username:
+        "El nombre de usuario solo puede contener letras, números y guiones bajos",
+      usernameMinlength:
+        "El nombre de usuario debe tener al menos 4 caracteres",
+      usernameMaxlength:
+        "El nombre de usuario debe tener como máximo 10 caracteres",
+      alias:
+        "El nombre de alias solo puede contener letras, números y guiones bajos",
+      aliasMinlength: "El nombre de alias debe tener al menos 4 caracteres",
+      aliasMaxlength: "El nombre de alias debe tener como máximo 10 caracteres",
+      phone: "El número de teléfono debe comenzar con +33",
+    },
   },
   CR: {
     header: {
@@ -502,7 +575,7 @@ export const trad = {
     },
     login: {
       pageTitle: "Crabin",
-      label2fa: "We've sent a Crab code to your Crabmail",
+      label2fa: "We've sent a Crab code to your Crab",
       oneTimeCode: "Enter Crab Code",
       login: "Crabin",
       retry: "Crabtry",
@@ -549,7 +622,7 @@ export const trad = {
     user: {
       pageTitle: "Crabber",
       username: "Crabname:",
-      alias: "Crablis:",
+      alias: "Crablias:",
       addFriend: "Add Crabend",
       unfriend: "Uncrab",
       cancel: "Cancel Crabquest",
@@ -573,5 +646,28 @@ export const trad = {
       message: "Woooops Crab Crab be Crabby...",
     },
     page500: { pageTitle: "Crabror 500", message: "Internal Crab Crabrror" },
+    errors: {
+      imgType: "Only JPG and PNG files are Crabllowed",
+      imgSize: "Crab size can't exceed 5 CrabMB",
+      usernameUnavailable: "This Crabname is already Crabbed",
+      playerName:
+        "Invalid Crabber name: only Crabbers, Crabs, and Crabderscores are Crabllowed",
+      playerMinlength: "Crabber name must be at least 4 Crabs long",
+      playerMaxlength: "Crabber name must be at most 10 Crabs long",
+      credentials: "Invalid Crabdentials",
+      fields: "Please complete all Crabfields",
+      codeInvalid: "Crab Code is invalid",
+      codeExpired: "Crab Code has Craspired",
+      enterCode: "Please enter your Crabcode",
+      username:
+        "Crabname can only contain Crabetters, Crabbers, and Crabderscores",
+      usernameMinlength: "Crabname must be at least 4 Crabs long",
+      usernameMaxlength: "Crabname must be at most 10 Crabs long",
+      alias:
+        "Crablias can only contain Crabetters, Crabbers, and Crabderscores",
+      aliasMinlength: "Crablias must be at least 4 Crabs long",
+      aliasMaxlength: "Crablias must be at most 10 Crabs long",
+      phone: "Crab number must start with +33",
+    },
   },
 };
