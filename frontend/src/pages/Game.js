@@ -4,6 +4,7 @@ import {
   checkUserStatus,
   setDisable,
   handleLangDiv,
+  showToogleBar,
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
@@ -68,6 +69,11 @@ export default class GamePage {
         listener: handleDifficultyChange,
       });
     }
+
+    window.addEventListener('popstate', function(event) {
+      showToogleBar(true)
+    });
+    
 
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
@@ -151,6 +157,7 @@ export default class GamePage {
       case "exit-game":
         this.state.setGameEnded();
         this.state.backToBackgroundPlay();
+        showToogleBar(true);
         break;
       case "back-arrow":
         this.state.setGameEnded();
@@ -336,6 +343,7 @@ export default class GamePage {
 
   renderPauseMenu() {
     handleLangDiv(false);
+    showToogleBar(false);
     return `<div>
 				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					  <div class="global-nav-section">
