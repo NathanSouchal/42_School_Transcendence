@@ -45,7 +45,7 @@ export default class State {
     document.getElementById("lang-div").classList.add("hidden");
 
     // this.gamePoints = 10;
-    this.gamePoints = 5;
+    this.gamePoints = 2;
 
     this.botDifficulty = 6;
 
@@ -126,8 +126,9 @@ export default class State {
     this.notifyListeners();
   }
 
-  setGameStarted(gameMode) {
-    console.log("setGameStarted()");
+  async setGameStarted(gameMode) {
+    if (gameMode != "default")
+      await this.displayTimerBeforeGameStart();
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
     )
@@ -146,6 +147,43 @@ export default class State {
     this.setGameNeedsReset(true);
   }
 
+  displayTimerBeforeGameStart(durationSeconds = 3) {
+    return new Promise((resolve) => {
+      const container = document.getElementById("app");
+      const toogleBar = document.getElementById("toggle-button-container");
+      const langDiv = document.getElementById("lang-div");
+      if (toogleBar)
+        toogleBar.style.display = "none";
+      if (langDiv)
+        langDiv.style.display = "none";
+      
+      const template = `
+        <div class="timer-overlay">
+          <div class="timer-countdown">${durationSeconds}</div>
+        </div>
+      `;
+      container.innerHTML = template;
+
+      const countdownElement = container.querySelector('.timer-countdown');
+      let countdown = durationSeconds;
+    
+      const interval = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+    
+        if (countdown <= 0) {
+          clearInterval(interval);
+          const timerOverlay = container.querySelector('.timer-overlay');
+          if (timerOverlay)
+            timerOverlay.remove();
+          if (langDiv)
+            langDiv.style.display = "block";
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+  
   async startMatchmaking() {
     if (this.state.isSearching) {
       console.warn("Matchmaking is already in progress!");

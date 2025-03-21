@@ -155,10 +155,36 @@ export default class Register {
       !this.formState.password?.length ||
       !this.formState.passwordConfirmation?.length
     ) {
-      return console.error("Please complete all fields");
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(trad[this.lang].errors.fields);
+    }
+    let regex = /^\w+$/;
+    if (!regex.test(this.formState.username)) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(trad[this.lang].errors.username);
+    }
+    if (this.formState.username.length < 4) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].errors.usernameMinlength
+      );
+    }
+    if (this.formState.username.length > 10) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].errors.usernameMaxlength
+      );
+    }
+    regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
+    if (!regex.test(this.formState.password)) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].register.restrictions
+      );
     }
     try {
-      const response = await API.post("/auth/register/", this.formState);
+      await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
       if (
@@ -167,14 +193,17 @@ export default class Register {
         error.response.data
       ) {
         const errorData = error.response.data;
-        if (errorData.username)
+        if (errorData.username) {
           this.displayRegisterErrorMessage(Object.values(errorData.username));
-        else if (errorData.password_match)
+          console.log(Object.values(errorData.username));
+        } else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
       } else if (error.response && error.response.status === 409)
-        this.displayRegisterErrorMessage("This username is already used");
+        this.displayRegisterErrorMessage(
+          trad[this.lang].errors.usernameUnavailable
+        );
     } finally {
       this.formState = {};
       const inputs = document.querySelectorAll("input");

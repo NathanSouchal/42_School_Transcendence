@@ -1,29 +1,43 @@
-import { updateView, checkUserStatus, setDisable } from "../utils";
+import {
+  updateView,
+  checkUserStatus,
+  setDisable,
+  handleLangDiv,
+} from "../utils";
 import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import { connectWallet, storeTournament } from "../../blockchain/ContractInteraction.js";
+import { ethers } from "ethers";
+
 
 export default class LocalTournament {
   constructor(state) {
     this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
+    this.oldscore = state.score;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
+    this.tournamentId = "";
+    this.allTournamentScores = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
     this.currentRound = [];
     this.MatchToPlay = {};
+    this.formState = {};
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
     this.lang = null;
     this.isProcessing = false;
+    this.tournamentStoredOnBlockchain = false;
+    this.buttonBlockchainState = "store";
   }
 
   async initialize(routeParams = {}) {
@@ -140,6 +154,20 @@ export default class LocalTournament {
         listener: handlePlayersName,
       });
     }
+
+    const storeBlockchainButton = document.getElementById("store-blockchain-button");
+    if (storeBlockchainButton) {
+      const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "storeBlockchainButton")) {
+        storeBlockchainButton.addEventListener("click", handleBlockchainStorage);
+      }
+      this.eventListeners.push({
+        name: "storeBlockchainButton",
+        type: "click",
+        element: storeBlockchainButton,
+        listener: handleBlockchainStorage,
+      });
+    }
   }
 
   handleNavigation(e) {
@@ -173,16 +201,16 @@ export default class LocalTournament {
         if (input.value) {
           if (!regex.test(input.value)) {
             return this.displayTournamentErrorMessage(
-              "Invalid participant name : only letters, numbers and underscores are allowed"
+              trad[this.lang].errors.playerName
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              "Player name must be at least 4 characters long"
+              trad[this.lang].errors.playerMinlength
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              "Player name must be at most 10 characters long"
+              trad[this.lang].errors.playerMaxlength
             );
         }
         if (playerName) {
@@ -215,17 +243,26 @@ export default class LocalTournament {
       await updateView(this, {});
     } else if (
       (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused)
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
     ) {
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
         // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.matchFinished();
+      if (
+        this.state.isUserLoggedIn &&
+        (this.MatchToPlay.player1 === this.state.state.userAlias ||
+          this.MatchToPlay.player2 === this.state.state.userAlias)
+      )
+        await this.saveGame();
+      else await this.matchFinished();
       if (container) {
         container.innerHTML = "";
         container.className = "app";
@@ -242,6 +279,8 @@ export default class LocalTournament {
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
+    this.display_store_button(this.buttonBlockchainState);
   }
 
   handleBtn(key) {
@@ -258,6 +297,120 @@ export default class LocalTournament {
     setDisable(false, key);
   }
 
+  async handleBlockchainStorage() {
+    if (!this.tournamentFinished) {
+        alert("Tournament is not finished !");
+        return;
+    }
+
+    if (this.tournamentStoredOnBlockchain){
+      alert("Tournament has already been stored !");
+      return;
+    }
+    // Vérifier si Metamask est connecté
+    const userAddress = await connectWallet();
+    if (!userAddress) {
+        alert("Metamask connexion is required !");
+        return;
+    }
+
+    // Récupérer les données du tournoi à envoyer
+    if (this.tournamentId.length == 0) {
+      alert("Tournament is not yet created !");
+      return;
+    }
+    const tournamentId = this.uuidToBytes32(this.tournamentId);
+    const rounds = this.formatTournamentData();
+    // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
+    // console.log("Envoi du tournoi sur la blockchain...", rounds);
+
+    this.buttonBlockchainState = "storing";
+    this.display_store_button(this.buttonBlockchainState);
+
+    try {
+      const success = await storeTournament(rounds, tournamentId);
+      if (success) {
+          // alert("Tournoi enregistré avec succès sur la blockchain !");
+          this.buttonBlockchainState = "stored";
+          this.display_store_button(this.buttonBlockchainState);
+          this.tournamentStoredOnBlockchain = true;
+      } else {
+        this.buttonBlockchainState = "store";
+        this.display_store_button(this.buttonBlockchainState);
+      }
+    } catch (error) {
+        console.error("Blockchain error :", error);
+        alert("Error has occured, check the console.");
+    }
+  }
+
+  display_store_button(button_version) {
+    const storeButton = document.getElementById("store-blockchain-button");
+    const storingButton = document.getElementById("storing-blockchain-button");
+    const storedButton = document.getElementById("stored-blockchain-button");
+    if (storeButton && storingButton && storedButton) {
+      switch (button_version) {
+        case "store":
+          storeButton.style.display = "block";
+          storingButton.style.display = "none";
+          storedButton.style.display = "none";
+          break;
+        case "storing":
+          storeButton.style.display = "none";
+          storingButton.style.display = "block";
+          storedButton.style.display = "none";
+          break;
+        case "stored":
+          storeButton.style.display = "none";
+          storingButton.style.display = "none";
+          storedButton.style.display = "block";
+          break;
+      }
+    }
+  }
+
+  formatTournamentData() {
+    const formatedTournament = this.allTournamentScores.map((round, index) => ({
+      roundID: index + 1,
+      matches: round.map(match => ({
+          player1: match.player1,
+          player2: match.player2,
+          scorePlayer1: match.score_player1 || 0,
+          scorePlayer2: match.score_player2 || 0
+      }))
+    }));
+    return formatedTournament;
+  }
+
+  uuidToBytes32(uuid) {
+    return ethers.keccak256(ethers.toUtf8Bytes(uuid));
+  }
+
+
+
+  async saveGame() {
+    const { left, right } = this.state.score;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    if (this.MatchToPlay.player1 === this.state.state.userAlias) {
+      this.formState.score_player1 = parseInt(left);
+      this.formState.score_player2 = parseInt(right);
+    } else {
+      this.formState.score_player1 = parseInt(right);
+      this.formState.score_player2 = parseInt(left);
+    }
+    console.warn("posting data for game");
+    console.log(this.formState.player1, this.formState.player2);
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.formState = {};
+      await this.matchFinished();
+    }
+  }
+
   async matchFinished() {
     let winner = "";
     if (this.state.score.left > this.state.score.right)
@@ -270,11 +423,14 @@ export default class LocalTournament {
         winner: winner,
       });
       console.log(res);
-      if (res.status === 200) {
+      if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
-      } else {
+        this.currentRound.sort((a, b) => a.id - b.id);
+        
+      } else if (res.status === 200 && res.data.tournamentIsFinished){
+        this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
       }
@@ -291,7 +447,9 @@ export default class LocalTournament {
         number_of_players: this.nbPlayers,
       });
       this.currentRound = res.data.tournament.rounds_tree[0];
+      this.currentRound.sort((a, b) => a.id - b.id);
       this.MatchToPlay = res.data.FirstMatch;
+      this.tournamentId = res.data.tournament.id;
       await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
@@ -347,6 +505,8 @@ export default class LocalTournament {
   }
 
   renderSelectNbPlayers() {
+    handleLangDiv(false);
+    this.buttonBlockchainState = "store";
     return `<div class="select-container">
                 <h2>${trad[this.lang].localTournament.playersNum}</h2>
 				<div class="crab-playernb-div">
@@ -359,6 +519,7 @@ export default class LocalTournament {
   }
 
   renderInputPlayerName() {
+    handleLangDiv(false);
     return `<div class="input-player-name">
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" minLength="4" maxLength="10" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
@@ -370,6 +531,7 @@ export default class LocalTournament {
   }
 
   renderPauseMenu() {
+    handleLangDiv(false);
     return `
 				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
 					<div class="global-nav-section">
@@ -388,6 +550,7 @@ export default class LocalTournament {
   }
 
   renderTournament() {
+    handleLangDiv(false);
     return `
         ${
           this.tournamentFinished
@@ -438,11 +601,27 @@ export default class LocalTournament {
             )
             .join("")}
         </div>
-        <div class="stop-button-div">
-          <button id="game-menu-button">
-            ${!this.MatchToPlay.next_match ? `${trad[this.lang].localTournament.gameMenu}` : `${trad[this.lang].localTournament.stop}`}
-          </button>
-        </div>
+        ${!this.tournamentFinished
+          ? `<div class="stop-button-div">
+              <button id="game-menu-button">
+                ${`${trad[this.lang].localTournament.stop}`}
+              </button>
+            </div>`
+          : `<div class="tournament-finished-button-div">
+              <button id="game-menu-button">
+              ${`${trad[this.lang].localTournament.gameMenu}`}
+              </button>
+              <button style="display: block" id="store-blockchain-button">
+                 ${`${trad[this.lang].localTournament.storeBlockchain}`}
+              </button>
+              <div class="storing-blockchain-button" style="display: none" id="storing-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storingBlockchain}`}</button>
+              </div>
+              <div class="stored-blockchain-button" style="display: none" id="stored-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storedBlockchain}`}</button>
+              </div>
+            </div>`
+        }
     `;
   }
 
@@ -451,6 +630,7 @@ export default class LocalTournament {
     const { gameIsPaused } = this.state.state;
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
+    handleLangDiv(true);
 
     return this.state.state.gameIsPaused
       ? this.renderPauseMenu()
@@ -469,6 +649,7 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 
     if (!this.isSubscribed) {

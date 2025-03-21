@@ -6,6 +6,9 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 1em;
+  padding-top: 10%;
+  overflow-y: scroll;
+  scrollbar-width: none;
 }
 
 .round-title {
@@ -180,6 +183,75 @@
   align-items: center;
 }
 
+.tournament-finished-button-div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5em;
+}
+
+.tournament-finished-button-div button {
+  width: 100%;
+  border-radius: 0;
+  color: var(--tertiary-color);
+  font-family: var(--secondary-font);
+  background-color: transparent;
+  box-shadow: none;
+  padding: 1em;
+}
+
+.tournament-finished-button-div button:hover {
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+.tournament-finished-button-div button:active {
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+.storing-blockchain-button {
+  width: 100%;
+}
+
+.storing-blockchain-button button {
+  background-color:rgb(177, 100, 0);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+
+.storing-blockchain-button button:hover {
+  background-color:rgb(177, 100, 0);
+}
+
+.storing-blockchain-button button:active {
+  background-color:rgb(177, 100, 0);
+}
+
+.stored-blockchain-button {
+  width: 100%;
+}
+
+.stored-blockchain-button button {
+  background-color:rgba(38, 168, 21, 0.884);
+  color: var(--secondary-color);
+  opacity: 0.6;
+  width: 100%;
+}
+
+.stored-blockchain-button button:hover {
+  background-color:rgba(38, 168, 21, 0.884);
+}
+
+.stored-blockchain-button button:active {
+  background-color:rgba(38, 168, 21, 0.884);
+}
+
 .matches-list {
   width: 100%;
   max-height: 60%;
@@ -293,7 +365,7 @@
 }
 
 .crab-playernb-select:hover {
-  transform: scal(1.2);
+  transform: scale(1.2);
 }
 
 .crab-playernb-select:active {

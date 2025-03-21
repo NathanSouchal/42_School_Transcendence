@@ -4,6 +4,9 @@
   align-items: center;
   width: 90%;
   height: 100%;
+  padding-top: 10%;
+  overflow-y: scroll;
+  scrollbar-width: none;
 }
 
 .main-div-social a {
@@ -121,6 +124,7 @@
 
 .friends-div-social {
   width: 50%;
+  border-right: solid 0.07em var(--primary-color);
 }
 
 .friends-list-social {
@@ -156,6 +160,7 @@
 
 .invitations-div-social {
   width: 50%;
+  border-left: solid 0.07em var(--primary-color);
 }
 
 .invitations-list-div-social {

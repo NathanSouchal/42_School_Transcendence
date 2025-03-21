@@ -127,6 +127,7 @@ export default class GamePage {
         this.handleDifficultyChange("Hard");
         break;
       case "start-pvp-game":
+        if (this.state.state.isSearching) this.state.cancelMatchmaking();
         this.state.setGameStarted("PVP");
         break;
       case "start-pvr-game":
@@ -186,7 +187,7 @@ export default class GamePage {
   }
 
   async saveGame() {
-    //alert("post");
+    console.log("posting data for game");
     if (!this.state.isUserLoggedIn) return;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
@@ -207,6 +208,7 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.opponentUsername = null;
       this.state.state.userSide = null;
+      this.formState = {};
     }
   }
 
@@ -265,7 +267,7 @@ export default class GamePage {
   renderGameMenu() {
     handleLangDiv(false);
     return `
-			  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+			  <div class="position-relative d-flex justify-content-center align-items-center">
 				<div class="global-nav-section nav-section-game">
 					<div class="global-nav-items">
 					  <button id="start-pvp-game">${trad[this.lang].game.pvp}</button>
@@ -424,6 +426,7 @@ export default class GamePage {
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);
       this.lang = this.state.state.lang;
+      if (this.state.state.isSearching) this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
