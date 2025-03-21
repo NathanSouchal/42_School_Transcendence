@@ -57,12 +57,13 @@ a {
 
 /* Positionner le canvas en arrière-plan */
 canvas#c {
-  position: absolute;
+  position: fixed;
+  top: 0;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
-  min-width: 320px;
-  z-index: -1; /* Place le canvas derrière les autres éléments */
+  z-index: -1;
+  display: block;
 }
 
 .main {
