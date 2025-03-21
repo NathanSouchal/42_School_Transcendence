@@ -58,12 +58,21 @@ export class GameScene {
   }
 
   handleResize() {
-    if (this.camera) {
-      this.camera.aspect = window.innerWidth / window.innerHeight;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const aspect = width / height;
+    const frustumSize = 20;
+
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+    if (this.camera.isOrthographicCamera) {
+      this.camera.left = (-frustumSize * aspect) / 2;
+      this.camera.right = (frustumSize * aspect) / 2;
+      this.camera.top = frustumSize / 2;
+      this.camera.bottom = -frustumSize / 2;
       this.camera.updateProjectionMatrix();
     }
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.renderer.setPixelRatio(window.devicePixelRatio);
   }
 
   initializeEventListener() {
