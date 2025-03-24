@@ -8,9 +8,11 @@ import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
-import { connectWallet, storeTournament } from "../../blockchain/ContractInteraction.js";
+import {
+  connectWallet,
+  storeTournament,
+} from "../../blockchain/ContractInteraction.js";
 import { ethers } from "ethers";
-
 
 export default class LocalTournament {
   constructor(state) {
@@ -155,11 +157,18 @@ export default class LocalTournament {
       });
     }
 
-    const storeBlockchainButton = document.getElementById("store-blockchain-button");
+    const storeBlockchainButton = document.getElementById(
+      "store-blockchain-button"
+    );
     if (storeBlockchainButton) {
       const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "storeBlockchainButton")) {
-        storeBlockchainButton.addEventListener("click", handleBlockchainStorage);
+      if (
+        !this.eventListeners.some((e) => e.name === "storeBlockchainButton")
+      ) {
+        storeBlockchainButton.addEventListener(
+          "click",
+          handleBlockchainStorage
+        );
       }
       this.eventListeners.push({
         name: "storeBlockchainButton",
@@ -299,19 +308,19 @@ export default class LocalTournament {
 
   async handleBlockchainStorage() {
     if (!this.tournamentFinished) {
-        alert("Tournament is not finished !");
-        return;
+      alert("Tournament is not finished !");
+      return;
     }
 
-    if (this.tournamentStoredOnBlockchain){
+    if (this.tournamentStoredOnBlockchain) {
       alert("Tournament has already been stored !");
       return;
     }
     // Vérifier si Metamask est connecté
     const userAddress = await connectWallet();
     if (!userAddress) {
-        alert("Metamask connexion is required !");
-        return;
+      alert("Metamask connexion is required !");
+      return;
     }
 
     // Récupérer les données du tournoi à envoyer
@@ -330,17 +339,17 @@ export default class LocalTournament {
     try {
       const success = await storeTournament(rounds, tournamentId);
       if (success) {
-          // alert("Tournoi enregistré avec succès sur la blockchain !");
-          this.buttonBlockchainState = "stored";
-          this.display_store_button(this.buttonBlockchainState);
-          this.tournamentStoredOnBlockchain = true;
+        // alert("Tournoi enregistré avec succès sur la blockchain !");
+        this.buttonBlockchainState = "stored";
+        this.display_store_button(this.buttonBlockchainState);
+        this.tournamentStoredOnBlockchain = true;
       } else {
         this.buttonBlockchainState = "store";
         this.display_store_button(this.buttonBlockchainState);
       }
     } catch (error) {
-        console.error("Blockchain error :", error);
-        alert("Error has occured, check the console.");
+      console.error("Blockchain error :", error);
+      alert("Error has occured, check the console.");
     }
   }
 
@@ -372,12 +381,12 @@ export default class LocalTournament {
   formatTournamentData() {
     const formatedTournament = this.allTournamentScores.map((round, index) => ({
       roundID: index + 1,
-      matches: round.map(match => ({
-          player1: match.player1,
-          player2: match.player2,
-          scorePlayer1: match.score_player1 || 0,
-          scorePlayer2: match.score_player2 || 0
-      }))
+      matches: round.map((match) => ({
+        player1: match.player1,
+        player2: match.player2,
+        scorePlayer1: match.score_player1 || 0,
+        scorePlayer2: match.score_player2 || 0,
+      })),
     }));
     return formatedTournament;
   }
@@ -385,8 +394,6 @@ export default class LocalTournament {
   uuidToBytes32(uuid) {
     return ethers.keccak256(ethers.toUtf8Bytes(uuid));
   }
-
-
 
   async saveGame() {
     const { left, right } = this.state.score;
@@ -428,8 +435,7 @@ export default class LocalTournament {
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
         this.currentRound.sort((a, b) => a.id - b.id);
-        
-      } else if (res.status === 200 && res.data.tournamentIsFinished){
+      } else if (res.status === 200 && res.data.tournamentIsFinished) {
         this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
@@ -601,13 +607,14 @@ export default class LocalTournament {
             )
             .join("")}
         </div>
-        ${!this.tournamentFinished
-          ? `<div class="stop-button-div">
+        ${
+          !this.tournamentFinished
+            ? `<div class="stop-button-div">
               <button id="game-menu-button">
                 ${`${trad[this.lang].localTournament.stop}`}
               </button>
             </div>`
-          : `<div class="tournament-finished-button-div">
+            : `<div class="tournament-finished-button-div">
               <button id="game-menu-button">
               ${`${trad[this.lang].localTournament.gameMenu}`}
               </button>
