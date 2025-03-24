@@ -114,6 +114,12 @@ export default class Register {
     let key = e.target.name;
     let value = e.target.value;
     let inputElement = e.target;
+    let passwordField = document.querySelector("input[name='password']");
+    let passwordConfField = document.querySelector(
+      "input[name='passwordConfirmation']"
+    );
+    let regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
 
     if (key === "username") {
       if (value.length < 4) {
@@ -124,23 +130,58 @@ export default class Register {
         inputElement.classList.add("is-valid");
       }
     } else if (key === "password") {
-      const regex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
       if (!regex.test(value)) {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
-      } else {
+        if (
+          value &&
+          passwordConfField.value &&
+          passwordConfField.value === value
+        ) {
+          passwordConfField.classList.remove("is-invalid");
+          passwordConfField.classList.add("is-valid");
+        } else if (
+          value &&
+          passwordConfField.value &&
+          passwordConfField.value !== value
+        ) {
+          passwordConfField.classList.remove("is-valid");
+          passwordConfField.classList.add("is-invalid");
+        }
+      } else if (regex.test(value)) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
+        if (passwordConfField.value === passwordField.value) {
+          passwordConfField.classList.remove("is-invalid");
+          passwordConfField.classList.add("is-valid");
+        } else if (
+          passwordConfField.value &&
+          passwordConfField.value !== passwordField.value
+        ) {
+          passwordConfField.classList.remove("is-valid");
+          passwordConfField.classList.add("is-invalid");
+        }
+      } else if (
+        passwordConfField.value &&
+        passwordConfField.value !== passwordField.value
+      ) {
+        passwordConfField.classList.remove("is-valid");
+        passwordConfField.classList.add("is-invalid");
       }
     } else if (key === "passwordConfirmation") {
-      const passwordField = document.querySelector("input[name='password']");
-      if (value !== passwordField.value) {
+      if (!value || value !== passwordField.value) {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
-      } else {
+      } else if (value && value === passwordField.value) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
+        if (regex.test(passwordField.value)) {
+          passwordField.classList.remove("is-invalid");
+          passwordField.classList.add("is-valid");
+        }
+      } else if (regex.test(passwordField.value)) {
+        passwordField.classList.remove("is-valid");
+        passwordField.classList.add("is-invalid");
       }
     }
 
