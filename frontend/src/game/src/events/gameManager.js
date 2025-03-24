@@ -253,10 +253,10 @@ export class GameManager {
       this.connectionIssueRenewal = now;
     } else if (state.connectionIssue === "renewed") {
       this.connectionIssueRenewal = now;
-      if (this.connectionIssueInit - now > maxIssueTime) {
-        state.setGameEnded();
-        state.state.gameHasBeenWon;
-      }
+      //if (this.connectionIssueInit - now > maxIssueTime) {
+      //  state.setGameEnded();
+      //  state.state.gameHasBeenWon;
+      //}
     } else if (issueState === "watch") {
       if (this.connectionIssueRenewal - now > forgetTime) {
         console.log("You stopped having connection issues");
