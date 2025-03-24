@@ -149,6 +149,7 @@ export const trad = {
       usernameUnavailable: "This username is already used",
       playerName:
         "Invalid participant name : only letters, numbers and underscores are allowed",
+      playerNameUnavailable: "This player name is already used",
       playerMinlength: "Player name must be at least 4 characters long",
       playerMaxlength: "Player name must be at most 10 characters long",
       credentials: "Invalid credentials",
@@ -315,6 +316,7 @@ export const trad = {
       usernameUnavailable: "Ce nom d'utilisateur est déjà utilisé",
       playerName:
         "Nom de participant invalide : seuls les lettres, chiffres et underscores sont autorisés",
+      playerNameUnavailable: "Ce nom de joueur est deja utilisé",
       playerMinlength: "Le nom du joueur doit comporter au moins 4 caractères",
       playerMaxlength:
         "Le nom du joueur doit comporter au maximum 10 caractères",
@@ -488,9 +490,11 @@ export const trad = {
       usernameUnavailable: "Este nombre de usuario ya está en uso",
       playerName:
         "Nombre de participante inválido: solo se permiten letras, números y guiones bajos",
+        
       playerMinlength: "El nombre del jugador debe tener al menos 4 caracteres",
       playerMaxlength:
         "El nombre del jugador debe tener como máximo 10 caracteres",
+      playerNameUnavailable: "Este nombre de jugador ya está en uso",
       credentials: "Credenciales inválidas",
       fields: "Por favor, complete todos los campos",
       codeInvalid: "El código no es válido",
@@ -660,6 +664,7 @@ export const trad = {
       usernameUnavailable: "This Crabname is already Crabbed",
       playerName:
         "Invalid Crabber name: only Crabbers, Crabs, and Crabderscores are Crabllowed",
+      playerNameUnavailable: "Crabis playcrab crabame crabcrab crabed",
       playerMinlength: "Crabber name must be at least 4 Crabs long",
       playerMaxlength: "Crabber name must be at most 10 Crabs long",
       credentials: "Invalid Crabdentials",

@@ -212,6 +212,10 @@ export default class LocalTournament {
             return this.displayTournamentErrorMessage(
               trad[this.lang].errors.playerMaxlength
             );
+          if (this.playerList.includes(playerName))
+            return this.displayTournamentErrorMessage(
+              trad[this.lang].errors.playerNameUnavailable
+            );
         }
         if (playerName) {
           this.playerList.push(playerName);
