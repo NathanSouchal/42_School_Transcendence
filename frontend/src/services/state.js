@@ -181,6 +181,7 @@ export default class State {
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.scores.push(this.score);
     this.state.gameStarted = false;
+    this.gameMode = "default";
     this.setGameNeedsReset(true);
     this.notifyListeners();
     if (this.gameManager?.socket) this.gameManager.socket.close();
