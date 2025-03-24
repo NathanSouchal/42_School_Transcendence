@@ -47,10 +47,12 @@ export class GameManager {
         this.socket.addEventListener("close", closeHandler);
         this.socket.close();
       });
-      if (this.pingInterval) {
-        clearInterval(this.pingInterval);
-      }
+
       this.socket = null;
+    }
+    if (this.pingInterval) {
+      console.log("ClearInterval()");
+      clearInterval(this.pingInterval);
     }
   }
 

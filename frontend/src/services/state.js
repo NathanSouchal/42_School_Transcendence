@@ -127,9 +127,15 @@ export default class State {
   }
 
   async setGameStarted(gameMode) {
-    if (gameMode !== "default") { 
+    console.log("setGameStarted()");
+    console.log("gameMode: " + gameMode);
+    if (gameMode !== "default") {
       await this.displayTimerBeforeGameStart();
-      if (!this.state.gameIsTimer) return ;
+      if (!this.state.gameIsTimer) return;
+      //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
+      //     console.warn("⚠️ gameManager is undefined or not ready.");
+      //     return;
+      //   }
       this.state.gameIsTimer = false;
     }
     if (
@@ -221,15 +227,16 @@ export default class State {
     console.log("setGameEnded()");
     this.scores.push(this.score);
     this.setDestroyGame();
+    this.setGameNeedsReset(true);
     this.notifyListeners();
   }
 
   setDestroyGame() {
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    this.state.gameStarted = false;
-    this.gameMode = "default";
     this.state.gameIsTimer = false;
-    this.setGameNeedsReset(true);
+    console.log("setDestroyGame()");
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
+    if (this.state.gameStarted) this.state.gameStarted = false;
+    this.gameMode = "default";
     if (this.gameManager?.socket) this.gameManager.socket.close();
   }
 
