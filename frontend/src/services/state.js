@@ -213,12 +213,16 @@ export default class State {
 
   setGameEnded() {
     console.log("setGameEnded()");
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.scores.push(this.score);
+    this.setDestroyGame();
+    this.notifyListeners();
+  }
+
+  setDestroyGame() {
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.state.gameStarted = false;
     this.gameMode = "default";
     this.setGameNeedsReset(true);
-    this.notifyListeners();
     if (this.gameManager?.socket) this.gameManager.socket.close();
   }
 

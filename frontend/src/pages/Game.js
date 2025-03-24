@@ -69,11 +69,14 @@ export default class GamePage {
       });
     }
 
-    window.addEventListener('popstate', function(event) {
-      const langDiv = document.getElementById("lang-div");
-      if (langDiv)
-        langDiv.style.display = "block";
-    });
+    // window.addEventListener('popstate', function(event) {
+    //   // const langDiv = document.getElementById("lang-div");
+    //   // if (langDiv)
+    //   //   langDiv.style.display = "block";
+    //   console.log("COUCOUCOUCOUCOU");
+    //   if (this.gameManager?.socket) this.gameManager.socket.close();
+    //   this.gameMode = "default";
+    // });
     
 
     const buttons = [
@@ -250,6 +253,7 @@ export default class GamePage {
   }
 
   destroy() {
+    console.log("DESTROYYY");
     this.removeEventListeners();
     if (this.state.state.isSearching) this.state.cancelMatchmaking();
     if (this.isSubscribed) {
@@ -258,7 +262,7 @@ export default class GamePage {
       // console.log("Game page unsubscribed from state");
     }
     this.haveToSelectBotDifficulty = false;
-    this.state.setGameEnded();
+    this.state.setDestroyGame();
   }
 
   renderSelectBotDifficulty() {
