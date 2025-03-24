@@ -252,6 +252,7 @@ export default class GamePage {
       // console.log("Game page unsubscribed from state");
     }
     this.haveToSelectBotDifficulty = false;
+    this.state.setGameEnded();
   }
 
   renderSelectBotDifficulty() {
@@ -348,6 +349,11 @@ export default class GamePage {
   }
 
   renderPauseMenu() {
+    const homeImg = document.getElementById("home-img-div");
+    if (homeImg) {
+      homeImg.style.opacity = 0;
+      homeImg.style.pointerEvents = "none";
+    }
     handleLangDiv(false);
     return `<div>
 				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
@@ -440,7 +446,7 @@ export default class GamePage {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)
-        handleHeader(this.state.isUserLoggedIn, true, true);
+        handleHeader(this.state.isUserLoggedIn, true, false);
       else handleHeader(this.state.isUserLoggedIn, true, false);
       this.lang = this.state.state.lang;
       return this.renderPauseMenu();

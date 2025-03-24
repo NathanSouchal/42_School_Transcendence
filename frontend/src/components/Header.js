@@ -99,8 +99,10 @@ export class Header {
   redirectHome(e) {
     e.preventDefault();
     const homeImg = document.getElementById("home-img-div");
-    if (homeImg) homeImg.style.opacity = 0;
-    router.navigate("/");
+    if (homeImg && homeImg.style.opacity) {
+      homeImg.style.opacity = 0;
+      router.navigate("/");
+    }
   }
 
   async handleToggleButton() {
@@ -124,6 +126,7 @@ export class Header {
           header.style.zIndex = "1";
           app.style.pointerEvents = "none";
           homeImg.style.opacity = 0;
+          homeImg.style.pointerEvents = "none";
         } else await this.closeMenu();
       }
     } catch (error) {
@@ -148,7 +151,10 @@ export class Header {
 
       if (toggleButton && navBar && navbarLinks && header && homeImg) {
         toggleButton.classList.remove("open");
-        if (window.location.pathname !== "/") homeImg.style.opacity = 1;
+        if (window.location.pathname !== "/") {
+          homeImg.style.opacity = 1;
+          homeImg.style.pointerEvents = "auto";
+        }
         navBar.classList.add("closed");
         navbarLinks.classList.remove("show-nav");
         navBar.classList.remove("show-nav");
