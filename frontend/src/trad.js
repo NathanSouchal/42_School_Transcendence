@@ -85,7 +85,7 @@ export const trad = {
       pageTitle: "Match History",
       won: "won",
       lost: "lost",
-      noContent: "No match history",
+      noContent: "No played match yet",
     },
     register: {
       pageTitle: "Register",
@@ -252,7 +252,7 @@ export const trad = {
       pageTitle: "Historique de jeu",
       won: "gagné",
       lost: "perdu",
-      noContent: "Pas d'historique de jeu",
+      noContent: "Pas encore de partie jouée",
     },
     register: {
       pageTitle: "Créer un compte",
@@ -425,7 +425,7 @@ export const trad = {
       pageTitle: "Historial de Partidas",
       won: "ganó",
       lost: "perdió",
-      noContent: "Sin historial de partidas",
+      noContent: "Todavía no se ha jugado ningún partido",
     },
     register: {
       pageTitle: "Registrarse",
@@ -599,7 +599,7 @@ export const trad = {
       pageTitle: "Crab History",
       won: "Crabbed",
       lost: "UnCrabbed",
-      noContent: "No Crab History",
+      noContent: "No Crabed crab yet",
     },
     register: {
       pageTitle: "Crabister",
