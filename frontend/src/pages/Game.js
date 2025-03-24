@@ -71,7 +71,10 @@ export default class GamePage {
     }
 
     window.addEventListener('popstate', function(event) {
-      showToogleBar(true)
+      showToogleBar(true);
+      const langDiv = document.getElementById("lang-div");
+      if (langDiv)
+        langDiv.style.display = "block";
     });
     
 
