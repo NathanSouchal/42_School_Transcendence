@@ -69,6 +69,13 @@ export default class GamePage {
       });
     }
 
+    window.addEventListener('popstate', function(event) {
+      const langDiv = document.getElementById("lang-div");
+      if (langDiv)
+        langDiv.style.display = "block";
+    });
+    
+
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },

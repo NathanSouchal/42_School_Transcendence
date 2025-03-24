@@ -85,7 +85,7 @@ export const trad = {
       pageTitle: "Match History",
       won: "won",
       lost: "lost",
-      noContent: "No match history",
+      noContent: "No played match yet",
     },
     register: {
       pageTitle: "Register",
@@ -149,6 +149,7 @@ export const trad = {
       usernameUnavailable: "This username is already used",
       playerName:
         "Invalid participant name : only letters, numbers and underscores are allowed",
+      playerNameUnavailable: "This player name is already used",
       playerMinlength: "Player name must be at least 4 characters long",
       playerMaxlength: "Player name must be at most 10 characters long",
       credentials: "Invalid credentials",
@@ -251,7 +252,7 @@ export const trad = {
       pageTitle: "Historique de jeu",
       won: "gagné",
       lost: "perdu",
-      noContent: "Pas d'historique de jeu",
+      noContent: "Pas encore de partie jouée",
     },
     register: {
       pageTitle: "Créer un compte",
@@ -315,6 +316,7 @@ export const trad = {
       usernameUnavailable: "Ce nom d'utilisateur est déjà utilisé",
       playerName:
         "Nom de participant invalide : seuls les lettres, chiffres et underscores sont autorisés",
+      playerNameUnavailable: "Ce nom de joueur est deja utilisé",
       playerMinlength: "Le nom du joueur doit comporter au moins 4 caractères",
       playerMaxlength:
         "Le nom du joueur doit comporter au maximum 10 caractères",
@@ -423,7 +425,7 @@ export const trad = {
       pageTitle: "Historial de Partidas",
       won: "ganó",
       lost: "perdió",
-      noContent: "Sin historial de partidas",
+      noContent: "Todavía no se ha jugado ningún partido",
     },
     register: {
       pageTitle: "Registrarse",
@@ -488,9 +490,11 @@ export const trad = {
       usernameUnavailable: "Este nombre de usuario ya está en uso",
       playerName:
         "Nombre de participante inválido: solo se permiten letras, números y guiones bajos",
+        
       playerMinlength: "El nombre del jugador debe tener al menos 4 caracteres",
       playerMaxlength:
         "El nombre del jugador debe tener como máximo 10 caracteres",
+      playerNameUnavailable: "Este nombre de jugador ya está en uso",
       credentials: "Credenciales inválidas",
       fields: "Por favor, complete todos los campos",
       codeInvalid: "El código no es válido",
@@ -595,7 +599,7 @@ export const trad = {
       pageTitle: "Crab History",
       won: "Crabbed",
       lost: "UnCrabbed",
-      noContent: "No Crab History",
+      noContent: "No Crabed crab yet",
     },
     register: {
       pageTitle: "Crabister",
@@ -660,6 +664,7 @@ export const trad = {
       usernameUnavailable: "This Crabname is already Crabbed",
       playerName:
         "Invalid Crabber name: only Crabbers, Crabs, and Crabderscores are Crabllowed",
+      playerNameUnavailable: "Crabis playcrab crabame crabcrab crabed",
       playerMinlength: "Crabber name must be at least 4 Crabs long",
       playerMaxlength: "Crabber name must be at most 10 Crabs long",
       credentials: "Invalid Crabdentials",
