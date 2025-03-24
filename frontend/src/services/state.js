@@ -42,7 +42,6 @@ export default class State {
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
-    document.getElementById("lang-div").classList.add("hidden");
 
     // this.gamePoints = 10;
     this.gamePoints = 2;
@@ -118,7 +117,7 @@ export default class State {
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
-    document.getElementById("lang-div").classList.remove("hidden");
+    document.getElementById("lang-div").style.display = "block";
   }
 
   setGameNeedsReset(bool) {
@@ -127,8 +126,7 @@ export default class State {
   }
 
   async setGameStarted(gameMode) {
-    if (gameMode != "default")
-      await this.displayTimerBeforeGameStart();
+    if (gameMode != "default") await this.displayTimerBeforeGameStart();
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
     )
@@ -152,11 +150,9 @@ export default class State {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
       const langDiv = document.getElementById("lang-div");
-      if (toogleBar)
-        toogleBar.style.display = "none";
-      if (langDiv)
-        langDiv.style.display = "none";
-      
+      if (toogleBar) toogleBar.style.display = "none";
+      if (langDiv) langDiv.style.display = "none";
+
       const template = `
         <div class="timer-overlay">
           <div class="timer-countdown">${durationSeconds}</div>
@@ -164,26 +160,24 @@ export default class State {
       `;
       container.innerHTML = template;
 
-      const countdownElement = container.querySelector('.timer-countdown');
+      const countdownElement = container.querySelector(".timer-countdown");
       let countdown = durationSeconds;
-    
+
       const interval = setInterval(() => {
         countdown--;
         countdownElement.textContent = countdown;
-    
+
         if (countdown <= 0) {
           clearInterval(interval);
-          const timerOverlay = container.querySelector('.timer-overlay');
-          if (timerOverlay)
-            timerOverlay.remove();
-          if (langDiv)
-            langDiv.style.display = "block";
+          const timerOverlay = container.querySelector(".timer-overlay");
+          if (timerOverlay) timerOverlay.remove();
+          //   if (langDiv) langDiv.style.display = "block";
           resolve();
         }
       }, 1000);
     });
   }
-  
+
   async startMatchmaking() {
     if (this.state.isSearching) {
       console.warn("Matchmaking is already in progress!");
@@ -247,7 +241,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();

@@ -356,14 +356,11 @@ canvas#c {
   width: 100px;
   height: 45px;
   transition: all 0.2s ease;
+  display: none;
 }
 
 .lang-div:hover {
   transform: scale(1.1);
-}
-
-.lang-div.hidden {
-  opacity: 0;
 }
 
 .lang-div:active {

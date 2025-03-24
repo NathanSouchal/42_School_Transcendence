@@ -223,8 +223,7 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"] ||
-      newState.lang !== this.previousState.lang ||
-      newState.latency !== this.previousState.latency
+      newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
@@ -318,18 +317,7 @@ export default class GamePage {
 
     return `
         <div class="game-hud">
-          <div class="connection-status">
-                ${
-                  this.state.connectionIssue
-                    ? `
-                        <div class="status-circle bad-latency"></div>`
-                    : `
-                        <div class="status-circle good-latency"></div>`
-                }
-                <span class="latency-text">${this.state.state.latency} ms</span>
-              </div>
-
-				  <div class="game-score">
+			<div class="game-score">
             <h1>${this.leftPlayerName}</h1>
             <h1>${left} - ${right}</h1>
             <h1>${this.rightPlayerName}</h1>

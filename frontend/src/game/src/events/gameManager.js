@@ -88,7 +88,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
     );
     this.isConnected = false;
     // this.socket = null;
@@ -126,7 +126,7 @@ export class GameManager {
     this.side = data.side;
     if (data.opponent_id) {
       console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
       );
     } else {
       console.warn("⚠️ Aucun opponent_id reçu !");
@@ -168,12 +168,12 @@ export class GameManager {
       this.positions.ball.pos.set(
         data.ball.pos.x,
         data.ball.pos.y,
-        data.ball.pos.z,
+        data.ball.pos.z
       );
       this.positions.ball.vel.set(
         data.ball.vel.x,
         data.ball.vel.y,
-        data.ball.vel.z,
+        data.ball.vel.z
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");
@@ -183,8 +183,20 @@ export class GameManager {
 
   handlePong() {
     const now = Date.now();
-    state.state.latency = now - this.lastPingTime;
-    state.notifyListeners();
+    let latency = now - this.lastPingTime;
+    const statusCircle = document.getElementById("status-circle");
+    const connectionText = document.getElementById("latency-text");
+    if (statusCircle && connectionText) {
+      connectionText.innerHTML = latency.toString() + "ms";
+      if (state.connectionIssue) {
+        statusCircle.classList.remove("good-latency");
+        statusCircle.classList.add("bad-latency");
+      } else {
+        statusCircle.classList.add("good-latency");
+        statusCircle.classList.remove("bad-latency");
+      }
+    }
+    // state.notifyListeners();
     //console.log(`Current latency: ${state.state.latency}ms`);
   }
 
@@ -226,7 +238,7 @@ export class GameManager {
 
   checkForConnectionIssues(ping) {
     console.log(
-      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`,
+      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`
     );
     if (ping > 70 && !state.connectionIssue) {
       this.handleLocalConnectionIssue("init");
