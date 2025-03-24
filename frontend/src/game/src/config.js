@@ -29,8 +29,8 @@ export const DEFAULT_CONFIG = {
     near: 0.1,
     far: 500,
     position: {
-      x: -18,
-      y: 18,
+      x: -20,
+      y: 20,
       z: 0,
     },
     target: {

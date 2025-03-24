@@ -12,6 +12,7 @@ class Renderer {
     this.zMax = game.paddleLeft.size.arena_depth;
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
+    this.firstPageLoad = true;
   }
 
   resizeRendererToDisplaySize() {
@@ -19,9 +20,11 @@ class Renderer {
     const pixelRatio = window.devicePixelRatio;
     const width = Math.floor(canvas.clientWidth * pixelRatio);
     const height = Math.floor(canvas.clientHeight * pixelRatio);
-    const needResize = canvas.width !== width || canvas.height !== height;
+    const needResize =
+      canvas.width !== width || canvas.height !== height || this.firstPageLoad;
     if (needResize) {
       this.renderer.setSize(width, height, false);
+      if (this.firstPageLoad) this.firstPageLoad = false;
     }
     return needResize;
   }
