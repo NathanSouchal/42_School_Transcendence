@@ -26,6 +26,7 @@ export default class State {
       username: null,
       userAlias: null,
       latency: 0,
+      gameIsTimer: false,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
@@ -126,7 +127,11 @@ export default class State {
   }
 
   async setGameStarted(gameMode) {
-    if (gameMode != "default") await this.displayTimerBeforeGameStart();
+    if (gameMode !== "default") { 
+      await this.displayTimerBeforeGameStart();
+      if (!this.state.gameIsTimer) return ;
+      this.state.gameIsTimer = false;
+    }
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
     )
@@ -146,6 +151,7 @@ export default class State {
   }
 
   displayTimerBeforeGameStart(durationSeconds = 3) {
+    this.state.gameIsTimer = true;
     return new Promise((resolve) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
@@ -222,6 +228,7 @@ export default class State {
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.state.gameStarted = false;
     this.gameMode = "default";
+    this.state.gameIsTimer = false;
     this.setGameNeedsReset(true);
     if (this.gameManager?.socket) this.gameManager.socket.close();
   }
