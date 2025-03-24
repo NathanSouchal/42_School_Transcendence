@@ -3,9 +3,9 @@ import {
   checkUserStatus,
   setDisable,
   handleLangDiv,
+  handleHeader,
 } from "../utils";
 import API from "../services/api";
-import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 import {
@@ -311,6 +311,7 @@ export default class LocalTournament {
   }
 
   async handleBlockchainStorage() {
+    setDisable(true, "store-blockchain-button");
     if (!this.tournamentFinished) {
       alert("Tournament is not finished !");
       return;
@@ -355,6 +356,7 @@ export default class LocalTournament {
       console.error("Blockchain error :", error);
       alert("Error has occured, check the console.");
     }
+    setDisable(false, "store-blockchain-button");
   }
 
   display_store_button(button_version) {

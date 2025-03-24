@@ -48,14 +48,6 @@ export function handleLangDiv(remove) {
   else if (langDiv && !remove) langDiv.classList.remove("hidden");
 }
 
-export function showToogleBar(show) {
-  const toogleBar = document.getElementById("toggle-button-container");
-  if (toogleBar && !show)
-    toogleBar.style.display = "none";
-  else if (toogleBar && show)
-    toogleBar.style.display = "block";
-}
-
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   if (needsToDestroy) {
     header.destroy();
