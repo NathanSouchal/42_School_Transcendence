@@ -107,4 +107,5 @@ class TournamentListView(APIView):
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
+			print(f"Exception raised in serializer validation: {str(e)}")  # Debug
 			return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

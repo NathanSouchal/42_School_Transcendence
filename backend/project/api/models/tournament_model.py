@@ -4,8 +4,11 @@ import random
 from .user_model import User
 from .match_model import Match
 from api.utils import sanitize_input
+import uuid
+
 
 class Tournament(models.Model):
+	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	name = models.CharField(max_length=100, unique=True, default='unnamed')
 	creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 	# participants = models.ManyToManyField(User, related_name='tournaments')

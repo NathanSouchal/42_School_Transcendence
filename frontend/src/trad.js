@@ -67,6 +67,9 @@ export const trad = {
       stop: "Stop Tournament",
       resume: "Resume game",
       paused: "Game paused",
+      storeBlockchain: "Store the results on the Sepolia blockchain",
+      storingBlockchain: "Storing on Sepolia blockchain...",
+      storedBlockchain: "Successfully stored !",
     },
     login: {
       pageTitle: "Login",
@@ -230,6 +233,9 @@ export const trad = {
       stop: "Arrêter le tournoi",
       resume: "Reprendre",
       paused: "Jeu en pause",
+      storeBlockchain: "Stocker les résultats sur la blockchain Sepolia",
+      storingBlockchain: "En train de stocker sur la blockchain Sepolia...",
+      storedBlockchain: "Stocké avec succés !",
     },
     login: {
       pageTitle: "Connexion",
@@ -399,6 +405,9 @@ export const trad = {
       stop: "Detener torneo",
       resume: "Reanudar juego",
       paused: "Juego pausado",
+      storeBlockchain: "Almacene los resultados en la blockchain de Sepolia",
+      storingBlockchain: "Almacenando en la blockchain Sepolia...",
+      storedBlockchain: "Almacenado con éxito !",
     },
     login: {
       pageTitle: "Iniciar sesión",
@@ -568,6 +577,9 @@ export const trad = {
       stop: "Stop Crabnament",
       resume: "Resume Crab",
       paused: "Crab Paused",
+      storeBlockchain: "Crabtore cracrab resulcrab on crabcrab Sepolia crabchain",
+      storingBlockchain: "Crabting oncrab crablia cracrabchain...",
+      storedBlockchain: "Craaaablly crab !",
     },
     login: {
       pageTitle: "Crabin",

@@ -8,6 +8,9 @@ import API from "../services/api";
 import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import { connectWallet, storeTournament } from "../../blockchain/ContractInteraction.js";
+import { ethers } from "ethers";
+
 
 export default class LocalTournament {
   constructor(state) {
@@ -20,6 +23,8 @@ export default class LocalTournament {
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
+    this.tournamentId = "";
+    this.allTournamentScores = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
@@ -31,6 +36,8 @@ export default class LocalTournament {
     this.userAlias = "";
     this.lang = null;
     this.isProcessing = false;
+    this.tournamentStoredOnBlockchain = false;
+    this.buttonBlockchainState = "store";
   }
 
   async initialize(routeParams = {}) {
@@ -147,6 +154,20 @@ export default class LocalTournament {
         listener: handlePlayersName,
       });
     }
+
+    const storeBlockchainButton = document.getElementById("store-blockchain-button");
+    if (storeBlockchainButton) {
+      const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "storeBlockchainButton")) {
+        storeBlockchainButton.addEventListener("click", handleBlockchainStorage);
+      }
+      this.eventListeners.push({
+        name: "storeBlockchainButton",
+        type: "click",
+        element: storeBlockchainButton,
+        listener: handleBlockchainStorage,
+      });
+    }
   }
 
   handleNavigation(e) {
@@ -259,6 +280,7 @@ export default class LocalTournament {
       }
     } else this.previousState = { ...newState };
     this.oldscore = { ...this.state.score };
+    this.display_store_button(this.buttonBlockchainState);
   }
 
   handleBtn(key) {
@@ -274,6 +296,97 @@ export default class LocalTournament {
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
   }
+
+  async handleBlockchainStorage() {
+    if (!this.tournamentFinished) {
+        alert("Tournament is not finished !");
+        return;
+    }
+
+    if (this.tournamentStoredOnBlockchain){
+      alert("Tournament has already been stored !");
+      return;
+    }
+    // Vérifier si Metamask est connecté
+    const userAddress = await connectWallet();
+    if (!userAddress) {
+        alert("Metamask connexion is required !");
+        return;
+    }
+
+    // Récupérer les données du tournoi à envoyer
+    if (this.tournamentId.length == 0) {
+      alert("Tournament is not yet created !");
+      return;
+    }
+    const tournamentId = this.uuidToBytes32(this.tournamentId);
+    const rounds = this.formatTournamentData();
+    // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
+    // console.log("Envoi du tournoi sur la blockchain...", rounds);
+
+    this.buttonBlockchainState = "storing";
+    this.display_store_button(this.buttonBlockchainState);
+
+    try {
+      const success = await storeTournament(rounds, tournamentId);
+      if (success) {
+          // alert("Tournoi enregistré avec succès sur la blockchain !");
+          this.buttonBlockchainState = "stored";
+          this.display_store_button(this.buttonBlockchainState);
+          this.tournamentStoredOnBlockchain = true;
+      } else {
+        this.buttonBlockchainState = "store";
+        this.display_store_button(this.buttonBlockchainState);
+      }
+    } catch (error) {
+        console.error("Blockchain error :", error);
+        alert("Error has occured, check the console.");
+    }
+  }
+
+  display_store_button(button_version) {
+    const storeButton = document.getElementById("store-blockchain-button");
+    const storingButton = document.getElementById("storing-blockchain-button");
+    const storedButton = document.getElementById("stored-blockchain-button");
+    if (storeButton && storingButton && storedButton) {
+      switch (button_version) {
+        case "store":
+          storeButton.style.display = "block";
+          storingButton.style.display = "none";
+          storedButton.style.display = "none";
+          break;
+        case "storing":
+          storeButton.style.display = "none";
+          storingButton.style.display = "block";
+          storedButton.style.display = "none";
+          break;
+        case "stored":
+          storeButton.style.display = "none";
+          storingButton.style.display = "none";
+          storedButton.style.display = "block";
+          break;
+      }
+    }
+  }
+
+  formatTournamentData() {
+    const formatedTournament = this.allTournamentScores.map((round, index) => ({
+      roundID: index + 1,
+      matches: round.map(match => ({
+          player1: match.player1,
+          player2: match.player2,
+          scorePlayer1: match.score_player1 || 0,
+          scorePlayer2: match.score_player2 || 0
+      }))
+    }));
+    return formatedTournament;
+  }
+
+  uuidToBytes32(uuid) {
+    return ethers.keccak256(ethers.toUtf8Bytes(uuid));
+  }
+
+
 
   async saveGame() {
     const { left, right } = this.state.score;
@@ -310,11 +423,14 @@ export default class LocalTournament {
         winner: winner,
       });
       console.log(res);
-      if (res.status === 200) {
+      if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
-      } else {
+        this.currentRound.sort((a, b) => a.id - b.id);
+        
+      } else if (res.status === 200 && res.data.tournamentIsFinished){
+        this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
       }
@@ -331,7 +447,9 @@ export default class LocalTournament {
         number_of_players: this.nbPlayers,
       });
       this.currentRound = res.data.tournament.rounds_tree[0];
+      this.currentRound.sort((a, b) => a.id - b.id);
       this.MatchToPlay = res.data.FirstMatch;
+      this.tournamentId = res.data.tournament.id;
       await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
@@ -388,6 +506,7 @@ export default class LocalTournament {
 
   renderSelectNbPlayers() {
     handleLangDiv(false);
+    this.buttonBlockchainState = "store";
     return `<div class="select-container">
                 <h2>${trad[this.lang].localTournament.playersNum}</h2>
 				<div class="crab-playernb-div">
@@ -482,11 +601,27 @@ export default class LocalTournament {
             )
             .join("")}
         </div>
-        <div class="stop-button-div">
-          <button id="game-menu-button">
-            ${!this.MatchToPlay.next_match ? `${trad[this.lang].localTournament.gameMenu}` : `${trad[this.lang].localTournament.stop}`}
-          </button>
-        </div>
+        ${!this.tournamentFinished
+          ? `<div class="stop-button-div">
+              <button id="game-menu-button">
+                ${`${trad[this.lang].localTournament.stop}`}
+              </button>
+            </div>`
+          : `<div class="tournament-finished-button-div">
+              <button id="game-menu-button">
+              ${`${trad[this.lang].localTournament.gameMenu}`}
+              </button>
+              <button style="display: block" id="store-blockchain-button">
+                 ${`${trad[this.lang].localTournament.storeBlockchain}`}
+              </button>
+              <div class="storing-blockchain-button" style="display: none" id="storing-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storingBlockchain}`}</button>
+              </div>
+              <div class="stored-blockchain-button" style="display: none" id="stored-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storedBlockchain}`}</button>
+              </div>
+            </div>`
+        }
     `;
   }
 
@@ -514,6 +649,7 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 
     if (!this.isSubscribed) {
