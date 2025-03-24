@@ -5,7 +5,7 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
- const homeImg = document.getElementById("home-img-div");
+  const homeImg = document.getElementById("home-img-div");
   const open = document.querySelector(".open");
   if (homeImg) {
     if (context.pageName === "Home") {
@@ -44,8 +44,9 @@ export async function updateView(context, routeParams = {}) {
 
 export function handleLangDiv(remove) {
   const langDiv = document.getElementById("lang-div");
-  if (langDiv && remove) langDiv.classList.add("hidden");
-  else if (langDiv && !remove) langDiv.classList.remove("hidden");
+  if (langDiv && remove) langDiv.style.display = "none";
+  else if (langDiv && !remove && state.state.gameHasLoaded)
+    langDiv.style.display = "block";
 }
 
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
