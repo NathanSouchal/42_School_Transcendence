@@ -183,7 +183,6 @@ export class Header {
   }
 
   destroy() {
-    console.log("Destroying Header");
     this.removeEventListeners();
     this.isUserRendered = false;
     this.isGuestRendered = false;

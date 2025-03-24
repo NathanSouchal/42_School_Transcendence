@@ -19,7 +19,7 @@ class Robot {
   predictBallPosition(position, velocity) {
     const arenaWidth = this.size.arena_width - this.size.border_width * 2;
     const halfArenaWidth = arenaWidth / 2;
-    const paddleZ = this.paddle.pos.z;
+    const paddleZ = this.paddle.obj.position.z;
     const timeToReach = (paddleZ - position.z) / velocity.z;
     let predictedX = position.x + velocity.x * timeToReach;
     while (predictedX < -halfArenaWidth || predictedX > halfArenaWidth) {
@@ -33,8 +33,8 @@ class Robot {
     return predictedX;
   }
 
-  moveTowardsTarget(deltaTime, gameManager) {
-    const currentX = this.paddle.pos.x;
+  moveTowardsTarget() {
+    const currentX = this.paddle.obj.position.x;
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
@@ -43,28 +43,19 @@ class Robot {
           : 0;
       this.last_target_x = this.target_x;
     }
-    if (currentX + this.half_width < this.target_x - this.offset) {
-      gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-    } else if (currentX - this.half_width > this.target_x + this.offset) {
-      gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
+    if (currentX + this.half_width < this.target_x + this.offset) {
+      this.action = "up";
+    } else if (currentX - this.half_width > this.target_x - this.offset) {
+      this.action = "down";
     } else {
-      gameManager.sendPaddleMove("stop", this.paddle.side, deltaTime);
+      this.action = "stop";
     }
   }
 
-  sendAction() {
-    if (this.action != this.last_action) {
-      switch (this.action) {
-        case "up":
-          gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-          this.last_action = "up";
-        case "down":
-          gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
-          this.last_action = "down";
-        case "stop":
-          gameManager.sendPaddleMove("stop", this.paddle.side, deltaTime);
-          this.last_action = "stop";
-      }
+  sendAction(deltaTime, gameManager) {
+    if (this.action !== this.last_action) {
+      gameManager.sendPaddleMove(this.action, this.paddle.side, deltaTime);
+      this.last_action = this.action;
     }
   }
 
@@ -75,8 +66,8 @@ class Robot {
       this.target_x = this.predictBallPosition(position, velocity);
       this.timeSinceLastView = 0;
     }
-    this.moveTowardsTarget(deltaTime, gameManager);
-    this.sendAction();
+    this.moveTowardsTarget();
+    this.sendAction(deltaTime, gameManager);
   }
 }
 

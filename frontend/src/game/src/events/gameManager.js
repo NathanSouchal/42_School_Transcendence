@@ -26,6 +26,13 @@ export class GameManager {
     await this.closeExistingConnection();
     this.createNewConnection();
     this.setupSocketEventHandlers();
+
+    this.pingInterval = setInterval(() => {
+      this.sendPing();
+      if (state.gameMode !== "default") {
+        this.checkForConnectionIssues(state.state.latency);
+      }
+    }, 2000);
   }
 
   async closeExistingConnection() {
@@ -40,7 +47,9 @@ export class GameManager {
         this.socket.addEventListener("close", closeHandler);
         this.socket.close();
       });
-
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+      }
       this.socket = null;
     }
   }
@@ -105,6 +114,11 @@ export class GameManager {
       case "scored_side":
         this.handleScored(data);
         break;
+      case "connectionIssue":
+        this.handleOtherPlayerConnectionIssue(data);
+        break;
+      case "pong":
+        this.handlePong(data);
     }
   }
 
@@ -167,6 +181,13 @@ export class GameManager {
     this.positions.timestamp = timestamp;
   }
 
+  handlePong() {
+    const now = Date.now();
+    state.state.latency = now - this.lastPingTime;
+    state.notifyListeners();
+    //console.log(`Current latency: ${state.state.latency}ms`);
+  }
+
   reconnect() {
     if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
       console.log("Tentative de reconnexion WebSocket...");
@@ -201,6 +222,55 @@ export class GameManager {
       type: "pausedOrUnpaused",
       bool: bool,
     });
+  }
+
+  checkForConnectionIssues(ping) {
+    console.log(
+      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`,
+    );
+    if (ping > 70 && !state.connectionIssue) {
+      this.handleLocalConnectionIssue("init");
+    } else if (ping > 70 && state.connectionIssue) {
+      this.handleLocalConnectionIssue("renewed");
+    } else if (state.connectionIssue) this.handleLocalConnectionIssue("watch");
+  }
+
+  sendPing() {
+    this.lastPingTime = Date.now();
+    this.sendMessage({ type: "ping" });
+  }
+
+  handleLocalConnectionIssue(issueState) {
+    let maxIssueTime = 10000;
+    let forgetTime = 2000;
+    let now = Date.now();
+
+    if (issueState === "init") {
+      console.log("You are having connection issues");
+      state.connectionIssue = true;
+      this.sendMessage({ type: "connectionIssue", bool: true });
+      this.connectionIssueInit = now;
+      this.connectionIssueRenewal = now;
+    } else if (state.connectionIssue === "renewed") {
+      this.connectionIssueRenewal = now;
+      //if (this.connectionIssueInit - now > maxIssueTime) {
+      //  state.setGameEnded();
+      //  state.state.gameHasBeenWon;
+      //}
+    } else if (issueState === "watch") {
+      if (this.connectionIssueRenewal - now > forgetTime) {
+        console.log("You stopped having connection issues");
+        state.connectionIssue = false;
+        this.sendMessage({ type: "connectionIssue", bool: false });
+      }
+    }
+  }
+
+  handleOtherPlayerConnectionIssue(data) {
+    if (data.connectionIssue)
+      console.log("Other player is having connection issues");
+    else console.log("Other player stopped having connection issues");
+    state.connectionIssue = data.connectionIssue;
   }
 }
 

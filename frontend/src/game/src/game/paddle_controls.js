@@ -36,21 +36,10 @@ class PaddleControls {
   }
 
   update(deltaTime, gameManager) {
-    if (this.action != this.last_action) {
-      switch (this.action) {
-        case "up":
-          gameManager.sendPaddleMove("up", this.paddle.side, deltaTime);
-          this.last_action = "up";
-          break;
-        case "down":
-          gameManager.sendPaddleMove("down", this.paddle.side, deltaTime);
-          this.last_action = "down";
-          break;
-        case "stop":
-          gameManager.sendPaddleMove("stop", this.paddle.side, deltaTime);
-          this.last_action = "stop";
-          break;
-      }
+    if (this.action !== this.last_action) {
+      //console.log("sending action: ", this.action);
+      gameManager.sendPaddleMove(this.action, this.paddle.side, deltaTime);
+      this.last_action = this.action;
     }
   }
 

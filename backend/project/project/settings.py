@@ -216,6 +216,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://192.168.1.80:8443",
     "https://192.168.0.32:8443",
     "http://192.168.1.30:3000",
+    "https://10.12.11.5:8443",
+    "https://10.12.11.6:8443",
 ]
 
 CSRF_TRUSTED_ORIGINS = [

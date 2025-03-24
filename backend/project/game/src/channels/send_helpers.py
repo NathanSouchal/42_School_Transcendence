@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -8,7 +9,7 @@ class SendHelpers:
     def __init__(self, consumer):
         self.consumer = consumer
 
-    async def send_message(self, message_type, data):
+    async def send_message(self, message_type, data, shouldBroadcast=True):
         if self.consumer.game_mode is not GameMode.ONLINE:
             await self.consumer.send(
                 text_data=json.dumps(
@@ -16,11 +17,18 @@ class SendHelpers:
                     cls=NumericEncoder,
                 )
             )
-        else:
+        elif shouldBroadcast is True:
             await self.consumer.channel_layer.group_send(
                 self.consumer.room,
                 {"type": message_type, **data},
             )
+        else:
+            for player in self.consumer.rooms[self.consumer.room]["players"]:
+                if player["channel_name"] != self.consumer.channel_name:
+                    await self.consumer.channel_layer.send(
+                        player["channel_name"],
+                        {"type": message_type, **data},
+                    )
 
     async def send_positions(self):
         current_time = time.time()
@@ -43,3 +51,11 @@ class SendHelpers:
     async def send_point_scored(self, ball_state):
         scored_side = "left" if ball_state == "point_scored_left" else "right"
         await self.send_message("scored_side", {"scored_side": scored_side})
+
+    async def send_connection_issue(self, connectionIssue):
+        await self.send_message(
+            "connectionIssue", {"connectionIssue": connectionIssue}, False
+        )
+
+    async def send_pong(self):
+        await self.send_message("pong", {})
