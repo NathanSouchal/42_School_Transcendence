@@ -25,13 +25,13 @@ class RoomInitialization:
                 if (
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
+                    and all(player["user_id"] is not None for player in room_data["players"])
+                    and all(player["user_id"] != user.id for player in room_data["players"])
                 ):
-                    if all(
-                        player["user_id"] is not None for player in room_data["players"]
-                    ):
-                        self.consumer.room = room_name
-                        roomFound = True
-                        break
+                    self.consumer.room = room_name
+                    roomFound = True
+                    print(f"✅ Found available room: {room_name}")
+                    break
         if not roomFound or self.consumer.game_mode != GameMode.ONLINE:
             self.consumer.room = str(uuid.uuid4())
         await self.consumer.accept()
