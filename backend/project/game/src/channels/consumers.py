@@ -126,6 +126,11 @@ class GameState(AsyncWebsocketConsumer):
                 positions["ball"] = self.rooms[self.room]["ball"].getCurrentState()
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")
+            elif data.get("type") == "connectionIssue":
+                issueState = data.get("bool")
+                await self.send_helpers.send_connection_issue(issueState)
+            elif data.get("type") == "ping":
+                await self.send_helpers.send_pong()
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
