@@ -7,6 +7,7 @@ import {
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
 
@@ -316,8 +317,10 @@ export default class Account {
       const data = response.data;
       console.log(data);
       this.userData = data.user;
+      console.log("AVATAAAAR: ", data.user.avatar);
       if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
       else this.userData.avatar = "/profile.jpeg";
+      console.log("AVATAAAAR APRES BUILD: ", this.userData.avatar);
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
       this.formData.email = data.user.email;
@@ -335,6 +338,7 @@ export default class Account {
       const res = await axios.head(`${API_BASE_URL}${link}`);
       if (res.status === 200) this.userData.avatar = `${API_BASE_URL}${link}`;
     } catch (error) {
+      console.log("ERROR: ", error);
       this.userData.avatar = "/profile.jpeg";
     }
   }
