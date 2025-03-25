@@ -23,6 +23,7 @@ export default class State {
       lang: "EN",
       opponentId: null,
       opponentUsername: null,
+      opponentLeft: false,
       userSide: null,
       username: null,
       userAlias: null,
@@ -244,6 +245,12 @@ export default class State {
     if (this.state.gameStarted) this.state.gameStarted = false;
     this.gameMode = "default";
     if (this.gameManager?.socket) this.gameManager.socket.close();
+  }
+
+  opponentLeft() {
+    this.state.opponentLeft = true;
+    this.setDestroyGame();
+    this.backToBackgroundPlay();
   }
 
   backToBackgroundPlay() {

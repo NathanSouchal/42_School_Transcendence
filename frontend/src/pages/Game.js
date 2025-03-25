@@ -78,7 +78,6 @@ export default class GamePage {
     //   this.gameMode = "default";
     // });
 
-
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },
@@ -233,7 +232,8 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"] ||
-      newState.lang !== this.previousState.lang
+      newState.lang !== this.previousState.lang ||
+      (newState.opponentLeft && !this.previousState.opponentLeft)
     ) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
@@ -397,7 +397,7 @@ export default class GamePage {
 
   async render(routeParams = {}) {
     await checkUserStatus();
-	console.log("render GamePage");
+    console.log("render GamePage");
 
     if (!this.isSubscribed) {
       this.previousState = { ...this.state.state };
@@ -406,12 +406,7 @@ export default class GamePage {
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    //console.log(
-    //  "gameStarted :" + gameStarted,
-    //  " gameIsPaused :" + gameIsPaused,
-    //  " gameHasBeenWon : " + gameHasBeenWon,
-    //  " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty,
-    //);
+
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
@@ -434,7 +429,10 @@ export default class GamePage {
       this.lang = this.state.state.lang;
       if (this.state.state.isSearching) this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
-    } else if (!gameStarted && gameHasBeenWon) {
+    } else if (
+      (!gameStarted && gameHasBeenWon) ||
+      this.state.state.opponentLeft
+    ) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)

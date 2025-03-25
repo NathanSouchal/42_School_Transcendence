@@ -157,17 +157,24 @@ class RoomInitialization:
                         print("Second player has been found")
             else:
                 await self.reactivate_background_mode()
+
     async def reactivate_background_mode(self):
-        """Réactive la room BACKGROUND si la room ONLINE échoue"""
-        if self.previous_room:
-            print(f"🔄 Restarting BACKGROUND room {self.previous_room}")
-            self.consumer.room = self.previous_room
-            self.previous_room = None
+        print(f"Réactive la room BACKGROUND")
+        """Réactive la room BACKGROUND en réinitialisant les objets de jeu et en relançant la boucle."""
+        # Annuler l'ancienne game_loop s'il y en a une
+        if self.consumer.room in self.consumer.game_loops:
+            self.consumer.game_loops[self.consumer.room].cancel()
+            try:
+                await self.consumer.game_loops[self.consumer.room]
+            except asyncio.CancelledError:
+                print(f"Ancienne game_loop annulée pour la salle {self.consumer.room}")
+            del self.consumer.game_loops[self.consumer.room]
 
-        # Redémarrer la boucle de jeu
-        if self.consumer.room not in self.consumer.game_loops:
-            print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
-            self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
-                self.consumer.loop.game_loop(self.consumer.room)
-            )
+        # Réinitialiser la room en recréant les objets de jeu (ball et paddles)
+        await self.initializeRoom()
 
+    # Redémarrer la boucle de jeu pour le mode BACKGROUND
+        print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
+        self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
+            self.consumer.loop.game_loop(self.consumer.room)
+        )

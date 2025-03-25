@@ -121,6 +121,11 @@ export class GameManager {
         break;
       case "pong":
         this.handlePong(data);
+        break;
+      case "opponent_left":
+        console.error("Opponent left !!!!!!!!!!!!!");
+		state.opponentLeft();
+        break;
     }
   }
 
