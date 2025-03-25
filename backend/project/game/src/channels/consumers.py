@@ -43,6 +43,7 @@ class GameState(AsyncWebsocketConsumer):
                 },
             },
         },
+        "playersReady": 0,
     }
 
     def __init__(self, *args, **kwargs):
@@ -96,15 +97,17 @@ class GameState(AsyncWebsocketConsumer):
             self.rooms[self.room]["players"].remove(leaving_player)
 
             # Si en mode ONLINE et qu'il reste un seul joueur, notifier cet adversaire
-            if self.game_mode == GameMode.ONLINE and len(self.rooms[self.room]["players"]) == 1:
+            if (
+                self.game_mode == GameMode.ONLINE
+                and len(self.rooms[self.room]["players"]) == 1
+            ):
                 remaining_player = self.rooms[self.room]["players"][0]
-                print(f"Notifying remaining player {remaining_player['username']} that opponent has left")
+                print(
+                    f"Notifying remaining player {remaining_player['username']} that opponent has left"
+                )
                 await self.channel_layer.send(
                     remaining_player["channel_name"],
-                    {
-                        "type": "opponent_left",
-                        "message": "Opponent left the game"
-                    }
+                    {"type": "opponent_left", "message": "Opponent left the game"},
                 )
 
         # Supprimer la room si elle est vide
@@ -131,10 +134,7 @@ class GameState(AsyncWebsocketConsumer):
         print(f"Opponent left")
         message = event.get("message", "Opponent left the game")
         await self.send(
-            text_data=json.dumps({
-                "type": "opponent_left",
-                "message": message
-            })
+            text_data=json.dumps({"type": "opponent_left", "message": message})
         )
         self.game_mode = GameMode.BACKGROUND
 
@@ -167,6 +167,11 @@ class GameState(AsyncWebsocketConsumer):
                 await self.send_helpers.send_connection_issue(issueState)
             elif data.get("type") == "ping":
                 await self.send_helpers.send_pong()
+            elif data.get("type") == "countdownEnded":
+                self.rooms[self.room]["playersReady"] += 1
+                if self.rooms[self.room]["playersReady"] == 2:
+                    await self.send_helpers.send_players_ready()
+                    self.rooms[self.room]["playersReady"] = 0
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")
@@ -205,10 +210,9 @@ class GameState(AsyncWebsocketConsumer):
         )
 
     async def pong(self, event):
-        await self.send(
-            text_data=json.dumps(
-                {"type": "pong"},
-                cls=NumericEncoder
-            )
-        )
+        await self.send(text_data=json.dumps({"type": "pong"}, cls=NumericEncoder))
 
+    async def players_ready(self, event):
+        await self.send(
+            text_data=json.dumps({"type": "players_ready"}, cls=NumericEncoder)
+        )
