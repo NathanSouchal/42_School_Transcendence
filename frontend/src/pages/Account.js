@@ -318,7 +318,7 @@ export default class Account {
       console.log(data);
       this.userData = data.user;
       console.log("AVATAAAAR: ", data.user.avatar);
-      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      if (data.user.avatar) await this.buildAvatarImgLink(data.user.avatar);
       else this.userData.avatar = "/profile.jpeg";
       console.log("AVATAAAAR APRES BUILD: ", this.userData.avatar);
       this.formData.username = data.user.username;
@@ -335,8 +335,8 @@ export default class Account {
 
   async buildAvatarImgLink(link) {
     try {
-      const res = await axios.head(`${API_BASE_URL}${link}`);
-      if (res.status === 200) this.userData.avatar = `${API_BASE_URL}${link}`;
+      const res = await axios.head(`${link}`);
+      if (res.status === 200) this.userData.avatar = `${link}`;
     } catch (error) {
       console.log("ERROR: ", error);
       this.userData.avatar = "/profile.jpeg";
