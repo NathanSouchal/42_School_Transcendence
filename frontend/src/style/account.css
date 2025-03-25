@@ -11,7 +11,8 @@
   padding-top: 10%;
   height: 100%;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .account-main-div button {
@@ -20,7 +21,8 @@
 
 .user-main-content {
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
   flex-grow: 1;
 }
 
