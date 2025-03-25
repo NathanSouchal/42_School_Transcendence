@@ -7,6 +7,7 @@ import {
 } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 export default class Social {
   constructor(state) {
