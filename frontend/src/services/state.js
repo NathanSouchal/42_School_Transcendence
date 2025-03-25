@@ -239,8 +239,8 @@ export default class State {
   }
 
   setDestroyGame() {
-    this.state.gameIsTimer = false;
     console.log("setDestroyGame()");
+    this.state.gameIsTimer = false;
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     if (this.state.gameStarted) this.state.gameStarted = false;
     if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
