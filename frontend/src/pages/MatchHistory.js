@@ -129,7 +129,19 @@ export default class MatchHistory {
                       .map(
                         (value) =>
                           `<div class="match-history-main-game-div">
-								<div class="match-history-game-div ${(value.player1 === this.state.state.userAlias && value.score_player1 > value.score_player2) || (value.player2 === this.state.state.userAlias && value.score_player2 > value.score_player1) ? `${trad[this.lang].matchHistory.won}` : `${trad[this.lang].matchHistory.lost}`}">
+								<div class="match-history-game-div ${
+                  (value.player1 === this.state.state.userAlias &&
+                    value.score_player1 > value.score_player2) ||
+                  (value.player2 === this.state.state.userAlias &&
+                    value.score_player2 > value.score_player1)
+                    ? `won`
+                    : (value.player1 === this.state.state.userAlias &&
+                          value.score_player1 < value.score_player2) ||
+                        (value.player2 === this.state.state.userAlias &&
+                          value.score_player2 < value.score_player1)
+                      ? `lost`
+                      : `equality`
+                }">
 									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
 									<h3 class="mh-player">${value.player1}</h3>
 									<h3 class="mh-score">${value.score_player1}</h3>
