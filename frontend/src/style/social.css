@@ -236,6 +236,7 @@
     align-items: center;
     gap: 1.2em;
     overflow-y: auto;
+    scrollbar-width: none;
   }
 
   .friends-div-social {
