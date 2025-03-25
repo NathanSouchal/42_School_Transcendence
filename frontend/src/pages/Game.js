@@ -77,7 +77,7 @@ export default class GamePage {
     //   if (this.gameManager?.socket) this.gameManager.socket.close();
     //   this.gameMode = "default";
     // });
-    
+
 
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
@@ -397,6 +397,7 @@ export default class GamePage {
 
   async render(routeParams = {}) {
     await checkUserStatus();
+	console.log("render GamePage");
 
     if (!this.isSubscribed) {
       this.previousState = { ...this.state.state };

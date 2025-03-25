@@ -1,4 +1,5 @@
-import { checkUserStatus } from "../utils";
+import { header } from "../app";
+import { checkUserStatus, handleLangDiv } from "../utils";
 
 export default class State {
   constructor() {
@@ -130,8 +131,13 @@ export default class State {
     console.log("setGameStarted()");
     console.log("gameMode: " + gameMode);
     if (gameMode !== "default") {
+      if (header.isGuestRendered) header.isGuestRendered = false;
+      if (header.isUserRendered) header.isUserRendered = false;
       await this.displayTimerBeforeGameStart();
-      if (!this.state.gameIsTimer) return;
+      if (!this.state.gameIsTimer) {
+        handleLangDiv(false);
+        return;
+      }
       //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
       //     console.warn("⚠️ gameManager is undefined or not ready.");
       //     return;

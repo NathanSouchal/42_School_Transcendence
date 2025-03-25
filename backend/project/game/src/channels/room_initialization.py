@@ -115,15 +115,10 @@ class RoomInitialization:
                 await asyncio.sleep(2)
 
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 2:
-                if self.previous_room:
-                    print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
-                    del self.consumer.rooms[self.previous_room]
-                    self.previous_room = None
-                    # sending only to one player, as both of them will go through this function eventually
+            # Pour le mode ONLINE, on envoie directement la notification dès que deux joueurs sont présents
+                if self.consumer.game_mode == GameMode.ONLINE:
                     opponent_index = 1 if self.consumer.player_side == "left" else 0
-                    opponent = self.consumer.rooms[self.consumer.room]["players"][
-                        opponent_index
-                    ]
+                    opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
                     print(f"Envoi des infos de l'adversaire: {opponent}")
                     await self.consumer.send(
                         text_data=json.dumps(
@@ -131,23 +126,35 @@ class RoomInitialization:
                                 "type": "hasFoundOpponent",
                                 "side": self.consumer.player_side,
                                 "isSourceOfTruth": self.consumer.isSourceOfTruth,
-                                "opponent_id": str(
-                                    self.consumer.rooms[self.consumer.room]["players"][
-                                        1 if self.consumer.player_side == "left" else 0
-                                    ]["user_id"]
-                                ),
-                                "opponent_username": self.consumer.rooms[
-                                    self.consumer.room
-                                ]["players"][
-                                    1 if self.consumer.player_side == "left" else 0
-                                ][
-                                    "username"
-                                ],
+                                "opponent_id": str(opponent["user_id"]),
+                                "opponent_username": opponent["username"],
                             },
                             cls=NumericEncoder,
                         )
                     )
-                    print(f"Second player has been found")
+                    print("Second player has been found")
+                else:
+                    # Pour le mode BACKGROUND, on gère la sauvegarde et la réactivation de la room précédente
+                    if self.previous_room:
+                        print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
+                        del self.consumer.rooms[self.previous_room]
+                        self.previous_room = None
+                        opponent_index = 1 if self.consumer.player_side == "left" else 0
+                        opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
+                        print(f"Envoi des infos de l'adversaire: {opponent}")
+                        await self.consumer.send(
+                            text_data=json.dumps(
+                                {
+                                    "type": "hasFoundOpponent",
+                                    "side": self.consumer.player_side,
+                                    "isSourceOfTruth": self.consumer.isSourceOfTruth,
+                                    "opponent_id": str(opponent["user_id"]),
+                                    "opponent_username": opponent["username"],
+                                },
+                                cls=NumericEncoder,
+                            )
+                        )
+                        print("Second player has been found")
             else:
                 await self.reactivate_background_mode()
     async def reactivate_background_mode(self):
