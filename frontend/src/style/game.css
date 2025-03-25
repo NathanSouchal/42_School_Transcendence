@@ -38,6 +38,106 @@
   height: 70%;
 }
 
+.game-ended-score {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.select-difficulty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.select-difficulty button,
+.online-pvp-div button {
+  width: 100%;
+  color: #fff;
+  font-family: var(--button-font);
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  margin: 1rem;
+}
+
+.online-pvp-div button {
+  width: 40%;
+  font-size: 1rem;
+}
+
+.searching-online-pvp {
+  font-family: var(--button-font);
+  font-size: 1.2rem;
+}
+
+#easy-btn {
+  background-color: var(--validate-color);
+}
+
+#normal-btn {
+  background-color: var(--orange);
+}
+
+#difficult-btn,
+.online-pvp-div button {
+  background-color: var(--danger-color);
+}
+
+.select-difficulty button:hover,
+.online-pvp-div button:hover {
+  transform: scale(1.1);
+}
+
+.select-difficulty button:active,
+.online-pvp-div button:active {
+  transform: scale(1);
+}
+
+.loading-pvp-game {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  flex-direction: row;
+}
+
+.loading-pvp-game h2 {
+  margin: auto;
+}
+
+.rules-link-div {
+  font-style: italic;
+  font-family: var(--secondary-font);
+  font-weight: 800;
+  color: var(--blue);
+  transition: all 0.3s ease-in-out;
+  margin-top: 1rem;
+}
+
+.rules-link-div a {
+  letter-spacing: 0.1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.rules-link-div a:hover {
+  color: rgb(61, 127, 184);
+  transform: translateY(-2px);
+  transform: translateX(-1px);
+  letter-spacing: 0.3rem;
+}
+
+.rules-link-div a:active {
+  transform: scale(0.9);
+}
+
 @media (max-width: 900px) {
   .game-paused-title h1 {
     font-size: 2rem;

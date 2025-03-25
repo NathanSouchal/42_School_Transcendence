@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  setDisable,
-} from "../utils.js";
+import { handleHeader, updateView, setDisable } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Login {
   constructor(state) {
+    this.pageName = "Login";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -27,6 +23,7 @@ export default class Login {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
@@ -129,10 +126,9 @@ export default class Login {
 
   async handleSubmit(e) {
     e.preventDefault();
-    setDisable(true, "2fa-login-form");
     setDisable(true, "login-form");
     if (!this.formState.username.length || !this.formState.password.length) {
-      return console.error("Please complete all fields");
+      return console.error(trad[this.lang].errors.fields);
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
@@ -148,25 +144,25 @@ export default class Login {
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
-          this.displayLoginErrorMessage("Invalid credentials");
+          this.displayLoginErrorMessage(trad[this.lang].errors.credentials);
         }
       }
     } finally {
-      setDisable(false, "2fa-login-form");
-      setDisable(false, "login-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {
         input.value = "";
       });
+      setDisable(false, "login-form");
     }
   }
 
   async handleSubmit2FA(e) {
     e.preventDefault();
+    setDisable(true, "2fa-login-form");
     console.log("Sending 2FA verification:", this.formState.code);
     if (!this.formState.code?.length) {
-      return console.error("Please enter your code");
+      return this.displayLoginErrorMessage(trad[this.lang].errors.enterCode);
     }
     try {
       const response = await API.post("/auth/verify-2fa/", this.formState);
@@ -176,9 +172,9 @@ export default class Login {
     } catch (error) {
       if (!this.is2fa) this.is2fa = true;
       if (error.response.data.error == "Invalid OTP") {
-        this.displayLoginErrorMessage("Code is invalid");
+        this.displayLoginErrorMessage(trad[this.lang].errors.codeInvalid);
       } else if (error.response.data.error == "Expired OTP") {
-        this.displayLoginErrorMessage("Code is expired");
+        this.displayLoginErrorMessage(trad[this.lang].errors.codeExpired);
         const retry = document.getElementById("link-to-retry");
         if (retry) retry.style.display = "block";
         this.attachEventListeners();
@@ -190,12 +186,15 @@ export default class Login {
       inputs.forEach((input) => {
         input.value = "";
       });
+      setDisable(false, "2fa-login-form");
     }
   }
 
   updateUserInfo(data) {
     this.state.state.lang = data.lang;
     this.state.state.userId = data.id.toString();
+    this.state.state.username = data.username;
+    this.state.state.userAlias = data.alias;
     this.state.saveState();
     const selectedLangImg = document.getElementById("selected-lang-img");
     const loading = document.querySelector(".loading-h2");
@@ -249,11 +248,12 @@ export default class Login {
       this.isSubscribed = false;
       console.log("Login page unsubscribed from state");
     }
-    this.is2fa = false;
+    if (this.is2fa) this.is2fa = false;
+    this.method2fa = null;
+    this.formState = {};
   }
 
   render2FA() {
-    this.is2fa = false;
     return `
 		<form id="2fa-login-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
@@ -285,6 +285,7 @@ export default class Login {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Login page subscribed to state");
@@ -293,10 +294,9 @@ export default class Login {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.is2fa) return this.render2FA();
     else
-      return `${backArrow}
+      return `
         <form id="login-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].login.pageTitle}</h1>
           <div class="inputs-button-form-login-register">

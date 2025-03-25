@@ -1,10 +1,9 @@
-/* Style des liens de la navbar */
 #header {
   position: absolute;
   font-family: var(--secondary-font);
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -45%); /* Conserve le centrage */
+  transform: translate(-50%, -45%);
   height: 70vh;
   width: 60%;
   min-width: 320px;
@@ -36,6 +35,10 @@
   overflow-y: auto;
 }
 
+.navbar-links {
+  padding-top: 80px;
+}
+
 .navbar-link {
   display: flex;
   flex-direction: column;
@@ -48,8 +51,8 @@
 .navbar-link a:hover {
   color: var(--secondary-color);
   background: var(--primary-color);
-  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5); /* Augmentation de l'ombre */
-  transform: translateY(-3px); /* Légère élévation */
+  box-shadow: 0 6px 12px rgba(218, 76, 15, 0.5);
+  transform: translateY(-3px);
 }
 
 header .global-nav-section {
@@ -57,39 +60,33 @@ header .global-nav-section {
   white-space: nowrap;
 }
 
-/* Lorsque le menu est ouvert, les liens prennent toute la largeur */
 .navbar.show-nav .navbar-links {
   width: 100%;
   opacity: 1;
 }
 
-/* Liens dans la navbar */
 .navbar-links li {
   list-style: none;
   margin: 0.2rem 0;
   color: var(--primary-color);
 }
 
-/* Bouton burger */
-
 .toggle-button-container {
-  position: relative;
-  top: 42%;
-  left: 105%;
+  position: absolute;
+  font-family: var(--secondary-font);
+  top: 25%;
+  left: 50%;
   transform: translate(-50%, -45%);
-  height: 5vh;
-  width: 25%;
-  margin-left: 10%;
-  min-width: 50px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 10vh;
+  width: 60%;
+  min-width: 320px;
+  padding: 20px;
   z-index: 10;
 }
 
 .toggle-button {
   position: absolute;
-  top: 5%;
+  top: 40%;
   left: 90%;
   display: flex;
   flex-direction: column;
@@ -99,6 +96,16 @@ header .global-nav-section {
   height: 25px;
   cursor: pointer;
   justify-content: space-between;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.toggle-button:hover {
+  transform: scale(1.2);
+}
+
+.toggle-button:active {
+  transform: scal(0.9);
 }
 
 .toggle-button .bar2 {
@@ -141,44 +148,23 @@ header .global-nav-section {
   transform: rotate(-45deg);
 }
 
-@media (min-width: 400px) and (max-width: 900px) {
+@media (min-width: 0px) and (max-width: 900px) {
   #header {
     width: 90%;
     min-width: 320px;
   }
   .toggle-button-container {
-    left: 100%;
+    width: 95%;
+  }
+  .toggle-button {
+    left: 85%;
   }
 }
 
 @media (max-width: 540px) {
-  .toggle-button-container {
-    width: 80%;
-    left: 80%;
-  }
   .navbar-links {
     padding-top: 20px;
     padding-bottom: 20px;
-  }
-}
-
-@media (max-width: 460px) {
-  .toggle-button-container {
-    width: 50%;
-    left: 70%;
-  }
-}
-
-@media (max-width: 390px) {
-  .toggle-button-container {
-    width: 0%;
-    left: 75%;
-  }
-}
-
-@media (max-width: 340px) {
-  .toggle-button-container {
-    left: 65%;
   }
 }
 

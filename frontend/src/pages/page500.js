@@ -1,9 +1,10 @@
-import { handleHeader, updateView, createBackArrow } from "../utils.js";
+import { handleHeader, updateView } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class page500 {
   constructor(state) {
+    this.pageName = "page500";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -64,6 +65,7 @@ export default class page500 {
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
     }
@@ -71,8 +73,7 @@ export default class page500 {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
-    return `${backArrow}<div class="main-error-container">
+    return `<div class="main-error-container">
 				<div class="error-title-container">
 				<h1>${trad[this.lang].page500.pageTitle}</h1>
 				<h2>${trad[this.lang].page500.message}</h2>

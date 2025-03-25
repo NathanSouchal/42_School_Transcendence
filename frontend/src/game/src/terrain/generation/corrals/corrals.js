@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GUI } from "three/addons/libs/lil-gui.module.min.js";
 import Cell from "./cell";
 import MarchingCubes from "./marchingCubes";
 import BasicTerrain from "../basic_terrain";
@@ -56,7 +55,7 @@ class Corrals extends BasicTerrain {
 
     this.obj.add(this.mesh);
 
-    let y = -50;
+    let y = -15;
     this.obj.position.set(0, y, 0);
   }
 
@@ -97,29 +96,17 @@ class Corrals extends BasicTerrain {
     }
     const surfaceDistance = this.height - y;
     const floorDistance = y;
-
     const surfaceFactor = Math.max(
       0,
-      Math.pow(surfaceDistance / this.height, 3),
+      Math.pow(surfaceDistance / this.height, 2),
     );
     const floorFactor = Math.max(
       0,
-      1 - Math.pow(floorDistance / this.height, 3),
+      1 - Math.pow(floorDistance / this.height, 2),
     );
-    const mapWidth = this.width;
-    const mapDepth = this.depth;
-    const borderFactorX = Math.pow(
-      Math.min(x, mapWidth - x) / (mapWidth * 0.5),
-      0.5,
-    );
-    const borderFactorZ = Math.pow(
-      Math.min(z, mapDepth - z) / (mapDepth * 0.5),
-      0.5,
-    );
-    const borderFactor = Math.min(borderFactorX, borderFactorZ);
-    const verticalFactor = Math.max(surfaceFactor, floorFactor);
 
-    weight *= verticalFactor * (1 + Math.pow(1 - borderFactor, 3) * 5);
+    const verticalFactor = surfaceFactor + floorFactor;
+    weight *= verticalFactor;
     weight *= this.world.generation.height_multiplier;
     if (y == 0) weight = 1;
     if (y == -this.height - 100) weight = 1;

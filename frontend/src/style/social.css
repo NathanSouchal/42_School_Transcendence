@@ -4,6 +4,10 @@
   align-items: center;
   width: 90%;
   height: 100%;
+  padding-top: 10%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .main-div-social a {
@@ -33,13 +37,56 @@
   font-family: var(--secondary-font);
 }
 
+.search-input-div {
+  display: flex;
+  flex-direction: row;
+}
+
+.search-input-div button {
+  border: 2px solid #ddd;
+  font-family: var(--secondary-font);
+  background-color: rgb(209, 209, 209);
+  border-radius: 0 10px 10px 0;
+  padding: 0.8em;
+  transition: all 0.2s ease;
+  width: 110px;
+}
+
+.search-input-div button:hover {
+  background-color: rgb(217, 217, 217);
+}
+
+.search-input-div button:active {
+  transform: scale(1.1);
+}
+
+.search-bar-and-result-social h2 {
+  margin: 0.5rem 1rem;
+  font-size: 1.5rem;
+  font-family: var(--secondary-font);
+  color: var(--tertiary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  height: 50px;
+  display: block;
+}
+
+.search-bar-and-result-social h2:hover {
+  opacity: 0.5;
+}
+
+.search-bar-and-result-social h2:active {
+  opacity: 1;
+}
+
 .search-bar-and-result-social input {
   width: 100%;
   font-family: var(--secondary-font);
   padding: 0.8em;
+  padding-right: 0;
   font-size: 1rem;
   border: 2px solid #ddd;
-  border-radius: 5px;
+  border-radius: 10px 0 0 10px;
   outline: none;
   background: white;
   transition:
@@ -78,6 +125,7 @@
 
 .friends-div-social {
   width: 50%;
+  border-right: solid 0.07em var(--primary-color);
 }
 
 .friends-list-social {
@@ -113,6 +161,7 @@
 
 .invitations-div-social {
   width: 50%;
+  border-left: solid 0.07em var(--primary-color);
 }
 
 .invitations-list-div-social {

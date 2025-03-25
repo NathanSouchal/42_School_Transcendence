@@ -1,25 +1,25 @@
 import { deepMerge } from "./utils.js";
 
 export const DEFAULT_CONFIG = {
-  paddle: {
-    left: {
-      deltaFactor: 30,
-      movementSpeed: 0.5,
-      mouseControl: false,
-      keyboardControl: true,
-      keyboardKeys: {
-        bottom: "x",
-        top: "c",
+  keymaps: {
+    online: {
+      left: {
+        bottom: "ArrowDown",
+        top: "ArrowUp",
+      },
+      right: {
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
     },
-    right: {
-      deltaFactor: 30,
-      movementSpeed: 0.5,
-      mouseControl: false,
-      keyboardControl: true,
-      keyboardKeys: {
-        bottom: "b",
-        top: "n",
+    local: {
+      left: {
+        bottom: "c",
+        top: "x",
+      },
+      right: {
+        bottom: "ArrowDown",
+        top: "ArrowUp",
       },
     },
   },
@@ -29,8 +29,8 @@ export const DEFAULT_CONFIG = {
     near: 0.1,
     far: 500,
     position: {
-      x: -18,
-      y: 18,
+      x: -20,
+      y: 20,
       z: 0,
     },
     target: {
@@ -109,9 +109,9 @@ export const DEFAULT_CONFIG = {
         lacunarity: 0.5,
       },
       size: {
-        terrain_depth: 200,
-        terrain_width: 200,
-        terrain_height: 150,
+        terrain_depth: 300,
+        terrain_width: 300,
+        terrain_height: 50,
       },
     },
   },
@@ -131,8 +131,12 @@ export class GameConfig {
       this.config.size.ball_ratio * this.config.size.arena_width * 0.7;
   }
 
-  getPaddleConfig(side) {
-    return this.config.paddle[side];
+  getPlayerKeymaps(side, gameMode) {
+    const mode =
+      gameMode == "OnlineLeft" || gameMode == "OnlineRight"
+        ? "online"
+        : "local";
+    return this.config.keymaps[mode][side];
   }
   getCameraConfig() {
     return this.config.camera;
@@ -151,12 +155,5 @@ export class GameConfig {
   }
   getSize() {
     return this.config.size;
-  }
-
-  update(section, newConfig) {
-    if (this.config[section]) {
-      this.config[section] = deepMerge(this.config[section], newConfig);
-    }
-    return this;
   }
 }

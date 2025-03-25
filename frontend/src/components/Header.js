@@ -1,4 +1,4 @@
-import { logout } from "../utils";
+import { logout, setDisable } from "../utils";
 import { router } from "../app";
 import { trad } from "../trad";
 
@@ -9,6 +9,7 @@ export class Header {
     this.isGuestRendered = false;
     this.eventListeners = [];
     this.lang = null;
+    this.isProcessing = false;
   }
 
   attachEventListeners() {
@@ -36,6 +37,20 @@ export class Header {
           type: "click",
           element: toggleButton,
           listener: handleToggleButton,
+        });
+      }
+    }
+
+    const homeButton = document.getElementById("home-img-div");
+    if (homeButton) {
+      const redirectHome = this.redirectHome.bind(this);
+      if (!this.eventListeners.some((e) => e.name === "home-img-div")) {
+        homeButton.addEventListener("click", redirectHome);
+        this.eventListeners.push({
+          name: "home-img-div",
+          type: "click",
+          element: homeButton,
+          listener: redirectHome,
         });
       }
     }
@@ -76,48 +91,84 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
-      router.navigate(path);
+      if (path === "/") redirectHome();
+      else router.navigate(path);
     }
   }
 
-  handleToggleButton() {
-    const toggleButton = document.getElementsByClassName("toggle-button")[0];
-    const navbarLinks = document.getElementsByClassName("navbar-links")[0];
-    const navBar = document.querySelector(".navbar");
-    const header = document.getElementById("header");
-    const app = document.getElementById("app");
+  redirectHome(e) {
+    e.preventDefault();
+    const homeImg = document.getElementById("home-img-div");
+    if (homeImg && homeImg.style.opacity) {
+      homeImg.style.opacity = 0;
+      router.navigate("/");
+    }
+  }
 
-    if (toggleButton && navBar && navbarLinks && header) {
-      const isOpen = navBar.classList.toggle("show-nav");
-      navbarLinks.classList.toggle("show-nav");
-      if (isOpen) {
-        toggleButton.classList.add("open");
-        navBar.classList.remove("closed");
-        header.style.zIndex = "1";
-        app.style.pointerEvents = "none";
-      } else {
-        this.closeMenu();
+  async handleToggleButton() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    try {
+      const toggleButton = document.getElementsByClassName("toggle-button")[0];
+      const navbarLinks = document.querySelector(".navbar-links");
+      const navBar = document.querySelector(".navbar");
+      const header = document.getElementById("header");
+      const app = document.getElementById("app");
+      const homeImg = document.getElementById("home-img-div");
+
+      if (toggleButton && navBar && navbarLinks && header && homeImg) {
+        const isOpen = navBar.classList.toggle("show-nav");
+        navbarLinks.classList.toggle("show-nav");
+
+        if (isOpen) {
+          toggleButton.classList.add("open");
+          navBar.classList.remove("closed");
+          header.style.zIndex = "1";
+          app.style.pointerEvents = "none";
+          homeImg.style.opacity = 0;
+          homeImg.style.pointerEvents = "none";
+        } else await this.closeMenu();
       }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        this.isProcessing = false;
+      }, 500);
     }
   }
 
-  closeMenu(key) {
-    const toggleButton = document.getElementsByClassName("toggle-button")[0];
-    const navbarLinks = document.getElementsByClassName("navbar-links")[0];
-    const navBar = document.querySelector(".navbar");
-    const header = document.getElementById("header");
-    const app = document.getElementById("app");
+  async closeMenu(key) {
+    if (key === "logout") setDisable(true, key);
 
-    if (toggleButton && navBar && navbarLinks && header) {
-      toggleButton.classList.remove("open");
-      navBar.classList.add("closed");
-      navbarLinks.classList.remove("show-nav");
-      navBar.classList.remove("show-nav");
-      app.style.pointerEvents = "auto";
-      setTimeout(() => {
-        header.style.zIndex = "0";
-      }, 500);
-      if (key === "logout") logout();
+    try {
+      const toggleButton = document.getElementsByClassName("toggle-button")[0];
+      const navbarLinks = document.querySelector(".navbar-links");
+      const navBar = document.querySelector(".navbar");
+      const header = document.getElementById("header");
+      const app = document.getElementById("app");
+      const homeImg = document.getElementById("home-img-div");
+
+      if (toggleButton && navBar && navbarLinks && header && homeImg) {
+        toggleButton.classList.remove("open");
+        if (window.location.pathname !== "/") {
+          homeImg.style.opacity = 1;
+          homeImg.style.pointerEvents = "auto";
+        }
+        navBar.classList.add("closed");
+        navbarLinks.classList.remove("show-nav");
+        navBar.classList.remove("show-nav");
+        app.style.pointerEvents = "auto";
+        setTimeout(() => {
+          header.style.zIndex = "0";
+        }, 500);
+        if (key === "logout") await logout();
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      if (key === "logout") setDisable(false, key);
     }
   }
 
@@ -132,7 +183,6 @@ export class Header {
   }
 
   destroy() {
-    console.log("Destroying Header");
     this.removeEventListeners();
     this.isUserRendered = false;
     this.isGuestRendered = false;

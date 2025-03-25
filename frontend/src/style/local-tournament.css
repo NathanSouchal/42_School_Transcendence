@@ -6,6 +6,10 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 1em;
+  padding-top: 10%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .round-title {
@@ -85,57 +89,18 @@
   justify-content: center;
   height: 50%;
   width: 100%;
-  max-width: 300px;
   margin: 1em auto;
   position: relative;
 }
 
-.select-container label {
-  font-size: 1.2rem;
+.select-container h2 {
+  font-size: 1.5rem;
   font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 0.5em;
-  text-transform: uppercase;
+  color: var(--tertiary-color);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
   letter-spacing: 1px;
-}
-
-.select-container select {
-  appearance: none;
-  width: 100%;
-  padding: 0.5em;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: var(--secondary-color);
-  color: var(--tertiary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 8px;
-  cursor: pointer;
-  outline: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.select-container::after {
-  content: "▼";
-  font-size: 1rem;
-  color: var(--primary-color);
-  position: absolute;
-  right: 15px;
-  top: 59%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.select-container select:hover {
-  background-color: #ffddaa;
-  border-color: #ff6600;
-}
-
-.select-container select option {
-  background: var(--secondary-color);
-  color: var(--tertiary-color);
-  font-size: 1rem;
-  font-weight: bold;
-  padding: 10px;
 }
 
 .input-player-name {
@@ -187,29 +152,29 @@
 .main-div-tournament button {
   background-color: #bd352e;
   width: fit-content;
-  color: #fff; /* Couleur du texte */
-  font-family: "Press Start 2P", cursive;
-  font-size: 1.2rem; /* Taille du texte */
+  color: #fff;
+  font-family: var(--button-font);
+  font-size: 1.2rem;
   font-weight: bold;
-  padding: 10px 20px; /* Espace intérieur */
-  border: none; /* Pas de bordure */
-  border-radius: 8px; /* Bordures arrondies */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Effet d'ombre */
-  cursor: pointer; /* Curseur au survol */
-  transition: all 0.3s ease; /*Transition pour un effet fluide */
-  letter-spacing: 1px; /* Espacement des lettres */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
 }
 
 .main-div-tournament button:hover {
   background-color: #a13331;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Augmentation de l'ombre */
-  transform: translateY(-2px); /* Légère élévation */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 
 .main-div-tournament button:active {
   background-color: #792525;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Réduction de l'ombre */
-  transform: translateY(0); /* Annule l'élévation */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
 }
 
 .stop-button-div {
@@ -217,6 +182,75 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.tournament-finished-button-div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 5em;
+}
+
+.tournament-finished-button-div button {
+  width: 100%;
+  border-radius: 0;
+  color: var(--tertiary-color);
+  font-family: var(--secondary-font);
+  background-color: transparent;
+  box-shadow: none;
+  padding: 1em;
+}
+
+.tournament-finished-button-div button:hover {
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+.tournament-finished-button-div button:active {
+  background-color: var(--tertiary-color);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+.storing-blockchain-button {
+  width: 100%;
+}
+
+.storing-blockchain-button button {
+  background-color:rgb(177, 100, 0);
+  color: var(--secondary-color);
+  opacity: 0.6;
+}
+
+
+.storing-blockchain-button button:hover {
+  background-color:rgb(177, 100, 0);
+}
+
+.storing-blockchain-button button:active {
+  background-color:rgb(177, 100, 0);
+}
+
+.stored-blockchain-button {
+  width: 100%;
+}
+
+.stored-blockchain-button button {
+  background-color:rgba(38, 168, 21, 0.884);
+  color: var(--secondary-color);
+  opacity: 0.6;
+  width: 100%;
+}
+
+.stored-blockchain-button button:hover {
+  background-color:rgba(38, 168, 21, 0.884);
+}
+
+.stored-blockchain-button button:active {
+  background-color:rgba(38, 168, 21, 0.884);
 }
 
 .matches-list {
@@ -250,16 +284,16 @@
 }
 
 .next-match-main-div button {
-  background-color: #54e254; /* Couleur principale */
+  background-color: #54e254;
   margin-top: 0;
 }
 
 .next-match-main-div button:hover {
-  background-color: #4aca4a; /* Couleur légèrement plus sombre */
+  background-color: #4aca4a;
 }
 
 .next-match-main-div button:active {
-  background-color: #3da43d; /* Couleur encore plus sombre au clic */
+  background-color: #3da43d;
 }
 
 .upcoming-match-main-div {
@@ -318,16 +352,37 @@
   justify-content: center;
 }
 
+.crab-playernb-div {
+  display: flex;
+  justify-content: center;
+  gap: 1em;
+}
+
+.crab-playernb-select {
+  height: 90px;
+  width: 90px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.crab-playernb-select:hover {
+  transform: scale(1.2);
+}
+
+.crab-playernb-select:active {
+  transform: scale(0.9);
+}
+
 @media (max-width: 600px) {
   .main-div-tournament {
     width: 140%;
-    scale: 0.8;
+    transform: scale(0.8);
   }
   .content-page-tournament {
     width: 100%;
   }
 
   .next-match-main-div button {
-    scale: 0.8;
+    transform: scale(0.8);
   }
 }

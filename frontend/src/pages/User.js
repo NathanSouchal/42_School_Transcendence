@@ -2,14 +2,15 @@ import API from "../services/api.js";
 import {
   handleHeader,
   updateView,
-  createBackArrow,
   checkUserStatus,
+  setDisable,
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class User {
   constructor(state) {
+    this.pageName = "User";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -25,6 +26,7 @@ export default class User {
     this.friendRequestId = null;
     this.lang = null;
     this.routeParams;
+    this.matchHistory = {};
   }
 
   async initialize(routeParams = {}) {
@@ -36,14 +38,12 @@ export default class User {
     if (!this.isInitialized) this.isInitialized = true;
     this.pageId = newPageId;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
     }
-
     this.pageId = routeParams.id;
-    console.log("Newage id : " + newPageId);
-    console.log("Page id : " + this.pageId);
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, routeParams || {});
   }
@@ -89,12 +89,23 @@ export default class User {
     });
   }
 
+  async buildAvatarImgLink(link) {
+    try {
+      const res = await axios.head(`${API_BASE_URL}${link}`);
+      if (res.status === 200)
+        this.publicUserData.avatar = `${API_BASE_URL}${link}`;
+    } catch (error) {
+      this.publicUserData.avatar = "/profile.jpeg";
+    }
+  }
+
   async getPublicUserInfo() {
     try {
       const response = await API.get(`/user/public-profile/${this.pageId}/`);
       const data = response.data;
       this.publicUserData = data.user;
-      console.log(data);
+      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      else this.publicUserData.avatar = "/profile.jpeg";
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
       throw error;
@@ -188,6 +199,7 @@ export default class User {
   }
 
   async handleFriend(key, value) {
+    setDisable(true, key);
     if (key === "cancel-friend-request") {
       await this.cancelFriendRequest();
     } else if (key === "send-friend-request") {
@@ -201,6 +213,7 @@ export default class User {
     }
     await this.getMyFriends();
     updateView(this, this.routeParams || {});
+    setDisable(false, key);
   }
 
   async checkFriendStatus() {
@@ -242,6 +255,23 @@ export default class User {
       else this.friendStatus = "free";
     }
     console.log(this.friendStatus);
+  }
+
+  async getMatchHistory(id) {
+    try {
+      const res = await API.get(`/match-history/${id}/`);
+      const data = res.data.match_history;
+      this.matchHistory = data;
+      console.log(
+        "MatchHistory: " +
+          Object.entries(this.matchHistory).map(
+            ([key, value]) =>
+              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
+          )
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async handleStateChange(newState) {
@@ -289,8 +319,10 @@ export default class User {
 
     await this.getPublicUserInfo();
     await this.getMyFriends();
+    await this.getMatchHistory(this.pageId);
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("User page subscribed to state");
@@ -299,9 +331,8 @@ export default class User {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastLastRoute);
     console.log(`rendering page ${this.pageId}`);
-    return `${backArrow}
+    return `
 			<div class="user-main-div">
 			<div class="user-main-content">
 				<div class="title-div">
@@ -309,7 +340,7 @@ export default class User {
 				</div>
 				<div id="user-main-div">
 					<div class="avatar-main-div" id="avatar-main-div">
-					${this.publicUserData.avatar ? `<img src="https://127.0.0.1:8000${this.publicUserData.avatar}">` : `<img src="/profile.jpeg">`}
+					<img src="${this.publicUserData.avatar}">
 					</div>
 					<div class="username-title-div" id="username-main-div">
 						<h2 class="username-title">
@@ -349,6 +380,45 @@ export default class User {
                     : ``
           }
 				</div>
+				<div class="user-match-history-main-div">
+				<div class="title-div match-history-title-div">
+					<h1>${trad[this.lang].matchHistory.pageTitle}</h1>
+				</div>
+							${
+                this.matchHistory && Object.keys(this.matchHistory).length
+                  ? Object.values(this.matchHistory)
+                      .map(
+                        (value) =>
+                          `<div class="match-history-main-game-div">
+								<div class="match-history-game-div ${
+                  (value.player1 === this.state.state.userAlias &&
+                    value.score_player1 > value.score_player2) ||
+                  (value.player2 === this.state.state.userAlias &&
+                    value.score_player2 > value.score_player1)
+                    ? `won`
+                    : (value.player1 === this.state.state.userAlias &&
+                          value.score_player1 < value.score_player2) ||
+                        (value.player2 === this.state.state.userAlias &&
+                          value.score_player2 < value.score_player1)
+                      ? `lost`
+                      : `equality`
+                }">
+									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
+									<h3 class="mh-player">${value.player1}</h3>
+									<h3 class="mh-score">${value.score_player1}</h3>
+									<span>-</span>
+									<h3 class="mh-score">${value.score_player2}</h3>
+									<h3 class="mh-player">${value.player2 ? value.player2 : "Guest"}</h3>
+								</div>
+							</div>`
+                      )
+                      .join("")
+                  : `<div class="match-history-main-div">
+				  		<div class="match-history-main-game-div">
+							<h3>${trad[this.lang].matchHistory.noContent}</h3>
+						</div>
+					</div>`
+              }</div>
 			</div>
 			</div>
 	`;

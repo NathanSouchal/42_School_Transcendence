@@ -1,0 +1,74 @@
+.rules-main-div {
+  height: 100%;
+  padding-top: 10%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-align: center;
+}
+
+.rules-main-content {
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+.rules-main-content,
+.controls-main-div,
+.player-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.controls-img-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.rules-main-div img {
+  width: 50px;
+  height: 50px;
+  margin-right: 1rem;
+}
+
+.rules-main-div h1,
+.rules-main-div h2,
+.rules-main-div h3 {
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.rules-main-div h1,
+.rules-main-div h2 {
+  font-family: var(--primary-font);
+  color: var(--primary-color);
+}
+
+.rules-main-div h3,
+.rules-main-div p {
+  font-family: var(--secondary-font);
+  color: var(--blue);
+}
+
+.rules-main-div h3 {
+  font-style: italic;
+  font-family: var(--primary-font);
+  letter-spacing: 0.3rem;
+}
+
+.player-div1 h3 {
+  margin-top: 0;
+}
+
+.rules-main-div p {
+  text-align: justify;
+  margin-left: 2rem;
+  margin-right: 2rem;
+  letter-spacing: 0.1rem;
+}

@@ -1,21 +1,31 @@
 import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
+// import https from "https";
 
-const API_BASE_URL =
-  import.meta.env.VITE_BACKEND_URL || "https://localhost:8000";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
 
+console.log("API_BASE_URL", API_BASE_URL);
 const API = axios.create({
-  // baseURL: API_BASE_URL,
-  baseURL: "https://localhost:8000",
+  baseURL: API_BASE_URL,
+  // baseURL: "https://localhost:8000",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
+  // httpsAgent: new https.Agent({
+  //   rejectUnauthorized: false,
+  // }),
 });
 
 async function getNewAccessToken() {
   console.log("Getting new access token");
   try {
-    await API.post(`/auth/custom-token/access/`);
+    const response = await API.post(`/auth/custom-token/access/`);
+    const data = response.data.user;
+    state.state.lang = data.lang;
+    state.state.userId = data.id.toString();
+    state.state.username = data.username;
+    state.state.userAlias = data.alias;
+    state.saveState();
   } catch (error) {
     state.setIsUserLoggedIn(false);
     console.error(`Error while trying to get new access token : ${error}`);
@@ -43,7 +53,8 @@ API.interceptors.response.use(
             window.location.pathname !== "/login" &&
             window.location.pathname !== "/register" &&
             window.location.pathname !== "/game" &&
-            window.location.pathname !== "/local-tournament"
+            window.location.pathname !== "/local-tournament" &&
+            window.location.pathname !== "/rules"
           ) {
             router.navigate("/login");
           }
@@ -61,7 +72,12 @@ API.interceptors.response.use(
         console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
-    } else if (error.response && error.response.status === 404) {
+    } else if (
+      error.response &&
+      error.response.status === 404 &&
+      window.location.pathname !== "/social" &&
+      window.location.pathname !== "/local-tournament"
+    ) {
       setTimeout(() => {
         router.navigate("/404");
       }, 100);

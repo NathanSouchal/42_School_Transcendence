@@ -5,12 +5,34 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
+  const homeImg = document.getElementById("home-img-div");
+  const open = document.querySelector(".open");
+  if (homeImg) {
+    if (context.pageName === "Home") {
+      homeImg.style.opacity = 0;
+      homeImg.style.pointerEvents = "none";
+    } else if (!open) {
+      homeImg.style.opacity = 1;
+      homeImg.style.pointerEvents = "auto";
+    }
+  }
+  const selectedLangImg = document.getElementById("selected-lang-img");
+  if ((state.state.lang !== context.lang) & selectedLangImg)
+    if (state.state.lang === "EN") {
+      selectedLangImg.src = "english.jpg";
+    } else if (state.state.lang === "ES") {
+      selectedLangImg.src = "spanish.jpg";
+    } else if (state.state.lang === "FR") {
+      selectedLangImg.src = "french.jpg";
+    } else if (state.state.lang === "CR") {
+      selectedLangImg.src = "crab.jpg";
+    }
+
   const container = document.getElementById("app");
   if (container) {
     const template = await context.render(routeParams);
     const sanitizedTemplate = DOMPurify.sanitize(template);
     container.innerHTML = sanitizedTemplate;
-    // Attendre que le DOM soit mis a jour de façon asynchrone
     if (typeof context.removeEventListeners === "function")
       context.removeEventListeners();
     requestAnimationFrame(() => {
@@ -20,24 +42,43 @@ export async function updateView(context, routeParams = {}) {
   }
 }
 
+export function handleLangDiv(remove) {
+  const langDiv = document.getElementById("lang-div");
+  if (langDiv && remove) langDiv.style.display = "none";
+  else if (langDiv && !remove && state.state.gameHasLoaded)
+    langDiv.style.display = "block";
+}
+
 export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
-  if (header.isUserRendered || header.isGuestRendered) {
-    if (needsToDestroy) header.destroy();
-    else if (langChange) {
-      console.log("Lang reset in handleHeader");
-      if (isUserLoggedIn) header.updateLangUserLoggedIn();
-      else if (!isUserLoggedIn) header.updateLangGuestUser();
-    } else if (isUserLoggedIn && !header.isUserRendered) {
-      header.destroy();
+  if (needsToDestroy) {
+    header.destroy();
+    if (!langChange) return;
+  }
+
+  if (langChange) {
+    console.log("Lang reset in handleHeader");
+    if (isUserLoggedIn) header.updateLangUserLoggedIn();
+    else header.updateLangGuestUser();
+  }
+  console.log(
+    "header.isUserRendered : " + header.isUserRendered,
+    "isUserLoggedIn : " + isUserLoggedIn
+  );
+  if (
+    (isUserLoggedIn && !header.isUserRendered) ||
+    (!isUserLoggedIn && !header.isGuestRendered)
+  ) {
+    header.destroy();
+    if (isUserLoggedIn) {
       header.renderUserLoggedIn();
-    } else if (!isUserLoggedIn && !header.isGuestRendered) {
-      header.destroy();
+    } else {
       header.renderGuestUser();
     }
-  } else if (!header.isUserRendered && !header.isGuestRendered) {
-    if (isUserLoggedIn) header.renderUserLoggedIn();
-    else header.renderGuestUser();
+    return;
   }
+
+  if (isUserLoggedIn && header.isUserRendered) return;
+  if (!isUserLoggedIn && header.isGuestRendered) return;
 }
 
 export function setDisable(bool, id) {
@@ -53,6 +94,8 @@ export async function logout() {
     state.state.userId = "0";
     state.state.lang = "EN";
     state.saveState();
+    const selectedLangImg = document.getElementById("selected-lang-img");
+    if (selectedLangImg) selectedLangImg.src = "english.jpg";
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);
@@ -65,11 +108,12 @@ export async function logout() {
 export async function checkUserStatus() {
   try {
     const res = await API.get("/auth/is-auth/");
-    const id = res.data.user_id.toString();
-    console.log(id);
-    if (!state.isUserLoggedIn) state.setIsUserLoggedIn(true);
-    if (id !== state.state.userId) {
-      state.state.userId = id;
+    if (!state.isUserLoggedIn) {
+      state.setIsUserLoggedIn(true);
+      state.state.lang = res.data.user.lang;
+      state.state.userId = res.data.user.id.toString();
+      state.state.username = res.data.user.username;
+      state.state.userAlias = res.data.user.alias;
       state.saveState();
     }
     return true;
@@ -77,8 +121,4 @@ export async function checkUserStatus() {
     console.error(`Error while trying to check user status : ${error}`);
     return false;
   }
-}
-
-export function createBackArrow(route) {
-  return `<a href="${route || "/"}" class="back-arrow">←</a>`;
 }

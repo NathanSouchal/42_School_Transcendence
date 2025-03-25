@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  setDisable,
-} from "../utils.js";
+import { handleHeader, updateView, setDisable } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Register {
   constructor(state) {
+    this.pageName = "Register";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -22,6 +18,7 @@ export default class Register {
     };
     this.eventListeners = [];
     this.lang = null;
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -29,6 +26,7 @@ export default class Register {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
@@ -96,8 +94,11 @@ export default class Register {
   }
 
   showPopup() {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
     const popup = document.getElementById("popup");
     if (popup) popup.classList.toggle("show");
+    this.isProcessing = false;
   }
 
   handleNavigation(e) {
@@ -113,6 +114,12 @@ export default class Register {
     let key = e.target.name;
     let value = e.target.value;
     let inputElement = e.target;
+    let passwordField = document.querySelector("input[name='password']");
+    let passwordConfField = document.querySelector(
+      "input[name='passwordConfirmation']"
+    );
+    let regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
 
     if (key === "username") {
       if (value.length < 4) {
@@ -123,30 +130,62 @@ export default class Register {
         inputElement.classList.add("is-valid");
       }
     } else if (key === "password") {
-      const regex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
       if (!regex.test(value)) {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
-      } else {
+        if (
+          value &&
+          passwordConfField.value &&
+          passwordConfField.value === value
+        ) {
+          passwordConfField.classList.remove("is-invalid");
+          passwordConfField.classList.add("is-valid");
+        } else if (
+          value &&
+          passwordConfField.value &&
+          passwordConfField.value !== value
+        ) {
+          passwordConfField.classList.remove("is-valid");
+          passwordConfField.classList.add("is-invalid");
+        }
+      } else if (regex.test(value)) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
+        if (passwordConfField.value === passwordField.value) {
+          passwordConfField.classList.remove("is-invalid");
+          passwordConfField.classList.add("is-valid");
+        } else if (
+          passwordConfField.value &&
+          passwordConfField.value !== passwordField.value
+        ) {
+          passwordConfField.classList.remove("is-valid");
+          passwordConfField.classList.add("is-invalid");
+        }
+      } else if (
+        passwordConfField.value &&
+        passwordConfField.value !== passwordField.value
+      ) {
+        passwordConfField.classList.remove("is-valid");
+        passwordConfField.classList.add("is-invalid");
       }
     } else if (key === "passwordConfirmation") {
-      const passwordField = document.querySelector("input[name='password']");
-      if (value !== passwordField.value) {
+      if (!value || value !== passwordField.value) {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
-      } else {
+      } else if (value && value === passwordField.value) {
         inputElement.classList.remove("is-invalid");
         inputElement.classList.add("is-valid");
+        if (regex.test(passwordField.value)) {
+          passwordField.classList.remove("is-invalid");
+          passwordField.classList.add("is-valid");
+        }
+      } else if (regex.test(passwordField.value)) {
+        passwordField.classList.remove("is-valid");
+        passwordField.classList.add("is-invalid");
       }
     }
 
     this.formState[key] = value;
-    console.log(this.formState.username);
-    console.log(this.formState.password);
-    console.log(this.formState.passwordConfirmation);
   }
 
   async handleSubmit(e) {
@@ -157,10 +196,36 @@ export default class Register {
       !this.formState.password?.length ||
       !this.formState.passwordConfirmation?.length
     ) {
-      return console.error("Please complete all fields");
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(trad[this.lang].errors.fields);
+    }
+    let regex = /^\w+$/;
+    if (!regex.test(this.formState.username)) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(trad[this.lang].errors.username);
+    }
+    if (this.formState.username.length < 4) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].errors.usernameMinlength
+      );
+    }
+    if (this.formState.username.length > 10) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].errors.usernameMaxlength
+      );
+    }
+    regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
+    if (!regex.test(this.formState.password)) {
+      setDisable(false, "register-form");
+      return this.displayRegisterErrorMessage(
+        trad[this.lang].register.restrictions
+      );
     }
     try {
-      const response = await API.post("/auth/register/", this.formState);
+      await API.post("/auth/register/", this.formState);
       window.app.router.navigate("/login");
     } catch (error) {
       if (
@@ -169,16 +234,18 @@ export default class Register {
         error.response.data
       ) {
         const errorData = error.response.data;
-        if (errorData.username)
+        if (errorData.username) {
           this.displayRegisterErrorMessage(Object.values(errorData.username));
-        else if (errorData.password_match)
+          console.log(Object.values(errorData.username));
+        } else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
       } else if (error.response && error.response.status === 409)
-        this.displayRegisterErrorMessage("This username is already used");
+        this.displayRegisterErrorMessage(
+          trad[this.lang].errors.usernameUnavailable
+        );
     } finally {
-      setDisable(false, "register-form");
       this.formState = {};
       const inputs = document.querySelectorAll("input");
       inputs.forEach((input) => {
@@ -186,6 +253,7 @@ export default class Register {
         input.classList.remove("is-valid");
         input.classList.remove("is-invalid");
       });
+      setDisable(false, "register-form");
     }
   }
 
@@ -221,10 +289,16 @@ export default class Register {
       this.isSubscribed = false;
       console.log("Register page unsubscribed from state");
     }
+    this.formState = {
+      username: "",
+      password: "",
+      passwordConfirmation: "",
+    };
   }
 
   async render(routeParams = {}) {
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Register page subscribed to state");
@@ -233,8 +307,7 @@ export default class Register {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}
+    return `
         <form id="register-form" class="form-div-login-register">
           <h1 class="global-page-title">${trad[this.lang].register.pageTitle}</h1>
           <div class="inputs-button-form-login-register">

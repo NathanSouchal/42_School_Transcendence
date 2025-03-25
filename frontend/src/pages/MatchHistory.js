@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  checkUserStatus,
-} from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class MatchHistory {
   constructor(state) {
+    this.pageName = "MatchHistory";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -25,6 +21,7 @@ export default class MatchHistory {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Match_history page subscribed to state");
@@ -111,6 +108,7 @@ export default class MatchHistory {
     await this.getMatchHistory(this.state.state.userId);
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Match_history page subscribed to state");
@@ -119,8 +117,7 @@ export default class MatchHistory {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
-    return `${backArrow}<div class="user-main-div">
+    return `<div class="user-main-div">
 						<div class="user-main-content">
 							<div class="title-div match-history-title-div">
 								<h1>${trad[this.lang].matchHistory.pageTitle}</h1>
@@ -132,13 +129,25 @@ export default class MatchHistory {
                       .map(
                         (value) =>
                           `<div class="match-history-main-game-div">
-								<div class="match-history-game-div ${value.score_player1 > value.score_player2 ? `${trad[this.lang].matchHistory.won}` : `${trad[this.lang].matchHistory.lost}`}">
+								<div class="match-history-game-div ${
+                  (value.player1 === this.state.state.userAlias &&
+                    value.score_player1 > value.score_player2) ||
+                  (value.player2 === this.state.state.userAlias &&
+                    value.score_player2 > value.score_player1)
+                    ? `won`
+                    : (value.player1 === this.state.state.userAlias &&
+                          value.score_player1 < value.score_player2) ||
+                        (value.player2 === this.state.state.userAlias &&
+                          value.score_player2 < value.score_player1)
+                      ? `lost`
+                      : `equality`
+                }">
 									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
 									<h3 class="mh-player">${value.player1}</h3>
 									<h3 class="mh-score">${value.score_player1}</h3>
 									<span>-</span>
 									<h3 class="mh-score">${value.score_player2}</h3>
-									<h3 class="mh-player">${value.player2}</h3>
+									<h3 class="mh-player">${value.player2 ? value.player2 : "Guest"}</h3>
 								</div>
 							</div>`
                       )

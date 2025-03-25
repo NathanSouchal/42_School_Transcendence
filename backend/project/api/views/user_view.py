@@ -12,6 +12,7 @@ from django.http import Http404
 import base64
 import imghdr
 from django.core.files.base import ContentFile
+from django.db import IntegrityError
 
 
 class UserView(APIView):
@@ -91,6 +92,8 @@ class UserView(APIView):
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
+		except IntegrityError:
+			return Response({'error': 'Username or alias already exists'}, status=status.HTTP_409_CONFLICT)
 		except Exception as e:
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

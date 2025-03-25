@@ -1,27 +1,45 @@
-import { updateView, checkUserStatus } from "../utils";
+import {
+  updateView,
+  checkUserStatus,
+  setDisable,
+  handleLangDiv,
+  handleHeader,
+} from "../utils";
 import API from "../services/api";
-import { handleHeader } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import {
+  connectWallet,
+  storeTournament,
+} from "../../blockchain/ContractInteraction.js";
+import { ethers } from "ethers";
 
 export default class LocalTournament {
   constructor(state) {
+    this.pageName = "LocalTournament";
     this.state = state;
     this.previousState = { ...state.state };
+    this.oldscore = state.score;
     this.handleStateChange = this.handleStateChange.bind(this);
     this.isSubscribed = false;
     this.isInitialized = false;
     this.possibleNbPlayers = ["2", "4", "8", "16", "32"];
     this.playerList = [];
+    this.tournamentId = "";
+    this.allTournamentScores = [];
     this.nbPlayers = 0;
     this.inputCount = 0;
     this.eventListeners = [];
     this.currentRound = [];
     this.MatchToPlay = {};
+    this.formState = {};
     this.tournamentFinished = false;
     this.tournamentWinner = null;
     this.userAlias = "";
     this.lang = null;
+    this.isProcessing = false;
+    this.tournamentStoredOnBlockchain = false;
+    this.buttonBlockchainState = "store";
   }
 
   async initialize(routeParams = {}) {
@@ -29,13 +47,11 @@ export default class LocalTournament {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
-
-    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
-    else this.userAlias = "";
     await updateView(this, {});
   }
 
@@ -63,19 +79,55 @@ export default class LocalTournament {
       }
     });
 
-    const selectNbPlayers = document.getElementById("select-nb-players");
-    if (selectNbPlayers) {
-      const handleNbPlayersChange = this.handleNbPlayersChange.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "selectNbPlayersEvent")) {
-        selectNbPlayers.addEventListener("change", handleNbPlayersChange);
+    const nbPlayers = [
+      { id: "crab4", value: 4 },
+      { id: "crab8", value: 8 },
+      { id: "crab16", value: 16 },
+      { id: "crab32", value: 32 },
+    ];
+
+    nbPlayers.forEach(({ id, value }) => {
+      const crab = document.getElementById(id);
+      if (crab) {
+        const handleNbPlayersChange = this.handleNbPlayersChange.bind(
+          this,
+          value
+        );
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          crab.addEventListener("click", handleNbPlayersChange);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: crab,
+            listener: handleNbPlayersChange,
+          });
+        }
       }
-      this.eventListeners.push({
-        name: "selectNbPlayersEvent",
-        type: "change",
-        element: selectNbPlayers,
-        listener: handleNbPlayersChange,
-      });
-    }
+    });
+
+    const buttons = [
+      { id: "pause-game" },
+      { id: "resume-game" },
+      { id: "exit-tournament" },
+      { id: "game-menu-button" },
+      { id: "btn-start-match" },
+    ];
+
+    buttons.forEach(({ id }) => {
+      const button = document.getElementById(id);
+      if (button) {
+        const handleBtn = this.handleBtn.bind(this, id);
+        if (!this.eventListeners.some((e) => e.name === id)) {
+          button.addEventListener("click", handleBtn);
+          this.eventListeners.push({
+            name: id,
+            type: "click",
+            element: button,
+            listener: handleBtn,
+          });
+        }
+      }
+    });
 
     const inputPlayerName = document.getElementById("input-player-name");
     if (inputPlayerName) {
@@ -88,34 +140,6 @@ export default class LocalTournament {
         type: "keydown",
         element: inputPlayerName,
         listener: handlePlayersName,
-      });
-    }
-
-    const btnToStartMatch = document.getElementById("btn-start-match");
-    if (btnToStartMatch) {
-      const handleStartButton = this.handleStartButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "btnToStartMatch")) {
-        btnToStartMatch.addEventListener("click", handleStartButton);
-      }
-      this.eventListeners.push({
-        name: "btnToStartMatch",
-        type: "click",
-        element: btnToStartMatch,
-        listener: handleStartButton,
-      });
-    }
-
-    const gameMenueButton = document.getElementById("game-menu-button");
-    if (gameMenueButton) {
-      const handleGameMenuButton = this.handleGameMenuButton.bind(this);
-      if (!this.eventListeners.some((e) => e.name === "gameMenueButton")) {
-        gameMenueButton.addEventListener("click", handleGameMenuButton);
-      }
-      this.eventListeners.push({
-        name: "gameMenueButton",
-        type: "click",
-        element: gameMenueButton,
-        listener: handleGameMenuButton,
       });
     }
 
@@ -132,6 +156,27 @@ export default class LocalTournament {
         listener: handlePlayersName,
       });
     }
+
+    const storeBlockchainButton = document.getElementById(
+      "store-blockchain-button"
+    );
+    if (storeBlockchainButton) {
+      const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
+      if (
+        !this.eventListeners.some((e) => e.name === "storeBlockchainButton")
+      ) {
+        storeBlockchainButton.addEventListener(
+          "click",
+          handleBlockchainStorage
+        );
+      }
+      this.eventListeners.push({
+        name: "storeBlockchainButton",
+        type: "click",
+        element: storeBlockchainButton,
+        listener: handleBlockchainStorage,
+      });
+    }
   }
 
   handleNavigation(e) {
@@ -143,13 +188,13 @@ export default class LocalTournament {
     }
   }
 
-  async handleNbPlayersChange(e) {
-    const selectedValue = e.target.value;
-    if (selectedValue) {
-      this.nbPlayers = parseInt(selectedValue, 10);
-      console.log(this.nbPlayers);
-      await updateView(this, {});
-    }
+  async handleNbPlayersChange(value) {
+    if (this.isProcessing) return;
+    this.isProcessing = true;
+    this.nbPlayers = value;
+    console.log(this.nbPlayers);
+    await updateView(this, {});
+    this.isProcessing = false;
   }
 
   async handlePlayersName(e) {
@@ -164,18 +209,21 @@ export default class LocalTournament {
         const regex = /^\w+$/;
         if (input.value) {
           if (!regex.test(input.value)) {
-            alert("regex");
             return this.displayTournamentErrorMessage(
-              "Invalid participant name : only letters, numbers and underscores are allowed"
+              trad[this.lang].errors.playerName
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              "Player name must be at least 4 characters long"
+              trad[this.lang].errors.playerMinlength
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              "Player name must be at most 10 characters long"
+              trad[this.lang].errors.playerMaxlength
+            );
+          if (this.playerList.includes(playerName))
+            return this.displayTournamentErrorMessage(
+              trad[this.lang].errors.playerNameUnavailable
             );
         }
         if (playerName) {
@@ -192,38 +240,188 @@ export default class LocalTournament {
   }
 
   async handleStateChange(newState) {
+    let container = document.getElementById("app");
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
+      //   alert("Game loaded or lang change");
+      console.log(
+        newState.gameHasLoaded,
+        this.previousState.gameHasLoaded,
+        newState.lang,
+        this.previousState.lang
+      );
       await updateView(this, {});
-    } else if (newState.gameStarted && !this.previousState.gameStarted) {
-      console.log("Game has started");
-      const container = document.getElementById("app");
+    } else if (
+      (newState.gameStarted && !this.previousState.gameStarted) ||
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
+    ) {
       if (container) {
+        container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
+        // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.matchFinished();
-      const container = document.getElementById("app");
+      if (
+        this.state.isUserLoggedIn &&
+        (this.MatchToPlay.player1 === this.state.state.userAlias ||
+          this.MatchToPlay.player2 === this.state.state.userAlias)
+      )
+        await this.saveGame();
+      else await this.matchFinished();
       if (container) {
+        container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
+        // alert("Game won");
+        await updateView(this, {});
+      }
+    } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
+      if (container) {
+        container.innerHTML = "";
+        container.className = "app";
+        this.previousState = { ...newState };
+        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
+    this.oldscore = { ...this.state.score };
+    this.display_store_button(this.buttonBlockchainState);
   }
 
-  handleStartButton() {
-    this.state.setGameStarted("PVP");
+  handleBtn(key) {
+    setDisable(true, key);
+    if (key === "pause-game") this.state.togglePause(true);
+    else if (key === "resume-game") this.state.togglePause(false);
+    else if (key === "exit-tournament" || key === "game-menu-button") {
+      this.state.setGameEnded();
+      this.resetAttributes();
+      this.state.state.gameHasBeenWon = false;
+      this.state.backToBackgroundPlay();
+      router.navigate("/game");
+    } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
+    setDisable(false, key);
   }
 
-  handleGameMenuButton() {
-    this.resetAttributes();
-    router.navigate("/game");
+  async handleBlockchainStorage() {
+    setDisable(true, "store-blockchain-button");
+    if (!this.tournamentFinished) {
+      alert("Tournament is not finished !");
+      return;
+    }
+
+    if (this.tournamentStoredOnBlockchain) {
+      alert("Tournament has already been stored !");
+      return;
+    }
+    // Vérifier si Metamask est connecté
+    const userAddress = await connectWallet();
+    if (!userAddress) {
+      alert("Metamask connexion is required !");
+      return;
+    }
+
+    // Récupérer les données du tournoi à envoyer
+    if (this.tournamentId.length == 0) {
+      alert("Tournament is not yet created !");
+      return;
+    }
+    const tournamentId = this.uuidToBytes32(this.tournamentId);
+    const rounds = this.formatTournamentData();
+    // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
+    // console.log("Envoi du tournoi sur la blockchain...", rounds);
+
+    this.buttonBlockchainState = "storing";
+    this.display_store_button(this.buttonBlockchainState);
+
+    try {
+      const success = await storeTournament(rounds, tournamentId);
+      if (success) {
+        // alert("Tournoi enregistré avec succès sur la blockchain !");
+        this.buttonBlockchainState = "stored";
+        this.display_store_button(this.buttonBlockchainState);
+        this.tournamentStoredOnBlockchain = true;
+      } else {
+        this.buttonBlockchainState = "store";
+        this.display_store_button(this.buttonBlockchainState);
+      }
+    } catch (error) {
+      console.error("Blockchain error :", error);
+      alert("Error has occured, check the console.");
+    }
+    setDisable(false, "store-blockchain-button");
+  }
+
+  display_store_button(button_version) {
+    const storeButton = document.getElementById("store-blockchain-button");
+    const storingButton = document.getElementById("storing-blockchain-button");
+    const storedButton = document.getElementById("stored-blockchain-button");
+    if (storeButton && storingButton && storedButton) {
+      switch (button_version) {
+        case "store":
+          storeButton.style.display = "block";
+          storingButton.style.display = "none";
+          storedButton.style.display = "none";
+          break;
+        case "storing":
+          storeButton.style.display = "none";
+          storingButton.style.display = "block";
+          storedButton.style.display = "none";
+          break;
+        case "stored":
+          storeButton.style.display = "none";
+          storingButton.style.display = "none";
+          storedButton.style.display = "block";
+          break;
+      }
+    }
+  }
+
+  formatTournamentData() {
+    const formatedTournament = this.allTournamentScores.map((round, index) => ({
+      roundID: index + 1,
+      matches: round.map((match) => ({
+        player1: match.player1,
+        player2: match.player2,
+        scorePlayer1: match.score_player1 || 0,
+        scorePlayer2: match.score_player2 || 0,
+      })),
+    }));
+    return formatedTournament;
+  }
+
+  uuidToBytes32(uuid) {
+    return ethers.keccak256(ethers.toUtf8Bytes(uuid));
+  }
+
+  async saveGame() {
+    const { left, right } = this.state.score;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = null;
+    if (this.MatchToPlay.player1 === this.state.state.userAlias) {
+      this.formState.score_player1 = parseInt(left);
+      this.formState.score_player2 = parseInt(right);
+    } else {
+      this.formState.score_player1 = parseInt(right);
+      this.formState.score_player2 = parseInt(left);
+    }
+    console.warn("posting data for game");
+    console.log(this.formState.player1, this.formState.player2);
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.formState = {};
+      await this.matchFinished();
+    }
   }
 
   async matchFinished() {
@@ -238,11 +436,13 @@ export default class LocalTournament {
         winner: winner,
       });
       console.log(res);
-      if (res.status === 200) {
+      if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
           res.data.tournament.rounds_tree[this.MatchToPlay.round_number - 1];
-      } else {
+        this.currentRound.sort((a, b) => a.id - b.id);
+      } else if (res.status === 200 && res.data.tournamentIsFinished) {
+        this.allTournamentScores = res.data.tournament.rounds_tree;
         this.tournamentFinished = true;
         this.tournamentWinner = winner;
       }
@@ -259,7 +459,9 @@ export default class LocalTournament {
         number_of_players: this.nbPlayers,
       });
       this.currentRound = res.data.tournament.rounds_tree[0];
+      this.currentRound.sort((a, b) => a.id - b.id);
       this.MatchToPlay = res.data.FirstMatch;
+      this.tournamentId = res.data.tournament.id;
       await updateView(this, {});
     } catch (error) {
       console.error(`Error while trying to update user data : ${error}`);
@@ -298,7 +500,7 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log("Removed ${type} eventListener from input");
+        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -311,24 +513,27 @@ export default class LocalTournament {
       this.isSubscribed = false;
       console.log("LocalTournament page unsubscribed from state");
     }
+    this.resetAttributes();
+    this.state.resetScore();
+    this.state.setDestroyGame();
   }
 
   renderSelectNbPlayers() {
+    handleLangDiv(false);
+    this.buttonBlockchainState = "store";
     return `<div class="select-container">
-                <label for="select-nb-players">${trad[this.lang].localTournament.playersNum}</label>
-                <select id="select-nb-players">
-                  <option value="" disabled selected>${trad[this.lang].localTournament.select}</option>
-                  ${this.possibleNbPlayers
-                    .map(
-                      (element) =>
-                        `<option value="${element}">${element}</option>`
-                    )
-                    .join("")}
-                </select>
+                <h2>${trad[this.lang].localTournament.playersNum}</h2>
+				<div class="crab-playernb-div">
+                    <img src="/crab4.png" alt="crab4img" class="crab-playernb-select" id="crab4">
+                    <img src="/crab8.png" alt="crab8img" class="crab-playernb-select" id="crab8">
+                    <img src="/crab16.png" alt="crab16img" class="crab-playernb-select" id="crab16">
+                    <img src="/crab32.png" alt="crab32img" class="crab-playernb-select" id="crab32">
+                 </div>
               </div>`;
   }
 
   renderInputPlayerName() {
+    handleLangDiv(false);
     return `<div class="input-player-name">
 					    <label>${trad[this.lang].localTournament.player}${this.inputCount + 1}</label>
               <input id="input-player-name" type="text" name="" minLength="4" maxLength="10" value="${this.inputCount + 1 === 1 ? this.userAlias : ""}"
@@ -339,7 +544,27 @@ export default class LocalTournament {
 				    </div>`;
   }
 
+  renderPauseMenu() {
+    handleLangDiv(false);
+    return `
+				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					<div class="global-nav-section">
+						<div class="game-paused-title">
+							<h1>${trad[this.lang].localTournament.paused}</h1>
+						</div>
+						<div class="global-nav-items">
+							<button id="resume-game">${trad[this.lang].localTournament.resume}</button>
+						</div>
+						<div class="global-nav-items">
+							<button id="exit-tournament">${trad[this.lang].localTournament.stop}</button>
+						</div>
+					</div>
+				</div>
+  `;
+  }
+
   renderTournament() {
+    handleLangDiv(false);
     return `
         ${
           this.tournamentFinished
@@ -390,11 +615,28 @@ export default class LocalTournament {
             )
             .join("")}
         </div>
-        <div class="stop-button-div">
-          <button id="game-menu-button">
-            ${!this.MatchToPlay.next_match ? `${trad[this.lang].localTournament.gameMenu}` : `${trad[this.lang].localTournament.stop}`}
-          </button>
-        </div>
+        ${
+          !this.tournamentFinished
+            ? `<div class="stop-button-div">
+              <button id="game-menu-button">
+                ${`${trad[this.lang].localTournament.stop}`}
+              </button>
+            </div>`
+            : `<div class="tournament-finished-button-div">
+              <button id="game-menu-button">
+              ${`${trad[this.lang].localTournament.gameMenu}`}
+              </button>
+              <button style="display: block" id="store-blockchain-button">
+                 ${`${trad[this.lang].localTournament.storeBlockchain}`}
+              </button>
+              <div class="storing-blockchain-button" style="display: none" id="storing-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storingBlockchain}`}</button>
+              </div>
+              <div class="stored-blockchain-button" style="display: none" id="stored-blockchain-button">
+                <button>${`${trad[this.lang].localTournament.storedBlockchain}`}</button>
+              </div>
+            </div>`
+        }
     `;
   }
 
@@ -403,15 +645,18 @@ export default class LocalTournament {
     const { gameIsPaused } = this.state.state;
     const leftPlayerName = this.MatchToPlay.player1;
     const rightPlayerName = this.MatchToPlay.player2;
+    handleLangDiv(true);
 
-    return `
+    return this.state.state.gameIsPaused
+      ? this.renderPauseMenu()
+      : `
           <div class="tournament-game-hud">
             <div class="tournament-game-score">
               <h1>${leftPlayerName}</h1>
               <h1>${left} - ${right}</h1>
               <h1>${rightPlayerName}</h1>
             </div>
-            <button id="toggle-pause" class="pause-play-btn">
+            <button id="pause-game" class="pause-play-btn">
               <div id="toggle-pause-styling" class="${gameIsPaused ? "play-icon" : "pause-icon"}" ></div>
             </button>
           </div>
@@ -419,18 +664,22 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("LocalTournament page subscribed to state");
     }
-    if (this.state.state.gameStarted === true)
+    if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
+    else this.userAlias = "";
+    if (this.state.state.gameStarted)
       handleHeader(this.state.isUserLoggedIn, true, false);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    return this.state.state.gameStarted === true
+    return this.state.state.gameStarted
       ? this.getGameHUDTemplate()
       : `
           <div class="main-div-tournament">

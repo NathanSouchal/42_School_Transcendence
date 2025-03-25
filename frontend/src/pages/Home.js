@@ -5,6 +5,7 @@ import { trad } from "../trad.js";
 
 export default class Home {
   constructor(state) {
+    this.pageName = "Home";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -17,6 +18,7 @@ export default class Home {
     if (this.isInitialized) return;
     this.isInitialized = true;
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
@@ -84,6 +86,7 @@ export default class Home {
     await checkUserStatus();
 
     if (!this.isSubscribed) {
+      this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
@@ -96,8 +99,8 @@ export default class Home {
     return `
     <div class="home-main-div">
       <div class="home-title">
-        <h1>PONG</h1>
-        <h1>GAME</h1>
+        <h1>SURIMI</h1>
+        <h1>SMASH</h1>
       </div>
       <div>
         <div class="global-nav-section">

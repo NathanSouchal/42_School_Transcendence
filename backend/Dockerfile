@@ -1,19 +1,29 @@
-FROM python:3.13
+FROM python:3.10.12
 
 WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# RUN pip install --upgrade pip && pip install --no-cache-dir --index-url https://mirror.google.com/pypi/simple/ --extra-index-url https://pypi.org/simple/ -r requirements.txt
 
 
-COPY . .
+# Add watchdog for file watching
+RUN pip install watchdog[watchmedo]
 
-RUN chmod +x conf/entrypoint.sh
+VOLUME /app
+
+COPY conf/entrypoint.sh /app/conf/entrypoint.sh
+
+RUN chmod +x /app/conf/entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["conf/entrypoint.sh"]
+ENTRYPOINT ["/app/conf/entrypoint.sh"]
 
-CMD ["python3", "project/manage.py", "runserver", "0.0.0.0:8000"]
+ENV PYTHONPATH=/app:/app/project
+
+CMD ["python", "runserver_hotreload.py"]

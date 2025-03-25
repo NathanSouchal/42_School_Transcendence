@@ -4,11 +4,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
   text-align: center;
   color: var(--primary-color);
   width: 80%;
   margin: 0 auto;
+  padding-top: 10%;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .account-main-div button {
@@ -17,7 +21,9 @@
 
 .user-main-content {
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  width: 100%;
+  /* scrollbar-width: none; */
   flex-grow: 1;
 }
 
@@ -113,7 +119,7 @@ label {
 
 .file-input {
   opacity: 0;
-  position: absolute;
+  position: relative;
   width: 0;
   height: 0;
 }

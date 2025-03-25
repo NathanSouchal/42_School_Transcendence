@@ -1,7 +1,10 @@
+import { header } from "../app";
+import { checkUserStatus, handleLangDiv } from "../utils";
+
 export default class State {
   constructor() {
     if (State.instance) {
-      return State.instance; // Retourner l'instance existante si elle existe déjà
+      return State.instance;
     }
 
     this.state = {
@@ -15,24 +18,36 @@ export default class State {
       gameNeedsReset: false,
       gameIsPaused: false,
       gameHasBeenWon: false,
+      isSearching: false,
       userId: "0",
       lang: "EN",
+      opponentId: null,
+      opponentUsername: null,
+      opponentLeft: false,
+      userSide: null,
+      username: null,
+      userAlias: null,
+      latency: 0,
+      gameIsTimer: false,
     };
+    this.gameMode = "default";
     this.isUserLoggedIn = false;
+    this.connectionIssue = false;
 
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
       this.isUserLoggedIn = savedState.isUserLoggedIn || false;
-      this.state.userId = parseInt(savedState.userId) || "0";
+      this.state.userId = savedState.userId || "0";
       this.state.lang = savedState.lang || "EN";
+      this.state.username = savedState.username || null;
+      this.state.userAlias = savedState.userAlias || null;
     } else this.saveState();
 
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
-    document.getElementById("lang-div").classList.add("hidden");
 
-    this.gamePoints = 10;
-    // this.gamePoints = 1;
+    // this.gamePoints = 10;
+    this.gamePoints = 2;
 
     this.botDifficulty = 6;
 
@@ -49,6 +64,14 @@ export default class State {
         left: "robot",
         right: "player",
       },
+      OnlineLeft: {
+        left: "player",
+        right: "none",
+      },
+      OnlineRight: {
+        left: "none",
+        right: "player",
+      },
     };
 
     this.players = this.player_types.default;
@@ -57,6 +80,7 @@ export default class State {
     this.scores = [];
     this.data = {};
     this.listeners = [];
+    this.collision = {};
 
     State.instance = this;
   }
@@ -71,6 +95,8 @@ export default class State {
     const stateToSave = {
       isUserLoggedIn: this.isUserLoggedIn,
       userId: this.state.userId,
+      username: this.state.username,
+      userAlias: this.state.userAlias,
       lang: this.state.lang,
     };
     localStorage.setItem("pongState", JSON.stringify(stateToSave));
@@ -89,12 +115,12 @@ export default class State {
 
   setGameHasLoaded() {
     this.state.gameHasLoaded = true;
-    console.log("gameHasLoaded set to true in state");
+    // console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
     document.getElementById("c").classList.remove("hidden");
-    document.getElementById("lang-div").classList.remove("hidden");
+    document.getElementById("lang-div").style.display = "block";
   }
 
   setGameNeedsReset(bool) {
@@ -102,33 +128,130 @@ export default class State {
     this.notifyListeners();
   }
 
-  setGameStarted(gameMode) {
-    if (gameMode) {
-      this.gameMode = gameMode;
-      switch (gameMode) {
-        case "PVR":
-          this.players = this.player_types.PVR;
-          break;
-        case "PVP":
-          this.players = this.player_types.PVP;
-          break;
-        case "default":
-          this.players = this.player_types.default;
-          break;
+  async setGameStarted(gameMode) {
+    console.log("setGameStarted()");
+    console.log("gameMode: " + gameMode);
+    if (gameMode !== "default") {
+      if (header.isGuestRendered) header.isGuestRendered = false;
+      if (header.isUserRendered) header.isUserRendered = false;
+      await this.displayTimerBeforeGameStart();
+      if (!this.state.gameIsTimer) {
+        handleLangDiv(false);
+        return;
       }
+      //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
+      //     console.warn("⚠️ gameManager is undefined or not ready.");
+      //     return;
+      //   }
+      this.state.gameIsTimer = false;
     }
-    this.state.gameIsPaused = false;
+    if (
+      !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
+    )
+      gameMode = "default";
+    this.gameMode = gameMode;
+    this.players = this.player_types[gameMode];
+
+    if (this.gameMode !== "OnlineLeft" && this.gameMode !== "OnlineRight")
+      this.gameManager.connect();
+
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
+
     this.resetScore();
-    if (gameMode && gameMode !== "default") this.state.gameStarted = true;
+    if (gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
   }
 
+  displayTimerBeforeGameStart(durationSeconds = 3) {
+    this.state.gameIsTimer = true;
+    return new Promise((resolve) => {
+      const container = document.getElementById("app");
+      const toogleBar = document.getElementById("toggle-button-container");
+      const langDiv = document.getElementById("lang-div");
+      if (toogleBar) toogleBar.style.display = "none";
+      if (langDiv) langDiv.style.display = "none";
+
+      const template = `
+        <div class="timer-overlay">
+          <div class="timer-countdown">${durationSeconds}</div>
+        </div>
+      `;
+      container.innerHTML = template;
+
+      const countdownElement = container.querySelector(".timer-countdown");
+      let countdown = durationSeconds;
+
+      const interval = setInterval(() => {
+        countdown--;
+        countdownElement.textContent = countdown;
+
+        if (countdown <= 0) {
+          clearInterval(interval);
+          const timerOverlay = container.querySelector(".timer-overlay");
+          if (timerOverlay) timerOverlay.remove();
+          //   if (langDiv) langDiv.style.display = "block";
+          resolve();
+        }
+      }, 1000);
+    });
+  }
+
+  async startMatchmaking() {
+    if (this.state.isSearching) {
+      console.warn("Matchmaking is already in progress!");
+      return;
+    }
+    this.setIsSearching(true);
+    this.gameMode = "Online";
+    console.log("Starting Machmaking");
+    if (this.gameManager) this.gameManager.connect();
+    else {
+      console.error("GameManager is not initialized!");
+      return;
+    }
+    while (this.state.isSearching) {
+      console.log("Searching for opponent...");
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    this.setGameStarted(this.gameMode);
+  }
+
+  cancelMatchmaking() {
+    this.setIsSearching(false);
+    if (this.gameManager?.socket) this.gameManager.socket.close();
+    this.gameMode = "default";
+    console.log("Cancelled Matchmaking");
+    //this.setGameStarted("default");
+  }
+
+  setIsSearching(bool) {
+    this.state.isSearching = bool;
+    this.notifyListeners();
+  }
+
   setGameEnded() {
-    this.state.gameIsPaused = false;
+    console.log("setGameEnded()");
     this.scores.push(this.score);
-    this.state.gameStarted = false;
+    this.setDestroyGame();
     this.setGameNeedsReset(true);
+    this.notifyListeners();
+  }
+
+  setDestroyGame() {
+    console.log("setDestroyGame()");
+    this.state.gameIsTimer = false;
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
+    if (this.state.gameStarted) this.state.gameStarted = false;
+    if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
+    this.gameMode = "default";
+    if (this.gameManager?.socket) this.gameManager.socket.close();
+  }
+
+  opponentLeft() {
+    this.state.opponentLeft = true;
+    this.setDestroyGame();
+    this.backToBackgroundPlay();
   }
 
   backToBackgroundPlay() {
@@ -139,6 +262,7 @@ export default class State {
   togglePause(bool) {
     if (bool) this.state.gameIsPaused = bool;
     else this.state.gameIsPaused = !this.state.gameIsPaused;
+    this.gameManager.sendPause(this.state.gameIsPaused);
     this.notifyListeners();
   }
 
@@ -148,6 +272,9 @@ export default class State {
 
   updateScore(side, points) {
     this.score[side] += points;
+    console.log(
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+    );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();
       this.state.gameHasBeenWon = true;
@@ -156,6 +283,10 @@ export default class State {
   }
 
   resetScore() {
+    if (this.state.gameStarted) {
+      console.warn("Attempted to reset score while the game is in progress.");
+      return;
+    }
     this.score = { left: 0, right: 0 };
   }
 

@@ -1,15 +1,11 @@
 import API from "../services/api.js";
-import {
-  handleHeader,
-  updateView,
-  createBackArrow,
-  checkUserStatus,
-} from "../utils";
+import { handleHeader, updateView, checkUserStatus } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
 
 export default class Stats {
   constructor(state) {
+    this.pageName = "Stats";
     this.state = state;
     this.previousState = { ...state.state };
     this.handleStateChange = this.handleStateChange.bind(this);
@@ -25,6 +21,7 @@ export default class Stats {
     this.isInitialized = true;
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");
@@ -106,6 +103,7 @@ export default class Stats {
     await this.getStats(this.state.state.userId);
 
     if (!this.isSubscribed) {
+		this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
       console.log("Stats page subscribed to state");
@@ -119,9 +117,8 @@ export default class Stats {
         Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
     );
     let template;
-    const backArrow = createBackArrow(this.state.state.lastRoute);
     if (this.stats && Object.keys(this.stats).length > 0) {
-      template = `${backArrow}
+      template = `
       <div class="main-div-stats">
         <h1 class="global-page-title">${trad[this.lang].stats.pageTitle}</h1>
 				<div class="stats-list">
@@ -145,14 +142,10 @@ export default class Stats {
             <h2>${trad[this.lang].stats.averageScore}</h2>
             <p>${this.stats.average_score || 0}</p>
           </div>
-					<div class="stats-item">
-            <h2>${trad[this.lang].stats.lastGame}</h2>
-            <p>${this.stats.last_game || 0}</p>
-          </div>
 				</div>
 			</div>`;
     } else {
-      template = `${backArrow}<div class="d-flex flex-column m-5">
+      template = `<div class="d-flex flex-column m-5">
           <h1>No data</h1>
       </div>`;
     }

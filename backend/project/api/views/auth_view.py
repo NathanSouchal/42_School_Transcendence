@@ -47,10 +47,11 @@ class RegisterView(APIView):
 				return Response({'message': 'User registered'}, status=status.HTTP_201_CREATED)
 			except IntegrityError:
 				return Response(
-                    {'error': 'Username is already taken.'},
+                    {'error': 'This username is already used'},
                     status=status.HTTP_409_CONFLICT
-                )
+				)
 			except Exception as e:
+				print(f"Register error: {e}")
 				return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -131,7 +132,10 @@ class LoginView(APIView):
 
 		response = Response({
 			'user': UserSerializer(user).data,
-			'message': 'Authentification complète'
+			'user_id': user.id,
+			'username': user.username,
+			'alias': user.alias,
+			'message': 'Authentification complete'
 		}, status=status.HTTP_200_OK)
 
 		# Ajouter les cookies sécurisés
@@ -151,6 +155,7 @@ class LoginView(APIView):
 		samesite='None',
 		max_age=7 * 24 * 60 * 60  # 7 jours
 		)
+		print("Cookies envoyes :", response.cookies)
 		return response
 
 class Verify2FAView(APIView):
@@ -339,7 +344,8 @@ class IsAuthView(APIView):
 	def get(self, request):
 		try:
 			user = request.user
-			return Response({'user authenticated': UserSerializer(user).data, 'user_id': user.id}, status=status.HTTP_200_OK)
+			print(f'user.id: {user.id}')
+			return Response({'user': UserSerializer(user).data, 'user_id': user.id, 'username': user.username, 'alias': user.alias}, status=status.HTTP_200_OK)
 		except AuthenticationFailed:
 			return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
