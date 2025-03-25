@@ -168,12 +168,12 @@ header .global-nav-section {
   }
 }
 
-@media (max-height: 700px) {
+@media (max-height: 800px) {
   .navbar-links {
-    padding-top: 150px;
+    padding-top: 250px;
   }
   .app,
   #header {
-    height: 80vh;
+    height: 80%;
   }
 }

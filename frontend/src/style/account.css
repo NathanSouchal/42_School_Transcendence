@@ -15,6 +15,10 @@
   /* scrollbar-width: none; */
 }
 
+.account-main-div {
+  width: 100%;
+}
+
 .account-main-div button {
   width: 200px;
 }
@@ -298,4 +302,11 @@ label {
   width: 100px;
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+
+@media (max-width: 400px) {
+  .user-main-div img {
+    width: 100px;
+    height: 100px;
+  }
 }
