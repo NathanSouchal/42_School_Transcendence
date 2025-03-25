@@ -7,7 +7,8 @@
   align-items: center;
   gap: 0.5em;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .inputs-button-form-login-register {

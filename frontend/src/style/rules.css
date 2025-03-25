@@ -2,7 +2,8 @@
   height: 100%;
   padding-top: 10%;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
   display: flex;
   align-items: center;
   flex-direction: column;

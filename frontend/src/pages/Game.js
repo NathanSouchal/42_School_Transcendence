@@ -221,10 +221,36 @@ export default class GamePage {
     }
   }
 
+  async saveGameOpponentLeft() {
+    console.log("saveGameOpponentLeft()");
+    if (!this.state.isUserLoggedIn) return;
+
+    const { left, right } = this.state.score;
+    this.formState.player1 = this.state.state.userId;
+    this.formState.player2 = this.state.state.opponentId;
+    this.formState.score_player1 = parseInt(right);
+    this.formState.score_player2 = parseInt(left);
+
+    try {
+      await API.post(`/game/list/`, this.formState);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.state.state.opponentId = null;
+      this.state.state.userSide = null;
+      this.formState = {};
+    }
+  }
+
   async handleStateChange(newState) {
     if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.saveGame();
       this.previousState = { ...newState };
+    } else if (newState.opponentLeft && !this.previousState.opponentLeft) {
+      this.previousState = { ...newState };
+      this.oldscore = { ...this.state.score };
+      await this.saveGameOpponentLeft();
+      await updateView(this, {});
     } else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
       newState.gameStarted !== this.previousState.gameStarted ||
@@ -232,8 +258,7 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"] ||
-      newState.lang !== this.previousState.lang ||
-      (newState.opponentLeft && !this.previousState.opponentLeft)
+      newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
@@ -261,8 +286,11 @@ export default class GamePage {
       this.isSubscribed = false;
       // console.log("Game page unsubscribed from state");
     }
-    this.haveToSelectBotDifficulty = false;
+    if (this.haveToSelectBotDifficulty) this.haveToSelectBotDifficulty = false;
+    if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
+    this.state.resetScore();
     this.state.setDestroyGame();
+    this.state.state.opponentUsername = null;
   }
 
   renderSelectBotDifficulty() {
@@ -395,6 +423,30 @@ export default class GamePage {
 	`;
   }
 
+  renderOpponentLeft() {
+    const { left, right } = this.state.score;
+    handleLangDiv(false);
+
+    return `
+			  <div>
+				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+					  <div class="global-nav-section">
+						  <div class="game-ended-score">
+							<h1>${this.state.state.opponentUsername}${trad[this.lang].game.leave}</h1>
+							<h1>${left} - ${right}</h1>
+						  </div>
+						  <h2 class="mt-2">
+							  ${left > right ? `${this.leftPlayerName} ${trad[this.lang].game.wins}` : left < right ? `${this.rightPlayerName} ${trad[this.lang].game.wins}` : `${trad[this.lang].game.noWinner}`}
+						  </h2>
+						  <div class="global-nav-items">
+							  <button id="exit-game">${trad[this.lang].game.back}</button>
+						  </div>
+					  </div>
+				  </div>
+			  </div>
+	`;
+  }
+
   async render(routeParams = {}) {
     await checkUserStatus();
     console.log("render GamePage");
@@ -410,7 +462,19 @@ export default class GamePage {
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
-    if (!gameStarted && !gameHasBeenWon && !this.haveToSelectBotDifficulty) {
+    if (this.state.state.opponentLeft) {
+      renderGame.className = "app";
+      menuButton.className = "toggle-button";
+      if (this.lang !== this.state.state.lang)
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
+      this.lang = this.state.state.lang;
+      return this.renderOpponentLeft();
+    } else if (
+      !gameStarted &&
+      !gameHasBeenWon &&
+      !this.haveToSelectBotDifficulty
+    ) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)
@@ -429,15 +493,12 @@ export default class GamePage {
       this.lang = this.state.state.lang;
       if (this.state.state.isSearching) this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
-    } else if (
-      (!gameStarted && gameHasBeenWon) ||
-      this.state.state.opponentLeft
-    ) {
+    } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)
-        handleHeader(this.state.isUserLoggedIn, true, true);
-      else handleHeader(this.state.isUserLoggedIn, true, false);
+        handleHeader(this.state.isUserLoggedIn, false, true);
+      else handleHeader(this.state.isUserLoggedIn, false, false);
       this.lang = this.state.state.lang;
       return this.renderGameEnded();
     } else if (gameIsPaused) {

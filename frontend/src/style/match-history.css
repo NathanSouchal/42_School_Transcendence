@@ -12,7 +12,8 @@
   text-align: center;
   color: var(--tertiary-color);
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .match-history-main-game-div {
@@ -38,6 +39,10 @@
 
 .lost {
   background-color: rgba(186, 127, 127, 0.2);
+}
+
+.equality {
+  background-color: rgba(88, 88, 88, 0.2);
 }
 
 .match-history-game-div h3,

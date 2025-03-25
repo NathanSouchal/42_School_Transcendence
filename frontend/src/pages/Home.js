@@ -91,13 +91,9 @@ export default class Home {
       this.isSubscribed = true;
       console.log("Home page subscribed to state");
     }
-    if (this.lang !== this.state.state.lang) {
+    if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);
-      console.log("ici1");
-    } else {
-      handleHeader(this.state.isUserLoggedIn, false, false);
-      console.log("ici2");
-    }
+    else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
     console.log("Home rendered");
     return `

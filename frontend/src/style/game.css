@@ -38,6 +38,13 @@
   height: 70%;
 }
 
+.game-ended-score {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
 .select-difficulty {
   display: flex;
   justify-content: center;

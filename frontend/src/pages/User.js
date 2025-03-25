@@ -26,6 +26,7 @@ export default class User {
     this.friendRequestId = null;
     this.lang = null;
     this.routeParams;
+    this.matchHistory = {};
   }
 
   async initialize(routeParams = {}) {
@@ -256,6 +257,23 @@ export default class User {
     console.log(this.friendStatus);
   }
 
+  async getMatchHistory(id) {
+    try {
+      const res = await API.get(`/match-history/${id}/`);
+      const data = res.data.match_history;
+      this.matchHistory = data;
+      console.log(
+        "MatchHistory: " +
+          Object.entries(this.matchHistory).map(
+            ([key, value]) =>
+              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
+          )
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async handleStateChange(newState) {
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
@@ -301,6 +319,7 @@ export default class User {
 
     await this.getPublicUserInfo();
     await this.getMyFriends();
+    await this.getMatchHistory(this.pageId);
 
     if (!this.isSubscribed) {
       this.previousState = { ...this.state.state };
@@ -361,6 +380,45 @@ export default class User {
                     : ``
           }
 				</div>
+				<div class="user-match-history-main-div">
+				<div class="title-div match-history-title-div">
+					<h1>${trad[this.lang].matchHistory.pageTitle}</h1>
+				</div>
+							${
+                this.matchHistory && Object.keys(this.matchHistory).length
+                  ? Object.values(this.matchHistory)
+                      .map(
+                        (value) =>
+                          `<div class="match-history-main-game-div">
+								<div class="match-history-game-div ${
+                  (value.player1 === this.state.state.userAlias &&
+                    value.score_player1 > value.score_player2) ||
+                  (value.player2 === this.state.state.userAlias &&
+                    value.score_player2 > value.score_player1)
+                    ? `won`
+                    : (value.player1 === this.state.state.userAlias &&
+                          value.score_player1 < value.score_player2) ||
+                        (value.player2 === this.state.state.userAlias &&
+                          value.score_player2 < value.score_player1)
+                      ? `lost`
+                      : `equality`
+                }">
+									<h4 class="mh-date">${value.created_at.split("T")[0]}</h4>
+									<h3 class="mh-player">${value.player1}</h3>
+									<h3 class="mh-score">${value.score_player1}</h3>
+									<span>-</span>
+									<h3 class="mh-score">${value.score_player2}</h3>
+									<h3 class="mh-player">${value.player2 ? value.player2 : "Guest"}</h3>
+								</div>
+							</div>`
+                      )
+                      .join("")
+                  : `<div class="match-history-main-div">
+				  		<div class="match-history-main-game-div">
+							<h3>${trad[this.lang].matchHistory.noContent}</h3>
+						</div>
+					</div>`
+              }</div>
 			</div>
 			</div>
 	`;

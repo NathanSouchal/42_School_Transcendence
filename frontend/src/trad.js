@@ -48,6 +48,8 @@ export const trad = {
       player1: "Player1",
       player2: "Player2",
       cancel: "Cancel",
+      leave: " left the game",
+      noWinner: "No winner",
     },
     home: {
       play: "Play",
@@ -215,6 +217,8 @@ export const trad = {
       player1: "Joueur1",
       player2: "Joueur2",
       cancel: "Annuler",
+      leave: " a quitté le jeu",
+      noWinner: "Pas de gagnant",
     },
     home: {
       play: "Jouer",
@@ -388,6 +392,8 @@ export const trad = {
       player1: "Jugador1",
       player2: "Jugador2",
       cancel: "Cancelar",
+      leave: " dejó el juego",
+      noWinner: "Ningún ganador",
     },
     home: {
       play: "Jugar",
@@ -490,7 +496,7 @@ export const trad = {
       usernameUnavailable: "Este nombre de usuario ya está en uso",
       playerName:
         "Nombre de participante inválido: solo se permiten letras, números y guiones bajos",
-        
+
       playerMinlength: "El nombre del jugador debe tener al menos 4 caracteres",
       playerMaxlength:
         "El nombre del jugador debe tener como máximo 10 caracteres",
@@ -562,6 +568,8 @@ export const trad = {
       player1: "Crabber1",
       player2: "Crabber1",
       cancel: "Crabcel",
+      leave: " crabbed the crab",
+      noWinner: "No crabwinner",
     },
     home: {
       play: "Crabby",
@@ -581,7 +589,8 @@ export const trad = {
       stop: "Stop Crabnament",
       resume: "Resume Crab",
       paused: "Crab Paused",
-      storeBlockchain: "Crabtore cracrab resulcrab on crabcrab Sepolia crabchain",
+      storeBlockchain:
+        "Crabtore cracrab resulcrab on crabcrab Sepolia crabchain",
       storingBlockchain: "Crabting oncrab crablia cracrabchain...",
       storedBlockchain: "Craaaablly crab !",
     },
