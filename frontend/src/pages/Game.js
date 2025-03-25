@@ -69,12 +69,14 @@ export default class GamePage {
       });
     }
 
-    window.addEventListener('popstate', function(event) {
-      const langDiv = document.getElementById("lang-div");
-      if (langDiv)
-        langDiv.style.display = "block";
-    });
-    
+    // window.addEventListener('popstate', function(event) {
+    //   // const langDiv = document.getElementById("lang-div");
+    //   // if (langDiv)
+    //   //   langDiv.style.display = "block";
+    //   console.log("COUCOUCOUCOUCOU");
+    //   if (this.gameManager?.socket) this.gameManager.socket.close();
+    //   this.gameMode = "default";
+    // });
 
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
@@ -230,7 +232,8 @@ export default class GamePage {
       newState.gameHasLoaded !== this.previousState.gameHasLoaded ||
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"] ||
-      newState.lang !== this.previousState.lang
+      newState.lang !== this.previousState.lang ||
+      (newState.opponentLeft && !this.previousState.opponentLeft)
     ) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
@@ -250,6 +253,7 @@ export default class GamePage {
   }
 
   destroy() {
+    console.log("DESTROYYY");
     this.removeEventListeners();
     if (this.state.state.isSearching) this.state.cancelMatchmaking();
     if (this.isSubscribed) {
@@ -258,7 +262,7 @@ export default class GamePage {
       // console.log("Game page unsubscribed from state");
     }
     this.haveToSelectBotDifficulty = false;
-    this.state.setGameEnded();
+    this.state.setDestroyGame();
   }
 
   renderSelectBotDifficulty() {
@@ -393,6 +397,7 @@ export default class GamePage {
 
   async render(routeParams = {}) {
     await checkUserStatus();
+    console.log("render GamePage");
 
     if (!this.isSubscribed) {
       this.previousState = { ...this.state.state };
@@ -401,12 +406,7 @@ export default class GamePage {
       console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
-    //console.log(
-    //  "gameStarted :" + gameStarted,
-    //  " gameIsPaused :" + gameIsPaused,
-    //  " gameHasBeenWon : " + gameHasBeenWon,
-    //  " this.haveToSelectBotDifficulty :" + this.haveToSelectBotDifficulty,
-    //);
+
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
@@ -429,7 +429,10 @@ export default class GamePage {
       this.lang = this.state.state.lang;
       if (this.state.state.isSearching) this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
-    } else if (!gameStarted && gameHasBeenWon) {
+    } else if (
+      (!gameStarted && gameHasBeenWon) ||
+      this.state.state.opponentLeft
+    ) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
       if (this.lang !== this.state.state.lang)

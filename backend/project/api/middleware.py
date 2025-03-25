@@ -56,6 +56,7 @@ class JWTAuthMiddleware:
             user = AnonymousUser()  # Si aucun token, utilisateur anonyme
 
         scope["user"] = user  # Assigne l'utilisateur (auth ou anonyme) à la connexion WebSocket
+        print(f"[JWTAuthMiddleware] User: {user} (authenticated: {user.is_authenticated})")
 
         return await self.inner(scope, receive, send)
 

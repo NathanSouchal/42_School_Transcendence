@@ -60,7 +60,10 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
     if (isUserLoggedIn) header.updateLangUserLoggedIn();
     else header.updateLangGuestUser();
   }
-
+  console.log(
+    "header.isUserRendered : " + header.isUserRendered,
+    "isUserLoggedIn : " + isUserLoggedIn
+  );
   if (
     (isUserLoggedIn && !header.isUserRendered) ||
     (!isUserLoggedIn && !header.isGuestRendered)

@@ -25,13 +25,13 @@ class RoomInitialization:
                 if (
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
+                    and all(player["user_id"] is not None for player in room_data["players"])
+                    and all(player["user_id"] != user.id for player in room_data["players"])
                 ):
-                    if all(
-                        player["user_id"] is not None for player in room_data["players"]
-                    ):
-                        self.consumer.room = room_name
-                        roomFound = True
-                        break
+                    self.consumer.room = room_name
+                    roomFound = True
+                    print(f"✅ Found available room: {room_name}")
+                    break
         if not roomFound or self.consumer.game_mode != GameMode.ONLINE:
             self.consumer.room = str(uuid.uuid4())
         await self.consumer.accept()
@@ -115,15 +115,10 @@ class RoomInitialization:
                 await asyncio.sleep(2)
 
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 2:
-                if self.previous_room:
-                    print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
-                    del self.consumer.rooms[self.previous_room]
-                    self.previous_room = None
-                    # sending only to one player, as both of them will go through this function eventually
+            # Pour le mode ONLINE, on envoie directement la notification dès que deux joueurs sont présents
+                if self.consumer.game_mode == GameMode.ONLINE:
                     opponent_index = 1 if self.consumer.player_side == "left" else 0
-                    opponent = self.consumer.rooms[self.consumer.room]["players"][
-                        opponent_index
-                    ]
+                    opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
                     print(f"Envoi des infos de l'adversaire: {opponent}")
                     await self.consumer.send(
                         text_data=json.dumps(
@@ -131,36 +126,55 @@ class RoomInitialization:
                                 "type": "hasFoundOpponent",
                                 "side": self.consumer.player_side,
                                 "isSourceOfTruth": self.consumer.isSourceOfTruth,
-                                "opponent_id": str(
-                                    self.consumer.rooms[self.consumer.room]["players"][
-                                        1 if self.consumer.player_side == "left" else 0
-                                    ]["user_id"]
-                                ),
-                                "opponent_username": self.consumer.rooms[
-                                    self.consumer.room
-                                ]["players"][
-                                    1 if self.consumer.player_side == "left" else 0
-                                ][
-                                    "username"
-                                ],
+                                "opponent_id": str(opponent["user_id"]),
+                                "opponent_username": opponent["username"],
                             },
                             cls=NumericEncoder,
                         )
                     )
-                    print(f"Second player has been found")
+                    print("Second player has been found")
+                else:
+                    # Pour le mode BACKGROUND, on gère la sauvegarde et la réactivation de la room précédente
+                    if self.previous_room:
+                        print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
+                        del self.consumer.rooms[self.previous_room]
+                        self.previous_room = None
+                        opponent_index = 1 if self.consumer.player_side == "left" else 0
+                        opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
+                        print(f"Envoi des infos de l'adversaire: {opponent}")
+                        await self.consumer.send(
+                            text_data=json.dumps(
+                                {
+                                    "type": "hasFoundOpponent",
+                                    "side": self.consumer.player_side,
+                                    "isSourceOfTruth": self.consumer.isSourceOfTruth,
+                                    "opponent_id": str(opponent["user_id"]),
+                                    "opponent_username": opponent["username"],
+                                },
+                                cls=NumericEncoder,
+                            )
+                        )
+                        print("Second player has been found")
             else:
                 await self.reactivate_background_mode()
+
     async def reactivate_background_mode(self):
-        """Réactive la room BACKGROUND si la room ONLINE échoue"""
-        if self.previous_room:
-            print(f"🔄 Restarting BACKGROUND room {self.previous_room}")
-            self.consumer.room = self.previous_room
-            self.previous_room = None
+        print(f"Réactive la room BACKGROUND")
+        """Réactive la room BACKGROUND en réinitialisant les objets de jeu et en relançant la boucle."""
+        # Annuler l'ancienne game_loop s'il y en a une
+        if self.consumer.room in self.consumer.game_loops:
+            self.consumer.game_loops[self.consumer.room].cancel()
+            try:
+                await self.consumer.game_loops[self.consumer.room]
+            except asyncio.CancelledError:
+                print(f"Ancienne game_loop annulée pour la salle {self.consumer.room}")
+            del self.consumer.game_loops[self.consumer.room]
 
-        # Redémarrer la boucle de jeu
-        if self.consumer.room not in self.consumer.game_loops:
-            print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
-            self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
-                self.consumer.loop.game_loop(self.consumer.room)
-            )
+        # Réinitialiser la room en recréant les objets de jeu (ball et paddles)
+        await self.initializeRoom()
 
+    # Redémarrer la boucle de jeu pour le mode BACKGROUND
+        print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
+        self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
+            self.consumer.loop.game_loop(self.consumer.room)
+        )

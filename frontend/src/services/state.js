@@ -1,4 +1,5 @@
-import { checkUserStatus } from "../utils";
+import { header } from "../app";
+import { checkUserStatus, handleLangDiv } from "../utils";
 
 export default class State {
   constructor() {
@@ -22,10 +23,12 @@ export default class State {
       lang: "EN",
       opponentId: null,
       opponentUsername: null,
+      opponentLeft: false,
       userSide: null,
       username: null,
       userAlias: null,
       latency: 0,
+      gameIsTimer: false,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
@@ -126,7 +129,22 @@ export default class State {
   }
 
   async setGameStarted(gameMode) {
-    if (gameMode != "default") await this.displayTimerBeforeGameStart();
+    console.log("setGameStarted()");
+    console.log("gameMode: " + gameMode);
+    if (gameMode !== "default") {
+      if (header.isGuestRendered) header.isGuestRendered = false;
+      if (header.isUserRendered) header.isUserRendered = false;
+      await this.displayTimerBeforeGameStart();
+      if (!this.state.gameIsTimer) {
+        handleLangDiv(false);
+        return;
+      }
+      //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
+      //     console.warn("⚠️ gameManager is undefined or not ready.");
+      //     return;
+      //   }
+      this.state.gameIsTimer = false;
+    }
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
     )
@@ -146,6 +164,7 @@ export default class State {
   }
 
   displayTimerBeforeGameStart(durationSeconds = 3) {
+    this.state.gameIsTimer = true;
     return new Promise((resolve) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
@@ -213,13 +232,25 @@ export default class State {
 
   setGameEnded() {
     console.log("setGameEnded()");
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     this.scores.push(this.score);
-    this.state.gameStarted = false;
-    this.gameMode = "default";
+    this.setDestroyGame();
     this.setGameNeedsReset(true);
     this.notifyListeners();
+  }
+
+  setDestroyGame() {
+    this.state.gameIsTimer = false;
+    console.log("setDestroyGame()");
+    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
+    if (this.state.gameStarted) this.state.gameStarted = false;
+    this.gameMode = "default";
     if (this.gameManager?.socket) this.gameManager.socket.close();
+  }
+
+  opponentLeft() {
+    this.state.opponentLeft = true;
+    this.setDestroyGame();
+    this.backToBackgroundPlay();
   }
 
   backToBackgroundPlay() {

@@ -95,15 +95,28 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Removing player {leaving_player['username']} from room {self.room}")
             self.rooms[self.room]["players"].remove(leaving_player)
 
+            # Si en mode ONLINE et qu'il reste un seul joueur, notifier cet adversaire
+            if self.game_mode == GameMode.ONLINE and len(self.rooms[self.room]["players"]) == 1:
+                remaining_player = self.rooms[self.room]["players"][0]
+                print(f"Notifying remaining player {remaining_player['username']} that opponent has left")
+                await self.channel_layer.send(
+                    remaining_player["channel_name"],
+                    {
+                        "type": "opponent_left",
+                        "message": "Opponent left the game"
+                    }
+                )
+
         # Supprimer la room si elle est vide
         if self.room in self.rooms and not self.rooms[self.room]["players"]:
             print(f"Room {self.room} is now empty. Checking for BACKGROUND restart...")
 
-            if hasattr(self, "room_initialization"):
-                await self.room_initialization.reactivate_background_mode()
+            if not self.rooms[self.room]["players"]:
+                if hasattr(self, "room_initialization"):
+                    await self.room_initialization.reactivate_background_mode()
 
-            print(f"Deleting room {self.room}")
-            del self.rooms[self.room]
+                print(f"Deleting room {self.room}")
+                del self.rooms[self.room]
 
         # Retirer le joueur du groupe Channels
         if self.room:
@@ -113,6 +126,29 @@ class GameState(AsyncWebsocketConsumer):
                 print("⚠️ Erreur: `channel_layer` est None")
         else:
             print("⚠️ Impossible de quitter le groupe Channels : self.room est None")
+
+    async def opponent_left(self, event):
+        print(f"Opponent left")
+        message = event.get("message", "Opponent left the game")
+        await self.send(
+            text_data=json.dumps({
+                "type": "opponent_left",
+                "message": message
+            })
+        )
+        self.game_mode = GameMode.BACKGROUND
+
+        # Annuler l'ancienne game_loop s'il en existe une
+        if self.room in self.game_loops:
+            self.game_loops[self.room].cancel()
+            try:
+                await self.game_loops[self.room]
+            except asyncio.CancelledError:
+                print(f"Ancienne game_loop annulée pour la salle {self.room}")
+            del self.game_loops[self.room]
+
+        # Réinitialiser la room et redémarrer la game_loop en mode BACKGROUND
+        await self.room_initialization.reactivate_background_mode()
 
     async def receive(self, text_data):
         try:
@@ -167,3 +203,12 @@ class GameState(AsyncWebsocketConsumer):
                 cls=NumericEncoder,
             )
         )
+
+    async def pong(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {"type": "pong"},
+                cls=NumericEncoder
+            )
+        )
+
