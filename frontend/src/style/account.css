@@ -22,6 +22,7 @@
 .user-main-content {
   overflow-y: scroll;
   overflow-x: hidden;
+  width: 100%;
   /* scrollbar-width: none; */
   flex-grow: 1;
 }
