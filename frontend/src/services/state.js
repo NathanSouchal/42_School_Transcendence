@@ -29,6 +29,7 @@ export default class State {
       userAlias: null,
       latency: 0,
       gameIsTimer: false,
+      other_player_ready: false,
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
@@ -134,16 +135,18 @@ export default class State {
     if (gameMode !== "default") {
       if (header.isGuestRendered) header.isGuestRendered = false;
       if (header.isUserRendered) header.isUserRendered = false;
+      this.state.gameIsTimer = true;
+      this.state.players_ready = false;
       await this.displayTimerBeforeGameStart();
       if (!this.state.gameIsTimer) {
         handleLangDiv(false);
         return;
       }
-      //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
-      //     console.warn("⚠️ gameManager is undefined or not ready.");
-      //     return;
-      //   }
       this.state.gameIsTimer = false;
+      if (["OnlineLeft", "OnlineRight"].includes(gameMode)) {
+        this.gameManager.sendCountdownEnded();
+        await this.waitForCountdownEnd();
+      }
     }
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
@@ -163,8 +166,20 @@ export default class State {
     this.setGameNeedsReset(true);
   }
 
+  async waitForCountdownEnd() {
+    await new Promise((resolve) => {
+      const checkInterval = setInterval(() => {
+        if (this.state.other_player_ready) {
+          clearInterval(checkInterval);
+          resolve();
+          this.state.other_player_ready = false;
+        }
+        console.log("Waiting for other player to end coundown");
+      }, 100);
+    });
+  }
+
   displayTimerBeforeGameStart(durationSeconds = 3) {
-    this.state.gameIsTimer = true;
     return new Promise((resolve) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
@@ -239,10 +254,11 @@ export default class State {
   }
 
   setDestroyGame() {
-    this.state.gameIsTimer = false;
     console.log("setDestroyGame()");
+    this.state.gameIsTimer = false;
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     if (this.state.gameStarted) this.state.gameStarted = false;
+    if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
     this.gameMode = "default";
     if (this.gameManager?.socket) this.gameManager.socket.close();
   }
@@ -272,7 +288,7 @@ export default class State {
   updateScore(side, points) {
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
       this.setGameEnded();

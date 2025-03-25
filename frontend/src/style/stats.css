@@ -9,7 +9,8 @@
   gap: 1.5em;
   padding-top: 10%;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .stats-list {

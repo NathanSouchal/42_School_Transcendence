@@ -514,6 +514,8 @@ export default class LocalTournament {
       console.log("LocalTournament page unsubscribed from state");
     }
     this.resetAttributes();
+    this.state.resetScore();
+    this.state.setDestroyGame();
   }
 
   renderSelectNbPlayers() {

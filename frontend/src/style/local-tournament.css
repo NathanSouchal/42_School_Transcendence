@@ -8,7 +8,8 @@
   gap: 1em;
   padding-top: 10%;
   overflow-y: scroll;
-  scrollbar-width: none;
+  overflow-x: hidden;
+  /* scrollbar-width: none; */
 }
 
 .round-title {
