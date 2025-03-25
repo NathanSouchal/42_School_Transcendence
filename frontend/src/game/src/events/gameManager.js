@@ -90,7 +90,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
     );
     this.isConnected = false;
     // this.socket = null;
@@ -124,7 +124,10 @@ export class GameManager {
         break;
       case "opponent_left":
         console.error("Opponent left !!!!!!!!!!!!!");
-		state.opponentLeft();
+        state.opponentLeft();
+        break;
+      case "players_ready":
+        this.handleOtherPlayerReady();
         break;
     }
   }
@@ -133,7 +136,7 @@ export class GameManager {
     this.side = data.side;
     if (data.opponent_id) {
       console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
       );
     } else {
       console.warn("⚠️ Aucun opponent_id reçu !");
@@ -175,12 +178,12 @@ export class GameManager {
       this.positions.ball.pos.set(
         data.ball.pos.x,
         data.ball.pos.y,
-        data.ball.pos.z
+        data.ball.pos.z,
       );
       this.positions.ball.vel.set(
         data.ball.vel.x,
         data.ball.vel.y,
-        data.ball.vel.z
+        data.ball.vel.z,
       );
     } else {
       console.warn("⚠️ Aucun état de balle reçu !");
@@ -205,6 +208,10 @@ export class GameManager {
     }
     // state.notifyListeners();
     //console.log(`Current latency: ${state.state.latency}ms`);
+  }
+
+  handlePlayersReady() {
+    state.players_ready = true;
   }
 
   reconnect() {
@@ -245,7 +252,7 @@ export class GameManager {
 
   checkForConnectionIssues(ping) {
     console.log(
-      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`
+      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`,
     );
     if (ping > 70 && !state.connectionIssue) {
       this.handleLocalConnectionIssue("init");
@@ -290,6 +297,14 @@ export class GameManager {
       console.log("Other player is having connection issues");
     else console.log("Other player stopped having connection issues");
     state.connectionIssue = data.connectionIssue;
+  }
+
+  sendCountdownEnded() {
+    this.sendMessage({ type: "countdownEnded" });
+  }
+
+  handleOtherPlayerReady() {
+    state.state.other_player_ready = true;
   }
 }
 
