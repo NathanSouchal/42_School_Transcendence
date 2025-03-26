@@ -5,17 +5,21 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
-  const homeImg = document.getElementById("home-img-div");
-  const open = document.querySelector(".open");
-  if (homeImg) {
-    if (context.pageName === "Home") {
-      homeImg.style.opacity = 0;
-      homeImg.style.pointerEvents = "none";
-    } else if (!open) {
-      homeImg.style.opacity = 1;
-      homeImg.style.pointerEvents = "auto";
+  setTimeout(() => {
+    const homeImg = document.getElementById("home-img-div");
+    const open = document.querySelector(".open");
+    if (homeImg) {
+      if (context.pageName === "Home") {
+        console.log("opacity 0");
+        homeImg.style.opacity = 0;
+        homeImg.style.pointerEvents = "none";
+      } else if (!open) {
+        console.log("opacity 1");
+        homeImg.style.opacity = 1;
+        homeImg.style.pointerEvents = "auto";
+      }
     }
-  }
+  }, 50);
   const selectedLangImg = document.getElementById("selected-lang-img");
   if ((state.state.lang !== context.lang) & selectedLangImg)
     if (state.state.lang === "EN") {
