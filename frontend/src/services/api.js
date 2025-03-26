@@ -7,8 +7,8 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
 
 console.log("API_BASE_URL", API_BASE_URL);
 const API = axios.create({
-  baseURL: API_BASE_URL,
-  // baseURL: "https://localhost:8000",
+  // baseURL: API_BASE_URL,
+  baseURL: "https://10.13.12.2:8443/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // httpsAgent: new https.Agent({

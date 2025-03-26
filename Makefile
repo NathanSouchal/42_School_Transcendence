@@ -1,25 +1,33 @@
-all : up
+# Démarrage du projet en mode développement
+dev:
+	@docker compose -f docker-compose.yml up -d --build
 
-up :
-	@docker compose -f docker-compose.yml up -d
+# Démarrage du projet en mode production
+prod:
+	@docker compose -f docker-compose.prod.yml up -d --build
 
-down :
-	@docker compose -f docker-compose.yml down
+# Arrêter les conteneurs
+down:
+	@docker compose down
 
-stop :
-	@docker compose -f docker-compose.yml stop
+# Arrêter uniquement les conteneurs en cours d'exécution
+stop:
+	@docker compose stop
 
-start :
-	@docker compose -f docker-compose.yml start
+# Redémarrer les conteneurs sans rebuild
+start:
+	@docker compose start
 
-status :
+# Voir les conteneurs en cours d'exécution
+status:
 	@docker ps
 
-clean :
-	@docker compose -f docker-compose.yml down
+# Nettoyer les conteneurs, images et volumes (supprime TOUT sauf les volumes persistants)
+clean:
+	@docker compose down
 	@docker system prune -a -f
 	@docker buildx prune -af
 	# @docker volume rm transcendence_postgres_data
 
-re : clean up
-
+# Supprimer et relancer les conteneurs (équivalent à clean + up)
+re: clean dev

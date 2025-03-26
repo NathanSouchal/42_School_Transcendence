@@ -91,9 +91,9 @@ export default class User {
 
   async buildAvatarImgLink(link) {
     try {
-      const res = await axios.head(`${API_BASE_URL}${link}`);
+      const res = await axios.head(`${link}`);
       if (res.status === 200)
-        this.publicUserData.avatar = `${API_BASE_URL}${link}`;
+        this.publicUserData.avatar = `${link}`;
     } catch (error) {
       this.publicUserData.avatar = "/profile.jpeg";
     }

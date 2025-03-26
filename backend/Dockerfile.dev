@@ -1,20 +1,29 @@
 FROM python:3.10.12
 
 WORKDIR /app
+
 ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# RUN pip install --upgrade pip && pip install --no-cache-dir --index-url https://mirror.google.com/pypi/simple/ --extra-index-url https://pypi.org/simple/ -r requirements.txt
 
-COPY . /app
+
+# Add watchdog for file watching
+RUN pip install watchdog[watchmedo]
+
+VOLUME /app
+
+COPY conf/entrypoint.sh /app/conf/entrypoint.sh
 
 RUN chmod +x /app/conf/entrypoint.sh
 
 EXPOSE 8000
+
 ENTRYPOINT ["/app/conf/entrypoint.sh"]
 
 ENV PYTHONPATH=/app:/app/project
 
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "project.asgi:application"]
+CMD ["python", "runserver_hotreload.py"]
