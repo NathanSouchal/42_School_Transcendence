@@ -90,7 +90,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
     );
     this.isConnected = false;
     // this.socket = null;
@@ -136,7 +136,7 @@ export class GameManager {
     this.side = data.side;
     if (data.opponent_id) {
       console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
       );
     } else {
       console.warn("⚠️ Aucun opponent_id reçu !");
@@ -168,26 +168,20 @@ export class GameManager {
   }
 
   handlePositions(data, timestamp) {
-    if (data.paddles.left !== undefined) {
-      this.positions.paddles.left.pos = data.paddles.left.pos;
-    }
-    if (data.paddles.right !== undefined) {
-      this.positions.paddles.right.pos = data.paddles.right.pos;
-    }
-    if (data.ball) {
-      this.positions.ball.pos.set(
-        data.ball.pos.x,
-        data.ball.pos.y,
-        data.ball.pos.z
-      );
-      this.positions.ball.vel.set(
-        data.ball.vel.x,
-        data.ball.vel.y,
-        data.ball.vel.z
-      );
-    } else {
-      console.warn("⚠️ Aucun état de balle reçu !");
-    }
+    this.positions.paddles.left.pos = data.paddles.left.pos;
+    this.positions.paddles.left.vel = data.paddles.left.vel;
+    this.positions.paddles.right.pos = data.paddles.right.pos;
+    this.positions.paddles.right.vel = data.paddles.right.vel;
+    this.positions.ball.pos.set(
+      data.ball.pos.x,
+      data.ball.pos.y,
+      data.ball.pos.z,
+    );
+    this.positions.ball.vel.set(
+      data.ball.vel.x,
+      data.ball.vel.y,
+      data.ball.vel.z,
+    );
     this.positions.timestamp = timestamp;
   }
 
@@ -251,9 +245,6 @@ export class GameManager {
   }
 
   checkForConnectionIssues(ping) {
-    console.log(
-      `checkForConnectionIssues(): ping: ${ping}, state.connectionIssue: ${state.connectionIssue}`
-    );
     if (ping > 70 && !state.connectionIssue) {
       this.handleLocalConnectionIssue("init");
     } else if (ping > 70 && state.connectionIssue) {
