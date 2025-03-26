@@ -10,11 +10,9 @@ export async function updateView(context, routeParams = {}) {
     const open = document.querySelector(".open");
     if (homeImg) {
       if (context.pageName === "Home") {
-        console.log("opacity 0");
         homeImg.style.opacity = 0;
         homeImg.style.pointerEvents = "none";
       } else if (!open) {
-        console.log("opacity 1");
         homeImg.style.opacity = 1;
         homeImg.style.pointerEvents = "auto";
       }
