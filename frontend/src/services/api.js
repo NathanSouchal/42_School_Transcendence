@@ -6,7 +6,8 @@ import { router } from "../app.js";
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 const API = axios.create({
-  baseURL: API_BASE_URL,
+  // baseURL: API_BASE_URL,
+  baseURL: "https://10.13.12.2:8443/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // httpsAgent: new https.Agent({

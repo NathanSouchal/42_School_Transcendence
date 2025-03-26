@@ -1,0 +1,61 @@
+services:
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile  # Le Dockerfile de prod (gunicorn)
+    env_file: .env
+    volumes:
+      - backend_media:/app/media  # Volume pour fichiers médias (avatars, uploads)
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - transcendence
+    restart: always
+    expose:
+      - "8000"
+
+  nginx:
+    container_name: nginx
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile  # Dockerfile combiné pour frontend buildé + nginx
+    depends_on:
+      - backend
+    volumes:
+      - backend_media:/usr/share/nginx/html/media/  # 🔁 Sert les fichiers médias
+    ports:
+      - "8080:80" # HTTP (redirigé vers HTTPS)
+      - "8443:443" # HTTPS
+    networks:
+      - transcendence
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transcendence
+    restart: always
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    networks:
+      - transcendence
+    restart: always
+
+networks:
+  transcendence:
+    driver: bridge
+
+volumes:
+  backend_media:   # Pour les fichiers médias (avatars)
+  postgres_data:   # Pour les données PostgreSQL
