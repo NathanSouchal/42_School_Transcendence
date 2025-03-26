@@ -337,6 +337,7 @@ export default class Account {
     try {
       const res = await axios.head(`${link}`);
       if (res.status === 200) this.userData.avatar = `${link}`;
+      console.log(res.status);
     } catch (error) {
       console.log("ERROR: ", error);
       this.userData.avatar = "/profile.jpeg";
