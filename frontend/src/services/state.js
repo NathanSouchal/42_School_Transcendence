@@ -1,5 +1,6 @@
 import { header } from "../app";
-import { checkUserStatus, handleLangDiv } from "../utils";
+import { trad } from "../trad";
+import { handleLangDiv } from "../utils";
 
 export default class State {
   constructor() {
@@ -22,7 +23,7 @@ export default class State {
       userId: "0",
       lang: "EN",
       opponentId: null,
-      opponentUsername: null,
+      opponentUsername: trad["EN"].game.opponent,
       opponentLeft: false,
       userSide: null,
       username: null,
@@ -160,7 +161,7 @@ export default class State {
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
 
-    this.resetScore();
+    if (!this.state.opponentLeft) this.resetScore();
     if (gameMode !== "default") this.state.gameStarted = true;
     this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);

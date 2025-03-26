@@ -50,6 +50,7 @@ export const trad = {
       cancel: "Cancel",
       leave: " left the game",
       noWinner: "No winner",
+      opponent: "Opponent",
     },
     home: {
       play: "Play",
@@ -219,6 +220,7 @@ export const trad = {
       cancel: "Annuler",
       leave: " a quitté le jeu",
       noWinner: "Pas de gagnant",
+      opponent: "Adversaire",
     },
     home: {
       play: "Jouer",
@@ -394,6 +396,7 @@ export const trad = {
       cancel: "Cancelar",
       leave: " dejó el juego",
       noWinner: "Ningún ganador",
+      opponent: "Adversario",
     },
     home: {
       play: "Jugar",
@@ -570,6 +573,7 @@ export const trad = {
       cancel: "Crabcel",
       leave: " crabbed the crab",
       noWinner: "No crabwinner",
+      opponent: "Crabnent",
     },
     home: {
       play: "Crabby",

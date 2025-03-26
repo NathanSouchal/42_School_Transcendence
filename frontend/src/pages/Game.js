@@ -89,6 +89,7 @@ export default class GamePage {
       { id: "normal-btn", action: "normal-btn" },
       { id: "difficult-btn", action: "difficult-btn" },
       { id: "cancel-pvp-search", action: "cancel-pvp-search" },
+      { id: "exit-opponent-left-game", action: "exit-opponent-left-game" },
     ];
 
     buttons.forEach(({ id, action }) => {
@@ -159,7 +160,14 @@ export default class GamePage {
         break;
       case "exit-game":
         this.state.setGameEnded();
-        this.state.backToBackgroundPlay();
+        // this.state.backToBackgroundPlay();
+        await updateView(this, {});
+        break;
+      case "exit-opponent-left-game":
+        if (this.state.state.opponentLeft)
+          this.state.state.opponentLeft = false;
+        (this.state.state.opponentUsername = trad[this.lang].game.opponent),
+          await updateView(this, {});
         break;
       case "back-arrow":
         this.state.setGameEnded();
@@ -293,7 +301,7 @@ export default class GamePage {
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
     this.state.resetScore();
     this.state.setDestroyGame();
-    this.state.state.opponentUsername = null;
+    this.state.state.opponentUsername = trad[this.lang].game.opponent;
   }
 
   renderSelectBotDifficulty() {
@@ -442,7 +450,7 @@ export default class GamePage {
 							  ${left > right ? `${this.leftPlayerName} ${trad[this.lang].game.wins}` : left < right ? `${this.rightPlayerName} ${trad[this.lang].game.wins}` : `${trad[this.lang].game.noWinner}`}
 						  </h2>
 						  <div class="global-nav-items">
-							  <button id="exit-game">${trad[this.lang].game.back}</button>
+							  <button id="exit-opponent-left-game">${trad[this.lang].game.back}</button>
 						  </div>
 					  </div>
 				  </div>
