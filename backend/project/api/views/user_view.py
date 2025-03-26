@@ -22,8 +22,6 @@ class UserView(APIView):
 	def get(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			if request.user != user and not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
 		except ValueError:
 			return Response({'error': 'Invalid UUID format'}, status=status.HTTP_400_BAD_REQUEST)
@@ -38,8 +36,6 @@ class UserView(APIView):
 	def delete(self, request, id=None):
 		try:
 			user = get_object_or_404(User, id=id)
-			if request.user != user and not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			user.friends.clear()
 			user.match_history.clear()
 			user.delete()
@@ -82,9 +78,6 @@ class UserView(APIView):
 					user.avatar.save(file_name, ContentFile(image_data), save=True)
 				except (ValueError, TypeError, IndexError, base64.binascii.Error):
 					return Response({'wrong_avatar': 'Invalid image data'}, status=status.HTTP_400_BAD_REQUEST)
-			# if request.user != user and not request.user.is_superuser:
-			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
-			print(f"Data: {request.data}")
 			serializer = UserSerializer(user, data=request.data, partial=True)
 			if serializer.is_valid():
 				user = serializer.save()
@@ -102,8 +95,6 @@ class UserListView(APIView):
 
 	def get(self, request):
 		try:
-			if not request.user.is_superuser:
-				return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			users = User.objects.all()
 			serialized_users = UserSerializer(users, many=True)
 			return Response({'users': serialized_users.data}, status=status.HTTP_200_OK)
@@ -132,8 +123,6 @@ class UserByNameView(APIView):
 	def get(self, request, username):
 		try:
 			user = get_object_or_404(User, username=username)
-			# if request.user != user and not request.user.is_superuser:
-			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
 			return Response({'user': SimpleUserSerializer(user).data}, status=status.HTTP_200_OK)
 		except Http404:
 			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
