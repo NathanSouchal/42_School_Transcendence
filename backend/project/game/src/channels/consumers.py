@@ -159,6 +159,9 @@ class GameState(AsyncWebsocketConsumer):
                 side = data.get("side")
                 positions = self.rooms[self.room]["positions"]
                 self.rooms[self.room]["paddles"][side].action = action
+                self.rooms[self.room]["positions"]["paddles"][side]["vel"] = (
+                    1 if action == "up" else -1 if action == "down" else 0
+                )
                 positions["ball"] = self.rooms[self.room]["ball"].getCurrentState()
             elif data.get("type") == "pausedOrUnpaused":
                 self.rooms[self.room]["isPaused"] = data.get("bool")
