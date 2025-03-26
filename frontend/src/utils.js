@@ -119,6 +119,7 @@ export async function checkUserStatus() {
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
+    state.setIsUserLoggedIn(false);
     return false;
   }
 }
