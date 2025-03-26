@@ -215,7 +215,6 @@ export default class GamePage {
       console.error(error);
     } finally {
       this.state.state.opponentId = null;
-      this.state.state.opponentUsername = null;
       this.state.state.userSide = null;
       this.formState = {};
     }
@@ -278,6 +277,10 @@ export default class GamePage {
   }
 
   destroy() {
+    const renderGame = document.getElementById("app");
+    if (renderGame) renderGame.className = "app";
+    const menuButton = document.getElementById("toggle-button");
+    if (menuButton) menuButton.className = "toggle-button";
     console.log("DESTROYYY");
     this.removeEventListeners();
     if (this.state.state.isSearching) this.state.cancelMatchmaking();

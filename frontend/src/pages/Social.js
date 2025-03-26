@@ -7,6 +7,7 @@ import {
 } from "../utils.js";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 export default class Social {
   constructor(state) {
@@ -101,7 +102,7 @@ export default class Social {
 
   async buildAvatarImgLink(link) {
     try {
-      const res = await axios.head(`${API_BASE_URL}${link}`);
+      const res = await axios.head(`${link}`);
       if (res.status === 200) return true;
     } catch (error) {
       return false;
@@ -115,7 +116,7 @@ export default class Social {
       for (let friend of this.friends) {
         if (friend.avatar) {
           const res = await this.buildAvatarImgLink(friend.avatar);
-          if (res) friend.avatar = `${API_BASE_URL}${friend.avatar}`;
+          if (res) friend.avatar = `${friend.avatar}`;
           else friend.avatar = "/profile.jpeg";
         }
       }
@@ -134,15 +135,14 @@ export default class Social {
             invitation.from_user.avatar
           );
           if (res)
-            invitation.from_user.avatar = `${API_BASE_URL}${invitation.from_user.avatar}`;
+            invitation.from_user.avatar = `${invitation.from_user.avatar}`;
           else invitation.from_user.avatar = "/profile.jpeg";
         }
       }
       for (let invitation of this.invitations) {
         if (invitation.to_user && invitation.to_user.avatar) {
           const res = await this.buildAvatarImgLink(invitation.to_user.avatar);
-          if (res)
-            invitation.to_user.avatar = `${API_BASE_URL}${invitation.to_user.avatar}`;
+          if (res) invitation.to_user.avatar = `${invitation.to_user.avatar}`;
           else invitation.to_user.avatar = "/profile.jpeg";
         }
       }

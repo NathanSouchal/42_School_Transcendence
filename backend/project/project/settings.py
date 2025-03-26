@@ -1,7 +1,6 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
 from decouple import config
 from dotenv import load_dotenv
 
@@ -10,11 +9,6 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -34,10 +28,9 @@ ALLOWED_HOSTS = [
     "10.19.239.218",
     "192.168.1.30",
 	"192.168.1.80",
-	"192.168.0.32"
+	"192.168.0.32",
+	"10.19.234.197"
 ]
-
-# Application definition
 
 INSTALLED_APPS = [
     "daphne",
@@ -70,7 +63,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
@@ -107,9 +100,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "project.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 # Database pour le deploiement en utilisant docker
 DATABASES = {
     "default": {
@@ -142,9 +132,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -162,9 +149,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "api.User"
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -174,16 +158,11 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = "static/"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = "/app/media/"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -217,6 +196,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://192.168.1.30:3000",
     "https://192.168.1.80:8443",
     "https://192.168.0.32:8443",
+    "https://10.19.234.197:8443",
     "http://192.168.1.30:3000",
     "https://10.12.11.5:8443",
     "https://10.12.11.6:8443",
@@ -225,7 +205,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://frontend:3000",
     "http://localhost:3000",
-    "https://localhost:3000",  # Frontend sécurisé
+    "https://localhost:3000",
     "https://frontend:3000",
     "http://0.0.0.0:3000",
     "http://0.0.0.0:8000",
@@ -247,6 +227,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.1.30:3000",
 	"https://192.168.1.80:8443",
 	"https://192.168.0.32:8443",
+	"https://10.19.234.197:8443",
 ]
 
 

@@ -4,7 +4,7 @@
   width: 80%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   gap: 1em;
   padding-top: 10%;
   overflow-y: scroll;
@@ -125,6 +125,8 @@
 
 .input-player-name input {
   width: 60%;
+  min-width: 270px;
+  max-width: 500px;
   height: fit-content;
   color: var(--tertiary-color);
   font-family: var(--secondary-font);
@@ -220,18 +222,17 @@
 }
 
 .storing-blockchain-button button {
-  background-color:rgb(177, 100, 0);
+  background-color: rgb(177, 100, 0);
   color: var(--secondary-color);
   opacity: 0.6;
 }
 
-
 .storing-blockchain-button button:hover {
-  background-color:rgb(177, 100, 0);
+  background-color: rgb(177, 100, 0);
 }
 
 .storing-blockchain-button button:active {
-  background-color:rgb(177, 100, 0);
+  background-color: rgb(177, 100, 0);
 }
 
 .stored-blockchain-button {
@@ -239,18 +240,18 @@
 }
 
 .stored-blockchain-button button {
-  background-color:rgba(38, 168, 21, 0.884);
+  background-color: rgba(38, 168, 21, 0.884);
   color: var(--secondary-color);
   opacity: 0.6;
   width: 100%;
 }
 
 .stored-blockchain-button button:hover {
-  background-color:rgba(38, 168, 21, 0.884);
+  background-color: rgba(38, 168, 21, 0.884);
 }
 
 .stored-blockchain-button button:active {
-  background-color:rgba(38, 168, 21, 0.884);
+  background-color: rgba(38, 168, 21, 0.884);
 }
 
 .matches-list {
@@ -354,6 +355,7 @@
 
 .crab-playernb-div {
   display: flex;
+  flex-direction: row;
   justify-content: center;
   gap: 1em;
 }
@@ -373,10 +375,15 @@
   transform: scale(0.9);
 }
 
+.select-container h2 {
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .main-div-tournament {
     width: 140%;
     transform: scale(0.8);
+    padding-top: 20%;
   }
   .content-page-tournament {
     width: 100%;
@@ -384,5 +391,11 @@
 
   .next-match-main-div button {
     transform: scale(0.8);
+  }
+  .crab-playernb-div {
+    flex-direction: column;
+  }
+  .select-container {
+    margin-top: 200px;
   }
 }

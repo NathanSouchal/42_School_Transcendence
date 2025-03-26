@@ -91,13 +91,12 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
-      if (path === "/") redirectHome();
+      if (path === "/") this.redirectHome();
       else router.navigate(path);
     }
   }
 
-  redirectHome(e) {
-    e.preventDefault();
+  redirectHome() {
     const homeImg = document.getElementById("home-img-div");
     if (homeImg && homeImg.style.opacity) {
       homeImg.style.opacity = 0;

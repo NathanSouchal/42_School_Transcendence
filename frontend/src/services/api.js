@@ -3,9 +3,8 @@ import state from "../app.js";
 import { router } from "../app.js";
 // import https from "https";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
-console.log("API_BASE_URL", API_BASE_URL);
 const API = axios.create({
   // baseURL: API_BASE_URL,
   baseURL: "https://10.13.12.2:8443/api",
@@ -43,9 +42,10 @@ API.interceptors.response.use(
       router.navigate("/500");
       return Promise.reject(error);
     }
-    if (error.response.status == 401 && window.location.pathname === "/login")
+    if (error.response.status === 401 && window.location.pathname === "/login")
       return Promise.reject(error);
     if (error.response.status === 401) {
+      console.error("ERROR 401");
       if (isRetrying) {
         setTimeout(() => {
           if (

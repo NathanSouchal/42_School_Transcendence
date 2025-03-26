@@ -12,11 +12,9 @@ from django.http import Http404
 
 class StatsView(APIView):
     permission_classes = [AllowAny]
-	
+
     def get(self, request, id=None):
         try:
-            # if not request.user.is_superuser:
-            # 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             user = get_object_or_404(User, id=id)
             stats = Stats.objects.get(user=user)
             serialized = StatsSerializer(stats)
@@ -27,7 +25,7 @@ class StatsView(APIView):
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
     def post(self, request, id=None):
         try:
             serializer = StatsSerializer(data=request.data)

@@ -7,6 +7,7 @@ import {
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 export default class User {
   constructor(state) {
@@ -92,8 +93,7 @@ export default class User {
   async buildAvatarImgLink(link) {
     try {
       const res = await axios.head(`${link}`);
-      if (res.status === 200)
-        this.publicUserData.avatar = `${link}`;
+      if (res.status === 200) this.publicUserData.avatar = `${link}`;
     } catch (error) {
       this.publicUserData.avatar = "/profile.jpeg";
     }

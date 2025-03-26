@@ -15,8 +15,6 @@ class FriendRequestView(APIView):
 
     def get(self, request, id=None):
         try:
-            # if not request.user.is_superuser:
-            # 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             friendrequest = get_object_or_404(FriendRequest, id=id)
             serialized = FriendRequestSerializer(friendrequest)
             return Response({'stats': serialized.data}, status=status.HTTP_200_OK)
@@ -29,8 +27,6 @@ class FriendRequestView(APIView):
 
     def put(self, request, id=None):
         try:
-			# if not request.user.is_superuser:
-			# 	return Response({'error': 'You don\'t have the rights'}, status=status.HTTP_403_FORBIDDEN)
             friendrequest = get_object_or_404(FriendRequest, id=id)
             serialized = FriendRequestSerializer(friendrequest, data=request.data, partial=True)
             if serialized.is_valid():
