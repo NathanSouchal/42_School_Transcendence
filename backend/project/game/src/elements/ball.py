@@ -74,6 +74,10 @@ class Ball:
         return Vector3(x, 0, y)
 
     def check_collision(self, paddle_x_left, paddle_x_right):
+
+        if self.is_falling:
+            return None, None
+
         half_width = self.ARENA_WIDTH / 2
         left_paddle_z = -self.ARENA_DEPTH / 2 + self.PADDLE_DEPTH / 2
         right_paddle_z = self.ARENA_DEPTH / 2 - self.PADDLE_DEPTH / 2
