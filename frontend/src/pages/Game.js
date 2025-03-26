@@ -215,7 +215,6 @@ export default class GamePage {
       console.error(error);
     } finally {
       this.state.state.opponentId = null;
-      this.state.state.opponentUsername = null;
       this.state.state.userSide = null;
       this.formState = {};
     }
