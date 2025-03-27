@@ -23,7 +23,7 @@ export default class State {
       userId: "0",
       lang: "EN",
       opponentId: null,
-      opponentUsername: trad["EN"].game.opponent,
+      opponentUsername: null,
       opponentLeft: false,
       userSide: null,
       username: null,
@@ -165,10 +165,9 @@ export default class State {
       this.gameManager.connect();
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-
     if (!this.state.opponentLeft) this.resetScore();
     if (gameMode !== "default") this.state.gameStarted = true;
-    this.state.gameHasBeenWon = false;
+    else this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
   }
 
@@ -255,31 +254,17 @@ export default class State {
 
   setGameEnded() {
     console.log("setGameEnded()");
-    this.scores.push(this.score);
-    this.setDestroyGame();
+    this.state.gameStarted = false;
+    if (this.state.gameHasBeenWon) {
+      this.scores.push(this.score);
+      this.resetScore();
+    }
+    this.state.gameIsTimer = false;
+    this.state.gameIsPaused = false;
+    if (this.gameManager?.socket) this.gameManager.socket.close();
+    this.setGameStarted("default");
     this.setGameNeedsReset(true);
     this.notifyListeners();
-  }
-
-  setDestroyGame() {
-    console.log("setDestroyGame()");
-    this.state.gameIsTimer = false;
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    if (this.state.gameStarted) this.state.gameStarted = false;
-    if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
-    this.gameMode = "default";
-    if (this.gameManager?.socket) this.gameManager.socket.close();
-  }
-
-  opponentLeft() {
-    this.state.opponentLeft = true;
-    this.setDestroyGame();
-    this.backToBackgroundPlay();
-  }
-
-  backToBackgroundPlay() {
-    this.state.gameHasBeenWon = false;
-    this.setGameStarted("default");
   }
 
   togglePause(bool) {
@@ -294,13 +279,14 @@ export default class State {
   }
 
   updateScore(side, points) {
+    if (this.state.gameHasBeenWon) return;
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
-      this.setGameEnded();
       this.state.gameHasBeenWon = true;
+      this.setGameEnded();
     }
     this.notifyListeners();
   }

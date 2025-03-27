@@ -38,7 +38,7 @@ class Renderer {
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
-      if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
+      if (!state.state.gameIsPaused && !state.state.gameHasBeenWon) {
         this.paddlesInputUpdates(deltaTime);
         this.game.ball.updateRotation(deltaTime);
         if (state.collision.ballCollided) {
@@ -53,9 +53,8 @@ class Renderer {
           state.collision.ballCollided = false;
         }
         this.game.ball.animate_sparks(deltaTime);
+        this.updateElementsPositions(deltaTime);
       }
-
-      this.updateElementsPositions(deltaTime);
 
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);

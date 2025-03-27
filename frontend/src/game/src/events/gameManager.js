@@ -93,7 +93,6 @@ export class GameManager {
       `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
     );
     this.isConnected = false;
-    // this.socket = null;
   }
 
   handleOpen() {
@@ -124,7 +123,8 @@ export class GameManager {
         break;
       case "opponent_left":
         console.error("Opponent left !!!!!!!!!!!!!");
-        state.opponentLeft();
+        state.state.opponentLeft = true;
+        state.setGameEnded();
         break;
       case "players_ready":
         this.handleOtherPlayerReady();

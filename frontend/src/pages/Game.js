@@ -160,14 +160,13 @@ export default class GamePage {
         break;
       case "exit-game":
         this.state.setGameEnded();
-        // this.state.backToBackgroundPlay();
         await updateView(this, {});
         break;
       case "exit-opponent-left-game":
         if (this.state.state.opponentLeft)
           this.state.state.opponentLeft = false;
-        (this.state.state.opponentUsername = trad[this.lang].game.opponent),
-          await updateView(this, {});
+        this.state.state.opponentUsername = null;
+        await updateView(this, {});
         break;
       case "back-arrow":
         this.state.setGameEnded();
@@ -225,6 +224,7 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
       this.formState = {};
+      console.log("end of saveGame()");
     }
   }
 
@@ -300,8 +300,9 @@ export default class GamePage {
     if (this.haveToSelectBotDifficulty) this.haveToSelectBotDifficulty = false;
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
     this.state.resetScore();
-    this.state.setDestroyGame();
-    this.state.state.opponentUsername = trad[this.lang].game.opponent;
+    this.state.gameHasBeenWon = false;
+    this.state.setGameEnded();
+    this.state.state.opponentUsername = null;
   }
 
   renderSelectBotDifficulty() {

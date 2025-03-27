@@ -91,7 +91,7 @@ export default class LocalTournament {
       if (crab) {
         const handleNbPlayersChange = this.handleNbPlayersChange.bind(
           this,
-          value
+          value,
         );
         if (!this.eventListeners.some((e) => e.name === id)) {
           crab.addEventListener("click", handleNbPlayersChange);
@@ -158,7 +158,7 @@ export default class LocalTournament {
     }
 
     const storeBlockchainButton = document.getElementById(
-      "store-blockchain-button"
+      "store-blockchain-button",
     );
     if (storeBlockchainButton) {
       const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
@@ -167,7 +167,7 @@ export default class LocalTournament {
       ) {
         storeBlockchainButton.addEventListener(
           "click",
-          handleBlockchainStorage
+          handleBlockchainStorage,
         );
       }
       this.eventListeners.push({
@@ -210,20 +210,20 @@ export default class LocalTournament {
         if (input.value) {
           if (!regex.test(input.value)) {
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerName
+              trad[this.lang].errors.playerName,
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerMinlength
+              trad[this.lang].errors.playerMinlength,
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerMaxlength
+              trad[this.lang].errors.playerMaxlength,
             );
           if (this.playerList.includes(playerName))
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerNameUnavailable
+              trad[this.lang].errors.playerNameUnavailable,
             );
         }
         if (playerName) {
@@ -251,7 +251,7 @@ export default class LocalTournament {
         newState.gameHasLoaded,
         this.previousState.gameHasLoaded,
         newState.lang,
-        this.previousState.lang
+        this.previousState.lang,
       );
       await updateView(this, {});
     } else if (
@@ -303,8 +303,6 @@ export default class LocalTournament {
     else if (key === "exit-tournament" || key === "game-menu-button") {
       this.state.setGameEnded();
       this.resetAttributes();
-      this.state.state.gameHasBeenWon = false;
-      this.state.backToBackgroundPlay();
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
@@ -473,7 +471,7 @@ export default class LocalTournament {
             this.displayTournamentErrorMessage(error.response.data.error);
           if (error.response.data.errors)
             this.displayTournamentErrorMessage(
-              Object.values(error.response.data.errors)[0]
+              Object.values(error.response.data.errors)[0],
             );
         }
       }
@@ -515,7 +513,7 @@ export default class LocalTournament {
     }
     this.resetAttributes();
     this.state.resetScore();
-    this.state.setDestroyGame();
+    this.state.setGameEnded();
   }
 
   renderSelectNbPlayers() {
@@ -611,7 +609,7 @@ export default class LocalTournament {
                             ? this.state.score.right
                             : element.score_player2
                         }</p>
-                    </div>`
+                    </div>`,
             )
             .join("")}
         </div>
