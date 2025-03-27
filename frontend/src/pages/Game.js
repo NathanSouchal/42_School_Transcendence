@@ -253,6 +253,7 @@ export default class GamePage {
     if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       await this.saveGame();
       this.previousState = { ...newState };
+      await updateView(this, {});
     } else if (newState.opponentLeft && !this.previousState.opponentLeft) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
@@ -299,9 +300,9 @@ export default class GamePage {
     }
     if (this.haveToSelectBotDifficulty) this.haveToSelectBotDifficulty = false;
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
+    this.state.setGameEnded();
     this.state.resetScore();
     this.state.gameHasBeenWon = false;
-    this.state.setGameEnded();
     this.state.state.opponentUsername = null;
   }
 

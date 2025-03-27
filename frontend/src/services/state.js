@@ -165,9 +165,13 @@ export default class State {
       this.gameManager.connect();
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    if (!this.state.opponentLeft) this.resetScore();
-    if (gameMode !== "default") this.state.gameStarted = true;
-    else this.state.gameHasBeenWon = false;
+    // if (!this.state.opponentLeft) this.resetScore();
+    if (gameMode !== "default") {
+      console.log("gameMode HERE : ", gameMode);
+      this.state.gameStarted = true;
+      this.resetScore();
+    }
+    // else this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
   }
 
@@ -253,12 +257,12 @@ export default class State {
   }
 
   setGameEnded() {
-    console.log("setGameEnded()");
+    console.log("setGameEnded()1");
+    if (this.gameMode === "default") return;
+    console.log("setGameEnded()2");
     this.state.gameStarted = false;
-    if (this.state.gameHasBeenWon) {
-      this.scores.push(this.score);
-      this.resetScore();
-    }
+    this.scores.push(this.score);
+    // this.resetScore();
     this.state.gameIsTimer = false;
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
@@ -279,7 +283,7 @@ export default class State {
   }
 
   updateScore(side, points) {
-    if (this.state.gameHasBeenWon) return;
+    if (this.state.gameHasBeenWon || this.gameMode === "default") return;
     this.score[side] += points;
     console.log(
       `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`

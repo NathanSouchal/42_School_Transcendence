@@ -38,7 +38,7 @@ class Renderer {
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
-      if (!state.state.gameIsPaused && !state.state.gameHasBeenWon) {
+      if (!state.state.gameIsPaused) {
         this.paddlesInputUpdates(deltaTime);
         this.game.ball.updateRotation(deltaTime);
         if (state.collision.ballCollided) {
@@ -120,13 +120,13 @@ class Renderer {
       this.game.ball.obj.position.set(
         positions.ball.pos.x,
         positions.ball.pos.y,
-        positions.ball.pos.z,
+        positions.ball.pos.z
       );
     }
     this.game.ball.velocity.set(
       positions.ball.vel.x,
       positions.ball.vel.y,
-      positions.ball.vel.z,
+      positions.ball.vel.z
     );
 
     //const currentTime = Date.now();
@@ -154,7 +154,7 @@ class Renderer {
         deltaTime,
         state.gameManager,
         this.game.ball.obj.position,
-        this.game.ball.velocity,
+        this.game.ball.velocity
       );
     }
     if (state.gameMode != "OnlineRight") {
@@ -162,7 +162,7 @@ class Renderer {
         deltaTime,
         state.gameManager,
         this.game.ball.obj.position,
-        this.game.ball.velocity,
+        this.game.ball.velocity
       );
     }
   }
