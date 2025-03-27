@@ -32,7 +32,6 @@ export default class Social {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Social page subscribed to state");
     }
 
     if (!this.state.state.gameHasLoaded) return;
@@ -245,7 +244,6 @@ export default class Social {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log("Removed ${type} eventListener from input");
       }
     });
     this.eventListeners = [];
@@ -256,7 +254,6 @@ export default class Social {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Social page unsubscribed from state");
     }
   }
 
@@ -271,7 +268,6 @@ export default class Social {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Social page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

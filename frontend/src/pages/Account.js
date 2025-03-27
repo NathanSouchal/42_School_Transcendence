@@ -36,7 +36,6 @@ export default class Account {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
     await updateView(this, {});
@@ -493,7 +492,6 @@ export default class Account {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from element`);
       }
     });
     this.eventListeners = [];
@@ -505,7 +503,6 @@ export default class Account {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Account page unsubscribed from state");
     }
   }
 
@@ -519,7 +516,6 @@ export default class Account {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Account page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

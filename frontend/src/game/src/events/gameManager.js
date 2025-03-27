@@ -51,7 +51,6 @@ export class GameManager {
       this.socket = null;
     }
     if (this.pingInterval) {
-      console.log("ClearInterval()");
       clearInterval(this.pingInterval);
     }
   }
@@ -76,7 +75,6 @@ export class GameManager {
     }
 
     this.socket = new WebSocket(`${baseUrl}${endpoint}`);
-    console.log(`Socket is : ${this.socket.url}`);
   }
 
   setupSocketEventHandlers() {
@@ -90,7 +88,7 @@ export class GameManager {
 
   handleClose(event) {
     console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`,
+      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
     );
     this.isConnected = false;
   }
@@ -136,7 +134,7 @@ export class GameManager {
     this.side = data.side;
     if (data.opponent_id) {
       console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`,
+        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
       );
     } else {
       console.warn("⚠️ Aucun opponent_id reçu !");
@@ -175,12 +173,12 @@ export class GameManager {
     this.positions.ball.pos.set(
       data.ball.pos.x,
       data.ball.pos.y,
-      data.ball.pos.z,
+      data.ball.pos.z
     );
     this.positions.ball.vel.set(
       data.ball.vel.x,
       data.ball.vel.y,
-      data.ball.vel.z,
+      data.ball.vel.z
     );
     this.positions.timestamp = timestamp;
   }
@@ -221,7 +219,6 @@ export class GameManager {
 
   sendMessage(data) {
     if (!this.isSocketReady()) {
-      console.warn("WebSocket is not in OPEN state");
       this.reconnect();
       return;
     }

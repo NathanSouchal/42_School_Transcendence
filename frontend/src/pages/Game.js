@@ -26,6 +26,7 @@ export default class GamePage {
     this.formState = {};
     this.leftPlayerName = "";
     this.rightPlayerName = "";
+    this.isProcessing = false;
   }
 
   async initialize(routeParams = {}) {
@@ -35,7 +36,6 @@ export default class GamePage {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      // console.log("GamePage subscribed to state");
     }
     await updateView(this, {});
   }
@@ -153,7 +153,6 @@ export default class GamePage {
           this.state.cancelMatchmaking();
           await updateView(this, {});
         }
-        console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
       case "resume-game":
         this.state.togglePause();
@@ -198,8 +197,8 @@ export default class GamePage {
   }
 
   async saveGame() {
-    console.log("posting data for game");
-    if (!this.state.isUserLoggedIn) return;
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
       return;
@@ -212,6 +211,7 @@ export default class GamePage {
     this.formState.score_player2 = parseInt(left);
 
     try {
+      console.log("posting data for game");
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
       console.error(error);
@@ -219,14 +219,14 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
       this.formState = {};
-      console.log("end of saveGame()");
+      this.isProcessing = false;
     }
   }
 
   async saveGameOpponentLeft() {
     console.log("saveGameOpponentLeft()");
-    if (!this.state.isUserLoggedIn) return;
-
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     const { left, right } = this.state.score;
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = this.state.state.opponentId;
@@ -241,18 +241,20 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
       this.formState = {};
+      this.isProcessing = false;
     }
   }
 
   async handleStateChange(newState) {
-    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.saveGame();
-      this.previousState = { ...newState };
-      await updateView(this, {});
-    } else if (newState.opponentLeft && !this.previousState.opponentLeft) {
+    if (newState.opponentLeft && !this.previousState.opponentLeft) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await this.saveGameOpponentLeft();
+      await updateView(this, {});
+    } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
+      this.oldscore = { ...this.state.score };
+      await this.saveGame();
+      this.previousState = { ...newState };
       await updateView(this, {});
     } else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
@@ -274,7 +276,6 @@ export default class GamePage {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        // console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -291,7 +292,6 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      // console.log("Game page unsubscribed from state");
     }
     if (this.haveToSelectBotDifficulty) this.haveToSelectBotDifficulty = false;
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
@@ -463,7 +463,6 @@ export default class GamePage {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
 

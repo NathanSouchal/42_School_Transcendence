@@ -50,7 +50,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     await updateView(this, {});
   }
@@ -91,7 +90,7 @@ export default class LocalTournament {
       if (crab) {
         const handleNbPlayersChange = this.handleNbPlayersChange.bind(
           this,
-          value,
+          value
         );
         if (!this.eventListeners.some((e) => e.name === id)) {
           crab.addEventListener("click", handleNbPlayersChange);
@@ -158,7 +157,7 @@ export default class LocalTournament {
     }
 
     const storeBlockchainButton = document.getElementById(
-      "store-blockchain-button",
+      "store-blockchain-button"
     );
     if (storeBlockchainButton) {
       const handleBlockchainStorage = this.handleBlockchainStorage.bind(this);
@@ -167,7 +166,7 @@ export default class LocalTournament {
       ) {
         storeBlockchainButton.addEventListener(
           "click",
-          handleBlockchainStorage,
+          handleBlockchainStorage
         );
       }
       this.eventListeners.push({
@@ -210,20 +209,20 @@ export default class LocalTournament {
         if (input.value) {
           if (!regex.test(input.value)) {
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerName,
+              trad[this.lang].errors.playerName
             );
           }
           if (input.value.length < 4)
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerMinlength,
+              trad[this.lang].errors.playerMinlength
             );
           if (input.value.length > 10)
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerMaxlength,
+              trad[this.lang].errors.playerMaxlength
             );
           if (this.playerList.includes(playerName))
             return this.displayTournamentErrorMessage(
-              trad[this.lang].errors.playerNameUnavailable,
+              trad[this.lang].errors.playerNameUnavailable
             );
         }
         if (playerName) {
@@ -251,7 +250,7 @@ export default class LocalTournament {
         newState.gameHasLoaded,
         this.previousState.gameHasLoaded,
         newState.lang,
-        this.previousState.lang,
+        this.previousState.lang
       );
       await updateView(this, {});
     } else if (
@@ -471,7 +470,7 @@ export default class LocalTournament {
             this.displayTournamentErrorMessage(error.response.data.error);
           if (error.response.data.errors)
             this.displayTournamentErrorMessage(
-              Object.values(error.response.data.errors)[0],
+              Object.values(error.response.data.errors)[0]
             );
         }
       }
@@ -498,7 +497,6 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -509,7 +507,6 @@ export default class LocalTournament {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("LocalTournament page unsubscribed from state");
     }
     this.resetAttributes();
     this.state.resetScore();
@@ -609,7 +606,7 @@ export default class LocalTournament {
                             ? this.state.score.right
                             : element.score_player2
                         }</p>
-                    </div>`,
+                    </div>`
             )
             .join("")}
         </div>
@@ -669,7 +666,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
     else this.userAlias = "";

@@ -165,13 +165,11 @@ export default class State {
       this.gameManager.connect();
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    // if (!this.state.opponentLeft) this.resetScore();
     if (gameMode !== "default") {
       console.log("gameMode HERE : ", gameMode);
       this.state.gameStarted = true;
       this.resetScore();
     }
-    // else this.state.gameHasBeenWon = false;
     this.setGameNeedsReset(true);
   }
 
@@ -266,7 +264,6 @@ export default class State {
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");
-    this.notifyListeners();
   }
 
   togglePause(bool) {
@@ -289,6 +286,7 @@ export default class State {
     if (this.score[side] === this.gamePoints) {
       this.state.gameHasBeenWon = true;
       this.setGameEnded();
+      return;
     }
     this.notifyListeners();
   }
@@ -315,6 +313,7 @@ export default class State {
   }
 
   notifyListeners() {
+    console.log("notify listeners");
     this.listeners.forEach((listener) => listener(this.state));
   }
 }
