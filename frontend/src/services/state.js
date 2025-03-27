@@ -263,7 +263,7 @@ export default class State {
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");
-    this.setGameNeedsReset(true);
+    // this.setGameNeedsReset(true);
     this.notifyListeners();
   }
 
@@ -282,7 +282,7 @@ export default class State {
     if (this.state.gameHasBeenWon) return;
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
       this.state.gameHasBeenWon = true;
