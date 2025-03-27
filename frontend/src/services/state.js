@@ -262,12 +262,10 @@ export default class State {
     console.log("setGameEnded()2");
     this.state.gameStarted = false;
     this.scores.push(this.score);
-    // this.resetScore();
     this.state.gameIsTimer = false;
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");
-    // this.setGameNeedsReset(true);
     this.notifyListeners();
   }
 

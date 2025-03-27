@@ -159,17 +159,12 @@ export default class GamePage {
         this.state.togglePause();
         break;
       case "exit-game":
-        this.state.setGameEnded();
+        this.destroy();
         await updateView(this, {});
         break;
       case "exit-opponent-left-game":
-        if (this.state.state.opponentLeft)
-          this.state.state.opponentLeft = false;
-        this.state.state.opponentUsername = null;
+        this.destroy();
         await updateView(this, {});
-        break;
-      case "back-arrow":
-        this.state.setGameEnded();
         break;
       case "toggle-pause":
         this.state.togglePause();
@@ -302,7 +297,7 @@ export default class GamePage {
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
     this.state.setGameEnded();
     this.state.resetScore();
-    this.state.gameHasBeenWon = false;
+    this.state.state.gameHasBeenWon = false;
     this.state.state.opponentUsername = null;
   }
 
@@ -475,6 +470,12 @@ export default class GamePage {
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
+    console.log(
+      "gameStarted, gameHasBeenWon, opponentLeft : ",
+      gameStarted,
+      gameHasBeenWon,
+      this.state.state.opponentLeft
+    );
     if (this.state.state.opponentLeft) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";
