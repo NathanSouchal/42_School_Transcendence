@@ -1,18 +1,18 @@
-# 🕹️ Transcendence
+# Transcendence
 
 Transcendence is a full-stack multiplayer web application built around the classic Pong game. 
 It goes beyond the basic gameplay to include user profiles, tournaments, matchmaking, statistics, social features, and real-time gameplay with WebSockets.
 
 ---
 
-## 🎯 Project Overview
+## Project Overview
 
 Transcendence is part of the 42 School curriculum. 
 The goal is to design and implement a modern, responsive, secure web application using cutting-edge technologies and a solid team-based development workflow.
 
 ---
 
-## ⚙️ Tech Stack
+## Tech Stack
 
 **Frontend**
 - JavaScript (Vanilla / ES6)
@@ -34,7 +34,7 @@ The goal is to design and implement a modern, responsive, secure web application
 
 ---
 
-## 🚀 Features
+## Features
 
 - 👤 User registration, login, 2FA, JWT
 - 🎮 Pong game with remote PVP, local PVP or vsIA
