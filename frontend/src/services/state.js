@@ -146,7 +146,12 @@ export default class State {
       this.state.gameIsTimer = false;
       if (["OnlineLeft", "OnlineRight"].includes(gameMode)) {
         this.gameManager.sendCountdownEnded();
-        await this.waitForCountdownEnd();
+        try {
+          await this.waitForCountdownEnd();
+        } catch (error) {
+          console.error("Countdown error, opponent left");
+          return;
+        }
       }
     }
     if (
@@ -170,10 +175,12 @@ export default class State {
   async waitForCountdownEnd() {
     await new Promise((resolve) => {
       const checkInterval = setInterval(() => {
-        if (this.state.other_player_ready) {
+        if (this.state.other_player_ready && !this.state.opponentLeft) {
           clearInterval(checkInterval);
-          resolve();
           this.state.other_player_ready = false;
+          resolve();
+        } else if (this.state.opponentLeft) {
+          reject(new Error("Opponent left"));
         }
         console.log("Waiting for other player to end coundown");
       }, 100);
