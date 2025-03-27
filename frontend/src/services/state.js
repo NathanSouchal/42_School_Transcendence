@@ -1,4 +1,5 @@
 import { header } from "../app";
+import gameScene from "../game/src/main";
 import { trad } from "../trad";
 import { handleLangDiv } from "../utils";
 
@@ -127,7 +128,8 @@ export default class State {
 
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
-    this.notifyListeners();
+    gameScene.handleStateChange();
+    // this.notifyListeners();
   }
 
   async setGameStarted(gameMode) {
@@ -303,7 +305,7 @@ export default class State {
     if (typeof listener !== "function") {
       throw new TypeError("Le listener doit être une fonction.");
     }
-    //console.log("Abonnement ajouté :", listener.name || listener);
+    // console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 

@@ -3,6 +3,7 @@ import state from "../../app.js";
 import { GameManager } from "./events/gameManager.js";
 
 const gameScene = new GameScene();
+export default gameScene;
 await gameScene.init();
 
 let gameManager = new GameManager(

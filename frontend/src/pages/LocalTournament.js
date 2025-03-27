@@ -240,6 +240,16 @@ export default class LocalTournament {
 
   async handleStateChange(newState) {
     let container = document.getElementById("app");
+    console.log(
+      "newState.gameStarted, newState.gameHasBeenWon : ",
+      newState.gameStarted,
+      newState.gameHasBeenWon,
+      "this.state.score[left] this.oldscore[left] this.state.score[right] this.oldscore[right]",
+      this.state.score["left"],
+      this.oldscore["left"],
+      this.state.score["right"],
+      this.oldscore["right"]
+    );
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
@@ -252,19 +262,6 @@ export default class LocalTournament {
         this.previousState.lang
       );
       await updateView(this, {});
-    } else if (
-      (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
-      this.state.score["left"] !== this.oldscore["left"] ||
-      this.state.score["right"] !== this.oldscore["right"]
-    ) {
-      if (container) {
-        container.innerHTML = "";
-        container.className = "";
-        this.previousState = { ...newState };
-        this.oldscore = { ...this.state.score };
-        await updateView(this, {});
-      }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       if (
         this.state.isUserLoggedIn &&
@@ -277,6 +274,30 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
+        await updateView(this, {});
+      }
+    } else if (newState.gameStarted && !this.previousState.gameStarted) {
+      this.state.score = { left: 0, right: 0 };
+      console.log("new game started in handlestatechange");
+      if (container) {
+        container.innerHTML = "";
+        container.className = "";
+        this.previousState = { ...newState };
+        this.oldscore = { left: 0, right: 0 };
+        await updateView(this, {});
+      }
+    } else if (
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
+    ) {
+      console.log("point update in handlestatechange");
+      if (container) {
+        container.innerHTML = "";
+        container.className = "";
+        this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -404,7 +425,7 @@ export default class LocalTournament {
       this.formState.score_player1 = parseInt(right);
       this.formState.score_player2 = parseInt(left);
     }
-    console.warn("posting data for game");
+    console.warn("posting data for tournament");
     console.log(this.formState.player1, this.formState.player2);
     try {
       await API.post(`/game/list/`, this.formState);
