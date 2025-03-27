@@ -147,7 +147,7 @@ export default class MatchHistory {
 									<h3 class="mh-score">${value.score_player1}</h3>
 									<span>-</span>
 									<h3 class="mh-score">${value.score_player2}</h3>
-									<h3 class="mh-player">${value.player2 ? value.player2 : "Guest"}</h3>
+									<h3 class="mh-player">${value.player2 ? value.player2 : value.opponentName}</h3>
 								</div>
 							</div>`
                       )

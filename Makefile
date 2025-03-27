@@ -27,7 +27,9 @@ clean:
 	@docker compose down
 	@docker system prune -a -f
 	@docker buildx prune -af
-	# @docker volume rm transcendence_postgres_data
+
+cleanVolume:
+	@docker volume rm $$(docker volume ls -q)
 
 # Supprimer et relancer les conteneurs (équivalent à clean + up)
 re: clean dev
