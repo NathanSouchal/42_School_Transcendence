@@ -245,7 +245,6 @@ export default class LocalTournament {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      //   alert("Game loaded or lang change");
       console.log(
         newState.gameHasLoaded,
         this.previousState.gameHasLoaded,
@@ -265,7 +264,6 @@ export default class LocalTournament {
         this.previousState = { ...newState };
         this.oldscore = { ...this.state.score };
         await updateView(this, {});
-        // alert("Game started or game paused set to false");
       }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       if (
@@ -279,7 +277,6 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game won");
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -287,7 +284,6 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -300,8 +296,7 @@ export default class LocalTournament {
     if (key === "pause-game") this.state.togglePause(true);
     else if (key === "resume-game") this.state.togglePause(false);
     else if (key === "exit-tournament" || key === "game-menu-button") {
-      this.state.setGameEnded();
-      this.resetAttributes();
+      this.destroy();
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
@@ -509,8 +504,9 @@ export default class LocalTournament {
       this.isSubscribed = false;
     }
     this.resetAttributes();
-    this.state.resetScore();
     this.state.setGameEnded();
+    this.state.resetScore();
+    this.state.state.gameHasBeenWon = false;
   }
 
   renderSelectNbPlayers() {
