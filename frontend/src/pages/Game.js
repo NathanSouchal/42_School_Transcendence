@@ -210,6 +210,8 @@ export default class GamePage {
 
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = this.state.state.opponentId;
+    if (!this.state.state.opponentId && this.state.state.previousGameMode == "PVR")
+      this.formState.opponentName = "Robot";
     this.formState.score_player1 = parseInt(right);
     this.formState.score_player2 = parseInt(left);
 
@@ -341,6 +343,7 @@ export default class GamePage {
     const { left, right } = this.state.score;
     const { gameIsPaused } = this.state.state.gameIsPaused;
     handleLangDiv(true);
+    this.state.state.previousGameMode = this.state.gameMode;
 
     if (this.state.gameMode === "PVP") {
       this.leftPlayerName = trad[this.lang].game.player1;

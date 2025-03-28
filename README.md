@@ -1,67 +1,44 @@
-## BACKEND
+# Transcendence
 
-#### Activate env
+Transcendence is a full-stack multiplayer web application built around the classic Pong game. 
+It goes beyond the basic gameplay to include user profiles, tournaments, matchmaking, statistics, social features, and real-time gameplay with WebSockets.
 
-```sh
-source env/bin/activate
-```
+---
 
-#### Install requirements
+## Project Overview
 
-```sh
-pip install -r requirements.txt
-```
+Transcendence is part of the 42 School curriculum. 
+The goal is to design and implement a modern, responsive, secure web application using cutting-edge technologies and a solid team-based development workflow.
 
-#### Update migrations
+---
 
-```sh
-python manage.py makemigrations
-python manage.py migrate
-```
+## Tech Stack
 
-#### Run server
+**Frontend**
+- JavaScript (Vanilla / ES6)
+- HTML5 / CSS3
+- WebSocket (real-time game communication)
 
-```sh
-python3 manage.py runserver
-```
+**Backend**
+- Python / Django / Django REST Framework
+- PostgreSQL
+- WebSocket (Django Channels)
+- Redis (for WebSocket backend)
 
-#### Run server as https
+**DevOps**
+- Docker / Docker Compose
+- NGINX (Reverse Proxy)
 
-```sh
-python manage.py runsslserver
-```
+**Game**
+- ThreeJS
 
-#### DELETE AND RECREATE DATABASE
+---
 
-```sh
-rm db.sqlite3
-find . -path "_/migrations/_.py" -not -name "**init**.py" -delete
-find . -path "_/migrations/_.pyc" -delete
-python manage.py makemigrations
-python manage.py migrate
-```
+## Features
 
-## FRONTEND
-
-#### Install node modules
-
-```sh
-npm i
-```
-
-#### Run server
-
-```sh
-npm start
-```
-
-#### Create a self-signed ssl certificate :
-
-```sh
-mkdir -p ./ssl
-openssl req -x509 -newkey rsa:4096 -keyout ./ssl/key.pem -out ./ssl/cert.pem -days 365 -nodes
-```
-
-#### Supprimer les volumes de postgres si probleme de migration
-
-docker volume rm $(docker volume ls -q | grep postgres)
+- 👤 User registration, login, 2FA, JWT
+- 🎮 Pong game with remote PVP, local PVP or vsIA
+- 📈 Match history and player statistics
+- 🧑‍🤝‍🧑 Friend requests, online/offline status
+- 🏆 Tournament creation and management
+- 📱 Fully responsive design

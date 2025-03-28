@@ -401,9 +401,11 @@ export default class LocalTournament {
     if (this.MatchToPlay.player1 === this.state.state.userAlias) {
       this.formState.score_player1 = parseInt(left);
       this.formState.score_player2 = parseInt(right);
+      this.formState.opponentName = this.MatchToPlay.player2;
     } else {
       this.formState.score_player1 = parseInt(right);
       this.formState.score_player2 = parseInt(left);
+      this.formState.opponentName = this.MatchToPlay.player1;
     }
     console.warn("posting data for tournament");
     console.log(this.formState.player1, this.formState.player2);

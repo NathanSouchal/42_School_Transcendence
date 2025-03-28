@@ -32,6 +32,7 @@ export default class State {
       latency: 0,
       gameIsTimer: false,
       other_player_ready: false,
+      previousGameMode: "default",
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;

@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
 
 const API = axios.create({
   // baseURL: API_BASE_URL,
-  baseURL: "https://10.13.12.4:8443/api",
+  baseURL: "https://10.13.12.2:8443/api",
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
   // httpsAgent: new https.Agent({
@@ -72,16 +72,6 @@ API.interceptors.response.use(
         console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
-    } else if (
-      error.response &&
-      error.response.status === 404 &&
-      window.location.pathname !== "/social" &&
-      window.location.pathname !== "/local-tournament"
-    ) {
-      setTimeout(() => {
-        router.navigate("/404");
-      }, 100);
-      return Promise.reject(error);
     }
     return Promise.reject(error);
   }
