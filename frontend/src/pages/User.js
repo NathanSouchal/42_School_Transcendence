@@ -108,6 +108,9 @@ export default class User {
       else this.publicUserData.avatar = "/profile.jpeg";
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
+      if (error.response.status === 404) {
+        router.navigate("/404");
+      }
       throw error;
     }
   }
