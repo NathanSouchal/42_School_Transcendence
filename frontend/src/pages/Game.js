@@ -27,6 +27,7 @@ export default class GamePage {
     this.leftPlayerName = "";
     this.rightPlayerName = "";
     this.isProcessing = false;
+    this.lastClickTime = Date.now();
   }
 
   async initialize(routeParams = {}) {
@@ -126,6 +127,7 @@ export default class GamePage {
 
   async handleClick(param) {
     setDisable(true, param);
+    let elapsedTime;
     switch (param) {
       case "easy-btn":
         this.handleDifficultyChange("Easy");
@@ -143,15 +145,14 @@ export default class GamePage {
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
         await updateView(this, {});
-        // this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
+        elapsedTime = Date.now() - this.lastClickTime;
+        if (this.state.state.gameIsTimer || elapsedTime < 1000) break;
         if (!this.state.state.isSearching) {
           this.state.startMatchmaking();
           await updateView(this, {});
-        } else {
-          this.state.cancelMatchmaking();
-          await updateView(this, {});
+          this.lastClickTime = Date.now(); // Correct Date.now() usage
         }
         break;
       case "resume-game":
@@ -169,6 +170,8 @@ export default class GamePage {
         this.state.togglePause();
         break;
       case "cancel-pvp-search":
+        elapsedTime = Date.now() - this.lastClickTime;
+        if (this.state.state.gameIsTimer || elapsedTime < 1000) break;
         this.state.cancelMatchmaking();
         await updateView(this, {});
         break;
@@ -473,7 +476,7 @@ export default class GamePage {
       "gameStarted, gameHasBeenWon, opponentLeft : ",
       gameStarted,
       gameHasBeenWon,
-      this.state.state.opponentLeft
+      this.state.state.opponentLeft,
     );
     if (this.state.state.opponentLeft) {
       renderGame.className = "app";

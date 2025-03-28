@@ -1,5 +1,5 @@
 import { header } from "../app";
-import gameScene from "../game/src/main";
+//import gameScene from "../game/src/main";
 import { trad } from "../trad";
 import { handleLangDiv } from "../utils";
 
@@ -128,8 +128,8 @@ export default class State {
 
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
-    gameScene.handleStateChange();
-    // this.notifyListeners();
+    //gameScene.handleStateChange();
+    this.notifyListeners();
   }
 
   async setGameStarted(gameMode) {
@@ -138,6 +138,7 @@ export default class State {
     if (gameMode !== "default") {
       if (header.isGuestRendered) header.isGuestRendered = false;
       if (header.isUserRendered) header.isUserRendered = false;
+      console.log("setting gameIsTimer to true");
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
       await this.displayTimerBeforeGameStart();
@@ -284,7 +285,7 @@ export default class State {
     if (this.state.gameHasBeenWon || this.gameMode === "default") return;
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
       this.state.gameHasBeenWon = true;

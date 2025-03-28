@@ -3,7 +3,6 @@ import state from "../../app.js";
 import { GameManager } from "./events/gameManager.js";
 
 const gameScene = new GameScene();
-export default gameScene;
 await gameScene.init();
 
 let gameManager = new GameManager(
@@ -12,7 +11,7 @@ let gameManager = new GameManager(
     paddleRight: gameScene.paddleRight,
     ball: gameScene.ball,
   },
-  gameScene
+  gameScene,
 );
 
 state.gameManager = gameManager;
