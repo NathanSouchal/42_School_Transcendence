@@ -10,7 +10,7 @@ from django.http import Http404
 from django.db.models import ProtectedError
 from rest_framework.permissions import AllowAny
 from api.models import Stats
-
+from django.db import IntegrityError
 
 class GameView(APIView):
 	permission_classes = [AllowAny]
@@ -80,6 +80,8 @@ class GameListView(APIView):
 				self.update_stats(game)
 				return Response({'game': GameSerializer(game).data, 'message': 'Game created successfully.'}, status=status.HTTP_201_CREATED)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+		except IntegrityError:
+			return Response({'error': 'Game already created'}, status=status.HTTP_409_CONFLICT)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

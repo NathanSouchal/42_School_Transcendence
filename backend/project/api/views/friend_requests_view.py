@@ -8,8 +8,7 @@ from api.serializers import FriendRequestSerializer, UserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
-from django.db.models import Q
-
+from django.db import IntegrityError
 
 class FriendRequestView(APIView):
     permission_classes = [AllowAny]
@@ -20,7 +19,7 @@ class FriendRequestView(APIView):
             serialized = FriendRequestSerializer(friendrequest)
             return Response({'stats': serialized.data}, status=status.HTTP_200_OK)
         except Http404:
-            return Response({'error': 'friend request not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'friend request not found'}, status=status.HTTP_404_NOT_FOUND)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -33,13 +32,18 @@ class FriendRequestView(APIView):
             if serialized.is_valid():
                 if serialized.validated_data['accepted'] is True:
                     friendrequest.accept()
-                    return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': f'friend request with id {id} has been accepted.'}, status=status.HTTP_200_OK)
-                else :
+                    data = FriendRequestSerializer(friendrequest).data
+                    friendrequest.delete()
+                    return Response({'friend request': data, 'message': f'friend request with id {id} has been accepted.'}, status=status.HTTP_200_OK)
+                elif serialized.validated_data['accepted'] is False:
+                    data = FriendRequestSerializer(friendrequest).data
                     friendrequest.decline()
-                    return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': f'friend request with id {id} has been declined.'}, status=status.HTTP_200_OK)
+                    return Response({'friend request': data, 'message': f'friend request with id {id} has been declined.'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': "Accepted field must be true or false"}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
-            return Response({'error': 'friend request not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'friend request not found'}, status=status.HTTP_404_NOT_FOUND)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -50,22 +54,13 @@ class FriendRequestCreateView(APIView):
 
     def post(self, request):
         try:
-            from_user = request.data.get("from_user")
-            to_user = request.data.get("to_user")
-            exists = FriendRequest.objects.filter(
-                Q(from_user__id=from_user, to_user__id=to_user) |
-                Q(from_user__id=to_user, to_user__id=from_user)
-            ).exists()
-            if exists:
-                return Response(
-                    {"error": "A friend request already exists between these users."},
-                    status=status.HTTP_409_CONFLICT
-                )
             serialized = FriendRequestSerializer(data=request.data)
             if serialized.is_valid():
                 friendrequest = serialized.save()
                 return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': 'Friend request created successfully.'}, status=status.HTTP_201_CREATED)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({'error': 'Friend request already exists.'}, status=status.HTTP_409_CONFLICT)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
@@ -84,6 +79,6 @@ class FriendRequestsByUserView(APIView):
             friends = UserSerializer(user)
             return Response({'friends': friends.data['friends'], 'pending_friend_requests': serialized.data}, status=status.HTTP_200_OK)
         except Http404:
-            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

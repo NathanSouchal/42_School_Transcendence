@@ -139,7 +139,7 @@ export default class GamePage {
         this.handleDifficultyChange("Hard");
         break;
       case "start-pvp-game":
-        if (this.state.state.isSearching) this.state.cancelMatchmaking();
+        if (this.state.state.isSearching) await this.state.cancelMatchmaking();
         this.state.setGameStarted("PVP");
         break;
       case "start-pvr-game":
@@ -159,11 +159,11 @@ export default class GamePage {
         this.state.togglePause();
         break;
       case "exit-game":
-        this.destroy();
+        await this.destroy();
         await updateView(this, {});
         break;
       case "exit-opponent-left-game":
-        this.destroy();
+        await this.destroy();
         await updateView(this, {});
         break;
       case "toggle-pause":
@@ -172,7 +172,7 @@ export default class GamePage {
       case "cancel-pvp-search":
         elapsedTime = Date.now() - this.lastClickTime;
         if (this.state.state.gameIsTimer || elapsedTime < 1000) break;
-        this.state.cancelMatchmaking();
+        await this.state.cancelMatchmaking();
         await updateView(this, {});
         break;
     }
@@ -182,7 +182,7 @@ export default class GamePage {
   renderOnlinePVP() {
     let template;
 
-    if (this.state.state.isSearching)
+    if (this.state.state.isSearching) {
       template = `<div class="global-nav-items online-pvp-div">
 					<div class="loading-pvp-game" id="loading-pvp-game">
 						<h2 class="searching-online-pvp">${trad[this.lang].game.searching}</h2>
@@ -192,7 +192,11 @@ export default class GamePage {
 					</div>
 					<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>
 				</div>`;
-    else
+      //   const buttonDiv = document.getElementById("cancel-matchmaking");
+      //   if (buttonDiv) {
+      //     buttonDiv.innerHTML = `<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>`;
+      //   }
+    } else
       template = `<div class="global-nav-items">
 					<button id="start-online-pvp-game">${trad[this.lang].game.onlineGame}</button>
 				</div>`;
@@ -210,7 +214,10 @@ export default class GamePage {
 
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = this.state.state.opponentId;
-    if (!this.state.state.opponentId && this.state.state.previousGameMode == "PVR")
+    if (
+      !this.state.state.opponentId &&
+      this.state.state.previousGameMode == "PVR"
+    )
       this.formState.opponentName = "Robot";
     this.formState.score_player1 = parseInt(right);
     this.formState.score_player2 = parseInt(left);
@@ -286,14 +293,14 @@ export default class GamePage {
     this.eventListeners = [];
   }
 
-  destroy() {
+  async destroy() {
     const renderGame = document.getElementById("app");
     if (renderGame) renderGame.className = "app";
     const menuButton = document.getElementById("toggle-button");
     if (menuButton) menuButton.className = "toggle-button";
     console.log("DESTROYYY");
     this.removeEventListeners();
-    if (this.state.state.isSearching) this.state.cancelMatchmaking();
+    if (this.state.state.isSearching) await this.state.cancelMatchmaking();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
@@ -334,6 +341,7 @@ export default class GamePage {
 					<div id="rules" class="rules-link-div">
 					   <a class="nav-link" href="/rules">${trad[this.lang].game.rules}</a>
 					</div>
+					<div id="cancel-matchmaking"></div>
 				</div>
 			  </div>
 		  `;
@@ -479,7 +487,7 @@ export default class GamePage {
       "gameStarted, gameHasBeenWon, opponentLeft : ",
       gameStarted,
       gameHasBeenWon,
-      this.state.state.opponentLeft,
+      this.state.state.opponentLeft
     );
     if (this.state.state.opponentLeft) {
       renderGame.className = "app";
@@ -510,7 +518,7 @@ export default class GamePage {
         handleHeader(this.state.isUserLoggedIn, false, true);
       else handleHeader(this.state.isUserLoggedIn, false, false);
       this.lang = this.state.state.lang;
-      if (this.state.state.isSearching) this.state.cancelMatchmaking();
+      if (this.state.state.isSearching) await this.state.cancelMatchmaking();
       return this.renderSelectBotDifficulty();
     } else if (!gameStarted && gameHasBeenWon) {
       renderGame.className = "app";
