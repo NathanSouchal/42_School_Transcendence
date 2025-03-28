@@ -40,6 +40,8 @@ class UserView(APIView):
 			user.match_history.clear()
 			user.delete()
 			return Response({'message': f'User with id {id} has been deleted.'}, status=status.HTTP_200_OK)
+		except Http404:
+			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
@@ -83,6 +85,8 @@ class UserView(APIView):
 				user = serializer.save()
 				return Response({'user': UserSerializer(user).data, 'message': 'User modified'}, status=status.HTTP_200_OK)
 			return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+		except Http404:
+			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except IntegrityError:
@@ -111,7 +115,7 @@ class PublicUserView(APIView):
 			user = get_object_or_404(User, id=id)
 			return Response({'user': PublicUserSerializer(user).data}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'error': 'User not found.'},status=status.HTTP_404_NOT_FOUND)
+			return Response({'error': 'User not found'},status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
@@ -125,7 +129,7 @@ class UserByNameView(APIView):
 			user = get_object_or_404(User, username=username)
 			return Response({'user': SimpleUserSerializer(user).data}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
