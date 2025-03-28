@@ -17,9 +17,9 @@ export default class Creature {
     this.currentTurnTarget = null;
     this.isTurning = false;
     this.deltaFactor = 30;
-    this.width = 180;
-    this.height = 100;
-    this.depth = 180;
+    this.width = 100;
+    this.height = 50;
+    this.depth = 100;
     this.directions = [
       new THREE.Vector3(-1, 0, 0),
       new THREE.Vector3(1, 0, 0),

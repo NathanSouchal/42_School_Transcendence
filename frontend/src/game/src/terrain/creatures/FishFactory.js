@@ -16,13 +16,13 @@ class FishFactory {
         "Terrain",
         "Fish1",
         async () => this.loadObjects(),
-        7
+        7,
       );
       await updateLoadingTime(
         "Terrain",
         "Fish2",
         async () => this.init(terrain_geometry, terrain_obj),
-        8
+        8,
       );
     } catch (error) {
       console.error("Error initializing FishFactory:", error);
@@ -52,7 +52,7 @@ class FishFactory {
       let fish = new Fish(
         terrain_geometry,
         terrain_obj,
-        this.cloneScene(this.fishScene)
+        this.cloneScene(this.fishScene),
       );
       this.creatures.push(fish);
     }
@@ -61,7 +61,7 @@ class FishFactory {
       let jellyfish = new JellyFish(
         terrain_geometry,
         terrain_obj,
-        this.cloneScene(this.jellyfishScene)
+        this.cloneScene(this.jellyfishScene),
       );
       this.creatures.push(jellyfish);
     }
@@ -102,7 +102,7 @@ class FishFactory {
         (error) => {
           console.error(error);
           reject(error);
-        }
+        },
       );
     });
   }
@@ -114,8 +114,8 @@ class JellyFish extends Creature {
     this.looks_target = false;
     this.max_speed = 0.1;
     this.min_speed = -0.1;
-    this.spawn_y = -10;
-    this.max_y = -9;
+    this.spawn_y = -5;
+    this.max_y = -3;
     this.makeSomeCreatures();
   }
 }
@@ -126,7 +126,7 @@ class Fish extends Creature {
     this.looks_target = true;
     this.max_speed = 0.2;
     this.min_speed = -0.2;
-    this.spawn_y = -5;
+    this.spawn_y = -3;
     this.max_y = -1;
     this.makeSomeCreatures();
   }
