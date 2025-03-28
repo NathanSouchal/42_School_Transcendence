@@ -244,6 +244,7 @@ export default class State {
   }
 
   cancelMatchmaking() {
+    console.log("cancelling matchmaking");
     this.setIsSearching(false);
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.gameMode = "default";
