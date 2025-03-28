@@ -26,6 +26,8 @@ export default class GamePage {
     this.formState = {};
     this.leftPlayerName = "";
     this.rightPlayerName = "";
+    this.isProcessing = false;
+    this.lastClickTime = Date.now();
   }
 
   async initialize(routeParams = {}) {
@@ -35,7 +37,6 @@ export default class GamePage {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      // console.log("GamePage subscribed to state");
     }
     await updateView(this, {});
   }
@@ -126,6 +127,7 @@ export default class GamePage {
 
   async handleClick(param) {
     setDisable(true, param);
+    let elapsedTime;
     switch (param) {
       case "easy-btn":
         this.handleDifficultyChange("Easy");
@@ -143,39 +145,33 @@ export default class GamePage {
       case "start-pvr-game":
         this.haveToSelectBotDifficulty = true;
         await updateView(this, {});
-        // this.state.setGameStarted("PVR");
         break;
       case "start-online-pvp-game":
+        elapsedTime = Date.now() - this.lastClickTime;
+        if (this.state.state.gameIsTimer || elapsedTime < 1000) break;
         if (!this.state.state.isSearching) {
           this.state.startMatchmaking();
           await updateView(this, {});
-        } else {
-          this.state.cancelMatchmaking();
-          await updateView(this, {});
+          this.lastClickTime = Date.now(); // Correct Date.now() usage
         }
-        console.log(`isSearching: ${this.state.state.isSearching}`);
         break;
       case "resume-game":
         this.state.togglePause();
         break;
       case "exit-game":
-        this.state.setGameEnded();
-        // this.state.backToBackgroundPlay();
+        this.destroy();
         await updateView(this, {});
         break;
       case "exit-opponent-left-game":
-        if (this.state.state.opponentLeft)
-          this.state.state.opponentLeft = false;
-        (this.state.state.opponentUsername = trad[this.lang].game.opponent),
-          await updateView(this, {});
-        break;
-      case "back-arrow":
-        this.state.setGameEnded();
+        this.destroy();
+        await updateView(this, {});
         break;
       case "toggle-pause":
         this.state.togglePause();
         break;
       case "cancel-pvp-search":
+        elapsedTime = Date.now() - this.lastClickTime;
+        if (this.state.state.gameIsTimer || elapsedTime < 1000) break;
         this.state.cancelMatchmaking();
         await updateView(this, {});
         break;
@@ -204,8 +200,8 @@ export default class GamePage {
   }
 
   async saveGame() {
-    console.log("posting data for game");
-    if (!this.state.isUserLoggedIn) return;
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     //No user logged in so no score to save in database
     if (this.state.state.opponentId && this.state.state.userSide === "left")
       return;
@@ -220,6 +216,7 @@ export default class GamePage {
     this.formState.score_player2 = parseInt(left);
 
     try {
+      console.log("posting data for game");
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
       console.error(error);
@@ -227,13 +224,14 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
       this.formState = {};
+      this.isProcessing = false;
     }
   }
 
   async saveGameOpponentLeft() {
     console.log("saveGameOpponentLeft()");
-    if (!this.state.isUserLoggedIn) return;
-
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     const { left, right } = this.state.score;
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = this.state.state.opponentId;
@@ -248,17 +246,20 @@ export default class GamePage {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
       this.formState = {};
+      this.isProcessing = false;
     }
   }
 
   async handleStateChange(newState) {
-    if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
-      await this.saveGame();
-      this.previousState = { ...newState };
-    } else if (newState.opponentLeft && !this.previousState.opponentLeft) {
+    if (newState.opponentLeft && !this.previousState.opponentLeft) {
       this.previousState = { ...newState };
       this.oldscore = { ...this.state.score };
       await this.saveGameOpponentLeft();
+      await updateView(this, {});
+    } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
+      this.oldscore = { ...this.state.score };
+      await this.saveGame();
+      this.previousState = { ...newState };
       await updateView(this, {});
     } else if (
       newState.gameIsPaused !== this.previousState.gameIsPaused ||
@@ -280,7 +281,6 @@ export default class GamePage {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        // console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -297,13 +297,13 @@ export default class GamePage {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      // console.log("Game page unsubscribed from state");
     }
     if (this.haveToSelectBotDifficulty) this.haveToSelectBotDifficulty = false;
     if (this.state.state.opponentLeft) this.state.state.opponentLeft = false;
+    this.state.setGameEnded();
     this.state.resetScore();
-    this.state.setDestroyGame();
-    this.state.state.opponentUsername = trad[this.lang].game.opponent;
+    this.state.state.gameHasBeenWon = false;
+    this.state.state.opponentUsername = null;
   }
 
   renderSelectBotDifficulty() {
@@ -469,13 +469,18 @@ export default class GamePage {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("GamePage subscribed to state");
     }
     const { gameStarted, gameIsPaused, gameHasBeenWon } = this.state.state;
 
     const renderGame = document.getElementById("app");
     const menuButton = document.getElementById("toggle-button");
 
+    console.log(
+      "gameStarted, gameHasBeenWon, opponentLeft : ",
+      gameStarted,
+      gameHasBeenWon,
+      this.state.state.opponentLeft,
+    );
     if (this.state.state.opponentLeft) {
       renderGame.className = "app";
       menuButton.className = "toggle-button";

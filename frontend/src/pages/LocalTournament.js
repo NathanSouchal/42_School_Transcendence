@@ -50,7 +50,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     await updateView(this, {});
   }
@@ -246,28 +245,7 @@ export default class LocalTournament {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      //   alert("Game loaded or lang change");
-      console.log(
-        newState.gameHasLoaded,
-        this.previousState.gameHasLoaded,
-        newState.lang,
-        this.previousState.lang
-      );
       await updateView(this, {});
-    } else if (
-      (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
-      this.state.score["left"] !== this.oldscore["left"] ||
-      this.state.score["right"] !== this.oldscore["right"]
-    ) {
-      if (container) {
-        container.innerHTML = "";
-        container.className = "";
-        this.previousState = { ...newState };
-        this.oldscore = { ...this.state.score };
-        await updateView(this, {});
-        // alert("Game started or game paused set to false");
-      }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       if (
         this.state.isUserLoggedIn &&
@@ -280,7 +258,26 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game won");
+        this.oldscore = { ...this.state.score };
+        await updateView(this, {});
+      }
+    } else if (newState.gameStarted && !this.previousState.gameStarted) {
+      console.log("new game started in handlestatechange");
+      if (container) {
+        container.innerHTML = "";
+        container.className = "";
+        this.previousState = { ...newState };
+        await updateView(this, {});
+      }
+    } else if (
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
+    ) {
+      if (container) {
+        container.className = "";
+        this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -288,7 +285,6 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -301,10 +297,7 @@ export default class LocalTournament {
     if (key === "pause-game") this.state.togglePause(true);
     else if (key === "resume-game") this.state.togglePause(false);
     else if (key === "exit-tournament" || key === "game-menu-button") {
-      this.state.setGameEnded();
-      this.resetAttributes();
-      this.state.state.gameHasBeenWon = false;
-      this.state.backToBackgroundPlay();
+      this.destroy();
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
@@ -414,7 +407,7 @@ export default class LocalTournament {
       this.formState.score_player2 = parseInt(left);
       this.formState.opponentName = this.MatchToPlay.player1;
     }
-    console.warn("posting data for game");
+    console.warn("posting data for tournament");
     console.log(this.formState.player1, this.formState.player2);
     try {
       await API.post(`/game/list/`, this.formState);
@@ -450,6 +443,10 @@ export default class LocalTournament {
       }
     } catch (error) {
       console.error(`Error while trying to update match data : ${error}`);
+    } finally {
+      this.state.state.gameHasBeenWon = false;
+      if (!this.tournamentFinished) this.state.resetScore();
+      this.oldscore = {};
     }
   }
 
@@ -502,7 +499,6 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -513,11 +509,11 @@ export default class LocalTournament {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("LocalTournament page unsubscribed from state");
     }
     this.resetAttributes();
+    this.state.setGameEnded();
     this.state.resetScore();
-    this.state.setDestroyGame();
+    this.state.state.gameHasBeenWon = false;
   }
 
   renderSelectNbPlayers() {
@@ -673,7 +669,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
     else this.userAlias = "";

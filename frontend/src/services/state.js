@@ -1,4 +1,5 @@
 import { header } from "../app";
+//import gameScene from "../game/src/main";
 import { trad } from "../trad";
 import { handleLangDiv } from "../utils";
 
@@ -23,7 +24,7 @@ export default class State {
       userId: "0",
       lang: "EN",
       opponentId: null,
-      opponentUsername: trad["EN"].game.opponent,
+      opponentUsername: null,
       opponentLeft: false,
       userSide: null,
       username: null,
@@ -128,6 +129,7 @@ export default class State {
 
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
+    //gameScene.handleStateChange();
     this.notifyListeners();
   }
 
@@ -137,6 +139,7 @@ export default class State {
     if (gameMode !== "default") {
       if (header.isGuestRendered) header.isGuestRendered = false;
       if (header.isUserRendered) header.isUserRendered = false;
+      console.log("setting gameIsTimer to true");
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
       await this.displayTimerBeforeGameStart();
@@ -166,10 +169,11 @@ export default class State {
       this.gameManager.connect();
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-
-    if (!this.state.opponentLeft) this.resetScore();
-    if (gameMode !== "default") this.state.gameStarted = true;
-    this.state.gameHasBeenWon = false;
+    if (gameMode !== "default") {
+      console.log("gameMode HERE : ", gameMode);
+      this.state.gameStarted = true;
+      this.resetScore();
+    }
     this.setGameNeedsReset(true);
   }
 
@@ -242,6 +246,7 @@ export default class State {
   }
 
   cancelMatchmaking() {
+    console.log("cancelling matchmaking");
     this.setIsSearching(false);
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.gameMode = "default";
@@ -255,31 +260,14 @@ export default class State {
   }
 
   setGameEnded() {
-    console.log("setGameEnded()");
+    console.log("setGameEnded()1");
+    if (this.gameMode === "default") return;
+    console.log("setGameEnded()2");
+    this.state.gameStarted = false;
     this.scores.push(this.score);
-    this.setDestroyGame();
-    this.setGameNeedsReset(true);
-    this.notifyListeners();
-  }
-
-  setDestroyGame() {
-    console.log("setDestroyGame()");
     this.state.gameIsTimer = false;
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    if (this.state.gameStarted) this.state.gameStarted = false;
-    if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
-    this.gameMode = "default";
+    this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
-  }
-
-  opponentLeft() {
-    this.state.opponentLeft = true;
-    this.setDestroyGame();
-    this.backToBackgroundPlay();
-  }
-
-  backToBackgroundPlay() {
-    this.state.gameHasBeenWon = false;
     this.setGameStarted("default");
   }
 
@@ -295,13 +283,15 @@ export default class State {
   }
 
   updateScore(side, points) {
+    if (this.state.gameHasBeenWon || this.gameMode === "default") return;
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
     );
     if (this.score[side] === this.gamePoints) {
-      this.setGameEnded();
       this.state.gameHasBeenWon = true;
+      this.setGameEnded();
+      return;
     }
     this.notifyListeners();
   }
@@ -318,7 +308,7 @@ export default class State {
     if (typeof listener !== "function") {
       throw new TypeError("Le listener doit être une fonction.");
     }
-    //console.log("Abonnement ajouté :", listener.name || listener);
+    // console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 
@@ -328,6 +318,7 @@ export default class State {
   }
 
   notifyListeners() {
+    console.log("notify listeners");
     this.listeners.forEach((listener) => listener(this.state));
   }
 }

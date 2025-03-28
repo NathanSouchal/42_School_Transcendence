@@ -42,7 +42,6 @@ export default class User {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("User page subscribed to state");
     }
     this.pageId = routeParams.id;
     if (!this.state.state.gameHasLoaded) return;
@@ -291,7 +290,6 @@ export default class User {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -302,7 +300,6 @@ export default class User {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("User page unsubscribed from state");
     }
     this.pageId = null;
     this.isInitialized = false;
@@ -328,7 +325,6 @@ export default class User {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("User page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

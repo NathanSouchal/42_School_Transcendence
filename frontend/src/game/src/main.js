@@ -11,7 +11,7 @@ let gameManager = new GameManager(
     paddleRight: gameScene.paddleRight,
     ball: gameScene.ball,
   },
-  gameScene
+  gameScene,
 );
 
 state.gameManager = gameManager;

@@ -128,15 +128,6 @@ canvas#c {
   }
 }
 
-.back-arrow {
-  font-size: 70px;
-  color: var(--blue);
-  text-decoration: none;
-  position: absolute;
-  top: 10px;
-  left: 30px;
-}
-
 .game-hud {
   position: absolute;
   display: flex;

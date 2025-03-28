@@ -22,7 +22,6 @@ export default class Rules {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Rules page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, {});
@@ -67,7 +66,6 @@ export default class Rules {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -75,11 +73,9 @@ export default class Rules {
 
   destroy() {
     this.removeEventListeners();
-    console.log("Rules destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Rules page unsubscribed from state");
     }
   }
 
@@ -90,7 +86,6 @@ export default class Rules {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Rules page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);
