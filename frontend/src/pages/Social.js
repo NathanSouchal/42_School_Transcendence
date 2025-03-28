@@ -119,6 +119,7 @@ export default class Social {
           if (res) friend.avatar = `${friend.avatar}`;
           else friend.avatar = "/profile.jpeg";
         }
+        else friend.avatar = "/profile.jpeg";
       }
     } catch (error) {
       console.error(error);
@@ -130,19 +131,22 @@ export default class Social {
       const res = await API.get(`/friend-requests/byuser/${id}/`);
       this.invitations = res.data.pending_friend_requests;
       for (let invitation of this.invitations) {
-        if (invitation.from_user && invitation.from_user.avatar) {
+        // console.log("invitation.from_user.avatar: ", invitation.from_user.avatar, "invitation.to_user.avatar: ", invitation.to_user.avatar);
+        if (invitation.from_user) {
           const res = await this.buildAvatarImgLink(
             invitation.from_user.avatar
           );
-          if (res)
+          if (res && invitation.from_user.avatar !== null) {
+            console.log("invitation.from_user.avatar: ", invitation.from_user.avatar);
             invitation.from_user.avatar = `${invitation.from_user.avatar}`;
+          }
           else invitation.from_user.avatar = "/profile.jpeg";
         }
       }
       for (let invitation of this.invitations) {
-        if (invitation.to_user && invitation.to_user.avatar) {
+        if (invitation.to_user) {
           const res = await this.buildAvatarImgLink(invitation.to_user.avatar);
-          if (res) invitation.to_user.avatar = `${invitation.to_user.avatar}`;
+          if (res && invitation.to_user.avatar !== null) invitation.to_user.avatar = `${invitation.to_user.avatar}`;
           else invitation.to_user.avatar = "/profile.jpeg";
         }
       }
