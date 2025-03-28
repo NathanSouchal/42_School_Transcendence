@@ -8,6 +8,7 @@ from api.serializers import FriendRequestSerializer, UserSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
+from django.db.models import Q
 
 
 class FriendRequestView(APIView):
@@ -49,7 +50,17 @@ class FriendRequestCreateView(APIView):
 
     def post(self, request):
         try:
-            print(f"coucou {request.data}")
+            from_user = request.data.get("from_user")
+            to_user = request.data.get("to_user")
+            exists = FriendRequest.objects.filter(
+                Q(from_user__id=from_user, to_user__id=to_user) |
+                Q(from_user__id=to_user, to_user__id=from_user)
+            ).exists()
+            if exists:
+                return Response(
+                    {"error": "A friend request already exists between these users."},
+                    status=status.HTTP_409_CONFLICT
+                )
             serialized = FriendRequestSerializer(data=request.data)
             if serialized.is_valid():
                 friendrequest = serialized.save()
