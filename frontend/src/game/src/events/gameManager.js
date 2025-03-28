@@ -27,6 +27,30 @@ export class GameManager {
     this.createNewConnection();
     this.setupSocketEventHandlers();
 
+    try {
+      await new Promise((resolve, reject) => {
+        this.socket.addEventListener(
+          "open",
+          () => {
+            console.log("✅ Socket ouverte !");
+            resolve();
+          },
+          { once: true }
+        );
+        this.socket.addEventListener(
+          "error",
+          (error) => {
+            console.error("Erreur lors de l'ouverture de la socket :", error);
+            reject(error);
+          },
+          { once: true }
+        );
+      });
+    } catch (error) {
+      console.error("La connexion n'a pas pu être établie.", error);
+      return;
+    }
+
     this.pingInterval = setInterval(() => {
       this.sendPing();
       if (state.gameMode !== "default") {

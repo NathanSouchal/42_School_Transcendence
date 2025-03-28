@@ -46,9 +46,7 @@ class FriendView(APIView):
 		try:
 			user = request.user
 			friend = get_object_or_404(User, id=friend_id)
-			friendrequest = FriendRequest.objects.filter(Q(from_user=user, to_user=friend) | Q(from_user=friend, to_user=user)).first()
-			if friendrequest:
-				friendrequest.delete()
+			if friend:
 				user.friends.remove(friend)
 				friend.friends.remove(user)
 				return (Response({"message": "Friend deleted"}, status=status.HTTP_200_OK))

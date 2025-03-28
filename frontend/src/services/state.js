@@ -245,10 +245,18 @@ export default class State {
     this.setGameStarted(this.gameMode);
   }
 
-  cancelMatchmaking() {
+  async cancelMatchmaking() {
     console.log("cancelling matchmaking");
     this.setIsSearching(false);
-    if (this.gameManager?.socket) this.gameManager.socket.close();
+	if (this.gameManager?.socket) {
+		await new Promise((resolve) => {
+		  this.gameManager.socket.addEventListener("close", () => {
+			console.log("✅ Socket fermée !");
+			resolve();
+		  }, { once: true });
+		  this.gameManager.socket.close();
+		});
+	  }
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
     //this.setGameStarted("default");

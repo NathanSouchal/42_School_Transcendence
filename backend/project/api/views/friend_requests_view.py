@@ -31,12 +31,19 @@ class FriendRequestView(APIView):
             friendrequest = get_object_or_404(FriendRequest, id=id)
             serialized = FriendRequestSerializer(friendrequest, data=request.data, partial=True)
             if serialized.is_valid():
-                if serialized.validated_data['accepted'] is True:
+                accepted = serialized.validated_data.get('accepted', None)
+                if accepted is True:
                     friendrequest.accept()
-                    return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': f'friend request with id {id} has been accepted.'}, status=status.HTTP_200_OK)
-                else :
+                    data = FriendRequestSerializer(friendrequest).data
+                    friendrequest.delete()
+                    return Response({'friend request': data, 'message': f'friend request with id {id} has been accepted.'}, status=status.HTTP_200_OK)
+                elif accepted is False:
                     friendrequest.decline()
-                    return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': f'friend request with id {id} has been declined.'}, status=status.HTTP_200_OK)
+                    data = FriendRequestSerializer(friendrequest).data
+                    friendrequest.delete()
+                    return Response({'friend request': data, 'message': f'friend request with id {id} has been declined.'}, status=status.HTTP_200_OK)
+                else:
+                    return Response({'error': "'accepted' field must be true or false."}, status=status.HTTP_400_BAD_REQUEST)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
         except Http404:
             return Response({'error': 'friend request not found.'}, status=status.HTTP_404_NOT_FOUND)
