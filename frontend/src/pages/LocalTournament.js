@@ -240,27 +240,11 @@ export default class LocalTournament {
 
   async handleStateChange(newState) {
     let container = document.getElementById("app");
-    console.log(
-      "newState.gameStarted, newState.gameHasBeenWon : ",
-      newState.gameStarted,
-      newState.gameHasBeenWon,
-      "this.state.score[left] this.oldscore[left] this.state.score[right] this.oldscore[right]",
-      this.state.score["left"],
-      this.oldscore["left"],
-      this.state.score["right"],
-      this.oldscore["right"]
-    );
     if (
       (newState.gameHasLoaded && !this.previousState.gameHasLoaded) ||
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      console.log(
-        newState.gameHasLoaded,
-        this.previousState.gameHasLoaded,
-        newState.lang,
-        this.previousState.lang
-      );
       await updateView(this, {});
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       if (
@@ -278,13 +262,11 @@ export default class LocalTournament {
         await updateView(this, {});
       }
     } else if (newState.gameStarted && !this.previousState.gameStarted) {
-      this.state.score = { left: 0, right: 0 };
       console.log("new game started in handlestatechange");
       if (container) {
         container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
-        this.oldscore = { left: 0, right: 0 };
         await updateView(this, {});
       }
     } else if (
@@ -292,9 +274,7 @@ export default class LocalTournament {
       this.state.score["left"] !== this.oldscore["left"] ||
       this.state.score["right"] !== this.oldscore["right"]
     ) {
-      console.log("point update in handlestatechange");
       if (container) {
-        container.innerHTML = "";
         container.className = "";
         this.previousState = { ...newState };
         this.oldscore = { ...this.state.score };
@@ -461,6 +441,10 @@ export default class LocalTournament {
       }
     } catch (error) {
       console.error(`Error while trying to update match data : ${error}`);
+    } finally {
+      this.state.state.gameHasBeenWon = false;
+      if (!this.tournamentFinished) this.state.resetScore();
+      this.oldscore = {};
     }
   }
 
