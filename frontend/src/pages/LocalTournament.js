@@ -395,6 +395,8 @@ export default class LocalTournament {
   }
 
   async saveGame() {
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     const { left, right } = this.state.score;
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = null;
@@ -416,6 +418,7 @@ export default class LocalTournament {
     } finally {
       this.formState = {};
       await this.matchFinished();
+      this.isProcessing = false;
     }
   }
 

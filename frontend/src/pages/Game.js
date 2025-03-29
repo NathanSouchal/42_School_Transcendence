@@ -207,8 +207,10 @@ export default class GamePage {
     if (!this.state.isUserLoggedIn || this.isProcessing) return;
     this.isProcessing = true;
     //No user logged in so no score to save in database
+    console.log("saveGame()1");
     if (this.state.state.opponentId && this.state.state.userSide === "left")
       return;
+    console.log("saveGame()2");
     //Right player posts data only
     const { left, right } = this.state.score;
 
@@ -225,6 +227,7 @@ export default class GamePage {
     try {
       console.log("posting data for game");
       await API.post(`/game/list/`, this.formState);
+      console.log("saveGame()3");
     } catch (error) {
       console.error(error);
     } finally {
