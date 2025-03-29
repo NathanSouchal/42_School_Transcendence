@@ -117,8 +117,7 @@ export default class Social {
           const res = await this.buildAvatarImgLink(friend.avatar);
           if (res) friend.avatar = `${friend.avatar}`;
           else friend.avatar = "/profile.jpeg";
-        }
-        else friend.avatar = "/profile.jpeg";
+        } else friend.avatar = "/profile.jpeg";
       }
     } catch (error) {
       console.error(error);
@@ -136,16 +135,19 @@ export default class Social {
             invitation.from_user.avatar
           );
           if (res && invitation.from_user.avatar !== null) {
-            console.log("invitation.from_user.avatar: ", invitation.from_user.avatar);
+            console.log(
+              "invitation.from_user.avatar: ",
+              invitation.from_user.avatar
+            );
             invitation.from_user.avatar = `${invitation.from_user.avatar}`;
-          }
-          else invitation.from_user.avatar = "/profile.jpeg";
+          } else invitation.from_user.avatar = "/profile.jpeg";
         }
       }
       for (let invitation of this.invitations) {
         if (invitation.to_user) {
           const res = await this.buildAvatarImgLink(invitation.to_user.avatar);
-          if (res && invitation.to_user.avatar !== null) invitation.to_user.avatar = `${invitation.to_user.avatar}`;
+          if (res && invitation.to_user.avatar !== null)
+            invitation.to_user.avatar = `${invitation.to_user.avatar}`;
           else invitation.to_user.avatar = "/profile.jpeg";
         }
       }
@@ -301,7 +303,7 @@ export default class Social {
                             (value) => `
                       <div class="friends-item-social">
                         <div class="friends-item-img-username">
-                          <img width="50" height="50" src="${value.avatar}" class="rounded-circle">
+                          <img width="50" height="50" src="${value.avatar}">
                           <a href="/user/${value.id}/">
                             ${value.username}
                           </a>
@@ -337,7 +339,7 @@ export default class Social {
                         <div class="invitation-item-social">
                           <a href="/user/${value.to_user.id}/">
                             <div class="invitation-item-img-username">
-                              <img width="50" height="50" src="${value.to_user.avatar}" class="rounded-circle">
+                              <img width="50" height="50" src="${value.to_user.avatar}">
                               <p>${value.to_user.username}${trad[this.lang].social.waitingAcceptation}</p>
                             </div>
                           </a>
@@ -348,7 +350,7 @@ export default class Social {
                         <div class="invitation-item-social">
                           <a href="/user/${value.from_user.id}/">
                             <div class="invitation-item-img-username">
-                              <img width="50" height="50" src="${value.from_user.avatar}" class="rounded-circle">
+                              <img width="50" height="50" src="${value.from_user.avatar}">
                               <p>${value.from_user.username}</p>
                             </div>
                           </a>
