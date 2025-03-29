@@ -130,6 +130,7 @@ export default class State {
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
     //gameScene.handleStateChange();
+    console.log("notify listeners from setGameNeedsReset");
     this.notifyListeners();
   }
 
@@ -248,15 +249,19 @@ export default class State {
   async cancelMatchmaking() {
     console.log("cancelling matchmaking");
     this.setIsSearching(false);
-	if (this.gameManager?.socket) {
-		await new Promise((resolve) => {
-		  this.gameManager.socket.addEventListener("close", () => {
-			console.log("✅ Socket fermée !");
-			resolve();
-		  }, { once: true });
-		  this.gameManager.socket.close();
-		});
-	  }
+    if (this.gameManager?.socket) {
+      await new Promise((resolve) => {
+        this.gameManager.socket.addEventListener(
+          "close",
+          () => {
+            console.log("✅ Socket fermée !");
+            resolve();
+          },
+          { once: true }
+        );
+        this.gameManager.socket.close();
+      });
+    }
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
     //this.setGameStarted("default");
@@ -264,6 +269,7 @@ export default class State {
 
   setIsSearching(bool) {
     this.state.isSearching = bool;
+    console.log("notify listeners from setIsSearching");
     this.notifyListeners();
   }
 
@@ -294,13 +300,14 @@ export default class State {
     if (this.state.gameHasBeenWon || this.gameMode === "default") return;
     this.score[side] += points;
     console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`,
+      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
       this.state.gameHasBeenWon = true;
       this.setGameEnded();
       return;
     }
+    console.log("notify listeners from updateScore");
     this.notifyListeners();
   }
 

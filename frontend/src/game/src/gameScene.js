@@ -54,7 +54,7 @@ export class GameScene {
     if (this.state.state.gameNeedsReset === true) {
       this.resetControls();
       this.state.setGameNeedsReset(false);
-      this.state.notifyListeners();
+      //   this.state.notifyListeners();
     }
   }
 
