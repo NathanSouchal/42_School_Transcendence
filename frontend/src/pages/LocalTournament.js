@@ -517,6 +517,7 @@ export default class LocalTournament {
     this.state.setGameEnded();
     this.state.resetScore();
     this.state.state.gameHasBeenWon = false;
+    handleLangDiv(false);
   }
 
   renderSelectNbPlayers() {

@@ -314,6 +314,7 @@ export default class GamePage {
     this.state.resetScore();
     this.state.state.gameHasBeenWon = false;
     this.state.state.opponentUsername = null;
+    handleLangDiv(false);
   }
 
   renderSelectBotDifficulty() {

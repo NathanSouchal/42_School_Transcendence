@@ -146,7 +146,6 @@ export default class State {
       await this.displayTimerBeforeGameStart();
       console.log("this.state.gameIsTimer : ", this.state.gameIsTimer);
       if (!this.state.gameIsTimer) {
-        handleLangDiv(false);
         return;
       }
       this.state.gameIsTimer = false;

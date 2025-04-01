@@ -19,16 +19,19 @@ export async function updateView(context, routeParams = {}) {
     }
   }, 50);
   const selectedLangImg = document.getElementById("selected-lang-img");
-  if ((state.state.lang !== context.lang) & selectedLangImg)
-    if (state.state.lang === "EN") {
-      selectedLangImg.src = "english.jpg";
-    } else if (state.state.lang === "ES") {
-      selectedLangImg.src = "spanish.jpg";
-    } else if (state.state.lang === "FR") {
-      selectedLangImg.src = "french.jpg";
-    } else if (state.state.lang === "CR") {
-      selectedLangImg.src = "crab.jpg";
+  if (selectedLangImg) {
+    if (state.state.lang !== context.lang) {
+      if (state.state.lang === "EN") {
+        selectedLangImg.src = "english.jpg";
+      } else if (state.state.lang === "ES") {
+        selectedLangImg.src = "spanish.jpg";
+      } else if (state.state.lang === "FR") {
+        selectedLangImg.src = "french.jpg";
+      } else if (state.state.lang === "CR") {
+        selectedLangImg.src = "crab.jpg";
+      }
     }
+  }
 
   const container = document.getElementById("app");
   if (container) {
@@ -58,7 +61,6 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   }
 
   if (langChange) {
-    console.log("Lang reset in handleHeader");
     if (isUserLoggedIn) header.updateLangUserLoggedIn();
     else header.updateLangGuestUser();
   }
