@@ -130,13 +130,13 @@ export default class GamePage {
     let elapsedTime;
     switch (param) {
       case "easy-btn":
-        this.handleDifficultyChange("Easy");
+        this.handleDifficultyChange(4);
         break;
       case "normal-btn":
-        this.handleDifficultyChange("Normal");
+        this.handleDifficultyChange(5);
         break;
       case "difficult-btn":
-        this.handleDifficultyChange("Hard");
+        this.handleDifficultyChange(6);
         break;
       case "start-pvp-game":
         if (this.state.state.isSearching) await this.state.cancelMatchmaking();
