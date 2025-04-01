@@ -198,7 +198,7 @@ class RoomInitialization:
     async def erase_rooms_containing_player(self, user):
         for room_name, room_data in self.consumer.rooms.items():
             for player in room_data["players"]:
-                if player["user_id"] == user.id:
+                if player["channel_name"] == self.consumer.channel_name:
                     room_data["players"].remove(player)
                     print(f"Removed user {user.username} from room {room_name}")
 
