@@ -91,6 +91,7 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
+      //   console.log("clicked on : ", path);
       if (path === "/") this.redirectHome();
       else router.navigate(path);
     }
