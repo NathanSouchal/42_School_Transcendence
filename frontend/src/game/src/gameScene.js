@@ -67,8 +67,7 @@ export class GameScene {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
-    if (this.camera.isOrthographicCamera) {
-    if (this.camera && this.camera.isOrthographicCamera) {
+    if (this.camera?.isOrthographicCamera) {
       this.camera.left = (-frustumSize * aspect) / 2;
       this.camera.right = (frustumSize * aspect) / 2;
       this.camera.top = frustumSize / 2;
