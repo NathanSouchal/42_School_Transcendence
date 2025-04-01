@@ -70,15 +70,6 @@ export default class GamePage {
       });
     }
 
-    // window.addEventListener('popstate', function(event) {
-    //   // const langDiv = document.getElementById("lang-div");
-    //   // if (langDiv)
-    //   //   langDiv.style.display = "block";
-    //   console.log("COUCOUCOUCOUCOU");
-    //   if (this.gameManager?.socket) this.gameManager.socket.close();
-    //   this.gameMode = "default";
-    // });
-
     const buttons = [
       { id: "toggle-pause", action: "toggle-pause" },
       { id: "start-pvp-game", action: "start-pvp-game" },
@@ -192,10 +183,6 @@ export default class GamePage {
 					</div>
 					<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>
 				</div>`;
-      //   const buttonDiv = document.getElementById("cancel-matchmaking");
-      //   if (buttonDiv) {
-      //     buttonDiv.innerHTML = `<button type="button" class="btn btn-danger m-3" id="cancel-pvp-search">${trad[this.lang].game.cancel}</button>`;
-      //   }
     } else
       template = `<div class="global-nav-items">
 					<button id="start-online-pvp-game">${trad[this.lang].game.onlineGame}</button>
@@ -315,6 +302,10 @@ export default class GamePage {
     this.state.state.gameHasBeenWon = false;
     this.state.state.opponentUsername = null;
     handleLangDiv(false);
+    if (this.state.abortController) {
+      this.state.abortController.abort();
+      this.state.abortController = null;
+    }
   }
 
   renderSelectBotDifficulty() {

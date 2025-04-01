@@ -37,6 +37,7 @@ export default class State {
     this.gameMode = "default";
     this.isUserLoggedIn = false;
     this.connectionIssue = false;
+    this.abortController = null;
 
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
@@ -143,7 +144,11 @@ export default class State {
       console.log("setting gameIsTimer to true");
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
-      await this.displayTimerBeforeGameStart();
+      try {
+        await this.displayTimerBeforeGameStart();
+      } catch (error) {
+        return;
+      }
       console.log("this.state.gameIsTimer : ", this.state.gameIsTimer);
       if (!this.state.gameIsTimer) {
         return;
@@ -179,7 +184,7 @@ export default class State {
   }
 
   async waitForCountdownEnd() {
-    await new Promise((resolve) => {
+    await new Promise((resolve, reject) => {
       const checkInterval = setInterval(() => {
         if (this.state.other_player_ready && !this.state.opponentLeft) {
           clearInterval(checkInterval);
@@ -194,7 +199,10 @@ export default class State {
   }
 
   async displayTimerBeforeGameStart(durationSeconds = 3) {
-    return new Promise((resolve) => {
+    if (this.abortController) this.abortController.abort();
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+    return new Promise((resolve, reject) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
       const langDiv = document.getElementById("lang-div");
@@ -212,6 +220,13 @@ export default class State {
       let countdown = durationSeconds;
 
       const interval = setInterval(() => {
+        if (signal.aborted) {
+          clearInterval(interval);
+          const timerOverlay = container.querySelector(".timer-overlay");
+          if (timerOverlay) timerOverlay.remove();
+          reject(new Error("Timer aborted due to destroy"));
+        }
+
         countdown--;
         countdownElement.textContent = countdown;
 
@@ -219,7 +234,6 @@ export default class State {
           clearInterval(interval);
           const timerOverlay = container.querySelector(".timer-overlay");
           if (timerOverlay) timerOverlay.remove();
-          //   if (langDiv) langDiv.style.display = "block";
           resolve();
         }
       }, 1000);
@@ -298,7 +312,13 @@ export default class State {
   }
 
   updateScore(side, points) {
-    if (this.state.gameHasBeenWon || this.gameMode === "default") return;
+    if (
+      this.state.gameHasBeenWon ||
+      this.gameMode === "default" ||
+      this.state.isSearching
+    )
+      return;
+    console.log("GAMEMODE : ", this.gameMode);
     this.score[side] += points;
     console.log(
       `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
