@@ -548,7 +548,7 @@ export default class LocalTournament {
   renderPauseMenu() {
     handleLangDiv(false);
     return `
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				<div class="position-relative d-flex justify-content-center align-items-center">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
 							<h1>${trad[this.lang].localTournament.paused}</h1>

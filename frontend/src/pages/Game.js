@@ -408,7 +408,7 @@ export default class GamePage {
     }
     handleLangDiv(false);
     return `<div>
-				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				  <div class="position-relative d-flex justify-content-center align-items-center">
 					  <div class="global-nav-section">
 						  <div class="game-paused-title">
 							  <h1>${trad[this.lang].game.paused}</h1>
@@ -431,7 +431,7 @@ export default class GamePage {
 
     return `
 			  <div>
-				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				  <div class="position-relative d-flex justify-content-center align-items-center">
 					  <div class="global-nav-section">
 						  <div class="game-ended-score">
 							  <h1>${left} - ${right}</h1>
@@ -454,7 +454,7 @@ export default class GamePage {
 
     return `
 			  <div>
-				  <div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				  <div class="position-relative d-flex justify-content-center align-items-center">
 					  <div class="global-nav-section">
 						  <div class="game-ended-score">
 							<h1>${this.state.state.opponentUsername}${trad[this.lang].game.leave}</h1>
