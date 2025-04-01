@@ -302,6 +302,7 @@ export default class GamePage {
     this.state.state.gameHasBeenWon = false;
     this.state.state.opponentUsername = null;
     handleLangDiv(false);
+    this.state.state.waitingOtherPlayer = false;
     if (this.state.abortController) {
       this.state.abortController.abort();
       this.state.abortController = null;

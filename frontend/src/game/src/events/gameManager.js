@@ -244,6 +244,7 @@ export class GameManager {
 
   sendMessage(data) {
     if (!this.isSocketReady()) {
+      console.error("Reconnecting socket");
       this.reconnect();
       return;
     }

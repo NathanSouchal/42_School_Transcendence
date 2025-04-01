@@ -32,6 +32,7 @@ export default class State {
       latency: 0,
       gameIsTimer: false,
       other_player_ready: false,
+      waitingOtherPlayer: false,
       previousGameMode: "default",
     };
     this.gameMode = "default";
@@ -158,6 +159,7 @@ export default class State {
         this.gameManager.sendCountdownEnded();
         try {
           await this.waitForCountdownEnd();
+          this.state.waitingOtherPlayer = false;
         } catch (error) {
           console.error("Countdown error, opponent left");
           return;
@@ -184,6 +186,7 @@ export default class State {
   }
 
   async waitForCountdownEnd() {
+    this.state.waitingOtherPlayer = true;
     await new Promise((resolve, reject) => {
       const checkInterval = setInterval(() => {
         if (this.state.other_player_ready && !this.state.opponentLeft) {
@@ -191,7 +194,11 @@ export default class State {
           this.state.other_player_ready = false;
           resolve();
         } else if (this.state.opponentLeft) {
+          clearInterval(checkInterval);
           reject(new Error("Opponent left"));
+        } else if (!this.state.waitingOtherPlayer) {
+          clearInterval(checkInterval);
+          reject(new Error("Detroyed gamepage"));
         }
         console.log("Waiting for other player to end coundown");
       }, 100);
