@@ -288,7 +288,7 @@ export default class GamePage {
     if (renderGame) renderGame.className = "app";
     const menuButton = document.getElementById("toggle-button");
     if (menuButton) menuButton.className = "toggle-button";
-    console.log("DESTROYYY");
+    console.log("Destroyed game page");
     this.removeEventListeners();
     if (this.state.state.isSearching) await this.state.cancelMatchmaking();
     if (this.isSubscribed) {
