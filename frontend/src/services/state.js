@@ -133,7 +133,7 @@ export default class State {
     console.log("notify listeners from setGameNeedsReset");
     this.notifyListeners();
   }
-
+  //gameIsTimer()
   async setGameStarted(gameMode) {
     console.log("setGameStarted()");
     console.log("gameMode: " + gameMode);
@@ -144,6 +144,7 @@ export default class State {
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
       await this.displayTimerBeforeGameStart();
+      console.log("this.state.gameIsTimer : ", this.state.gameIsTimer);
       if (!this.state.gameIsTimer) {
         handleLangDiv(false);
         return;
@@ -193,7 +194,7 @@ export default class State {
     });
   }
 
-  displayTimerBeforeGameStart(durationSeconds = 3) {
+  async displayTimerBeforeGameStart(durationSeconds = 3) {
     return new Promise((resolve) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
@@ -275,11 +276,12 @@ export default class State {
 
   setGameEnded() {
     console.log("setGameEnded()1");
+    this.state.gameIsTimer = false;
     if (this.gameMode === "default") return;
     console.log("setGameEnded()2");
     this.state.gameStarted = false;
     this.scores.push(this.score);
-    this.state.gameIsTimer = false;
+    // this.state.gameIsTimer = false;
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");
