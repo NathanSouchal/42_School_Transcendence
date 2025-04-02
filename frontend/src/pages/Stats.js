@@ -86,7 +86,6 @@ export default class Stats {
 
   destroy() {
     this.removeEventListeners();
-    console.log("Stats destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
@@ -108,10 +107,7 @@ export default class Stats {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    console.log(
-      "STATS: " +
-        Object.entries(this.stats).map(([key, value]) => `${key}: ${value}`)
-    );
+
     let template;
     if (this.stats && Object.keys(this.stats).length > 0) {
       template = `

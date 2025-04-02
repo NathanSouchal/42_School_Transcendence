@@ -32,11 +32,13 @@ export default class State {
       latency: 0,
       gameIsTimer: false,
       other_player_ready: false,
+      waitingOtherPlayer: false,
       previousGameMode: "default",
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
     this.connectionIssue = false;
+    this.abortController = null;
 
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
@@ -143,8 +145,11 @@ export default class State {
       console.log("setting gameIsTimer to true");
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
-      await this.displayTimerBeforeGameStart();
-      console.log("this.state.gameIsTimer : ", this.state.gameIsTimer);
+      try {
+        await this.displayTimerBeforeGameStart();
+      } catch (error) {
+        return;
+      }
       if (!this.state.gameIsTimer) {
         return;
       }
@@ -153,6 +158,7 @@ export default class State {
         this.gameManager.sendCountdownEnded();
         try {
           await this.waitForCountdownEnd();
+          this.state.waitingOtherPlayer = false;
         } catch (error) {
           console.error("Countdown error, opponent left");
           return;
@@ -171,7 +177,6 @@ export default class State {
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     if (gameMode !== "default") {
-      console.log("gameMode HERE : ", gameMode);
       this.state.gameStarted = true;
       this.resetScore();
     }
@@ -179,14 +184,19 @@ export default class State {
   }
 
   async waitForCountdownEnd() {
-    await new Promise((resolve) => {
+    this.state.waitingOtherPlayer = true;
+    await new Promise((resolve, reject) => {
       const checkInterval = setInterval(() => {
         if (this.state.other_player_ready && !this.state.opponentLeft) {
           clearInterval(checkInterval);
           this.state.other_player_ready = false;
           resolve();
         } else if (this.state.opponentLeft) {
+          clearInterval(checkInterval);
           reject(new Error("Opponent left"));
+        } else if (!this.state.waitingOtherPlayer) {
+          clearInterval(checkInterval);
+          reject(new Error("Detroyed gamepage"));
         }
         console.log("Waiting for other player to end coundown");
       }, 100);
@@ -194,7 +204,10 @@ export default class State {
   }
 
   async displayTimerBeforeGameStart(durationSeconds = 3) {
-    return new Promise((resolve) => {
+    if (this.abortController) this.abortController.abort();
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+    return new Promise((resolve, reject) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
       const langDiv = document.getElementById("lang-div");
@@ -212,6 +225,13 @@ export default class State {
       let countdown = durationSeconds;
 
       const interval = setInterval(() => {
+        if (signal.aborted) {
+          clearInterval(interval);
+          const timerOverlay = container.querySelector(".timer-overlay");
+          if (timerOverlay) timerOverlay.remove();
+          reject(new Error("Timer aborted due to destroy"));
+        }
+
         countdown--;
         countdownElement.textContent = countdown;
 
@@ -219,7 +239,6 @@ export default class State {
           clearInterval(interval);
           const timerOverlay = container.querySelector(".timer-overlay");
           if (timerOverlay) timerOverlay.remove();
-          //   if (langDiv) langDiv.style.display = "block";
           resolve();
         }
       }, 1000);
@@ -231,6 +250,7 @@ export default class State {
       console.warn("Matchmaking is already in progress!");
       return;
     }
+    console.error("STARTING MATCHMAKING");
     this.setIsSearching(true);
     this.gameMode = "Online";
     console.log("Starting Machmaking");
@@ -247,7 +267,7 @@ export default class State {
   }
 
   async cancelMatchmaking() {
-    console.log("cancelling matchmaking");
+    console.error("CANCELLING MATCHMAKING");
     this.setIsSearching(false);
     if (this.gameManager?.socket) {
       await new Promise((resolve) => {
@@ -274,10 +294,8 @@ export default class State {
   }
 
   setGameEnded() {
-    console.log("setGameEnded()1");
     this.state.gameIsTimer = false;
     if (this.gameMode === "default") return;
-    console.log("setGameEnded()2");
     this.state.gameStarted = false;
     this.scores.push(this.score);
     // this.state.gameIsTimer = false;
@@ -298,7 +316,12 @@ export default class State {
   }
 
   updateScore(side, points) {
-    if (this.state.gameHasBeenWon || this.gameMode === "default") return;
+    if (
+      this.state.gameHasBeenWon ||
+      this.gameMode === "default" ||
+      this.state.isSearching
+    )
+      return;
     this.score[side] += points;
     console.log(
       `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`

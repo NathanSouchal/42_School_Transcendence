@@ -123,7 +123,6 @@ export default class User {
       this.friends = response.data.friends;
       this.friendRequests = response.data.pending_friend_requests;
       await this.checkFriendStatus();
-      console.log(this.friends, this.friendRequests);
     } catch (error) {
       console.error(`Error while trying to get MyFriends : ${error}`);
       throw error;
@@ -136,7 +135,6 @@ export default class User {
         from_user: this.state.state.userId.toString(),
         to_user: this.pageId,
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
       throw error;
@@ -146,7 +144,6 @@ export default class User {
   async deleteFriend() {
     try {
       const res = await API.delete(`/friends/friend/${this.pageId}/`);
-      console.log(res.data);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
       throw error;
@@ -158,7 +155,6 @@ export default class User {
       const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "false",
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to cancel friend request : ${error}`);
       throw error;
@@ -170,7 +166,6 @@ export default class User {
       const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "true",
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
       throw error;

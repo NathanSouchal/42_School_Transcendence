@@ -185,7 +185,6 @@ export default class Account {
 
   handleChangeInput(e) {
     this.formData[e.target.name] = e.target.value;
-    console.log(this.formData);
   }
 
   async handleFile(key, file) {
@@ -217,7 +216,6 @@ export default class Account {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.formData.avatar = e.target.result;
-          console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
       } else label.textContent = trad[this.lang].account.fileLabel;
@@ -276,7 +274,6 @@ export default class Account {
       .forEach((input) => {
         input.disabled = true;
         input.required = false;
-        console.log("input.name : " + input.name);
         if (
           input.classList.contains("email2FA-input") &&
           !document.getElementById("email2FA-checkbox").checked
@@ -310,16 +307,12 @@ export default class Account {
   }
 
   async fetchData(id) {
-    console.log("Fetching data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
-      console.log(data);
       this.userData = data.user;
-      console.log("AVATAAAAR: ", data.user.avatar);
       if (data.user.avatar) await this.buildAvatarImgLink(data.user.avatar);
       else this.userData.avatar = "/profile.jpeg";
-      console.log("AVATAAAAR APRES BUILD: ", this.userData.avatar);
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
       this.formData.email = data.user.email;
@@ -336,9 +329,7 @@ export default class Account {
     try {
       const res = await axios.head(`${link}`);
       if (res.status === 200) this.userData.avatar = `${link}`;
-      console.log(res.status);
     } catch (error) {
-      console.log("ERROR: ", error);
       this.userData.avatar = "/profile.jpeg";
     }
   }
@@ -347,7 +338,6 @@ export default class Account {
     try {
       const response = await API.get(`/auth/generate-qrcode/`);
       const data = response.data;
-      console.log(data);
       const qrCode = document.getElementById("totp-qr-code");
       if (qrCode) {
         qrCode.src = `data:image/png;base64,${data.qr_code}`;
@@ -418,7 +408,9 @@ export default class Account {
       ) {
         const errorData = error.response.data;
         if (errorData.phone_number)
-          console.log(Object.values(errorData.phone_number));
+          this.displayAccountErrorMessage(
+            Object.values(errorData.phone_number)
+          );
         if (errorData.errors)
           this.displayAccountErrorMessage(Object.values(errorData.errors)[0]);
         else if (errorData.no_phone_number)
