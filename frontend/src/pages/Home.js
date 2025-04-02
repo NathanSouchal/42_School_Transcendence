@@ -21,7 +21,6 @@ export default class Home {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Home page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, {});
@@ -66,7 +65,6 @@ export default class Home {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -74,11 +72,9 @@ export default class Home {
 
   destroy() {
     this.removeEventListeners();
-    console.log("Home destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Home page unsubscribed from state");
     }
   }
 
@@ -89,7 +85,6 @@ export default class Home {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Home page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

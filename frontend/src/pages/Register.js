@@ -29,7 +29,6 @@ export default class Register {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Register page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
     else await updateView(this, {});
@@ -234,10 +233,9 @@ export default class Register {
         error.response.data
       ) {
         const errorData = error.response.data;
-        if (errorData.username) {
+        if (errorData.username)
           this.displayRegisterErrorMessage(Object.values(errorData.username));
-          console.log(Object.values(errorData.username));
-        } else if (errorData.password_match)
+        else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);
@@ -276,7 +274,6 @@ export default class Register {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -287,7 +284,6 @@ export default class Register {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Register page unsubscribed from state");
     }
     this.formState = {
       username: "",
@@ -301,7 +297,6 @@ export default class Register {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Register page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

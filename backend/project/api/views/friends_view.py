@@ -19,7 +19,7 @@ class FriendListView(APIView):
 			user = get_object_or_404(User, id=id)
 			return Response({'friend_list': UserSerializer(user).data['friends']}, status=status.HTTP_200_OK)
 		except Http404:
-			return Response({'error': 'Match history not found.'}, status=status.HTTP_404_NOT_FOUND)
+			return Response({'error': 'Friend list not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
@@ -37,6 +37,8 @@ class FriendView(APIView):
 				return (Response({"Friend": serializer.data}))
 			else:
 				return Response({"error": "This user is not in your friend list"}, status=status.HTTP_403_FORBIDDEN)
+		except Http404:
+			return Response({'error': 'Friend not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
@@ -46,14 +48,14 @@ class FriendView(APIView):
 		try:
 			user = request.user
 			friend = get_object_or_404(User, id=friend_id)
-			friendrequest = FriendRequest.objects.filter(Q(from_user=user, to_user=friend) | Q(from_user=friend, to_user=user)).first()
-			if friendrequest:
-				friendrequest.delete()
+			if friend:
 				user.friends.remove(friend)
 				friend.friends.remove(user)
 				return (Response({"message": "Friend deleted"}, status=status.HTTP_200_OK))
 			else:
 				return Response({"error": "This user is not in your friend list"}, status=status.HTTP_403_FORBIDDEN)
+		except Http404:
+			return Response({'error': 'Friend not found'}, status=status.HTTP_404_NOT_FOUND)
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:

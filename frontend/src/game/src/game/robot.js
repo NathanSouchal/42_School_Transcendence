@@ -5,8 +5,6 @@ class Robot {
   constructor(paddle, size) {
     this.paddle = paddle;
     this.size = size;
-    this.difficulty = state.botDifficulty;
-    this.inverseDifficulty = 6 - this.difficulty;
     this.deltaFactor = 30;
     this.half_width = 3.42;
     this.target_x = 0;
@@ -14,6 +12,18 @@ class Robot {
     this.timeSinceLastView = 0;
     this.action = "null";
     this.last_action = "null";
+    this.offsetRange = [];
+    switch (state.botDifficulty) {
+      case 4:
+        this.offsetRange = [1, 5];
+        break;
+      case 5:
+        this.offsetRange = [0, 3.5];
+        break;
+      case 6:
+        this.offsetRange = [0, 0];
+        break;
+    }
   }
 
   predictBallPosition(position, velocity) {
@@ -38,14 +48,19 @@ class Robot {
 
     if (this.target_x !== this.last_target_x) {
       this.offset =
-        this.inverseDifficulty >= 1
-          ? Math.random() * this.inverseDifficulty - 0.5
-          : 0;
+        Math.random() * (this.offsetRange[1] - this.offsetRange[0]) +
+        this.offsetRange[0];
       this.last_target_x = this.target_x;
+
+      // console.log("this.inverseDifficulty: ", this.inverseDifficulty);
+      // console.log("this.difficulty: ", this.difficulty);
+      // console.log("state.botDifficulty: ", state.botDifficulty);
     }
-    if (currentX + this.half_width < this.target_x + this.offset) {
+    if (currentX + this.half_width < this.target_x - this.offset) {
+      //   console.log("this.offset: ", this.offset);
       this.action = "up";
-    } else if (currentX - this.half_width > this.target_x - this.offset) {
+    } else if (currentX - this.half_width > this.target_x + this.offset) {
+      //   console.log("this.offset: ", this.offset);
       this.action = "down";
     } else {
       this.action = "stop";

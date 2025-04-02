@@ -5,28 +5,33 @@ import { router } from "./app";
 import DOMPurify from "dompurify";
 
 export async function updateView(context, routeParams = {}) {
-  const homeImg = document.getElementById("home-img-div");
-  const open = document.querySelector(".open");
-  if (homeImg) {
-    if (context.pageName === "Home") {
-      homeImg.style.opacity = 0;
-      homeImg.style.pointerEvents = "none";
-    } else if (!open) {
-      homeImg.style.opacity = 1;
-      homeImg.style.pointerEvents = "auto";
+  setTimeout(() => {
+    const homeImg = document.getElementById("home-img-div");
+    const open = document.querySelector(".open");
+    if (homeImg) {
+      if (context.pageName === "Home") {
+        homeImg.style.opacity = 0;
+        homeImg.style.pointerEvents = "none";
+      } else if (!open) {
+        homeImg.style.opacity = 1;
+        homeImg.style.pointerEvents = "auto";
+      }
+    }
+  }, 50);
+  const selectedLangImg = document.getElementById("selected-lang-img");
+  if (selectedLangImg) {
+    if (state.state.lang !== context.lang) {
+      if (state.state.lang === "EN") {
+        selectedLangImg.src = "english.jpg";
+      } else if (state.state.lang === "ES") {
+        selectedLangImg.src = "spanish.jpg";
+      } else if (state.state.lang === "FR") {
+        selectedLangImg.src = "french.jpg";
+      } else if (state.state.lang === "CR") {
+        selectedLangImg.src = "crab.jpg";
+      }
     }
   }
-  const selectedLangImg = document.getElementById("selected-lang-img");
-  if ((state.state.lang !== context.lang) & selectedLangImg)
-    if (state.state.lang === "EN") {
-      selectedLangImg.src = "english.jpg";
-    } else if (state.state.lang === "ES") {
-      selectedLangImg.src = "spanish.jpg";
-    } else if (state.state.lang === "FR") {
-      selectedLangImg.src = "french.jpg";
-    } else if (state.state.lang === "CR") {
-      selectedLangImg.src = "crab.jpg";
-    }
 
   const container = document.getElementById("app");
   if (container) {
@@ -56,14 +61,9 @@ export async function handleHeader(isUserLoggedIn, needsToDestroy, langChange) {
   }
 
   if (langChange) {
-    console.log("Lang reset in handleHeader");
     if (isUserLoggedIn) header.updateLangUserLoggedIn();
     else header.updateLangGuestUser();
   }
-  console.log(
-    "header.isUserRendered : " + header.isUserRendered,
-    "isUserLoggedIn : " + isUserLoggedIn
-  );
   if (
     (isUserLoggedIn && !header.isUserRendered) ||
     (!isUserLoggedIn && !header.isGuestRendered)
@@ -119,6 +119,7 @@ export async function checkUserStatus() {
     return true;
   } catch (error) {
     console.error(`Error while trying to check user status : ${error}`);
+    state.setIsUserLoggedIn(false);
     return false;
   }
 }

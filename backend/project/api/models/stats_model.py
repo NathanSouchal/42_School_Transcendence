@@ -13,7 +13,7 @@ class Stats(models.Model):
     def calculate_ratio(self):
         if self.losses == 0:
             return float(self.wins)  # Évite la division par zéro
-        return self.wins / self.losses
+        return round(self.wins / self.losses, 2)
 
     def calculate_nb_games(self):
         return self.wins + self.losses

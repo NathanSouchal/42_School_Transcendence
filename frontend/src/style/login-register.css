@@ -1,7 +1,7 @@
 .form-div-login-register {
   padding-top: 10%;
   height: 100%;
-  width: 50%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,14 +12,18 @@
 }
 
 .inputs-button-form-login-register {
-  width: 80%;
+  width: 70%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: column;
   gap: 0.3em;
 }
 
 .inputs-button-form-login-register input {
-  width: 100%;
+  width: 70%;
+  max-width: 500px;
+  min-width: 270px;
   font-family: var(--secondary-font);
   padding: 12px;
   font-size: 16px;
@@ -42,7 +46,9 @@
 }
 
 .form-button-login-register {
-  width: 100%;
+  width: 70%;
+  max-width: 500px;
+  min-width: 270px;
   padding: 12px;
   font-size: 18px;
   color: white;
@@ -162,9 +168,14 @@
   }
 }
 
+@media (max-width: 600px), (max-height: 700px) {
+  .form-div-login-register {
+    padding-top: 20%;
+  }
+}
+
 @media (max-width: 400px) {
   .form-div-login-register {
-    width: 90%;
-    padding: 1.5rem;
+    width: 100%;
   }
 }

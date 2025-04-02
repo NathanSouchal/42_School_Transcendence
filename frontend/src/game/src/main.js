@@ -11,7 +11,7 @@ let gameManager = new GameManager(
     paddleRight: gameScene.paddleRight,
     ball: gameScene.ball,
   },
-  gameScene
+  gameScene,
 );
 
 state.gameManager = gameManager;
@@ -25,6 +25,16 @@ window.addEventListener("resize", () => {
   gameScene?.handleResize();
   gameScene?.rendererInstance?.resizeRendererToDisplaySize();
 });
+
+// window.addEventListener("beforeunload", () => {
+//   if (
+//     GameManager &&
+//     GameManager.socket &&
+//     GameManager.socket.readyState === WebSocket.OPEN
+//   ) {
+//     GameManager.socket.close();
+//   }
+// });
 
 gameScene.rendererInstance.gameManager = gameManager;
 gameScene.rendererInstance.animate();

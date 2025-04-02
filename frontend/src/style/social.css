@@ -10,6 +10,11 @@
   /* scrollbar-width: none; */
 }
 
+.main-div-social img {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .main-div-social a {
   all: unset;
   display: revert;
@@ -236,6 +241,7 @@
     align-items: center;
     gap: 1.2em;
     overflow-y: auto;
+    scrollbar-width: none;
   }
 
   .friends-div-social {

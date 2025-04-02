@@ -145,7 +145,7 @@ class LoginView(APIView):
 		httponly=True,
 		secure=True,
 		samesite='None',
-		max_age=10 * 60  # 10 minutes
+		max_age=1 * 60  # 1 minutes
 		)
 		response.set_cookie(
 		key='refresh_token',
@@ -329,7 +329,7 @@ class AccessTokenView(APIView):
 				httponly=True,
 				secure=True,
 				samesite='None',
-				max_age=10 * 60
+				max_age=1 * 60
 			)
             return response
         except UserRefreshToken.DoesNotExist:

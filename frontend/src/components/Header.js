@@ -91,13 +91,12 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
-      if (path === "/") redirectHome();
+      if (path === "/") this.redirectHome();
       else router.navigate(path);
     }
   }
 
-  redirectHome(e) {
-    e.preventDefault();
+  redirectHome() {
     const homeImg = document.getElementById("home-img-div");
     if (homeImg && homeImg.style.opacity) {
       homeImg.style.opacity = 0;
@@ -176,7 +175,6 @@ export class Header {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -217,7 +215,6 @@ export class Header {
   }
 
   renderUserLoggedIn() {
-    console.log("renderUserLoggedIn Header");
     this.lang = this.state.state.lang;
     this.isUserRendered = true;
     this.isGuestRendered = false;
@@ -275,7 +272,6 @@ export class Header {
   }
 
   renderGuestUser() {
-    console.log("renderGuestUser Header");
     this.lang = this.state.state.lang;
     this.isUserRendered = false;
     this.isGuestRendered = true;

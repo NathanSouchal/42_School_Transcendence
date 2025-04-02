@@ -50,7 +50,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     await updateView(this, {});
   }
@@ -192,7 +191,6 @@ export default class LocalTournament {
     if (this.isProcessing) return;
     this.isProcessing = true;
     this.nbPlayers = value;
-    console.log(this.nbPlayers);
     await updateView(this, {});
     this.isProcessing = false;
   }
@@ -229,8 +227,6 @@ export default class LocalTournament {
         if (playerName) {
           this.playerList.push(playerName);
           this.inputCount++;
-          console.log(this.inputCount);
-          console.log(this.playerList.map((el) => el));
           if (this.inputCount == this.nbPlayers)
             await this.createLocalTournament();
           else await updateView(this, {});
@@ -246,28 +242,7 @@ export default class LocalTournament {
       newState.lang !== this.previousState.lang
     ) {
       this.previousState = { ...newState };
-      //   alert("Game loaded or lang change");
-      console.log(
-        newState.gameHasLoaded,
-        this.previousState.gameHasLoaded,
-        newState.lang,
-        this.previousState.lang
-      );
       await updateView(this, {});
-    } else if (
-      (newState.gameStarted && !this.previousState.gameStarted) ||
-      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
-      this.state.score["left"] !== this.oldscore["left"] ||
-      this.state.score["right"] !== this.oldscore["right"]
-    ) {
-      if (container) {
-        container.innerHTML = "";
-        container.className = "";
-        this.previousState = { ...newState };
-        this.oldscore = { ...this.state.score };
-        await updateView(this, {});
-        // alert("Game started or game paused set to false");
-      }
     } else if (newState.gameHasBeenWon && !this.previousState.gameHasBeenWon) {
       if (
         this.state.isUserLoggedIn &&
@@ -280,7 +255,26 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game won");
+        this.oldscore = { ...this.state.score };
+        await updateView(this, {});
+      }
+    } else if (newState.gameStarted && !this.previousState.gameStarted) {
+      console.log("new game started in handlestatechange");
+      if (container) {
+        container.innerHTML = "";
+        container.className = "";
+        this.previousState = { ...newState };
+        await updateView(this, {});
+      }
+    } else if (
+      (!newState.gameIsPaused && this.previousState.gameIsPaused) ||
+      this.state.score["left"] !== this.oldscore["left"] ||
+      this.state.score["right"] !== this.oldscore["right"]
+    ) {
+      if (container) {
+        container.className = "";
+        this.previousState = { ...newState };
+        this.oldscore = { ...this.state.score };
         await updateView(this, {});
       }
     } else if (newState.gameIsPaused && !this.previousState.gameIsPaused) {
@@ -288,7 +282,6 @@ export default class LocalTournament {
         container.innerHTML = "";
         container.className = "app";
         this.previousState = { ...newState };
-        // alert("Game paused set to true");
         await updateView(this, {});
       }
     } else this.previousState = { ...newState };
@@ -301,10 +294,7 @@ export default class LocalTournament {
     if (key === "pause-game") this.state.togglePause(true);
     else if (key === "resume-game") this.state.togglePause(false);
     else if (key === "exit-tournament" || key === "game-menu-button") {
-      this.state.setGameEnded();
-      this.resetAttributes();
-      this.state.state.gameHasBeenWon = false;
-      this.state.backToBackgroundPlay();
+      this.destroy();
       router.navigate("/game");
     } else if (key === "btn-start-match") this.state.setGameStarted("PVP");
     setDisable(false, key);
@@ -402,18 +392,21 @@ export default class LocalTournament {
   }
 
   async saveGame() {
+    if (!this.state.isUserLoggedIn || this.isProcessing) return;
+    this.isProcessing = true;
     const { left, right } = this.state.score;
     this.formState.player1 = this.state.state.userId;
     this.formState.player2 = null;
     if (this.MatchToPlay.player1 === this.state.state.userAlias) {
       this.formState.score_player1 = parseInt(left);
       this.formState.score_player2 = parseInt(right);
+      this.formState.opponentName = this.MatchToPlay.player2;
     } else {
       this.formState.score_player1 = parseInt(right);
       this.formState.score_player2 = parseInt(left);
+      this.formState.opponentName = this.MatchToPlay.player1;
     }
-    console.warn("posting data for game");
-    console.log(this.formState.player1, this.formState.player2);
+    console.warn("posting data for tournament");
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
@@ -421,6 +414,7 @@ export default class LocalTournament {
     } finally {
       this.formState = {};
       await this.matchFinished();
+      this.isProcessing = false;
     }
   }
 
@@ -435,7 +429,6 @@ export default class LocalTournament {
         score_player2: this.state.score.right,
         winner: winner,
       });
-      console.log(res);
       if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
@@ -448,11 +441,14 @@ export default class LocalTournament {
       }
     } catch (error) {
       console.error(`Error while trying to update match data : ${error}`);
+    } finally {
+      this.state.state.gameHasBeenWon = false;
+      if (!this.tournamentFinished) this.state.resetScore();
+      this.oldscore = {};
     }
   }
 
   async createLocalTournament() {
-    console.log(typeof this.nbPlayers, this.nbPlayers);
     try {
       const res = await API.post(`/tournament/list/`, {
         participants: this.playerList,
@@ -500,22 +496,26 @@ export default class LocalTournament {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
   }
 
   destroy() {
+    const renderGame = document.getElementById("app");
+    if (renderGame) renderGame.className = "app";
+    const menuButton = document.getElementById("toggle-button");
+    if (menuButton) menuButton.className = "toggle-button";
     this.removeEventListeners();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("LocalTournament page unsubscribed from state");
     }
     this.resetAttributes();
+    this.state.setGameEnded();
     this.state.resetScore();
-    this.state.setDestroyGame();
+    this.state.state.gameHasBeenWon = false;
+    handleLangDiv(false);
   }
 
   renderSelectNbPlayers() {
@@ -547,7 +547,7 @@ export default class LocalTournament {
   renderPauseMenu() {
     handleLangDiv(false);
     return `
-				<div class="position-relative d-flex justify-content-center align-items-center min-vh-100">
+				<div class="position-relative d-flex justify-content-center align-items-center">
 					<div class="global-nav-section">
 						<div class="game-paused-title">
 							<h1>${trad[this.lang].localTournament.paused}</h1>
@@ -664,6 +664,7 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    console.log("render tournament");
     this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 
@@ -671,7 +672,6 @@ export default class LocalTournament {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("LocalTournament page subscribed to state");
     }
     if (this.state.isUserLoggedIn) this.getUserAlias(this.state.state.userId);
     else this.userAlias = "";

@@ -1,5 +1,7 @@
 import { header } from "../app";
-import { checkUserStatus, handleLangDiv } from "../utils";
+//import gameScene from "../game/src/main";
+import { trad } from "../trad";
+import { handleLangDiv } from "../utils";
 
 export default class State {
   constructor() {
@@ -29,10 +31,14 @@ export default class State {
       userAlias: null,
       latency: 0,
       gameIsTimer: false,
+      other_player_ready: false,
+      waitingOtherPlayer: false,
+      previousGameMode: "default",
     };
     this.gameMode = "default";
     this.isUserLoggedIn = false;
     this.connectionIssue = false;
+    this.abortController = null;
 
     const savedState = JSON.parse(localStorage.getItem("pongState"));
     if (savedState) {
@@ -125,25 +131,39 @@ export default class State {
 
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
+    //gameScene.handleStateChange();
+    console.log("notify listeners from setGameNeedsReset");
     this.notifyListeners();
   }
-
+  //gameIsTimer()
   async setGameStarted(gameMode) {
     console.log("setGameStarted()");
     console.log("gameMode: " + gameMode);
     if (gameMode !== "default") {
       if (header.isGuestRendered) header.isGuestRendered = false;
       if (header.isUserRendered) header.isUserRendered = false;
-      await this.displayTimerBeforeGameStart();
-      if (!this.state.gameIsTimer) {
-        handleLangDiv(false);
+      console.log("setting gameIsTimer to true");
+      this.state.gameIsTimer = true;
+      this.state.players_ready = false;
+      try {
+        await this.displayTimerBeforeGameStart();
+      } catch (error) {
         return;
       }
-      //   if (!this.gameManager || typeof this.gameManager.connect !== "function") {
-      //     console.warn("⚠️ gameManager is undefined or not ready.");
-      //     return;
-      //   }
+      if (!this.state.gameIsTimer) {
+        return;
+      }
       this.state.gameIsTimer = false;
+      if (["OnlineLeft", "OnlineRight"].includes(gameMode)) {
+        this.gameManager.sendCountdownEnded();
+        try {
+          await this.waitForCountdownEnd();
+          this.state.waitingOtherPlayer = false;
+        } catch (error) {
+          console.error("Countdown error, opponent left");
+          return;
+        }
+      }
     }
     if (
       !["PVR", "PVP", "OnlineLeft", "OnlineRight", "default"].includes(gameMode)
@@ -156,16 +176,38 @@ export default class State {
       this.gameManager.connect();
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-
-    this.resetScore();
-    if (gameMode !== "default") this.state.gameStarted = true;
-    this.state.gameHasBeenWon = false;
+    if (gameMode !== "default") {
+      this.state.gameStarted = true;
+      this.resetScore();
+    }
     this.setGameNeedsReset(true);
   }
 
-  displayTimerBeforeGameStart(durationSeconds = 3) {
-    this.state.gameIsTimer = true;
-    return new Promise((resolve) => {
+  async waitForCountdownEnd() {
+    this.state.waitingOtherPlayer = true;
+    await new Promise((resolve, reject) => {
+      const checkInterval = setInterval(() => {
+        if (this.state.other_player_ready && !this.state.opponentLeft) {
+          clearInterval(checkInterval);
+          this.state.other_player_ready = false;
+          resolve();
+        } else if (this.state.opponentLeft) {
+          clearInterval(checkInterval);
+          reject(new Error("Opponent left"));
+        } else if (!this.state.waitingOtherPlayer) {
+          clearInterval(checkInterval);
+          reject(new Error("Detroyed gamepage"));
+        }
+        console.log("Waiting for other player to end coundown");
+      }, 100);
+    });
+  }
+
+  async displayTimerBeforeGameStart(durationSeconds = 3) {
+    if (this.abortController) this.abortController.abort();
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+    return new Promise((resolve, reject) => {
       const container = document.getElementById("app");
       const toogleBar = document.getElementById("toggle-button-container");
       const langDiv = document.getElementById("lang-div");
@@ -183,6 +225,13 @@ export default class State {
       let countdown = durationSeconds;
 
       const interval = setInterval(() => {
+        if (signal.aborted) {
+          clearInterval(interval);
+          const timerOverlay = container.querySelector(".timer-overlay");
+          if (timerOverlay) timerOverlay.remove();
+          reject(new Error("Timer aborted due to destroy"));
+        }
+
         countdown--;
         countdownElement.textContent = countdown;
 
@@ -190,7 +239,6 @@ export default class State {
           clearInterval(interval);
           const timerOverlay = container.querySelector(".timer-overlay");
           if (timerOverlay) timerOverlay.remove();
-          //   if (langDiv) langDiv.style.display = "block";
           resolve();
         }
       }, 1000);
@@ -202,6 +250,7 @@ export default class State {
       console.warn("Matchmaking is already in progress!");
       return;
     }
+    console.error("STARTING MATCHMAKING");
     this.setIsSearching(true);
     this.gameMode = "Online";
     console.log("Starting Machmaking");
@@ -217,9 +266,22 @@ export default class State {
     this.setGameStarted(this.gameMode);
   }
 
-  cancelMatchmaking() {
+  async cancelMatchmaking() {
+    console.error("CANCELLING MATCHMAKING");
     this.setIsSearching(false);
-    if (this.gameManager?.socket) this.gameManager.socket.close();
+    if (this.gameManager?.socket) {
+      await new Promise((resolve) => {
+        this.gameManager.socket.addEventListener(
+          "close",
+          () => {
+            console.log("✅ Socket fermée !");
+            resolve();
+          },
+          { once: true }
+        );
+        this.gameManager.socket.close();
+      });
+    }
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
     //this.setGameStarted("default");
@@ -227,35 +289,18 @@ export default class State {
 
   setIsSearching(bool) {
     this.state.isSearching = bool;
+    console.log("notify listeners from setIsSearching");
     this.notifyListeners();
   }
 
   setGameEnded() {
-    console.log("setGameEnded()");
-    this.scores.push(this.score);
-    this.setDestroyGame();
-    this.setGameNeedsReset(true);
-    this.notifyListeners();
-  }
-
-  setDestroyGame() {
-    console.log("setDestroyGame()");
     this.state.gameIsTimer = false;
-    if (this.state.gameIsPaused) this.state.gameIsPaused = false;
-    if (this.state.gameStarted) this.state.gameStarted = false;
-    if (this.state.gameHasBeenWon) this.state.gameHasBeenWon = false;
-    this.gameMode = "default";
+    if (this.gameMode === "default") return;
+    this.state.gameStarted = false;
+    this.scores.push(this.score);
+    // this.state.gameIsTimer = false;
+    this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
-  }
-
-  opponentLeft() {
-    this.state.opponentLeft = true;
-    this.setDestroyGame();
-    this.backToBackgroundPlay();
-  }
-
-  backToBackgroundPlay() {
-    this.state.gameHasBeenWon = false;
     this.setGameStarted("default");
   }
 
@@ -271,14 +316,22 @@ export default class State {
   }
 
   updateScore(side, points) {
+    if (
+      this.state.gameHasBeenWon ||
+      this.gameMode === "default" ||
+      this.state.isSearching
+    )
+      return;
     this.score[side] += points;
     console.log(
       `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
     );
     if (this.score[side] === this.gamePoints) {
-      this.setGameEnded();
       this.state.gameHasBeenWon = true;
+      this.setGameEnded();
+      return;
     }
+    console.log("notify listeners from updateScore");
     this.notifyListeners();
   }
 
@@ -294,7 +347,7 @@ export default class State {
     if (typeof listener !== "function") {
       throw new TypeError("Le listener doit être une fonction.");
     }
-    //console.log("Abonnement ajouté :", listener.name || listener);
+    // console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 
@@ -304,6 +357,7 @@ export default class State {
   }
 
   notifyListeners() {
+    console.log("notify listeners");
     this.listeners.forEach((listener) => listener(this.state));
   }
 }

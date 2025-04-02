@@ -55,10 +55,15 @@ class UserSerializer(serializers.ModelSerializer):
                 message="Phone number must start with +33"
             )
         ])
-    match_history = GameSerializer(many=True, read_only=True)
     friends = SimpleUserSerializer(many=True, read_only=True)
     avatar = Base64ImageField(required=False)
 
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        sorted_games = instance.match_history.order_by('-created_at')
+        representation['match_history'] = GameSerializer(sorted_games, many=True).data
+        return representation
 
     def validate_username(self, value):
         if value.lower() in FORBIDDEN_USERNAMES:
@@ -89,8 +94,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         avatar = validated_data.get('avatar', None)
-        if not avatar:
-            validated_data['avatar'] = "defaults/bob.jpg"
+        # if not avatar:
+        #     validated_data['avatar'] = "defaults/bob.jpg"
         alias = validated_data.get('alias', None)
         if not alias:
             validated_data['alias'] = validated_data.get('username')

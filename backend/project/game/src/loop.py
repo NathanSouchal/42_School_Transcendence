@@ -20,7 +20,7 @@ class Loop:
                     )
                     if is_paused:
                         was_paused = True
-                        await asyncio.sleep(1 / 60)
+                        await asyncio.sleep(1 / 100)
                         continue
                     if was_paused:
                         last_time = time.time()
@@ -63,7 +63,7 @@ class Loop:
 
                     await self.consumer.send_helpers.send_positions()
 
-                await asyncio.sleep(1 / 60)
+                await asyncio.sleep(1 / 100)
 
         except asyncio.CancelledError:
             print(f"game_loop anulle pour la salle {room}")
@@ -122,5 +122,5 @@ class Loop:
                 "pos"
             ] = paddle_right.reset(delta_time)
             await self.consumer.send_helpers.send_positions()
-            await asyncio.sleep(1 / 60)
+            await asyncio.sleep(1 / 100)
         self.consumer.rooms[self.consumer.room]["ball"].reset()

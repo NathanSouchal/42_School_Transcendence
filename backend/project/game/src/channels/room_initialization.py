@@ -1,10 +1,11 @@
-import uuid
-import json
 import asyncio
 import copy
-from ..utils import GameMode, NumericEncoder
+import json
+import uuid
+
 from ..elements.ball import Ball
 from ..elements.paddle import Paddle
+from ..utils import GameMode, NumericEncoder
 
 
 class RoomInitialization:
@@ -19,14 +20,21 @@ class RoomInitialization:
             await self.consumer.close()
             return
 
+        await self.erase_rooms_containing_player(user)
+        await self.cleanup_empty_rooms()
+
         roomFound = False
         if self.consumer.game_mode == GameMode.ONLINE:
             for room_name, room_data in self.consumer.rooms.items():
                 if (
                     len(room_data["players"]) < 2
                     and room_data["game_mode"] == GameMode.ONLINE
-                    and all(player["user_id"] is not None for player in room_data["players"])
-                    and all(player["user_id"] != user.id for player in room_data["players"])
+                    and all(
+                        player["user_id"] is not None for player in room_data["players"]
+                    )
+                    and all(
+                        player["user_id"] != user.id for player in room_data["players"]
+                    )
                 ):
                     self.consumer.room = room_name
                     roomFound = True
@@ -93,7 +101,11 @@ class RoomInitialization:
 
     async def manage_online_players(self):
         # Sauvegarde de la room BACKGROUND
-        self.previous_room = self.consumer.room if self.consumer.game_mode == GameMode.BACKGROUND else None
+        self.previous_room = (
+            self.consumer.room
+            if self.consumer.game_mode == GameMode.BACKGROUND
+            else None
+        )
         if len(self.consumer.rooms[self.consumer.room]["players"]) <= 2:
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 1:
                 self.consumer.player_side = "left"
@@ -115,10 +127,12 @@ class RoomInitialization:
                 await asyncio.sleep(2)
 
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 2:
-            # Pour le mode ONLINE, on envoie directement la notification dès que deux joueurs sont présents
+                # Pour le mode ONLINE, on envoie directement la notification dès que deux joueurs sont présents
                 if self.consumer.game_mode == GameMode.ONLINE:
                     opponent_index = 1 if self.consumer.player_side == "left" else 0
-                    opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
+                    opponent = self.consumer.rooms[self.consumer.room]["players"][
+                        opponent_index
+                    ]
                     print(f"Envoi des infos de l'adversaire: {opponent}")
                     await self.consumer.send(
                         text_data=json.dumps(
@@ -140,7 +154,9 @@ class RoomInitialization:
                         del self.consumer.rooms[self.previous_room]
                         self.previous_room = None
                         opponent_index = 1 if self.consumer.player_side == "left" else 0
-                        opponent = self.consumer.rooms[self.consumer.room]["players"][opponent_index]
+                        opponent = self.consumer.rooms[self.consumer.room]["players"][
+                            opponent_index
+                        ]
                         print(f"Envoi des infos de l'adversaire: {opponent}")
                         await self.consumer.send(
                             text_data=json.dumps(
@@ -173,8 +189,35 @@ class RoomInitialization:
         # Réinitialiser la room en recréant les objets de jeu (ball et paddles)
         await self.initializeRoom()
 
-    # Redémarrer la boucle de jeu pour le mode BACKGROUND
+        # Redémarrer la boucle de jeu pour le mode BACKGROUND
         print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
         self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
             self.consumer.loop.game_loop(self.consumer.room)
         )
+
+    async def erase_rooms_containing_player(self, user):
+        # Si l'utilisateur n'est pas authentifié (user.id est None), on ignore
+        if user.id is None:
+            return
+
+        for room_name, room_data in self.consumer.rooms.items():
+            # Itérer sur une copie de la liste pour permettre la suppression
+            for player in list(room_data["players"]):
+                if player["user_id"] == user.id:
+                    room_data["players"].remove(player)
+                    print(f"Removed user {user.username} from room {room_name}")
+
+
+    async def cleanup_empty_rooms(self):
+        empty_rooms = [
+            room_name
+            for room_name, room_data in self.consumer.rooms.items()
+            if len(room_data["players"]) == 0
+        ]
+        for room_name in empty_rooms:
+            del self.consumer.rooms[room_name]
+            print(f"cleanup room1")
+            if room_name in self.consumer.game_loops:
+                print(f"cleanup room2")
+                self.consumer.game_loops[room_name].cancel()
+                del self.consumer.game_loops[room_name]

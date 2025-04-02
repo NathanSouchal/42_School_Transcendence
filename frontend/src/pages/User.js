@@ -7,6 +7,7 @@ import {
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 export default class User {
   constructor(state) {
@@ -41,7 +42,6 @@ export default class User {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("User page subscribed to state");
     }
     this.pageId = routeParams.id;
     if (!this.state.state.gameHasLoaded) return;
@@ -91,9 +91,8 @@ export default class User {
 
   async buildAvatarImgLink(link) {
     try {
-      const res = await axios.head(`${API_BASE_URL}${link}`);
-      if (res.status === 200)
-        this.publicUserData.avatar = `${API_BASE_URL}${link}`;
+      const res = await axios.head(`${link}`);
+      if (res.status === 200) this.publicUserData.avatar = `${link}`;
     } catch (error) {
       this.publicUserData.avatar = "/profile.jpeg";
     }
@@ -108,6 +107,9 @@ export default class User {
       else this.publicUserData.avatar = "/profile.jpeg";
     } catch (error) {
       console.error(`Error while trying to get PublicUserInfo : ${error}`);
+      if (error.response.status === 404) {
+        router.navigate("/404");
+      }
       throw error;
     }
   }
@@ -121,7 +123,6 @@ export default class User {
       this.friends = response.data.friends;
       this.friendRequests = response.data.pending_friend_requests;
       await this.checkFriendStatus();
-      console.log(this.friends, this.friendRequests);
     } catch (error) {
       console.error(`Error while trying to get MyFriends : ${error}`);
       throw error;
@@ -134,7 +135,6 @@ export default class User {
         from_user: this.state.state.userId.toString(),
         to_user: this.pageId,
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
       throw error;
@@ -144,7 +144,6 @@ export default class User {
   async deleteFriend() {
     try {
       const res = await API.delete(`/friends/friend/${this.pageId}/`);
-      console.log(res.data);
     } catch (error) {
       console.error(`Error while trying to add friend : ${error}`);
       throw error;
@@ -156,7 +155,6 @@ export default class User {
       const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "false",
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to cancel friend request : ${error}`);
       throw error;
@@ -168,7 +166,6 @@ export default class User {
       const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "true",
       });
-      console.log(res);
     } catch (error) {
       console.error(`Error while trying to accept friend request : ${error}`);
       throw error;
@@ -288,7 +285,6 @@ export default class User {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from input`);
       }
     });
     this.eventListeners = [];
@@ -299,7 +295,6 @@ export default class User {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("User page unsubscribed from state");
     }
     this.pageId = null;
     this.isInitialized = false;
@@ -325,7 +320,6 @@ export default class User {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("User page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);
@@ -408,7 +402,7 @@ export default class User {
 									<h3 class="mh-score">${value.score_player1}</h3>
 									<span>-</span>
 									<h3 class="mh-score">${value.score_player2}</h3>
-									<h3 class="mh-player">${value.player2 ? value.player2 : "Guest"}</h3>
+									<h3 class="mh-player">${value.player2 ? value.player2 : value.opponentName}</h3>
 								</div>
 							</div>`
                       )

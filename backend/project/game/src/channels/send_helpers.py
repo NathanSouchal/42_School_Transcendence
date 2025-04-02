@@ -59,3 +59,6 @@ class SendHelpers:
 
     async def send_pong(self):
         await self.send_message("pong", {})
+
+    async def send_players_ready(self):
+        await self.send_message("players_ready", {})

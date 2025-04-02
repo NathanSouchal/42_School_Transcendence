@@ -6,13 +6,17 @@
   justify-content: center;
   text-align: center;
   color: var(--primary-color);
-  width: 80%;
+  width: 100%;
   margin: 0 auto;
   padding-top: 10%;
   height: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
   /* scrollbar-width: none; */
+}
+
+.account-main-div {
+  width: 100%;
 }
 
 .account-main-div button {
@@ -298,4 +302,11 @@ label {
   width: 100px;
   margin-left: 0.5rem;
   margin-right: 0.5rem;
+}
+
+@media (max-width: 400px) {
+  .user-main-div img {
+    width: 100px;
+    height: 100px;
+  }
 }

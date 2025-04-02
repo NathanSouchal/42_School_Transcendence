@@ -7,6 +7,7 @@ import {
 } from "../utils";
 import { router } from "../app.js";
 import { trad } from "../trad.js";
+import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
 
@@ -35,7 +36,6 @@ export default class Account {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Account page subscribed to state");
     }
     if (!this.state.state.gameHasLoaded) return;
     await updateView(this, {});
@@ -185,7 +185,6 @@ export default class Account {
 
   handleChangeInput(e) {
     this.formData[e.target.name] = e.target.value;
-    console.log(this.formData);
   }
 
   async handleFile(key, file) {
@@ -217,7 +216,6 @@ export default class Account {
         const reader = new FileReader();
         reader.onload = (e) => {
           this.formData.avatar = e.target.result;
-          console.log(this.formData.avatar);
         };
         reader.readAsDataURL(fileInput);
       } else label.textContent = trad[this.lang].account.fileLabel;
@@ -276,7 +274,6 @@ export default class Account {
       .forEach((input) => {
         input.disabled = true;
         input.required = false;
-        console.log("input.name : " + input.name);
         if (
           input.classList.contains("email2FA-input") &&
           !document.getElementById("email2FA-checkbox").checked
@@ -310,13 +307,11 @@ export default class Account {
   }
 
   async fetchData(id) {
-    console.log("Fetching data...");
     try {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
-      console.log(data);
       this.userData = data.user;
-      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      if (data.user.avatar) await this.buildAvatarImgLink(data.user.avatar);
       else this.userData.avatar = "/profile.jpeg";
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
@@ -332,8 +327,8 @@ export default class Account {
 
   async buildAvatarImgLink(link) {
     try {
-      const res = await axios.head(`${API_BASE_URL}${link}`);
-      if (res.status === 200) this.userData.avatar = `${API_BASE_URL}${link}`;
+      const res = await axios.head(`${link}`);
+      if (res.status === 200) this.userData.avatar = `${link}`;
     } catch (error) {
       this.userData.avatar = "/profile.jpeg";
     }
@@ -343,7 +338,6 @@ export default class Account {
     try {
       const response = await API.get(`/auth/generate-qrcode/`);
       const data = response.data;
-      console.log(data);
       const qrCode = document.getElementById("totp-qr-code");
       if (qrCode) {
         qrCode.src = `data:image/png;base64,${data.qr_code}`;
@@ -414,7 +408,9 @@ export default class Account {
       ) {
         const errorData = error.response.data;
         if (errorData.phone_number)
-          console.log(Object.values(errorData.phone_number));
+          this.displayAccountErrorMessage(
+            Object.values(errorData.phone_number)
+          );
         if (errorData.errors)
           this.displayAccountErrorMessage(Object.values(errorData.errors)[0]);
         else if (errorData.no_phone_number)
@@ -488,7 +484,6 @@ export default class Account {
     this.eventListeners.forEach(({ element, listener, type }) => {
       if (element) {
         element.removeEventListener(type, listener);
-        console.log(`Removed ${type} eventListener from element`);
       }
     });
     this.eventListeners = [];
@@ -500,7 +495,6 @@ export default class Account {
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Account page unsubscribed from state");
     }
   }
 
@@ -514,7 +508,6 @@ export default class Account {
       this.previousState = { ...this.state.state };
       this.state.subscribe(this.handleStateChange);
       this.isSubscribed = true;
-      console.log("Account page subscribed to state");
     }
     if (this.lang !== this.state.state.lang)
       handleHeader(this.state.isUserLoggedIn, false, true);

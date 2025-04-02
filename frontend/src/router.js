@@ -52,8 +52,11 @@ export class Router {
     console.log("Navigating to:", path); // Log ajouté pour vérifier l'appel
 
     state.state.lastRoute = this.currentPath;
-    const view = this.matchRoute(path) || this.routes["/404"];
-
+    let view = this.matchRoute(path);
+    if (!view) {
+      view = this.matchRoute("/404");
+      path = "/404";
+    }
     if (this.currentPage && typeof this.currentPage.destroy === "function") {
       this.currentPage.destroy();
     }

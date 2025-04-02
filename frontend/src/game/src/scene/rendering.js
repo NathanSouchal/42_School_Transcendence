@@ -13,6 +13,9 @@ class Renderer {
     this.depth = game.paddleLeft.size.paddle_depth;
     this.elapsedTime = 0;
     this.firstPageLoad = true;
+    this.frameCount = 0;
+    this.lastTime = Date.now(); // Initial time
+    this.fpsDisplayTime = this.lastTime;
   }
 
   resizeRendererToDisplaySize() {
@@ -35,7 +38,7 @@ class Renderer {
       const deltaTime = (currentTime - this.previousTime) / 1000;
       this.previousTime = currentTime;
 
-      if (state.state.gameIsPaused === false && !state.state.gameHasBeenWon) {
+      if (!state.state.gameIsPaused) {
         this.paddlesInputUpdates(deltaTime);
         this.game.ball.updateRotation(deltaTime);
         if (state.collision.ballCollided) {
@@ -50,9 +53,8 @@ class Renderer {
           state.collision.ballCollided = false;
         }
         this.game.ball.animate_sparks(deltaTime);
+        this.updateElementsPositions(deltaTime);
       }
-
-      this.updateElementsPositions(deltaTime);
 
       this.game.paddleRight.animation_update(deltaTime);
       this.game.paddleLeft.animation_update(deltaTime);
@@ -74,36 +76,72 @@ class Renderer {
     const currentClientTime = Date.now() / 1000;
     const serverTimestamp = positions.timestamp;
     const dataAge = currentClientTime - serverTimestamp;
-    const predictionThreshold = 0.01;
+    const predictionThreshold = 0.1;
 
-    if (dataAge > predictionThreshold && positions.ball.vel) {
-      const predictedX = positions.ball.pos.x + positions.ball.vel.x * dataAge;
-      const predictedY = positions.ball.pos.y + positions.ball.vel.y * dataAge;
-      const predictedZ = positions.ball.pos.z + positions.ball.vel.z * dataAge;
-      this.game.ball.obj.position.set(predictedX, predictedY, predictedZ);
+    const lerpFactor = 0.3;
+
+    if (dataAge > predictionThreshold) {
+      const predictedLeftPaddleX =
+        positions.paddles.left.pos + positions.paddles.left.vel * dataAge;
+      const predictedRightPaddleX =
+        positions.paddles.right.pos + positions.paddles.right.vel * dataAge;
+
+      this.game.paddleLeft.obj.position.x +=
+        (predictedLeftPaddleX - this.game.paddleLeft.obj.position.x) *
+        lerpFactor;
+      this.game.paddleRight.obj.position.x +=
+        (predictedRightPaddleX - this.game.paddleRight.obj.position.x) *
+        lerpFactor;
+
+      const predictedBallX =
+        positions.ball.pos.x + positions.ball.vel.x * dataAge;
+      const predictedBallY =
+        positions.ball.pos.y + positions.ball.vel.y * dataAge;
+      const predictedBallZ =
+        positions.ball.pos.z + positions.ball.vel.z * dataAge;
+
+      this.game.ball.obj.position.x +=
+        (predictedBallX - this.game.ball.obj.position.x) * lerpFactor;
+      this.game.ball.obj.position.y +=
+        (predictedBallY - this.game.ball.obj.position.y) * lerpFactor;
+      this.game.ball.obj.position.z +=
+        (predictedBallZ - this.game.ball.obj.position.z) * lerpFactor;
     } else {
+      const newLeftPaddleX =
+        positions.paddles.left.pos + positions.paddles.left.vel * (1 / 50);
+      const newRightPaddleX =
+        positions.paddles.right.pos + positions.paddles.right.vel * (1 / 50);
+
+      this.game.paddleLeft.obj.position.x +=
+        (newLeftPaddleX - this.game.paddleLeft.obj.position.x) * lerpFactor;
+      this.game.paddleRight.obj.position.x +=
+        (newRightPaddleX - this.game.paddleRight.obj.position.x) * lerpFactor;
+
       this.game.ball.obj.position.set(
         positions.ball.pos.x,
         positions.ball.pos.y,
-        positions.ball.pos.z,
+        positions.ball.pos.z
       );
     }
-
-    this.game.paddleLeft.obj.position.x = positions.paddles.left.pos;
-    this.game.paddleRight.obj.position.x = positions.paddles.right.pos;
     this.game.ball.velocity.set(
       positions.ball.vel.x,
       positions.ball.vel.y,
-      positions.ball.vel.z,
+      positions.ball.vel.z
     );
+
+    //const currentTime = Date.now();
+    //this.frameCount++;
+    //if (currentTime - this.fpsDisplayTime >= 1000) {
+    //  const fps = this.frameCount;
+    //  console.log(`FPS: ${fps}`);
+    //  this.frameCount = 0;
+    //  this.fpsDisplayTime = currentTime;
+    //}
   }
 
   sceneRotationUpdate(deltaTime) {
     this.elapsedTime += deltaTime;
     // Rocking
-    const rockingAngle = Math.sin(this.elapsedTime) * 0.05;
-    this.game.sceneToRotateWithCamera.rotation.z = rockingAngle;
-
     // Rotation
     const rotationAngle = 0.02;
     this.game.sceneToRotateWithCamera.rotation.y =
@@ -116,7 +154,7 @@ class Renderer {
         deltaTime,
         state.gameManager,
         this.game.ball.obj.position,
-        this.game.ball.velocity,
+        this.game.ball.velocity
       );
     }
     if (state.gameMode != "OnlineRight") {
@@ -124,7 +162,7 @@ class Renderer {
         deltaTime,
         state.gameManager,
         this.game.ball.obj.position,
-        this.game.ball.velocity,
+        this.game.ball.velocity
       );
     }
   }

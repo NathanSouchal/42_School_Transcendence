@@ -54,6 +54,7 @@ export class GameScene {
     if (this.state.state.gameNeedsReset === true) {
       this.resetControls();
       this.state.setGameNeedsReset(false);
+      //   this.state.notifyListeners();
     }
   }
 
@@ -66,7 +67,7 @@ export class GameScene {
     this.renderer.setSize(width, height);
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
-    if (this.camera.isOrthographicCamera) {
+    if (this.camera?.isOrthographicCamera) {
       this.camera.left = (-frustumSize * aspect) / 2;
       this.camera.right = (frustumSize * aspect) / 2;
       this.camera.top = frustumSize / 2;
