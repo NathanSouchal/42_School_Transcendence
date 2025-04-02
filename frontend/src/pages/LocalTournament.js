@@ -191,7 +191,6 @@ export default class LocalTournament {
     if (this.isProcessing) return;
     this.isProcessing = true;
     this.nbPlayers = value;
-    console.log(this.nbPlayers);
     await updateView(this, {});
     this.isProcessing = false;
   }
@@ -228,8 +227,6 @@ export default class LocalTournament {
         if (playerName) {
           this.playerList.push(playerName);
           this.inputCount++;
-          console.log(this.inputCount);
-          console.log(this.playerList.map((el) => el));
           if (this.inputCount == this.nbPlayers)
             await this.createLocalTournament();
           else await updateView(this, {});
@@ -410,7 +407,6 @@ export default class LocalTournament {
       this.formState.opponentName = this.MatchToPlay.player1;
     }
     console.warn("posting data for tournament");
-    console.log(this.formState.player1, this.formState.player2);
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
@@ -433,7 +429,6 @@ export default class LocalTournament {
         score_player2: this.state.score.right,
         winner: winner,
       });
-      console.log(res);
       if (res.status === 200 && !res.data.tournamentIsFinished) {
         this.MatchToPlay = res.data.nextMatchToPlay;
         this.currentRound =
@@ -454,7 +449,6 @@ export default class LocalTournament {
   }
 
   async createLocalTournament() {
-    console.log(typeof this.nbPlayers, this.nbPlayers);
     try {
       const res = await API.post(`/tournament/list/`, {
         participants: this.playerList,
@@ -508,6 +502,10 @@ export default class LocalTournament {
   }
 
   destroy() {
+    const renderGame = document.getElementById("app");
+    if (renderGame) renderGame.className = "app";
+    const menuButton = document.getElementById("toggle-button");
+    if (menuButton) menuButton.className = "toggle-button";
     this.removeEventListeners();
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
@@ -666,6 +664,7 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
+    console.log("render tournament");
     this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 

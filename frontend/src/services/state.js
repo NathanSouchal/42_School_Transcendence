@@ -150,7 +150,6 @@ export default class State {
       } catch (error) {
         return;
       }
-      console.log("this.state.gameIsTimer : ", this.state.gameIsTimer);
       if (!this.state.gameIsTimer) {
         return;
       }
@@ -178,7 +177,6 @@ export default class State {
 
     if (this.state.gameIsPaused) this.state.gameIsPaused = false;
     if (gameMode !== "default") {
-      console.log("gameMode HERE : ", gameMode);
       this.state.gameStarted = true;
       this.resetScore();
     }
@@ -252,6 +250,7 @@ export default class State {
       console.warn("Matchmaking is already in progress!");
       return;
     }
+    console.error("STARTING MATCHMAKING");
     this.setIsSearching(true);
     this.gameMode = "Online";
     console.log("Starting Machmaking");
@@ -268,7 +267,7 @@ export default class State {
   }
 
   async cancelMatchmaking() {
-    console.log("cancelling matchmaking");
+    console.error("CANCELLING MATCHMAKING");
     this.setIsSearching(false);
     if (this.gameManager?.socket) {
       await new Promise((resolve) => {
@@ -295,10 +294,8 @@ export default class State {
   }
 
   setGameEnded() {
-    console.log("setGameEnded()1");
     this.state.gameIsTimer = false;
     if (this.gameMode === "default") return;
-    console.log("setGameEnded()2");
     this.state.gameStarted = false;
     this.scores.push(this.score);
     // this.state.gameIsTimer = false;
@@ -325,7 +322,6 @@ export default class State {
       this.state.isSearching
     )
       return;
-    console.log("GAMEMODE : ", this.gameMode);
     this.score[side] += points;
     console.log(
       `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`

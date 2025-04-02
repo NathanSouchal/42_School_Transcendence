@@ -12,7 +12,6 @@ class Robot {
     this.timeSinceLastView = 0;
     this.action = "null";
     this.last_action = "null";
-    console.log("making new robot");
     this.offsetRange = [];
     switch (state.botDifficulty) {
       case 4:

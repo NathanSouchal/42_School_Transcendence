@@ -233,10 +233,9 @@ export default class Register {
         error.response.data
       ) {
         const errorData = error.response.data;
-        if (errorData.username) {
+        if (errorData.username)
           this.displayRegisterErrorMessage(Object.values(errorData.username));
-          console.log(Object.values(errorData.username));
-        } else if (errorData.password_match)
+        else if (errorData.password_match)
           this.displayRegisterErrorMessage(errorData.password_match);
         else if (errorData.password_format)
           this.displayRegisterErrorMessage(errorData.password_format);

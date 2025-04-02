@@ -136,7 +136,6 @@ export class GameManager {
         break;
       case "scored_side":
         this.handleScored(data);
-        console.log("score");
         break;
       case "connectionIssue":
         this.handleOtherPlayerConnectionIssue(data);

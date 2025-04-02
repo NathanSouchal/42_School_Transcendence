@@ -72,11 +72,9 @@ export default class Home {
 
   destroy() {
     this.removeEventListeners();
-    console.log("Home destroy");
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
-      console.log("Home page unsubscribed from state");
     }
   }
 

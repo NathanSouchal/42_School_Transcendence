@@ -196,11 +196,17 @@ class RoomInitialization:
         )
 
     async def erase_rooms_containing_player(self, user):
+        # Si l'utilisateur n'est pas authentifié (user.id est None), on ignore
+        if user.id is None:
+            return
+
         for room_name, room_data in self.consumer.rooms.items():
-            for player in room_data["players"]:
-                if player["channel_name"] == self.consumer.channel_name:
+            # Itérer sur une copie de la liste pour permettre la suppression
+            for player in list(room_data["players"]):
+                if player["user_id"] == user.id:
                     room_data["players"].remove(player)
                     print(f"Removed user {user.username} from room {room_name}")
+
 
     async def cleanup_empty_rooms(self):
         empty_rooms = [
@@ -210,7 +216,8 @@ class RoomInitialization:
         ]
         for room_name in empty_rooms:
             del self.consumer.rooms[room_name]
-
+            print(f"cleanup room1")
             if room_name in self.consumer.game_loops:
+                print(f"cleanup room2")
                 self.consumer.game_loops[room_name].cancel()
                 del self.consumer.game_loops[room_name]

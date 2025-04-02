@@ -91,7 +91,6 @@ export class Header {
     if (target && target.href.startsWith(window.location.origin)) {
       e.preventDefault();
       const path = target.getAttribute("href");
-      //   console.log("clicked on : ", path);
       if (path === "/") this.redirectHome();
       else router.navigate(path);
     }
@@ -216,7 +215,6 @@ export class Header {
   }
 
   renderUserLoggedIn() {
-    console.log("renderUserLoggedIn Header");
     this.lang = this.state.state.lang;
     this.isUserRendered = true;
     this.isGuestRendered = false;
@@ -274,7 +272,6 @@ export class Header {
   }
 
   renderGuestUser() {
-    console.log("renderGuestUser Header");
     this.lang = this.state.state.lang;
     this.isUserRendered = false;
     this.isGuestRendered = true;
