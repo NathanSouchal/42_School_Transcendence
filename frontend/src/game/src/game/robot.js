@@ -51,16 +51,10 @@ class Robot {
         Math.random() * (this.offsetRange[1] - this.offsetRange[0]) +
         this.offsetRange[0];
       this.last_target_x = this.target_x;
-
-      // console.log("this.inverseDifficulty: ", this.inverseDifficulty);
-      // console.log("this.difficulty: ", this.difficulty);
-      // console.log("state.botDifficulty: ", state.botDifficulty);
     }
     if (currentX + this.half_width < this.target_x - this.offset) {
-      //   console.log("this.offset: ", this.offset);
       this.action = "up";
     } else if (currentX - this.half_width > this.target_x + this.offset) {
-      //   console.log("this.offset: ", this.offset);
       this.action = "down";
     } else {
       this.action = "stop";

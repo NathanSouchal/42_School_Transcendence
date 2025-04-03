@@ -75,7 +75,6 @@ class Paddle {
         },
         undefined,
         (error) => {
-          console.error(error);
           reject(error);
         },
       );

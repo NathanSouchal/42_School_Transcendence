@@ -37,7 +37,6 @@ class Arena {
       this.obj.updateMatrixWorld(true);
       return true;
     } catch (error) {
-      console.error("Error loading objects: ", error);
       throw error;
     }
   }
@@ -68,7 +67,6 @@ class Arena {
         },
         undefined,
         (error) => {
-          console.error(error);
           reject(error);
         },
       );

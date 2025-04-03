@@ -120,7 +120,6 @@ export default class State {
 
   setGameHasLoaded() {
     this.state.gameHasLoaded = true;
-    // console.log("gameHasLoaded set to true in state");
     this.notifyListeners();
     document.getElementById("loading-overlay").classList.add("hidden");
     document.getElementById("main").classList.remove("hidden");
@@ -130,18 +129,12 @@ export default class State {
 
   setGameNeedsReset(bool) {
     this.state.gameNeedsReset = bool;
-    //gameScene.handleStateChange();
-    console.log("notify listeners from setGameNeedsReset");
     this.notifyListeners();
   }
-  //gameIsTimer()
   async setGameStarted(gameMode) {
-    console.log("setGameStarted()");
-    console.log("gameMode: " + gameMode);
     if (gameMode !== "default") {
       if (header.isGuestRendered) header.isGuestRendered = false;
       if (header.isUserRendered) header.isUserRendered = false;
-      console.log("setting gameIsTimer to true");
       this.state.gameIsTimer = true;
       this.state.players_ready = false;
       try {
@@ -159,7 +152,6 @@ export default class State {
           await this.waitForCountdownEnd();
           this.state.waitingOtherPlayer = false;
         } catch (error) {
-          console.error("Countdown error, opponent left");
           return;
         }
       }
@@ -197,7 +189,6 @@ export default class State {
           clearInterval(checkInterval);
           reject(new Error("Detroyed gamepage"));
         }
-        console.log("Waiting for other player to end coundown");
       }, 100);
     });
   }
@@ -246,34 +237,27 @@ export default class State {
 
   async startMatchmaking() {
     if (this.state.isSearching) {
-      console.warn("Matchmaking is already in progress!");
       return;
     }
-    console.error("STARTING MATCHMAKING");
     this.setIsSearching(true);
     this.gameMode = "Online";
-    console.log("Starting Machmaking");
     if (this.gameManager) this.gameManager.connect();
     else {
-      console.error("GameManager is not initialized!");
       return;
     }
     while (this.state.isSearching) {
-      console.log("Searching for opponent...");
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     this.setGameStarted(this.gameMode);
   }
 
   async cancelMatchmaking() {
-    console.error("CANCELLING MATCHMAKING");
     this.setIsSearching(false);
     if (this.gameManager?.socket) {
       await new Promise((resolve) => {
         this.gameManager.socket.addEventListener(
           "close",
           () => {
-            console.log("✅ Socket fermée !");
             resolve();
           },
           { once: true }
@@ -282,12 +266,10 @@ export default class State {
       });
     }
     this.gameMode = "default";
-    console.log("Cancelled Matchmaking");
   }
 
   setIsSearching(bool) {
     this.state.isSearching = bool;
-    console.log("notify listeners from setIsSearching");
     this.notifyListeners();
   }
 
@@ -320,21 +302,16 @@ export default class State {
     )
       return;
     this.score[side] += points;
-    console.log(
-      `${side} has scored : score is ${this.score["left"]} - ${this.score["right"]}`
-    );
     if (this.score[side] === this.gamePoints) {
       this.state.gameHasBeenWon = true;
       this.setGameEnded();
       return;
     }
-    console.log("notify listeners from updateScore");
     this.notifyListeners();
   }
 
   resetScore() {
     if (this.state.gameStarted) {
-      console.warn("Attempted to reset score while the game is in progress.");
       return;
     }
     this.score = { left: 0, right: 0 };
@@ -352,7 +329,6 @@ export default class State {
   }
 
   notifyListeners() {
-    console.log("notify listeners");
     this.listeners.forEach((listener) => listener(this.state));
   }
 }

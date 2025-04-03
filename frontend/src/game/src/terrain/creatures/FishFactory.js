@@ -25,7 +25,6 @@ class FishFactory {
         8,
       );
     } catch (error) {
-      console.error("Error initializing FishFactory:", error);
     }
   }
 
@@ -42,7 +41,6 @@ class FishFactory {
         z: 4,
       });
     } catch (error) {
-      console.error("Error loading fish objects:", error);
       throw error;
     }
   }
@@ -100,7 +98,6 @@ class FishFactory {
         },
         undefined,
         (error) => {
-          console.error(error);
           reject(error);
         },
       );

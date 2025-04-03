@@ -129,7 +129,6 @@ export class Header {
         } else await this.closeMenu();
       }
     } catch (error) {
-      console.error(error);
     } finally {
       setTimeout(() => {
         this.isProcessing = false;
@@ -164,7 +163,6 @@ export class Header {
         if (key === "logout") await logout();
       }
     } catch (error) {
-      console.error(error);
       throw error;
     } finally {
       if (key === "logout") setDisable(false, key);
@@ -257,7 +255,7 @@ export class Header {
     const nav = document.getElementById("navbar");
     if (nav) {
       const links = nav.querySelectorAll(".nav-link");
-      const paths = ["home", "play", "register", "login"];
+      const paths = ["play", "register", "login"];
 
       links.forEach((link, index) => {
         if (index < paths.length && paths[index]) {

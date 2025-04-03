@@ -56,7 +56,6 @@ export class GameManager {
 
   async closeExistingConnection() {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      console.warn("⚠️ Une connexion WebSocket est déjà ouverte, fermeture...");
 
       await new Promise((resolve) => {
         const closeHandler = () => {
@@ -204,8 +203,6 @@ export class GameManager {
         statusCircle.classList.remove("bad-latency");
       }
     }
-    // state.notifyListeners();
-    //console.log(`Current latency: ${state.state.latency}ms`);
   }
 
   handlePlayersReady() {
@@ -214,7 +211,6 @@ export class GameManager {
 
   reconnect() {
     if (!this.socket || this.socket.readyState === WebSocket.CLOSED) {
-      console.log("Tentative de reconnexion WebSocket...");
       this.connect();
     }
   }
@@ -225,7 +221,6 @@ export class GameManager {
 
   sendMessage(data) {
     if (!this.isSocketReady()) {
-      console.error("Reconnecting socket");
       this.reconnect();
       return;
     }
@@ -267,20 +262,14 @@ export class GameManager {
     let now = Date.now();
 
     if (issueState === "init") {
-      console.log("You are having connection issues");
       state.connectionIssue = true;
       this.sendMessage({ type: "connectionIssue", bool: true });
       this.connectionIssueInit = now;
       this.connectionIssueRenewal = now;
     } else if (state.connectionIssue === "renewed") {
       this.connectionIssueRenewal = now;
-      //if (this.connectionIssueInit - now > maxIssueTime) {
-      //  state.setGameEnded();
-      //  state.state.gameHasBeenWon;
-      //}
     } else if (issueState === "watch") {
       if (this.connectionIssueRenewal - now > forgetTime) {
-        console.log("You stopped having connection issues");
         state.connectionIssue = false;
         this.sendMessage({ type: "connectionIssue", bool: false });
       }
@@ -288,9 +277,6 @@ export class GameManager {
   }
 
   handleOtherPlayerConnectionIssue(data) {
-    if (data.connectionIssue)
-      console.log("Other player is having connection issues");
-    else console.log("Other player stopped having connection issues");
     state.connectionIssue = data.connectionIssue;
   }
 

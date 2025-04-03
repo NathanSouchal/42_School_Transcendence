@@ -14,8 +14,8 @@ export const DEFAULT_CONFIG = {
     },
     local: {
       left: {
-        bottom: "c",
-        top: "x",
+        bottom: "d",
+        top: "e",
       },
       right: {
         bottom: "ArrowDown",
@@ -70,15 +70,6 @@ export const DEFAULT_CONFIG = {
     ball_ratio: 0.03,
     terrain_width: 500,
     terrain_depth: 500,
-  },
-
-  sky: {
-    scalar: 450000,
-    phi_deg: 89,
-    theta_deg: 100,
-    rayleigh: 3,
-    turbidity: 10,
-    exposure: 1,
   },
 
   generation: {
@@ -146,9 +137,6 @@ export class GameConfig {
   }
   getBallConfig() {
     return this.config.ball;
-  }
-  getSkyConfig() {
-    return this.config.sky;
   }
   getGenerationConfig(gen) {
     return this.config.generation[gen];

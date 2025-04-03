@@ -91,7 +91,6 @@ export default class Rules {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    console.log("Rules rendered");
     window.scrollTo(0, 0);
     return `
     <div class="rules-main-div">
@@ -115,9 +114,9 @@ export default class Rules {
 					<h3>${trad[this.lang].rules.leftPlayer}</h3>
 					<div class="controls-img-div">
 						<h4>${trad[this.lang].rules.up}</h4>
-						<img src="/x.png" alt="upImg" class="img-up">
+						<img src="/e.png" alt="upImg" class="img-up">
 						<h4>${trad[this.lang].rules.down}</h4>
-						<img src="/c.png" alt="downImg" class="img-down">
+						<img src="/d.png" alt="downImg" class="img-down">
 					</div>
 				</div>
 				<div class="player-div player-div2">

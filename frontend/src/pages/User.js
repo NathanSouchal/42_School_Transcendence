@@ -103,10 +103,9 @@ export default class User {
       const response = await API.get(`/user/public-profile/${this.pageId}/`);
       const data = response.data;
       this.publicUserData = data.user;
-      if (data.user.avatar) this.buildAvatarImgLink(data.user.avatar);
+      if (data.user?.avatar) this.buildAvatarImgLink(data.user.avatar);
       else this.publicUserData.avatar = "/profile.jpeg";
     } catch (error) {
-      console.error(`Error while trying to get PublicUserInfo : ${error}`);
       if (error.response.status === 404) {
         router.navigate("/404");
       }
@@ -124,7 +123,6 @@ export default class User {
       this.friendRequests = response.data.pending_friend_requests;
       await this.checkFriendStatus();
     } catch (error) {
-      console.error(`Error while trying to get MyFriends : ${error}`);
       throw error;
     }
   }
@@ -136,7 +134,6 @@ export default class User {
         to_user: this.pageId,
       });
     } catch (error) {
-      console.error(`Error while trying to add friend : ${error}`);
       throw error;
     }
   }
@@ -145,7 +142,6 @@ export default class User {
     try {
       const res = await API.delete(`/friends/friend/${this.pageId}/`);
     } catch (error) {
-      console.error(`Error while trying to add friend : ${error}`);
       throw error;
     }
   }
@@ -156,7 +152,6 @@ export default class User {
         accepted: "false",
       });
     } catch (error) {
-      console.error(`Error while trying to cancel friend request : ${error}`);
       throw error;
     }
   }
@@ -167,7 +162,6 @@ export default class User {
         accepted: "true",
       });
     } catch (error) {
-      console.error(`Error while trying to accept friend request : ${error}`);
       throw error;
     }
   }
@@ -177,11 +171,7 @@ export default class User {
       const res = await API.put(`/friend-requests/${this.friendRequestId}/`, {
         accepted: "false",
       });
-      console.log(res.data);
     } catch (error) {
-      console.error(
-        `Error while trying to delete recieved friend request : ${error}`
-      );
       throw error;
     }
   }
@@ -251,7 +241,6 @@ export default class User {
         this.friendStatus = "me";
       else this.friendStatus = "free";
     }
-    console.log(this.friendStatus);
   }
 
   async getMatchHistory(id) {
@@ -259,15 +248,7 @@ export default class User {
       const res = await API.get(`/match-history/${id}/`);
       const data = res.data.match_history;
       this.matchHistory = data;
-      console.log(
-        "MatchHistory: " +
-          Object.entries(this.matchHistory).map(
-            ([key, value]) =>
-              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
-          )
-      );
     } catch (error) {
-      console.error(error);
     }
   }
 
@@ -325,7 +306,6 @@ export default class User {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    console.log(`rendering page ${this.pageId}`);
     return `
 			<div class="user-main-div">
 			<div class="user-main-content">

@@ -70,15 +70,7 @@ export default class MatchHistory {
       const res = await API.get(`/match-history/${id}/`);
       const data = res.data.match_history;
       this.matchHistory = data;
-      console.log(
-        "MatchHistory: " +
-          Object.entries(this.matchHistory).map(
-            ([key, value]) =>
-              `${key}: ${Object.entries(value).map(([ky, val]) => `${ky}: ${val}`)}`
-          )
-      );
     } catch (error) {
-      console.error(error);
     }
   }
 

@@ -252,7 +252,6 @@ export default class Account {
       this.isForm = !this.isForm;
       await updateView(this, {});
     } catch (error) {
-      console.error(error);
     } finally {
       this.isProcessing = false;
     }
@@ -309,7 +308,7 @@ export default class Account {
       const response = await API.get(`/user/${id}/`);
       const data = response.data;
       this.userData = data.user;
-      if (data.user.avatar) await this.buildAvatarImgLink(data.user.avatar);
+      if (data.user?.avatar) await this.buildAvatarImgLink(data.user.avatar);
       else this.userData.avatar = "/profile.jpeg";
       this.formData.username = data.user.username;
       this.formData.alias = data.user.alias;
@@ -317,7 +316,6 @@ export default class Account {
       this.formData.phone_number = data.user.phone_number;
       this.formData.two_factor_method = data.user.two_factor_method;
     } catch (error) {
-      console.error("Error while trying to get data:", error);
       this.userData = {};
       throw error;
     }
@@ -342,7 +340,6 @@ export default class Account {
         qrCode.style.display = "block";
       }
     } catch (error) {
-      console.error(`Error while trying to get qrcode : ${error}`);
     }
   }
 
@@ -419,7 +416,6 @@ export default class Account {
           this.displayAccountErrorMessage(errorData.wrong_avatar);
       } else if (error.response && error.response.status === 409)
         this.displayAccountErrorMessage(error.response.data.error);
-      console.error(`Error while trying to update user data : ${error}`);
       throw error;
     } finally {
       setDisable(false, "form-button");
@@ -456,7 +452,6 @@ export default class Account {
       this.lastDeleted = id;
       await updateView(this, {});
     } catch (error) {
-      console.error("Error while trying to delete data:", error);
     } finally {
       setDisable(false, "confirm-delete-user");
     }
@@ -471,7 +466,6 @@ export default class Account {
     const event = this.eventListeners.find((el) => el.name === name);
     if (event) {
       event.element.removeEventListener(event.type, event.listener);
-      console.log("Removed unique eventListener:", name);
       this.eventListeners = this.eventListeners.filter(
         (el) => el.name !== name
       );

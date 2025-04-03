@@ -100,7 +100,6 @@ export async function logout() {
     await state.setGameStarted("default");
     router.navigate("/");
   } catch (error) {
-    console.error(`Error while trying to logout : ${error}`);
     throw error;
   } finally {
     setDisable(false, "logout-button");
@@ -120,7 +119,6 @@ export async function checkUserStatus() {
     }
     return true;
   } catch (error) {
-    console.error(`Error while trying to check user status : ${error}`);
     state.setIsUserLoggedIn(false);
     return false;
   }

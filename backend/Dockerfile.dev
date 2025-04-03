@@ -8,10 +8,7 @@ RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/ap
 
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
-# RUN pip install --upgrade pip && pip install --no-cache-dir --index-url https://mirror.google.com/pypi/simple/ --extra-index-url https://pypi.org/simple/ -r requirements.txt
 
-
-# Add watchdog for file watching
 RUN pip install watchdog[watchmedo]
 
 VOLUME /app
