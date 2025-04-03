@@ -59,7 +59,6 @@ export default class LocalTournament {
       const response = await API.get(`/user/${id}/`);
       this.userAlias = response.data.user.alias;
     } catch (error) {
-      console.error(`Error while trying to get data : ${error}`);
     }
   }
 
@@ -259,7 +258,6 @@ export default class LocalTournament {
         await updateView(this, {});
       }
     } else if (newState.gameStarted && !this.previousState.gameStarted) {
-      console.log("new game started in handlestatechange");
       if (container) {
         container.innerHTML = "";
         container.className = "";
@@ -311,22 +309,19 @@ export default class LocalTournament {
       alert("Tournament has already been stored !");
       return;
     }
-    // Vérifier si Metamask est connecté
     const userAddress = await connectWallet();
     if (!userAddress) {
       alert("Metamask connexion is required !");
       return;
     }
 
-    // Récupérer les données du tournoi à envoyer
     if (this.tournamentId.length == 0) {
       alert("Tournament is not yet created !");
       return;
     }
     const tournamentId = this.uuidToBytes32(this.tournamentId);
     const rounds = this.formatTournamentData();
-    // console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
-    // console.log("Envoi du tournoi sur la blockchain...", rounds);
+	// console.log("Données envoyées à storeFullTournament:", JSON.stringify(rounds, null, 2), "ID du tournoi:", tournamentId);
 
     this.buttonBlockchainState = "storing";
     this.display_store_button(this.buttonBlockchainState);
@@ -334,7 +329,6 @@ export default class LocalTournament {
     try {
       const success = await storeTournament(rounds, tournamentId);
       if (success) {
-        // alert("Tournoi enregistré avec succès sur la blockchain !");
         this.buttonBlockchainState = "stored";
         this.display_store_button(this.buttonBlockchainState);
         this.tournamentStoredOnBlockchain = true;
@@ -343,8 +337,6 @@ export default class LocalTournament {
         this.display_store_button(this.buttonBlockchainState);
       }
     } catch (error) {
-      console.error("Blockchain error :", error);
-      alert("Error has occured, check the console.");
     }
     setDisable(false, "store-blockchain-button");
   }
@@ -406,11 +398,9 @@ export default class LocalTournament {
       this.formState.score_player2 = parseInt(left);
       this.formState.opponentName = this.MatchToPlay.player1;
     }
-    console.warn("posting data for tournament");
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
-      console.error(error);
     } finally {
       this.formState = {};
       await this.matchFinished();
@@ -440,7 +430,6 @@ export default class LocalTournament {
         this.tournamentWinner = winner;
       }
     } catch (error) {
-      console.error(`Error while trying to update match data : ${error}`);
     } finally {
       this.state.state.gameHasBeenWon = false;
       if (!this.tournamentFinished) this.state.resetScore();
@@ -460,7 +449,6 @@ export default class LocalTournament {
       this.tournamentId = res.data.tournament.id;
       await updateView(this, {});
     } catch (error) {
-      console.error(`Error while trying to update user data : ${error}`);
       if (error.response && error.response.status === 400) {
         this.resetAttributes();
         if (error.response.data) {
@@ -664,7 +652,6 @@ export default class LocalTournament {
   }
 
   async render(routeParams = {}) {
-    console.log("render tournament");
     this.tournamentStoredOnBlockchain = false;
     await checkUserStatus();
 

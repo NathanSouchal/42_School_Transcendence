@@ -210,10 +210,8 @@ export default class GamePage {
     this.formState.score_player2 = parseInt(left);
 
     try {
-      console.log("posting data for game");
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
-      console.error(error);
     } finally {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
@@ -223,7 +221,6 @@ export default class GamePage {
   }
 
   async saveGameOpponentLeft() {
-    console.log("saveGameOpponentLeft()");
     if (!this.state.isUserLoggedIn || this.isProcessing) return;
     this.isProcessing = true;
     const { left, right } = this.state.score;
@@ -235,7 +232,6 @@ export default class GamePage {
     try {
       await API.post(`/game/list/`, this.formState);
     } catch (error) {
-      console.error(error);
     } finally {
       this.state.state.opponentId = null;
       this.state.state.userSide = null;
@@ -285,7 +281,6 @@ export default class GamePage {
     if (renderGame) renderGame.className = "app";
     const menuButton = document.getElementById("toggle-button");
     if (menuButton) menuButton.className = "toggle-button";
-    console.log("Destroyed game page");
     this.removeEventListeners();
     if (this.state.state.isSearching) await this.state.cancelMatchmaking();
     if (this.isSubscribed) {
@@ -464,7 +459,6 @@ export default class GamePage {
 
   async render(routeParams = {}) {
     await checkUserStatus();
-    console.log("render GamePage");
 
     if (!this.isSubscribed) {
       this.previousState = { ...this.state.state };

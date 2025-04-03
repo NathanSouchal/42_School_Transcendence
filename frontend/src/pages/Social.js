@@ -111,7 +111,6 @@ export default class Social {
   async getFriends(id) {
     try {
       const res = await API.get(`/friends/list/${id}/`);
-	  console.log(res);
       this.friends = res.data.friend_list;
       for (let friend of this.friends) {
         if (friend.avatar) {
@@ -121,7 +120,6 @@ export default class Social {
         } else friend.avatar = "/profile.jpeg";
       }
     } catch (error) {
-      console.error(error);
     }
   }
 
@@ -130,16 +128,11 @@ export default class Social {
       const res = await API.get(`/friend-requests/byuser/${id}/`);
       this.invitations = res.data.pending_friend_requests;
       for (let invitation of this.invitations) {
-        // console.log("invitation.from_user.avatar: ", invitation.from_user.avatar, "invitation.to_user.avatar: ", invitation.to_user.avatar);
         if (invitation.from_user) {
           const res = await this.buildAvatarImgLink(
             invitation.from_user.avatar
           );
           if (res && invitation.from_user.avatar !== null) {
-            console.log(
-              "invitation.from_user.avatar: ",
-              invitation.from_user.avatar
-            );
             invitation.from_user.avatar = `${invitation.from_user.avatar}`;
           } else invitation.from_user.avatar = "/profile.jpeg";
         }
@@ -153,7 +146,6 @@ export default class Social {
         }
       }
     } catch (error) {
-      console.error(error);
     }
   }
 
@@ -167,7 +159,7 @@ export default class Social {
       });
       await updateView(this, {});
     } catch (error) {
-      console.error(`Error while trying to accept friend request : ${error}`);
+
     } finally {
       setDisable(false, "validate_invit");
     }
@@ -183,9 +175,6 @@ export default class Social {
       });
       await updateView(this, {});
     } catch (error) {
-      console.error(
-        `Error while trying to cancel or denie friend request : ${error}`
-      );
     } finally {
       setDisable(false, "cancel_decline_invit");
     }
@@ -204,7 +193,6 @@ export default class Social {
       const res = await API.get(`/user/${usernameToSearch}/`);
       this.search_result = res.data.user;
       this.updateSearchResult();
-      console.log(this.search_result);
     } catch (error) {
       if (error.response && error.response.status === 404) {
         const searchResultDiv = document.getElementById("search_result");

@@ -127,7 +127,7 @@ export default class Login {
     e.preventDefault();
     setDisable(true, "login-form");
     if (!this.formState.username.length || !this.formState.password.length) {
-      return console.error(trad[this.lang].errors.fields);
+      return this.displayLoginErrorMessage(trad[this.lang].errors.fields);
     }
     try {
       const response = await API.post("/auth/login/", this.formState);
@@ -159,7 +159,6 @@ export default class Login {
   async handleSubmit2FA(e) {
     e.preventDefault();
     setDisable(true, "2fa-login-form");
-    console.log("Sending 2FA verification:", this.formState.code);
     if (!this.formState.code?.length) {
       return this.displayLoginErrorMessage(trad[this.lang].errors.enterCode);
     }
@@ -178,7 +177,6 @@ export default class Login {
         if (retry) retry.style.display = "block";
         this.attachEventListeners();
       }
-      console.error(`Error while trying to login ${error}`);
     } finally {
       this.formState = {};
       const inputs = document.querySelectorAll("input");

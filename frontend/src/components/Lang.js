@@ -12,7 +12,6 @@ export class Lang {
         lang: langText,
       });
     } catch (error) {
-      console.error(error);
     }
   }
 

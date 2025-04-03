@@ -48,7 +48,6 @@ class Ball {
         },
         undefined,
         (error) => {
-          console.error(error);
           reject(error);
         },
       );

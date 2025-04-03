@@ -71,7 +71,6 @@ export default class Stats {
       const data = res.data.stats;
       this.stats = data;
     } catch (error) {
-      console.error(error);
     }
   }
 

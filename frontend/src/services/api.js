@@ -1,22 +1,17 @@
 import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
-// import https from "https";
 
-const API_BASE_URL = import.meta.env.URL;
+const API_BASE_URL = import.meta.env.VITE_URL;
+console.log("API_BASE_URL : ", API_BASE_URL);
 
 const API = axios.create({
-  // baseURL: API_BASE_URL,
-  baseURL: "https://10.13.11.3:8443/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
-  // httpsAgent: new https.Agent({
-  //   rejectUnauthorized: false,
-  // }),
 });
 
 async function getNewAccessToken() {
-  console.log("Getting new access token");
   try {
     const response = await API.post(`/auth/custom-token/access/`);
     const data = response.data.user;
@@ -27,7 +22,6 @@ async function getNewAccessToken() {
     state.saveState();
   } catch (error) {
     state.setIsUserLoggedIn(false);
-    console.error(`Error while trying to get new access token : ${error}`);
     throw error;
   }
 }
@@ -35,7 +29,7 @@ async function getNewAccessToken() {
 let isRetrying = false;
 
 API.interceptors.response.use(
-  (response) => response, // Laisser passer les réponses réussies
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
     if (error.response && error.response.status === 500) {
@@ -62,14 +56,12 @@ API.interceptors.response.use(
         return Promise.reject(error);
       }
       isRetrying = true;
-      console.error("Error 401, will try to get new access token");
       try {
         await getNewAccessToken();
         state.setIsUserLoggedIn(true);
         isRetrying = false;
         return API(originalRequest);
       } catch (tokenError) {
-        console.error("Token refresh failed:", tokenError);
         return Promise.reject(tokenError);
       }
     }

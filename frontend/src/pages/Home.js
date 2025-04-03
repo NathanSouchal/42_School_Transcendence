@@ -90,7 +90,6 @@ export default class Home {
       handleHeader(this.state.isUserLoggedIn, false, true);
     else handleHeader(this.state.isUserLoggedIn, false, false);
     this.lang = this.state.state.lang;
-    console.log("Home rendered");
     return `
     <div class="home-main-div">
       <div class="home-title">

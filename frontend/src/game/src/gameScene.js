@@ -6,7 +6,6 @@ import Arena from "./game/arena.js";
 import Paddle from "./game/paddle.js";
 import { GameConfig } from "./config.js";
 import TerrainFactory from "./terrain/generation/terrain_factory.js";
-import SkyGenerator from "./terrain/sky.js";
 import FishFactory from "./terrain/creatures/FishFactory.js";
 import Renderer from "./scene/rendering.js";
 import state from "../../app.js";

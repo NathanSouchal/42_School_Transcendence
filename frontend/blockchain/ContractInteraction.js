@@ -13,9 +13,8 @@ export async function connectWallet() {
     try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const accounts = await provider.send("eth_requestAccounts", []);
-        return accounts[0]; // Adresse Ethereum de l'utilisateur connecté
+        return accounts[0];
     } catch (error) {
-        console.error("Error during Metamask connexion :", error);
         return null;
     }
 }
@@ -31,26 +30,19 @@ export async function storeTournament(rounds, tournamentId) {
     }
 
     try {
-        // Connexion au provider et récupération du signer
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
-        console.log("Metamask account utilisé :", await signer.getAddress());
         const contract = getContract(signer);
 
-        // Envoyer la transaction
         const gasEstimate = await contract.storeFullTournament.estimateGas(rounds, tournamentId);
         const tx = await contract.storeFullTournament(rounds, tournamentId, {
-            gasLimit: gasEstimate * 2n, // Ajout d'une marge de sécurité
+            gasLimit: gasEstimate * 2n,
             // gasPrice: ethers.parseUnits("100", "gwei")
         });
-        
-        console.log("Transaction send :", tx.hash);
 
-        await tx.wait(); // Attente de la confirmation
-        console.log("Tournament's score stored on the blockchain");
+        await tx.wait();
         return true;
     } catch (error) {
-        // console.error("Error during tournament registration :", error);
         return false;
     }
 }
@@ -76,7 +68,6 @@ export async function getTournament(tournamentId) {
             scorePlayer2s: result[4].map(Number),
         };
     } catch (error) {
-        console.error("Error during tournament recovery :", error);
         return null;
     }
 }
