@@ -134,7 +134,7 @@ export const trad = {
     rules: {
       pageTitle: "Rules",
       rules:
-        "Pong is a table tennis game. Players use the paddles to hit a ball back and forth. The goal is for each player to reach ten points before the opponent. Points are earned when one fails to return the ball to the other.",
+        "Pong is a table tennis game. Players use the paddles to hit a ball back and forth. The goal is for each player to reach 5 points before the opponent. Points are earned when one fails to return the ball to the other.",
       single: "Controls for one player on a single keyboard",
       double: "Controls for two players on a single keyboard",
       up: "Up",
@@ -305,7 +305,7 @@ export const trad = {
     rules: {
       pageTitle: "Règles",
       rules:
-        "Pong est un jeu de tennis de table. Les joueurs utilisent les raquettes pour frapper une balle d'avant en arrière. L'objectif est que chaque joueur atteigne dix points avant son adversaire. Les points sont marqués lorsqu'un joueur ne parvient pas à renvoyer la balle à l'autre.",
+        "Pong est un jeu de tennis de table. Les joueurs utilisent les raquettes pour frapper une balle d'avant en arrière. L'objectif est que chaque joueur atteigne 5 points avant son adversaire. Les points sont marqués lorsqu'un joueur ne parvient pas à renvoyer la balle à l'autre.",
       single: "Contrôles pour un joueur sur un seul clavier",
       double: "Contrôles pour deux joueurs sur un seul clavier",
       up: "Haut",
@@ -482,7 +482,7 @@ export const trad = {
     rules: {
       pageTitle: "Reglas",
       rules:
-        "Pong es un juego de tenis de mesa. Los jugadores usan las palas para golpear la pelota de un lado a otro. El objetivo es que cada jugador alcance diez puntos antes que su oponente. Se ganan puntos cuando un jugador no logra devolver la pelota al otro.",
+        "Pong es un juego de tenis de mesa. Los jugadores usan las palas para golpear la pelota de un lado a otro. El objetivo es que cada jugador alcance 5 puntos antes que su oponente. Se ganan puntos cuando un jugador no logra devolver la pelota al otro.",
       single: "Controles para un jugador en un solo teclado",
       double: "Controles para dos jugadores en un solo teclado",
       up: "Arriba",
@@ -661,7 +661,7 @@ export const trad = {
     rules: {
       pageTitle: "Crabules",
       rules:
-        "Crab Pong is a crabby table tennis game. Crabbers use their crab-paddles to hit the crab-ball back and forth. The goal is for each crabber to reach ten crab-points before the crab-opponent. Crab-points are earned when a crabber fails to return the crab-ball to the other crabber.",
+        "Crab Pong is a crabby table tennis game. Crabbers use their crab-paddles to hit the crab-ball back and forth. The goal is for each crabber to reach 5 crab-points before the crab-opponent. Crab-points are earned when a crabber fails to return the crab-ball to the other crabber.",
       single: "Crabntrols for one crabber on a single crabboard",
       double: "Crabntrols for two crabbers on a single crabboard",
       up: "Crab Up",
