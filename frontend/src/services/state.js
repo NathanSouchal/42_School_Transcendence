@@ -344,12 +344,10 @@ export default class State {
     if (typeof listener !== "function") {
       throw new TypeError("Le listener doit être une fonction.");
     }
-    // console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 
   unsubscribe(listener) {
-    //console.log("Abonnement retiré :", listener.name || listener);
     this.listeners = this.listeners.filter((l) => l !== listener);
   }
 
