@@ -32,7 +32,7 @@ class Loop:
                     last_time = current_time
 
                     if "ball" not in self.consumer.rooms[room]:
-                        print(f"ERREUR: Aucune balle trouvee pour la salle {room}")
+                        print(f"Error: No ball found for room {room}")
                         continue
                     ball = self.consumer.rooms[room]["ball"]
 
@@ -70,7 +70,7 @@ class Loop:
                 await asyncio.sleep(1 / 100)
 
         except asyncio.CancelledError:
-            print(f"game_loop anulle pour la salle {room}")
+            print(f"game_loop cancelled for room {room}")
             pass
         except Exception as e:
             print(f"Error in game loop: {e}")

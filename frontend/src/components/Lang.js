@@ -46,7 +46,6 @@ export class Lang {
         }
       }
 
-      // Sélection d'une langue
       document.querySelectorAll(".lang-menu li").forEach((item) => {
         item.addEventListener("click", async (e) => {
           const newLang = e.currentTarget.getAttribute("data-lang");
@@ -54,7 +53,6 @@ export class Lang {
             e.currentTarget.querySelector(".lang-name").textContent;
           this.state.updateLang(langText);
           if (this.state.isUserLoggedIn) await this.updateUserLang(langText);
-          console.log("this.state.state.lang : " + this.state.state.lang);
 
           selectedLangImg.classList.add("fade-out");
 
@@ -66,7 +64,6 @@ export class Lang {
         });
       });
 
-      // Fermer le menu quand on clique ailleurs
       document.addEventListener("click", (e) => {
         if (!langDiv.contains(e.target)) {
           langDiv.classList.remove("open-lang");

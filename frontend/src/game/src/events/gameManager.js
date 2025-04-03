@@ -21,8 +21,6 @@ export class GameManager {
   }
 
   async connect() {
-    console.log("connect()");
-
     await this.closeExistingConnection();
     this.createNewConnection();
     this.setupSocketEventHandlers();
@@ -32,7 +30,6 @@ export class GameManager {
         this.socket.addEventListener(
           "open",
           () => {
-            console.log("✅ Socket ouverte !");
             resolve();
           },
           { once: true }
@@ -40,14 +37,12 @@ export class GameManager {
         this.socket.addEventListener(
           "error",
           (error) => {
-            console.error("Erreur lors de l'ouverture de la socket :", error);
             reject(error);
           },
           { once: true }
         );
       });
     } catch (error) {
-      console.error("La connexion n'a pas pu être établie.", error);
       return;
     }
 
@@ -111,14 +106,10 @@ export class GameManager {
   }
 
   handleClose(event) {
-    console.error(
-      `❌ WebSocket Closed: code=${event.code}, reason=${event.reason}`
-    );
     this.isConnected = false;
   }
 
   handleOpen() {
-    console.log("✅ WebSocket ouvert !");
     this.isConnected = true;
   }
 
@@ -144,7 +135,6 @@ export class GameManager {
         this.handlePong(data);
         break;
       case "opponent_left":
-        console.error("Opponent left !!!!!!!!!!!!!");
         state.state.opponentLeft = true;
         state.setGameEnded();
         break;
@@ -156,13 +146,6 @@ export class GameManager {
 
   handleOpponentFound(data) {
     this.side = data.side;
-    if (data.opponent_id) {
-      console.log(
-        `🎯 Opposant trouvé: ID=${data.opponent_id}, Nom=${data.opponent_username}`
-      );
-    } else {
-      console.warn("⚠️ Aucun opponent_id reçu !");
-    }
     state.gameMode = data.side === "left" ? "OnlineLeft" : "OnlineRight";
     state.isSourceOfTruth = data.isSourceOfTruth;
     state.setIsSearching(false);
@@ -185,7 +168,6 @@ export class GameManager {
   }
 
   handleError(error) {
-    console.error("❌ WebSocket Error:", error);
     this.isConnected = false;
   }
 

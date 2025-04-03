@@ -33,7 +33,6 @@ class Ball:
         self.PADDLE_DEPTH = 7.0
         self.BALL_RADIUS = 0.3
 
-        # Configuration for ball physics
         self.conf = {
             "speed": {
                 "initialMin": 0.5,
@@ -64,7 +63,6 @@ class Ball:
 
             if abs(x) > 0.01 or abs(y) > 0.01:
                 break
-        # print(f"🚀 Vitesse initiale: x={x}, y={y}")
         self.bounces = 0
         initial_speed = math.sqrt(x * x + y * y)
         self.bounces_needed = math.log(
@@ -118,7 +116,7 @@ class Ball:
             if paddle_pos is not None:
                 relative_position = self.position.x - paddle_pos
                 normalized_position = relative_position / (self.PADDLE_WIDTH / 2)
-                max_angle = math.pi / 4  # 45 degrees
+                max_angle = math.pi / 4
                 new_angle = normalized_position * max_angle
 
                 current_speed = self.velocity.length()
@@ -137,7 +135,6 @@ class Ball:
         elif side in ["top", "bottom"]:
             self.velocity.x *= -1
 
-        # print(f"🔄 Bounce: Après rebond, Vitesse={self.velocity}")
 
     def update(self, delta_time):
         if self.is_falling:
@@ -153,7 +150,6 @@ class Ball:
 
             self.elapsed_time += delta_time
             if self.elapsed_time >= 1.2:
-                # right and left inverted for score
                 side = "right" if self.position.z < 0 else "left"
                 return f"point_scored_{side}"
         else:
@@ -161,7 +157,6 @@ class Ball:
                 delta_time * self.conf["speed"]["deltaFactor"]
             )
             self.position.add(scaled_velocity)
-            # Check if ball is out of arena
             if (
                 self.position.z < -self.ARENA_DEPTH / 2 - 0.2
                 or self.position.z > self.ARENA_DEPTH / 2 + 0.2

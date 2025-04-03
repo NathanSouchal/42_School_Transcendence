@@ -16,7 +16,6 @@ class RoomInitialization:
     async def setup_room(self):
         user = self.consumer.scope["user"]
         if self.consumer.game_mode == GameMode.ONLINE and not user.is_authenticated:
-            print("User not logged in, access to ONLINE mode denied")
             await self.consumer.close()
             return
 
@@ -53,7 +52,7 @@ class RoomInitialization:
             )
         else:
             print(
-                "⚠️ Erreur: `channel_layer` est None. Channels est-il bien configuré ?"
+                "⚠️ `channel_layer` is None"
             )
 
         player_info = {
@@ -65,7 +64,6 @@ class RoomInitialization:
         if player_info not in self.consumer.rooms[self.consumer.room]["players"]:
             self.consumer.rooms[self.consumer.room]["players"].append(player_info)
 
-        # Lancement en tâche de fond pour pouvoir l'annuler facilement en cas de déconnexion
         if self.consumer.game_mode == GameMode.ONLINE:
             self.consumer.manage_task = asyncio.create_task(
                 self.manage_online_players()
@@ -73,16 +71,15 @@ class RoomInitialization:
         else:
             self.consumer.isSourceOfTruth = False
 
-        # print(f"rooms number: {len(self.consumer.rooms)}")
         for room, details in self.consumer.rooms.items():
             print(f"Room {room}: {details['players']}")
         if self.consumer.room not in self.consumer.game_loops:
-            print(f"🚀 Lancement du game_loop pour la salle {self.consumer.room}")
+            print(f"🚀 launching game_loop for room {self.consumer.room}")
             self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
                 self.consumer.loop.game_loop(self.consumer.room)
             )
         else:
-            print(f"⚠️ game_loop déjà actif pour {self.consumer.room}")
+            print(f"⚠️ game_loop already active for {self.consumer.room}")
 
     async def initializeRoom(self):
         self.consumer.rooms[self.consumer.room] = copy.deepcopy(
@@ -96,11 +93,10 @@ class RoomInitialization:
             }
             self.consumer.rooms[self.consumer.room]["ball"] = Ball()
         except Exception as e:
-            print(f"⚠️ Erreur lors de l'initialisation de la salle : {e}")
-            del self.consumer.rooms[self.consumer.room]  # Supprime la salle corrompue
+            print(f"⚠️ Error when initializing room : {e}")
+            del self.consumer.rooms[self.consumer.room]
 
     async def manage_online_players(self):
-        # Sauvegarde de la room BACKGROUND
         self.previous_room = (
             self.consumer.room
             if self.consumer.game_mode == GameMode.BACKGROUND
@@ -127,13 +123,11 @@ class RoomInitialization:
                 await asyncio.sleep(2)
 
             if len(self.consumer.rooms[self.consumer.room]["players"]) == 2:
-                # Pour le mode ONLINE, on envoie directement la notification dès que deux joueurs sont présents
                 if self.consumer.game_mode == GameMode.ONLINE:
                     opponent_index = 1 if self.consumer.player_side == "left" else 0
                     opponent = self.consumer.rooms[self.consumer.room]["players"][
                         opponent_index
                     ]
-                    print(f"Envoi des infos de l'adversaire: {opponent}")
                     await self.consumer.send(
                         text_data=json.dumps(
                             {
@@ -148,16 +142,14 @@ class RoomInitialization:
                     )
                     print("Second player has been found")
                 else:
-                    # Pour le mode BACKGROUND, on gère la sauvegarde et la réactivation de la room précédente
                     if self.previous_room:
-                        print(f"🔴 Stopping BACKGROUND room {self.previous_room}")
+                        print(f"Stopping BACKGROUND room {self.previous_room}")
                         del self.consumer.rooms[self.previous_room]
                         self.previous_room = None
                         opponent_index = 1 if self.consumer.player_side == "left" else 0
                         opponent = self.consumer.rooms[self.consumer.room]["players"][
                             opponent_index
                         ]
-                        print(f"Envoi des infos de l'adversaire: {opponent}")
                         await self.consumer.send(
                             text_data=json.dumps(
                                 {
@@ -175,33 +167,26 @@ class RoomInitialization:
                 await self.reactivate_background_mode()
 
     async def reactivate_background_mode(self):
-        print(f"Réactive la room BACKGROUND")
-        """Réactive la room BACKGROUND en réinitialisant les objets de jeu et en relançant la boucle."""
-        # Annuler l'ancienne game_loop s'il y en a une
         if self.consumer.room in self.consumer.game_loops:
             self.consumer.game_loops[self.consumer.room].cancel()
             try:
                 await self.consumer.game_loops[self.consumer.room]
             except asyncio.CancelledError:
-                print(f"Ancienne game_loop annulée pour la salle {self.consumer.room}")
+                print(f"Old game_loop cancelled for room {self.consumer.room}")
             del self.consumer.game_loops[self.consumer.room]
 
-        # Réinitialiser la room en recréant les objets de jeu (ball et paddles)
         await self.initializeRoom()
 
-        # Redémarrer la boucle de jeu pour le mode BACKGROUND
         print(f"🚀 Restarting game loop for BACKGROUND room {self.consumer.room}")
         self.consumer.game_loops[self.consumer.room] = asyncio.create_task(
             self.consumer.loop.game_loop(self.consumer.room)
         )
 
     async def erase_rooms_containing_player(self, user):
-        # Si l'utilisateur n'est pas authentifié (user.id est None), on ignore
         if user.id is None:
             return
 
         for room_name, room_data in self.consumer.rooms.items():
-            # Itérer sur une copie de la liste pour permettre la suppression
             for player in list(room_data["players"]):
                 if player["user_id"] == user.id:
                     room_data["players"].remove(player)
@@ -216,8 +201,6 @@ class RoomInitialization:
         ]
         for room_name in empty_rooms:
             del self.consumer.rooms[room_name]
-            print(f"cleanup room1")
             if room_name in self.consumer.game_loops:
-                print(f"cleanup room2")
                 self.consumer.game_loops[room_name].cancel()
                 del self.consumer.game_loops[room_name]
