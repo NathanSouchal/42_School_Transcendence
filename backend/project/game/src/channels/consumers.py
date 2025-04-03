@@ -175,6 +175,7 @@ class GameState(AsyncWebsocketConsumer):
                 if self.rooms[self.room]["playersReady"] == 2:
                     await self.send_helpers.send_players_ready()
                     self.rooms[self.room]["playersReady"] = 0
+                    self.loop.isWaitingForReset = True
         except Exception as e:
             print(f"Error processing message: {text_data}")
             print(f"Exception details: {str(e)}")

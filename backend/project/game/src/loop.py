@@ -7,6 +7,7 @@ from .utils import GameMode
 class Loop:
     def __init__(self, consumer):
         self.consumer = consumer
+        self.isWaitingForReset = False
 
     async def game_loop(self, room):
         try:
@@ -60,6 +61,9 @@ class Loop:
                             await self.consumer.send_helpers.send_point_scored(
                                 ball_state
                             )
+                    if (self.isWaitingForReset is True):
+                        await self.resetPositions(delta_time)
+                        self.isWaitingForReset = False
 
                     await self.consumer.send_helpers.send_positions()
 
