@@ -197,7 +197,6 @@ export class Header {
     if (nav) {
       const links = nav.querySelectorAll(".nav-link");
       const paths = [
-        "home",
         "play",
         "account",
         "stats",
@@ -220,9 +219,6 @@ export class Header {
     this.isGuestRendered = false;
     const header = `<nav class="navbar" id="navbar">
                     <ul class="navbar-links global-nav-section">
-                      <li class="navbar-link global-nav-items">
-                          <a class="nav-link" href="/">${trad[this.lang].header.home}</a>
-                      </li>
                       <li class="navbar-link global-nav-items">
                           <a class="nav-link" href="/game">${trad[this.lang].header.play}</a>
                       </li>
@@ -277,9 +273,6 @@ export class Header {
     this.isGuestRendered = true;
     const header = `<nav class="navbar" id="navbar">
                     <ul class="global-nav-section navbar-links">
-                      <li class="global-nav-items navbar-link">
-                          <a class="nav-link" href="/">${trad[this.lang].header.home}</a>
-                      </li>
                       <li class="global-nav-items navbar-link">
                           <a class="nav-link" href="/game">${trad[this.lang].header.play}</a>
                       </li>
