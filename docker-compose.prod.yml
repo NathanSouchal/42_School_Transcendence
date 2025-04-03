@@ -3,10 +3,10 @@ services:
     container_name: backend
     build:
       context: ./backend
-      dockerfile: Dockerfile  # Le Dockerfile de prod (gunicorn)
+      dockerfile: Dockerfile
     env_file: .env
     volumes:
-      - backend_media:/app/media  # Volume pour fichiers médias (avatars, uploads)
+      - backend_media:/app/media
     depends_on:
       - postgres
       - redis
@@ -20,14 +20,14 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: nginx/Dockerfile  # Dockerfile combiné pour frontend buildé + nginx
+      dockerfile: nginx/Dockerfile
     depends_on:
       - backend
     volumes:
-      - backend_media:/usr/share/nginx/html/media/  # 🔁 Sert les fichiers médias
+      - backend_media:/usr/share/nginx/html/media/
     ports:
-      - "8080:80" # HTTP (redirigé vers HTTPS)
-      - "8443:443" # HTTPS
+      - "8080:80"
+      - "8443:443"
     networks:
       - transcendence
     restart: always
@@ -57,5 +57,5 @@ networks:
     driver: bridge
 
 volumes:
-  backend_media:   # Pour les fichiers médias (avatars)
-  postgres_data:   # Pour les données PostgreSQL
+  backend_media:
+  postgres_data:

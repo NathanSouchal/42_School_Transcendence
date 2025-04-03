@@ -2,16 +2,13 @@ import axios from "axios";
 import state from "../app.js";
 import { router } from "../app.js";
 
-const API_BASE_URL = import.meta.env.URL;
+const API_BASE_URL = import.meta.env.VITE_URL;
+console.log("API_BASE_URL : ", API_BASE_URL);
 
 const API = axios.create({
-  // baseURL: API_BASE_URL,
-  baseURL: "https://10.13.11.3:8443/api",
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
-  // httpsAgent: new https.Agent({
-  //   rejectUnauthorized: false,
-  // }),
 });
 
 async function getNewAccessToken() {
@@ -32,7 +29,7 @@ async function getNewAccessToken() {
 let isRetrying = false;
 
 API.interceptors.response.use(
-  (response) => response, // Laisser passer les réponses réussies
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
     if (error.response && error.response.status === 500) {
