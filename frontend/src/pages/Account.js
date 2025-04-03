@@ -391,6 +391,7 @@ export default class Account {
         this.displayAccountErrorMessage(trad[this.lang].errors.phone);
         throw new Error(trad[this.lang].errors.phone);
       }
+      if (!this.formData.avatar && this.userData.avatar) this.formData.avatar = this.userData.avatar;
       const res = await API.put(`/user/${id}/`, this.formData);
       this.state.state.username = res.data.user.username;
       this.state.state.userAlias = res.data.user.alias;

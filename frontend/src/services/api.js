@@ -3,7 +3,6 @@ import state from "../app.js";
 import { router } from "../app.js";
 
 const API_BASE_URL = import.meta.env.VITE_URL;
-console.log("API_BASE_URL : ", API_BASE_URL);
 
 const API = axios.create({
   baseURL: API_BASE_URL,
