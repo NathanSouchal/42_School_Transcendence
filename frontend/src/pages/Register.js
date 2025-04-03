@@ -120,8 +120,10 @@ export default class Register {
     let regex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>/?]).*$/;
 
+    let userRegex = /^\w+$/;
+
     if (key === "username") {
-      if (value.length < 4) {
+      if (value.length < 4 || !userRegex.test(value)) {
         inputElement.classList.remove("is-valid");
         inputElement.classList.add("is-invalid");
       } else {
@@ -315,7 +317,7 @@ export default class Register {
               value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
-			  autocomplete="username"
+			  autocomplete="off"
               required
             />
             <input
@@ -327,7 +329,7 @@ export default class Register {
 			  maxLength="20"
               name="password"
               aria-label="Password"
-			  autocomplete="nwe-password"
+			  autocomplete="off"
               required
             />
             <input
@@ -339,14 +341,14 @@ export default class Register {
 			  maxLength="20"
               name="passwordConfirmation"
               aria-label="Confirm Password"
-			  autocomplete="nwe-password"
+			  autocomplete="off"
               required
             />
             <button type="submit" class="form-button-login-register">
 			${trad[this.lang].register.signUp}
             </button>
 			<div class="popup" id="popup-div">
-			<h3>Password restrictions</h3>
+			<h3 class="restrictions-title">${trad[this.lang].register.fieldRestrictions}</h3>
 				<span class="popup-text" id="popup">${trad[this.lang].register.restrictions}</span>
 			</div>
 			<h2 class="register-error-message" id="register-error-message"></h2>

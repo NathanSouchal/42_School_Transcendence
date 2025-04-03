@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+
 from decouple import config
 from dotenv import load_dotenv
 
@@ -24,15 +25,16 @@ ALLOWED_HOSTS = [
     "10.13.12.4",
     "10.12.11.7",
     "10.12.11.6",
-	"10.13.11.3",
-	"10.13.3.4",
-	"10.13.3.2",
+    "10.13.11.3",
+    "10.13.3.4",
+    "10.13.3.2",
     "10.19.239.218",
     "192.168.1.30",
-	"192.168.1.166",
-	"192.168.1.80",
-	"192.168.0.32",
-	"10.19.234.197"
+    "192.168.1.166",
+    "192.168.1.80",
+    "192.168.0.32",
+    "10.19.234.197",
+    "10.13.11.1",
 ]
 
 INSTALLED_APPS = [
@@ -65,8 +67,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    # 'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
@@ -191,7 +192,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://10.13.3.2:8443",
     "https://10.12.11.7:8443",
     "https://10.12.11.6:8443",
-	"https://10.13.11.3:8443",
+    "https://10.13.11.3:8443",
     "https://10.19.239.218:3000",
     "http://10.19.239.218:3000",
     "https://10.19.239.218:8443",
@@ -206,6 +207,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.30:3000",
     "https://10.12.11.5:8443",
     "https://10.12.11.6:8443",
+    "https://10.13.11.1:8443",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -224,7 +226,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://10.12.11.6:8443",
     "https://10.13.3.4:8443",
     "https://10.13.3.2:8443",
-	"https://10.13.11.3:8443",
+    "https://10.13.11.3:8443",
     "https://10.19.239.218:3000",
     "https://10.19.239.218:8443",
     "http://10.19.239.218:3000",
@@ -233,10 +235,11 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.1.30:8443",
     "https://192.168.1.30:3000",
     "http://192.168.1.30:3000",
-	"https://192.168.1.80:8443",
-	"https://192.168.0.32:8443",
-	"https://10.19.234.197:8443",
-	"https://192.168.1.166:8443",
+    "https://192.168.1.80:8443",
+    "https://192.168.0.32:8443",
+    "https://10.19.234.197:8443",
+    "https://192.168.1.166:8443",
+    "https://10.13.11.1:8443",
 ]
 
 

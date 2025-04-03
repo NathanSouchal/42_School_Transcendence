@@ -52,8 +52,7 @@ export default class State {
     document.getElementById("app").classList.add("hidden");
     document.getElementById("c").classList.add("hidden");
 
-    // this.gamePoints = 10;
-    this.gamePoints = 2;
+    this.gamePoints = 5;
 
     this.botDifficulty = 6;
 
@@ -284,7 +283,6 @@ export default class State {
     }
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
-    //this.setGameStarted("default");
   }
 
   setIsSearching(bool) {
@@ -298,7 +296,6 @@ export default class State {
     if (this.gameMode === "default") return;
     this.state.gameStarted = false;
     this.scores.push(this.score);
-    // this.state.gameIsTimer = false;
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");
@@ -347,12 +344,10 @@ export default class State {
     if (typeof listener !== "function") {
       throw new TypeError("Le listener doit être une fonction.");
     }
-    // console.log("Abonnement ajouté :", listener.name || listener);
     this.listeners.push(listener);
   }
 
   unsubscribe(listener) {
-    //console.log("Abonnement retiré :", listener.name || listener);
     this.listeners = this.listeners.filter((l) => l !== listener);
   }
 
