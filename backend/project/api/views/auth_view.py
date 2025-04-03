@@ -138,14 +138,13 @@ class LoginView(APIView):
 			'message': 'Authentification complete'
 		}, status=status.HTTP_200_OK)
 
-		# Ajouter les cookies sécurisés
 		response.set_cookie(
 		key='access_token',
 		value=str(new_refresh_token.access_token),
 		httponly=True,
 		secure=True,
 		samesite='None',
-		max_age=1 * 60  # 1 minutes
+		max_age=10 * 60
 		)
 		response.set_cookie(
 		key='refresh_token',
@@ -153,7 +152,7 @@ class LoginView(APIView):
 		httponly=True,
 		secure=True,
 		samesite='None',
-		max_age=7 * 24 * 60 * 60  # 7 jours
+		max_age=7 * 24 * 60 * 60
 		)
 		print("Cookies envoyes :", response.cookies)
 		return response
@@ -329,7 +328,7 @@ class AccessTokenView(APIView):
 				httponly=True,
 				secure=True,
 				samesite='None',
-				max_age=1 * 60
+				max_age=10 * 60
 			)
             return response
         except UserRefreshToken.DoesNotExist:

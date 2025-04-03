@@ -548,7 +548,7 @@ export default class Account {
 					maxLength="10"
 					value="${this.formData.username ? this.formData.username : ``}"
 					name="username"
-					autocomplete="username"
+					autocomplete="off"
 					required
 					/>
 				</div>
@@ -563,7 +563,7 @@ export default class Account {
 					maxLength="10"
 					value="${this.formData.alias ? this.formData.alias : ``}"
 					name="alias"
-					autocomplete="auto"
+					autocomplete="off"
 					required
 					/>
 				</div>
@@ -612,7 +612,7 @@ export default class Account {
 						placeholder="E-mail"
 						value="${this.formData.email ? this.formData.email : ``}"
 						name="email"
-						autocomplete="email"
+						autocomplete="off"
 						${this.userData.two_factor_method == "email" ? `` : `disabled`}
 						/>
 						</div>
@@ -642,7 +642,7 @@ export default class Account {
 						placeholder="Phone number"
 						value="${this.formData.phone_number ? this.formData.phone_number : ``}"
 						name="phone_number"
-						autocomplete="tel"
+						autocomplete="off"
 						${this.userData.two_factor_method == "sms" ? `` : `disabled`}
 						/>
 						</div>
