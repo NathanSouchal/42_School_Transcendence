@@ -96,6 +96,8 @@ export async function logout() {
     state.saveState();
     const selectedLangImg = document.getElementById("selected-lang-img");
     if (selectedLangImg) selectedLangImg.src = "english.jpg";
+	if (state.gameManager?.socket) state.gameManager.socket.close();
+    await state.setGameStarted("default");
     router.navigate("/");
   } catch (error) {
     console.error(`Error while trying to logout : ${error}`);

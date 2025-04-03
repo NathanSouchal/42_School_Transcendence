@@ -138,7 +138,7 @@ export default class Login {
         if (response.data.method === "email") this.method2fa = "e-mail";
         return updateView(this, {});
       }
-      this.updateUserInfo(response.data.user);
+      await this.updateUserInfo(response.data.user);
       router.navigate("/account");
     } catch (error) {
       if (error.response) {
@@ -165,7 +165,7 @@ export default class Login {
     }
     try {
       const response = await API.post("/auth/verify-2fa/", this.formState);
-      this.updateUserInfo(response.data.user);
+      await this.updateUserInfo(response.data.user);
       if (this.is2fa) this.is2fa = false;
       router.navigate("/account");
     } catch (error) {
@@ -189,7 +189,7 @@ export default class Login {
     }
   }
 
-  updateUserInfo(data) {
+  async updateUserInfo(data) {
     this.state.state.lang = data.lang;
     this.state.state.userId = data.id.toString();
     this.state.state.username = data.username;
@@ -213,6 +213,8 @@ export default class Login {
         loadingText.nodeValue = "Crabing Crab";
       }
     }
+    if (this.state.gameManager?.socket) this.state.gameManager.socket.close();
+    await this.state.setGameStarted("default");
   }
 
   displayLoginErrorMessage(errorMsg) {

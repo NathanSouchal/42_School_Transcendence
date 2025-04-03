@@ -283,7 +283,6 @@ export default class State {
     }
     this.gameMode = "default";
     console.log("Cancelled Matchmaking");
-    //this.setGameStarted("default");
   }
 
   setIsSearching(bool) {
@@ -297,7 +296,6 @@ export default class State {
     if (this.gameMode === "default") return;
     this.state.gameStarted = false;
     this.scores.push(this.score);
-    // this.state.gameIsTimer = false;
     this.state.gameIsPaused = false;
     if (this.gameManager?.socket) this.gameManager.socket.close();
     this.setGameStarted("default");

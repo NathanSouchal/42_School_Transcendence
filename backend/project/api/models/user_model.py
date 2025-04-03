@@ -7,6 +7,7 @@ import pyotp
 import os
 from django.utils.timezone import now
 from api.utils import sanitize_input
+from game.src.channels.consumers import GameState
 
 """
 models -> Importé depuis Django, contient les outils nécessaires pour définir des modèles
@@ -126,7 +127,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return totp.verify(otp_code)  # Vérifie le code TOTP actuel
 
 	def is_online(self):
-		return (now() - self.last_seen).seconds < 120
+		for room_name, room_data in GameState.rooms.items():
+			for player in room_data["players"]:
+				if player.get("user_id") == self.id:
+					return True
+		return False
+		# return (now() - self.last_seen).seconds < 120
 
 """
 def create_user(self, username, password=None, **extra_fields):

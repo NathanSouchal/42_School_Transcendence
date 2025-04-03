@@ -111,6 +111,7 @@ export default class Social {
   async getFriends(id) {
     try {
       const res = await API.get(`/friends/list/${id}/`);
+	  console.log(res);
       this.friends = res.data.friend_list;
       for (let friend of this.friends) {
         if (friend.avatar) {
