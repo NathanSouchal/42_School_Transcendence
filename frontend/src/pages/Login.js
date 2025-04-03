@@ -266,7 +266,7 @@ export default class Login {
 			  placeholder="${trad[this.lang].login.oneTimeCode}"
               value="${this.formState.code ? this.formState.code : ``}"
               name="code"
-			  autocomplete="one-time-code"
+			  autocomplete="off"
               required
             />
             <button type="submit" class="form-button-login-register">
@@ -305,7 +305,7 @@ export default class Login {
               value="${this.formState.username ? this.formState.username : ``}"
               name="username"
               aria-label="Username"
-			  autocomplete="username"
+			  autocomplete="off"
               required
             />
             <input
@@ -317,7 +317,7 @@ export default class Login {
 			  maxLength="20"
               name="password"
               aria-label="Password"
-			  autocomplete="current-password"
+			  autocomplete="off"
               required
             />
             <button type="submit" class="form-button-login-register">

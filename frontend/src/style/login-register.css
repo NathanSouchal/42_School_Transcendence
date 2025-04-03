@@ -98,6 +98,12 @@
   margin-top: 1rem;
 }
 
+.restrictions-title {
+	width: 70%;
+	max-width: 500px;
+	min-width: 270px;
+}
+
 .popup {
   position: relative;
   display: inline-block;
@@ -120,7 +126,7 @@
   position: absolute;
   z-index: 1;
   top: 125%;
-  left: -30%;
+  left: -7%;
 }
 
 .popup .popup-text::after {
@@ -175,7 +181,7 @@
 }
 
 @media (max-width: 400px) {
-  .form-div-login-register {
+  .form-div-login-register, .restrictions-title {
     width: 100%;
   }
 }

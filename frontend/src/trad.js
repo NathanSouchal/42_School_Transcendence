@@ -96,8 +96,9 @@ export const trad = {
       enterPassword: "Enter password",
       confirmPassword: "Confirm Password",
       signUp: "Sign up",
+	  fieldRestrictions: "Field restrictions",
       restrictions:
-        "Password must have at least 8 characters, one uppercase letter, one number, and one special character",
+        "Password must have at least 8 characters, one uppercase letter, one number, and one special character. Username must have at least 4 characters, containing only letters, numbers and underscores.",
     },
     social: {
       pageTitle: "Social",
@@ -266,8 +267,9 @@ export const trad = {
       enterPassword: "Saisir votre mot de passe",
       confirmPassword: "Confirmer votre mot de passe",
       signUp: "Créer un compte",
+	  fieldRestrictions: "Restrictions des champs",
       restrictions:
-        "Le mot de passe doit comporter au moins 8 caractères, une lettre majuscule, un chiffre et un caractère spécial",
+        "Le mot de passe doit comporter au moins 8 caractères, une lettre majuscule, un chiffre et un caractère spécial. Le nom d'utilisateur doit comporter au moins 4 caractères, composés uniquement de lettres, de chiffres et d'underscores.",
     },
     social: {
       pageTitle: "Amis",
@@ -442,8 +444,9 @@ export const trad = {
       enterPassword: "Ingresar contraseña",
       confirmPassword: "Confirmar contraseña",
       signUp: "Registrarse",
+	  fieldRestrictions: "Restricciones de campo",
       restrictions:
-        "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial",
+        "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un carácter especial. El nombre de usuario debe tener al menos 4 caracteres, incluyendo solo letras, números y guiones bajos.",
     },
     social: {
       pageTitle: "Social",
@@ -620,8 +623,9 @@ export const trad = {
       enterPassword: "Enter Crabword",
       confirmPassword: "Confirm Crabword",
       signUp: "Crab Up",
+	  fieldRestrictions: "Crabber restrictions",
       restrictions:
-        "Crabword must have at least 8 crabs, one crabcase letter, one crabber, and one special crabacter",
+        "Crabword must have at least 8 crabs, one crabcase letter, one crabber, and one special crabacter. Usercrab must have at least 4 crabs, containing only letters, numbers and underscores.",
     },
     social: {
       pageTitle: "Crabial",
