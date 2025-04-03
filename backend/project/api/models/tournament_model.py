@@ -11,7 +11,6 @@ class Tournament(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 	name = models.CharField(max_length=100, unique=True, default='unnamed')
 	creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-	# participants = models.ManyToManyField(User, related_name='tournaments')
 	participants = models.JSONField(default=list, blank=True)
 	status = models.CharField(max_length=20, default='not_started')
 	number_of_players = models.PositiveIntegerField(default=0)
@@ -22,11 +21,9 @@ class Tournament(models.Model):
 		return self.name
 
 	def save(self, *args, **kwargs):
-		# Nettoyage des champs textuels avant d'enregistrer
 		self.name = sanitize_input(self.name)
 		self.status = sanitize_input(self.status)
 
-		# Nettoyer les données JSON si elles contiennent du texte
 		if isinstance(self.participants, list):
 			self.participants = [sanitize_input(p) if isinstance(p, str) else p for p in self.participants]
 
@@ -68,10 +65,8 @@ class Tournament(models.Model):
 	def start_tournament(self):
 		random.shuffle(self.participants)
 		nb_rounds = int(math.log2(self.number_of_players))
-		# On genere ici tous les matchs avec les players et le round et on remplit l'arbre round par round
 		for i in range(1, nb_rounds + 1):
 			self.generate_match_by_round(nb_rounds, i)
-		# Ici se fait l'attribution des next_match en se basant sur l'arbre
 		self.assign_next_matches()
 		self.status = 'in progress'
 		self.name = f'Tournament nº{self.id}'

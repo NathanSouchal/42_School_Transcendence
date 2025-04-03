@@ -9,8 +9,6 @@ import { router } from "../app.js";
 import { trad } from "../trad.js";
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "blablabla";
-
 export default class Account {
   constructor(state) {
     this.pageName = "Account";

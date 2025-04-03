@@ -34,13 +34,11 @@ class RegisterView(APIView):
 		username = request.data.get('username')
 		password = request.data.get('password')
 		password_confirmation = request.data.get('passwordConfirmation')
-		print(f'passwordConfirmation : {password_confirmation}')
 		if (password != password_confirmation):
 			return Response({'password_match': 'Passwords do not match'}, status=status.HTTP_400_BAD_REQUEST)
 		regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
 		if not re.match(regex, password):
 			return Response({'password_format': 'Wrong password format'}, status=status.HTTP_400_BAD_REQUEST)
-		print(f"Registering user: {username}, Password: {password}")
 		if serializer.is_valid():
 			try:
 				serializer.save()
@@ -51,7 +49,6 @@ class RegisterView(APIView):
                     status=status.HTTP_409_CONFLICT
 				)
 			except Exception as e:
-				print(f"Register error: {e}")
 				return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,8 +59,6 @@ class LoginView(APIView):
 	def post(self, request):
 		username = request.data.get('username')
 		password = request.data.get('password')
-		print(f"Authenticating user: {username}")
-		print(f"Authenticating password: {password}")
 		user = authenticate(username=username, password=password)
 		if user is None:
 			return Response({'error': 'Wrong credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -89,7 +84,6 @@ class LoginView(APIView):
 		user.email_otp = code
 		user.otp_created_at = now()
 		user.save()
-		print(f"code generated : {code}")
 		send_mail('Your 2FA verification code', f'Your 2FA verification code is : {code}\nIt is valid for 5 minutes.', settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False,)
 
 	def send_sms_otp(self, user):
@@ -97,7 +91,6 @@ class LoginView(APIView):
 		user.sms_otp = code
 		user.otp_created_at = now()
 		user.save()
-		print(f"code generated : {code}")
 		client = boto3.client(
 		"sns",
 		aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
@@ -120,7 +113,6 @@ class LoginView(APIView):
 	def generate_jwt_response(self, user):
 		try:
 			refresh_token = user.refresh_token.token
-			print(f"Existing refresh token: {refresh_token}")
 			outstanding_token = OutstandingToken.objects.get(token=refresh_token)
 			BlacklistedToken.objects.create(token=outstanding_token)
 			print("Existing refresh token blacklisted.")
@@ -154,7 +146,6 @@ class LoginView(APIView):
 		samesite='None',
 		max_age=7 * 24 * 60 * 60
 		)
-		print("Cookies envoyes :", response.cookies)
 		return response
 
 class Verify2FAView(APIView):
@@ -163,7 +154,6 @@ class Verify2FAView(APIView):
 
 	def post(self, request):
 		code = request.data.get('code')
-		print(f"code : {code}")
 		session_user_id = request.session.get('pre_auth_user')
 
 		if not session_user_id:
@@ -174,10 +164,6 @@ class Verify2FAView(APIView):
 		except User.DoesNotExist:
 			return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-		# Vérification du code OTP en fonction de la méthode 2FA
-		print(f"user.two_factor_method : {user.two_factor_method}")
-		print(f"user.email_otp : {user.email_otp}")
-		print(f"user.sms_otp : {user.sms_otp}")
 		otp_valid = False
 		if user.two_factor_method == "email" and user.email_otp == code:
 			otp_valid = True
@@ -190,9 +176,8 @@ class Verify2FAView(APIView):
 		else:
 			otp_valid = False
 
-		# Vérifier la validité du code OTP
 		if user.two_factor_method in ["email", "sms"]:
-			otp_expiration_time = user.otp_created_at + timedelta(minutes=5)  # Expiration après 5 minutes
+			otp_expiration_time = user.otp_created_at + timedelta(minutes=5)
 			if not otp_valid:
 				return Response({"error": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 			if now() > otp_expiration_time:
@@ -201,18 +186,15 @@ class Verify2FAView(APIView):
 		if not otp_valid:
 			return Response({"error": "Invalid OTP"}, status=400)
 
-		# Nettoyer la session et le code OTP
 		request.session.pop('pre_auth_user', None)
 		user.email_otp = None
 		user.sms_otp = None
 		user.save()
 
-		# Générer et retourner le JWT
 		return LoginView().generate_jwt_response(user)
 
 class GenerateTOTPQRCodeView(APIView):
 	permission_classes = [IsAuthenticated]
-	""" Génère un QR Code pour l'authentification TOTP """
 	def get(self, request):
 		user = request.user
 		if not user.totp_secret:
@@ -235,7 +217,6 @@ class LogoutView(APIView):
             try:
                 old_refresh_token = user.refresh_token.token
                 outstanding_token = OutstandingToken.objects.get(token=old_refresh_token)
-                print(f"Old refresh token found: {old_refresh_token}")
                 BlacklistedToken.objects.create(token=outstanding_token)
                 user.refresh_token.delete()
                 print("Old refresh token blacklisted.")
@@ -247,8 +228,11 @@ class LogoutView(APIView):
             response.delete_cookie('access_token')
             response.delete_cookie('refresh_token')
             return response
+        except IntegrityError:
+            return Response({'error': 'Logout already done.'}, status=status.HTTP_409_CONFLICT)
+        except AuthenticationFailed as auth_error:
+            return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
-            print(f"Logout error: {e}")
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -256,7 +240,6 @@ class RefreshTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
-        print(f"Cookies reçus : {request.COOKIES}")
         user = request.user
         old_refresh_token = request.COOKIES.get('refresh_token')
         if not old_refresh_token:
@@ -290,7 +273,6 @@ class RefreshTokenView(APIView):
         except OutstandingToken.DoesNotExist:
             return Response({'error': 'Invalid refresh token'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
-            print(f"Refresh Token error: {e}")
             return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AccessTokenView(APIView):
@@ -343,7 +325,6 @@ class IsAuthView(APIView):
 	def get(self, request):
 		try:
 			user = request.user
-			print(f'user.id: {user.id}')
 			return Response({'user': UserSerializer(user).data, 'user_id': user.id, 'username': user.username, 'alias': user.alias}, status=status.HTTP_200_OK)
 		except AuthenticationFailed:
 			return Response({'error': 'User is not authenticated'}, status=status.HTTP_401_UNAUTHORIZED)

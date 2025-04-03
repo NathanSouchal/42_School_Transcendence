@@ -3,8 +3,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from api.views import RefreshTokenView, AccessTokenView, RegisterView, LoginView, LogoutView, IsAuthView, Verify2FAView, GenerateTOTPQRCodeView
 
 urlpatterns = [
-	# path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('custom-token/refresh/', RefreshTokenView.as_view(), name='custom_token_refresh'),
     path('custom-token/access/', AccessTokenView.as_view(), name='custom_token_access'),
 	path('register/', RegisterView.as_view(), name='register'),

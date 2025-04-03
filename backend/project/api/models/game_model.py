@@ -2,7 +2,7 @@ from django.db import models
 from .user_model import User
 
 class Game(models.Model):
-	player1 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='games_as_player1') # on_delete=models.SET_NULL : Si un utilisateur est supprimé, ce champ sera null.
+	player1 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='games_as_player1')
 	player2 = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='games_as_player2')
 	opponentName = models.CharField(max_length=100, default="Guest")
 	score_player1 = models.IntegerField(default=0)

@@ -69,20 +69,18 @@ class GameState(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         print(f"❌ WebSocket DISCONNECTED: {self.scope['client']}, Code: {close_code}")
         if close_code is None:
-            print("⚠️ WebSocket fermé sans code, peut-être une déconnexion inattendue ?")
+            print("WebSocket closed")
 
-        # termine proprement la tache manage_online_players qui tourne en arriere plan
         if hasattr(self, "manage_task"):
             self.manage_task.cancel()
             try:
                 await self.manage_task
             except asyncio.CancelledError:
-                print("manage_online_players cancelled properly")
+                print("Manage_online_players cancelled properly")
 
         leaving_player = None
 
         if hasattr(self, "room") and self.room and self.room in self.rooms:
-            # Trouver et retirer le joueur de la room
             leaving_player = next(
                 (
                     player
@@ -96,7 +94,6 @@ class GameState(AsyncWebsocketConsumer):
             print(f"Removing player {leaving_player['username']} from room {self.room}")
             self.rooms[self.room]["players"].remove(leaving_player)
 
-            # Si en mode ONLINE et qu'il reste un seul joueur, notifier cet adversaire
             if (
                 self.game_mode == GameMode.ONLINE
                 and len(self.rooms[self.room]["players"]) == 1
@@ -110,7 +107,6 @@ class GameState(AsyncWebsocketConsumer):
                     {"type": "opponent_left", "message": "Opponent left the game"},
                 )
 
-        # Supprimer la room si elle est vide
         if self.room in self.rooms and not self.rooms[self.room]["players"]:
             print(f"Room {self.room} is now empty. Checking for BACKGROUND restart...")
 
@@ -121,14 +117,13 @@ class GameState(AsyncWebsocketConsumer):
                 print(f"Deleting room {self.room}")
                 del self.rooms[self.room]
 
-        # Retirer le joueur du groupe Channels
         if self.room:
             if self.channel_layer is not None:
                 await self.channel_layer.group_discard(self.room, self.channel_name)
             else:
-                print("⚠️ Erreur: `channel_layer` est None")
+                print("⚠️`channel_layer` is None")
         else:
-            print("⚠️ Impossible de quitter le groupe Channels : self.room est None")
+            print("⚠️ Impossible to exit group Channels : self.room is None")
 
     async def opponent_left(self, event):
         print(f"Opponent left")
@@ -138,16 +133,14 @@ class GameState(AsyncWebsocketConsumer):
         )
         self.game_mode = GameMode.BACKGROUND
 
-        # Annuler l'ancienne game_loop s'il en existe une
         if self.room in self.game_loops:
             self.game_loops[self.room].cancel()
             try:
                 await self.game_loops[self.room]
             except asyncio.CancelledError:
-                print(f"Ancienne game_loop annulée pour la salle {self.room}")
+                print(f"Old game_loop cancelled for room {self.room}")
             del self.game_loops[self.room]
 
-        # Réinitialiser la room et redémarrer la game_loop en mode BACKGROUND
         await self.room_initialization.reactivate_background_mode()
 
     async def receive(self, text_data):

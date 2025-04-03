@@ -6,7 +6,6 @@ from django.core.validators import RegexValidator
 import re
 
 class GameSerializer(serializers.ModelSerializer):
-    # Utilisation de PrimaryKeyRelatedField pour accepter les IDs dans la requête et trouver l'instance de User correspondante
     player1 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     player2 = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True, required=False)
 
@@ -17,7 +16,6 @@ class GameSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        # Modifier la représentation pour inclure les usernames au lieu des IDs
         representation['player1'] = instance.player1.username if instance.player1 else None
         representation['player2'] = instance.player2.username if instance.player2 else None
         return representation
@@ -35,7 +33,6 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 FORBIDDEN_USERNAMES = {"guest"}
 
 class UserSerializer(serializers.ModelSerializer):
-    # id = serializers.UUIDField(format='hex')
     username = serializers.CharField(min_length=4, max_length=10, required=True, validators=[
             RegexValidator(
                 regex=r'^\w+$',
@@ -77,11 +74,10 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        # fields = ['id', 'username', 'is_superuser', 'password', 'avatar', 'match_history']
         fields = '__all__'
         extra_kwargs = {
             'password': {'write_only': True},
-            'is_superuser': {'read_only': True}  # Empêche la modification via l'API
+            'is_superuser': {'read_only': True}
         }
 
     def validate_phone_number(self, value):
@@ -94,8 +90,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         avatar = validated_data.get('avatar', None)
-        # if not avatar:
-        #     validated_data['avatar'] = "defaults/bob.jpg"
         alias = validated_data.get('alias', None)
         if not alias:
             validated_data['alias'] = validated_data.get('username')
@@ -109,26 +103,6 @@ class PublicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'avatar', 'username', 'alias']
-
-"""
-	serializer: convertit des objets Python (ici des instances de modeles) en format JSON ou autre
-
-	fields = ['id', 'username', 'password'] -> on selectionne les champs du modele User qui seront
-	inclus dans la representation JSON
-
-	extra_kwargs = {'password': {'write_only': True}} -> ici on personnalise le comportement du champ
-	password, on le passe en ecriture seule. Il peut être transmis dans une requête login par exemple
-	mais il ne sera jamais retourné dans la réponse JSON (on le protege d'etre expose)
-
-	create() est la methode appelee pour creer un nouvel objet utilisateur (POST ou PUT sur un User
-	arrive ici pour sauvegarder les donnees). **validated_data est un déballage (unpacking) du dictionnaire
-	validated_data qui contient par exemple {username='john', password='securepassword'}
-	User.objects.create_user(**validated_data) -> User.UserManager().create_user
-
-	La méthode par défaut de DRF pour create ne sait pas comment gérer les mots de passe (les hacher)
-	En remplaçant cette méthode, on personnalise la manière dont un utilisateur est créé.
-"""
-
 
 
 class MatchSerializer(serializers.ModelSerializer):
@@ -195,20 +169,12 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def to_representation(self, instance):
-        """
-        Cette méthode est utilisée pour la sérialisation (GET).
-        Elle retourne les détails utilisateur plutôt que leurs IDs.
-        """
         data = super().to_representation(instance)
         data['from_user'] = SimpleUserSerializer(instance.from_user).data
         data['to_user'] = SimpleUserSerializer(instance.to_user).data
         return data
 
     def create(self, validated_data):
-        """
-        Cette méthode est utilisée pour la désérialisation (POST).
-        Elle accepte uniquement les IDs des utilisateurs.
-        """
         from_user = validated_data.pop('from_user')
         to_user = validated_data.pop('to_user')
         if from_user == to_user:
@@ -224,14 +190,3 @@ class FriendRequestSerializer(serializers.ModelSerializer):
                 {"to_user": "You are already friends with this user."}
             )
         return FriendRequest.objects.create(from_user=from_user, to_user=to_user, **validated_data)
-
-
-"""
-Pourquoi extraire from_user et to_user avec .pop()  ?
-
-Les champs comme from_user et to_user sont des relations ForeignKey,
-et nous avons besoin de passer leurs valeurs explicitement (des instances du modèle User) à la méthode FriendRequest.objects.create().
-En les extrayant avec .pop(), nous préparons ces champs pour les utiliser comme arguments distincts lors de la création.
-Si nous ne les extrayons pas, et que nous essayons de passer tout validated_data directement à FriendRequest.objects.create(),
-Django essaiera de traiter from_user et to_user comme des champs ordinaires, ce qui peut entraîner des erreurs.
-"""

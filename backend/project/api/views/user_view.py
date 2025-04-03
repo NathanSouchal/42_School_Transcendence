@@ -45,7 +45,6 @@ class UserView(APIView):
 		except AuthenticationFailed as auth_error:
 			return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
 		except Exception as e:
-			print(f"Delete user error: {e}")
 			return Response({'error': f'An unexpected error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 	def put(self, request, id=None):
@@ -59,23 +58,18 @@ class UserView(APIView):
 			avatar_base64 = request.data.get('avatar')
 			if avatar_base64:
 				try:
-					# Décoder l'image Base64
 					format, imgstr = avatar_base64.split(';base64,')
-					ext = format.split('/')[-1]  # Obtenir l'extension (ex: "jpeg", "png")
+					ext = format.split('/')[-1]
 					allowed_types = ['jpeg', 'jpg', 'png']
-					max_size = 5 * 1024 * 1024  # 5MB
+					max_size = 5 * 1024 * 1024
 					if ext.lower() not in allowed_types:
 						return Response({'wrong_avatar': 'Only JPG and PNG files are allowed'}, status=status.HTTP_400_BAD_REQUEST)
-					# Convertir Base64 en données binaires
 					image_data = base64.b64decode(imgstr)
-					# Vérifier la taille de l'image
 					if len(image_data) > max_size:
 						return Response({'wrong_avatar': "File size can't exceed 5MB"}, status=status.HTTP_400_BAD_REQUEST)
-					# Vérifier si l'image est bien une image
 					img_type = imghdr.what(None, h=image_data)
 					if img_type not in allowed_types:
 						return Response({'wrong_avatar': 'Invalid image format'}, status=status.HTTP_400_BAD_REQUEST)
-					# Si tout est bon, enregistrer l'avatar en tant que fichier Django
 					file_name = f"user_{user.id}.{ext}"
 					user.avatar.save(file_name, ContentFile(image_data), save=True)
 				except (ValueError, TypeError, IndexError, base64.binascii.Error):

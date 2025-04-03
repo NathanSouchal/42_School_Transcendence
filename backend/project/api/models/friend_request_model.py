@@ -13,7 +13,6 @@ class FriendRequest(models.Model):
     accepted = models.BooleanField(default=False)
 
     class Meta:
-        # unique_together = ('from_user', 'to_user')  # Empêche les doublons d'invitation
         constraints = [
         models.UniqueConstraint(
             fields=['from_user', 'to_user'],
@@ -28,7 +27,6 @@ class FriendRequest(models.Model):
     def accept(self):
         self.accepted = True
         self.save()
-        # Ajouter l'amitié validée au ManyToManyField
         self.from_user.friends.add(self.to_user)
         self.to_user.friends.add(self.from_user)
 

@@ -7,34 +7,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
     "localhost",
-    "0.0.0.0",
-    "127.0.0.1",
-    "10.13.12.1",
-    "10.13.12.2",
-    "10.13.12.3",
-    "10.13.12.4",
-    "10.12.11.7",
-    "10.12.11.6",
-    "10.13.11.3",
-    "10.13.3.4",
-    "10.13.3.2",
-    "10.19.239.218",
-    "192.168.1.30",
-    "192.168.1.166",
-    "192.168.1.80",
-    "192.168.0.32",
-    "10.19.234.197",
-    "10.13.11.1",
+    os.getenv("IP_ADDRESS"),
 ]
 
 INSTALLED_APPS = [
@@ -80,7 +61,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "api.middleware.UpdateLastSeenMiddleware",
 ]
 
 ROOT_URLCONF = "project.urls"
@@ -104,7 +84,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "project.wsgi.application"
 
 
-# Database pour le deploiement en utilisant docker
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -116,23 +95,12 @@ DATABASES = {
     }
 }
 
-# Database pour le developpement (sans passer par docker)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
-    # 'django.contrib.auth.hashers.PBKDF2PasswordHasher',
-    # 'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
-    # 'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 ]
 
 AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",  # Authentification standard Django
+    "django.contrib.auth.backends.ModelBackend",
 ]
 
 
@@ -170,76 +138,14 @@ MEDIA_ROOT = "/app/media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ALLOW_CREDENTIALS = True  # Autoriser l'envoi des cookies avec CORS
+CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://frontend:3000",
-    "http://backend:8000",
-    "http://localhost:3000",
-    "https://frontend:3000",
-    "https://localhost:3000",
-    "https://10.13.12.2:3000",
-    "https://10.13.12.1:3000",
-    "http://10.13.12.4:3000",
-    "http://0.0.0.0:3000",
-    "https://0.0.0.0:3000",
-    "https://0.0.0.0:8000",
-    "http://0.0.0.0:8000",
-    "https://10.13.12.1:8443",
-    "https://10.13.12.2:8443",
-    "https://10.13.12.4:8443",
-    "https://10.13.3.4:8443",
-    "https://10.13.3.2:8443",
-    "https://10.12.11.7:8443",
-    "https://10.12.11.6:8443",
-    "https://10.13.11.3:8443",
-    "https://10.19.239.218:3000",
-    "http://10.19.239.218:3000",
-    "https://10.19.239.218:8443",
-    "http://10.19.239.218:8443",
-    "https://192.168.1.30:8443",
-    "https://192.168.1.166:8443",
-    "http://192.168.1.30:8443",
-    "https://192.168.1.30:3000",
-    "https://192.168.1.80:8443",
-    "https://192.168.0.32:8443",
-    "https://10.19.234.197:8443",
-    "http://192.168.1.30:3000",
-    "https://10.12.11.5:8443",
-    "https://10.12.11.6:8443",
-    "https://10.13.11.1:8443",
+    os.getenv("URL"),
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "http://frontend:3000",
-    "http://localhost:3000",
-    "https://localhost:3000",
-    "https://frontend:3000",
-    "http://0.0.0.0:3000",
-    "http://0.0.0.0:8000",
-    "https://10.13.12.1:3000",
-    "http://10.13.12.4:3000",
-    "https://10.13.12.1:8443",
-    "https://10.13.12.2:8443",
-    "https://10.13.12.4:8443",
-    "https://10.12.11.7:8443",
-    "https://10.12.11.6:8443",
-    "https://10.13.3.4:8443",
-    "https://10.13.3.2:8443",
-    "https://10.13.11.3:8443",
-    "https://10.19.239.218:3000",
-    "https://10.19.239.218:8443",
-    "http://10.19.239.218:3000",
-    "http://10.19.239.218:8443",
-    "https://192.168.1.30:8443",
-    "http://192.168.1.30:8443",
-    "https://192.168.1.30:3000",
-    "http://192.168.1.30:3000",
-    "https://192.168.1.80:8443",
-    "https://192.168.0.32:8443",
-    "https://10.19.234.197:8443",
-    "https://192.168.1.166:8443",
-    "https://10.13.11.1:8443",
+    os.getenv("URL"),
 ]
 
 
@@ -269,7 +175,7 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-            "stream": "ext://sys.stdout",  # Explicitly use stdout
+            "stream": "ext://sys.stdout",
         },
     },
     "loggers": {
@@ -278,8 +184,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": True,
         },
-        # Add this for your consumers
-        "project.game.consumers": {  # Replace with your actual consumer module path
+        "project.game.consumers": {
             "handlers": ["console"],
             "level": "DEBUG",
             "propagate": True,
@@ -310,8 +215,8 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
 
-OTP_TOTP_ISSUER = "YourAppName"
-OTP_TOTP_DIGITS = 6  # Code à 6 chiffres
-OTP_TOTP_INTERVAL = 30  # Code expire en 30 secondes
+OTP_TOTP_ISSUER = "SurimiSmash"
+OTP_TOTP_DIGITS = 6
+OTP_TOTP_INTERVAL = 30
 
 SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"

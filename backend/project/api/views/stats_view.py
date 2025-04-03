@@ -8,6 +8,7 @@ from api.serializers import StatsSerializer
 from api.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.http import Http404
+from django.db import IntegrityError
 
 
 class StatsView(APIView):
@@ -33,6 +34,8 @@ class StatsView(APIView):
                 stats = serializer.save()
                 return Response({'stats': StatsSerializer(stats).data, 'message': 'Stats created successfully.'}, status=status.HTTP_201_CREATED)
             return Response({'errors': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except IntegrityError:
+            return Response({'error': 'Request already made.'}, status=status.HTTP_409_CONFLICT)
         except AuthenticationFailed as auth_error:
             return Response({'error': 'Invalid or expired access token. Please refresh your token or reauthenticate.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:

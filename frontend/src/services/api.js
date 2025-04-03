@@ -3,7 +3,7 @@ import state from "../app.js";
 import { router } from "../app.js";
 // import https from "https";
 
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = import.meta.env.URL;
 
 const API = axios.create({
   // baseURL: API_BASE_URL,
