@@ -84,8 +84,8 @@ export const DEFAULT_CONFIG = {
         lacunarity: 3.0,
       },
       size: {
-        terrain_depth: 200,
-        terrain_width: 200,
+        terrain_depth: 50,
+        terrain_width: 50,
         terrain_height: 100,
       },
     },
@@ -100,8 +100,8 @@ export const DEFAULT_CONFIG = {
         lacunarity: 0.5,
       },
       size: {
-        terrain_depth: 300,
-        terrain_width: 300,
+        terrain_depth: 180,
+        terrain_width: 180,
         terrain_height: 50,
       },
     },
