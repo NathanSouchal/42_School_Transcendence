@@ -168,6 +168,7 @@ export const trad = {
       aliasMinlength: "Alias must be a least 4 characters long",
       aliasMaxlength: "Alias must be at maximum 10 characters long",
       phone: "Phone number must start with +33",
+	  errorOccured: "An error has occured, please retry"
     },
   },
   FR: {
@@ -344,6 +345,7 @@ export const trad = {
       aliasMinlength: "L'alias doit comporter au moins 4 caractères",
       aliasMaxlength: "L'alias doit comporter au maximum 10 caractères",
       phone: "Le numéro de téléphone doit commencer par +33",
+	  errorOccured: "Une erreur s'est produite, veuillez réessayer"
     },
   },
   ES: {
@@ -523,6 +525,7 @@ export const trad = {
       aliasMinlength: "El nombre de alias debe tener al menos 4 caracteres",
       aliasMaxlength: "El nombre de alias debe tener como máximo 10 caracteres",
       phone: "El número de teléfono debe comenzar con +33",
+	  errorOccured: "Se ha producido un error. Vuelva a intentarlo"
     },
   },
   CR: {
@@ -698,6 +701,7 @@ export const trad = {
       aliasMinlength: "Crablias must be at least 4 Crabs long",
       aliasMaxlength: "Crablias must be at most 10 Crabs long",
       phone: "Crab number must start with +33",
+	  errorOccured: "An Crabror has occured, please crabretry"
     },
   },
 };

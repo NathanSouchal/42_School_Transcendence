@@ -39,6 +39,9 @@ API.interceptors.response.use(
 		router.navigate("/404");
 		return Promise.reject(error);
 	}
+	if (error.response.status === 400 || error.response.status === 403) {
+		return Promise.reject(error);
+	}
     if (error.response.status === 401 && window.location.pathname === "/login")
       return Promise.reject(error);
     if (error.response.status === 401) {

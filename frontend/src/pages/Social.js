@@ -161,7 +161,8 @@ export default class Social {
       });
       await updateView(this, {});
     } catch (error) {
-		if (error.response && error.response.status === 404) setDisable(false, "validate_invit");
+		alert(trad[this.lang].errors.errorOccured);
+		if (error.response && error.response.status === 404) router.navigate("/404");
     } finally {
       setDisable(false, "validate_invit");
     }
@@ -177,7 +178,8 @@ export default class Social {
       });
       await updateView(this, {});
     } catch (error) {
-		if (error.response && error.response.status === 404) setDisable(false, "cancel_decline_invit");
+		alert(trad[this.lang].errors.errorOccured);
+		if (error.response && error.response.status === 404) router.navigate("/404");
     } finally {
       setDisable(false, "cancel_decline_invit");
     }

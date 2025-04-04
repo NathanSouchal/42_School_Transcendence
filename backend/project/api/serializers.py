@@ -30,7 +30,7 @@ class SimpleUserSerializer(serializers.ModelSerializer):
     def get_is_online(self, obj):
         return obj.is_online()
 
-FORBIDDEN_USERNAMES = {"guest"}
+FORBIDDEN_USERNAMES = {"Computer"}
 
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(min_length=4, max_length=10, required=True, validators=[
@@ -188,5 +188,9 @@ class FriendRequestSerializer(serializers.ModelSerializer):
         if from_user.friends.filter(id=to_user.id).exists():
             raise serializers.ValidationError(
                 {"to_user": "You are already friends with this user."}
+            )
+        if FriendRequest.objects.filter(from_user=from_user, to_user=to_user).exists():
+            raise serializers.ValidationError(
+                {"to_user": "Friend request already exists."}
             )
         return FriendRequest.objects.create(from_user=from_user, to_user=to_user, **validated_data)

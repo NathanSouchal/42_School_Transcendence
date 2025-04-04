@@ -134,6 +134,7 @@ export default class User {
         to_user: this.pageId,
       });
     } catch (error) {
+		alert(trad[this.lang].errors.errorOccured);
       throw error;
     }
   }
@@ -142,6 +143,7 @@ export default class User {
     try {
       const res = await API.delete(`/friends/friend/${this.pageId}/`);
     } catch (error) {
+		alert(trad[this.lang].errors.errorOccured);
       throw error;
     }
   }
@@ -152,6 +154,7 @@ export default class User {
         accepted: "false",
       });
     } catch (error) {
+		alert(trad[this.lang].errors.errorOccured);
       throw error;
     }
   }
@@ -162,6 +165,7 @@ export default class User {
         accepted: "true",
       });
     } catch (error) {
+		alert(trad[this.lang].errors.errorOccured);
       throw error;
     }
   }
@@ -172,6 +176,7 @@ export default class User {
         accepted: "false",
       });
     } catch (error) {
+		alert(trad[this.lang].errors.errorOccured);
       throw error;
     }
   }

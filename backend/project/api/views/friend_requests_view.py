@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.shortcuts import get_object_or_404
 from api.models import FriendRequest, User
 from api.serializers import FriendRequestSerializer, UserSerializer
@@ -59,6 +60,8 @@ class FriendRequestCreateView(APIView):
                 friendrequest = serialized.save()
                 return Response({'friend request': FriendRequestSerializer(friendrequest).data, 'message': 'Friend request created successfully.'}, status=status.HTTP_201_CREATED)
             return Response({'errors': serialized.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except DRFValidationError as e:
+            return Response({'errors': e.detail}, status=status.HTTP_400_BAD_REQUEST)
         except IntegrityError:
             return Response({'error': 'Friend request already exists.'}, status=status.HTTP_409_CONFLICT)
         except AuthenticationFailed as auth_error:
