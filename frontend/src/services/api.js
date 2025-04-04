@@ -37,8 +37,10 @@ API.interceptors.response.use(
     }
     if (error.response.status === 401 && window.location.pathname === "/login")
       return Promise.reject(error);
-	if (error.response.status === 404 && window.location.pathname !== "/social")
-		return router.navigate("/404");
+	if (error.response.status === 404 && window.location.pathname !== "/social") {
+		router.navigate("/404");
+		return Promise.reject(error);
+	}
     if (error.response.status === 401) {
       if (isRetrying) {
         setTimeout(() => {
