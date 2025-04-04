@@ -1,6 +1,7 @@
 import math
 import random
 import time
+import asyncio
 from dataclasses import dataclass
 
 
@@ -50,6 +51,7 @@ class Ball:
         self.bounces = 0
         self.last_collision = {"side": None, "time": 0}
         self.collision_cooldown = 0.1
+        self.isResetting = False
 
     def _random_initial_velocity(self):
         while True:
@@ -135,9 +137,10 @@ class Ball:
         elif side in ["top", "bottom"]:
             self.velocity.x *= -1
 
-
     def update(self, delta_time):
-        if self.is_falling:
+        if self.isResetting:
+            return
+        elif self.is_falling:
             if self.position.y <= -1:
                 self.velocity.y *= 0.7
                 self.velocity.x *= 0.85
@@ -172,10 +175,17 @@ class Ball:
             self.velocity.y = -0.2
 
     def reset(self):
-        self.elapsed_time = 0
-        self.is_falling = False
-        self.position = Vector3(0, 2.7, 0)
-        self.velocity = self._random_initial_velocity()
+        async def _reset():
+            self.isResetting = True
+            self.position = Vector3(0, 2.7, 0)
+            await asyncio.sleep(1)
+            self.elapsed_time = 0
+            self.is_falling = False
+            self.position = Vector3(0, 2.7, 0)
+            self.velocity = self._random_initial_velocity()
+            self.isResetting = False
+
+        asyncio.create_task(_reset())
 
     def getCurrentState(self):
         return {
