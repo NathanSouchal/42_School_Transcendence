@@ -223,7 +223,7 @@ export default class Account {
 
   async handleClick(key) {
     setDisable(true, key);
-    if (key === "cancel-button" || key === "update-user-info") {
+    if (key === "update-user-info") {
       this.isForm = !this.isForm;
       await updateView(this, {});
       if (this.isForm) {
@@ -232,7 +232,11 @@ export default class Account {
           await this.getQrcode();
         }
       }
-    } else if (key === "delete-user-button") {
+    } else if (key === "cancel-button") {
+		this.isForm = !this.isForm;
+		this.formData = {};
+		await updateView(this, {});
+	} else if (key === "delete-user-button") {
       await this.deleteUser();
     } else if (key === "confirm-delete-user") {
       await this.confirmDeleteUser(this.state.state.userId);
@@ -346,14 +350,6 @@ export default class Account {
   async updateUserInfo(id) {
     setDisable(true, "form-button");
     try {
-      if (
-        !Object.keys(this.formData).length ||
-        !this.formData.username?.length ||
-        !this.formData.alias?.length
-      ) {
-        this.displayAccountErrorMessage(trad[this.lang].errors.fields);
-        throw new Error(trad[this.lang].errors.fields);
-      }
       let regex = /^\w+$/;
       if (!regex.test(this.formData.username)) {
         this.displayAccountErrorMessage(trad[this.lang].errors.username);
@@ -391,7 +387,6 @@ export default class Account {
         this.displayAccountErrorMessage(trad[this.lang].errors.phone);
         throw new Error(trad[this.lang].errors.phone);
       }
-      if (!this.formData.avatar && this.userData.avatar) this.formData.avatar = this.userData.avatar;
       const res = await API.put(`/user/${id}/`, this.formData);
       this.state.state.username = res.data.user.username;
       this.state.state.userAlias = res.data.user.alias;
@@ -419,6 +414,7 @@ export default class Account {
         this.displayAccountErrorMessage(error.response.data.error);
       throw error;
     } finally {
+		this.formData = {};
       setDisable(false, "form-button");
     }
   }
@@ -485,6 +481,7 @@ export default class Account {
   destroy() {
     this.removeEventListeners();
     this.isForm = false;
+	this.formData = {};
     if (this.isSubscribed) {
       this.state.unsubscribe(this.handleStateChange);
       this.isSubscribed = false;
