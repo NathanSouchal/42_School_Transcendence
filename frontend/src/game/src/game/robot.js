@@ -6,7 +6,7 @@ class Robot {
     this.paddle = paddle;
     this.size = size;
     this.deltaFactor = 30;
-    this.half_width = 3.42;
+    this.half_width = 3.12;
     this.target_x = 0;
     this.last_target_x = 0;
     this.timeSinceLastView = 0;
