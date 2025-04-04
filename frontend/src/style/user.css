@@ -9,7 +9,6 @@
   color: var(--tertiary-color);
   overflow-y: scroll;
   overflow-x: hidden;
-  /* scrollbar-width: none; */
   margin-top: 3rem;
 }
 

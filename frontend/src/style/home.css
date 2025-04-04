@@ -9,7 +9,6 @@
   color: var(--primary-color);
   overflow-y: scroll;
   overflow-x: hidden;
-  /* scrollbar-width: none; */
 }
 
 .home-title {

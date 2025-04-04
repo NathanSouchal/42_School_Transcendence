@@ -10,7 +10,6 @@
   padding-top: 10%;
   overflow-y: scroll;
   overflow-x: hidden;
-  /* scrollbar-width: none; */
 }
 
 .stats-list {

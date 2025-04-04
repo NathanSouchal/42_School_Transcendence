@@ -9,7 +9,6 @@
   color: var(--primary-color);
   margin: 0 auto;
   overflow-y: scroll;
-  /* scrollbar-width: none; */
 }
 
 .error-title-container {
