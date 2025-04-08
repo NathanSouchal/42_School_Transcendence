@@ -120,7 +120,8 @@ export default class Social {
         } else friend.avatar = "/profile.jpeg";
       }
     } catch (error) {
-		if (error.response && error.response.status === 404) router.navigate("/404");
+		if (error.response && error.response.status === 404) {
+      router.navigate("/404")};
     }
   }
 
@@ -147,7 +148,8 @@ export default class Social {
         }
       }
     } catch (error) {
-		if (error.response && error.response.status === 404) router.navigate("/404");
+      if (error.response && error.response.status === 404) {
+        router.navigate("/404")};
     }
   }
 
@@ -162,7 +164,8 @@ export default class Social {
       await updateView(this, {});
     } catch (error) {
 		alert(trad[this.lang].errors.errorOccured);
-		if (error.response && error.response.status === 404) router.navigate("/404");
+		if (error.response && error.response.status === 404) {
+      router.navigate("/404")};
     } finally {
       setDisable(false, "validate_invit");
     }
@@ -179,7 +182,8 @@ export default class Social {
       await updateView(this, {});
     } catch (error) {
 		alert(trad[this.lang].errors.errorOccured);
-		if (error.response && error.response.status === 404) router.navigate("/404");
+		if (error.response && error.response.status === 404) {
+      router.navigate("/404")};
     } finally {
       setDisable(false, "cancel_decline_invit");
     }

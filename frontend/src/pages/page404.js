@@ -21,7 +21,8 @@ export default class page404 {
       newState.lang !== this.previousState.lang
     ) {
       await updateView(this, {});
-    } else this.previousState = { ...newState };
+    } 
+    this.previousState = { ...newState };
   }
 
   attachEventListeners() {
@@ -59,7 +60,12 @@ export default class page404 {
   }
 
   destroy() {
+    this.lang = null;
     this.removeEventListeners();
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+    }
   }
 
   async render(routeParams = {}) {

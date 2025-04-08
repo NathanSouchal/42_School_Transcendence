@@ -17,7 +17,7 @@ from django.db import IntegrityError
 
 class UserView(APIView):
 	serializer_class = UserSerializer
-	permission_classes = [AllowAny]
+	permission_classes = [IsAuthenticated]
 
 	def get(self, request, id=None):
 		try:

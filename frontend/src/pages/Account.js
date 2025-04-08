@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Account.js                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nsouchal <nsouchal@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/08 10:20:10 by nsouchal          #+#    #+#             */
+/*   Updated: 2025/04/08 10:44:13 by nsouchal         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 import API from "../services/api.js";
 import {
   handleHeader,
@@ -351,31 +363,32 @@ export default class Account {
     setDisable(true, "form-button");
     try {
       let regex = /^\w+$/;
-      if (!regex.test(this.formData.username)) {
+      if (this.formData) {
+      if (!regex.test(this.formData?.username)) {
         this.displayAccountErrorMessage(trad[this.lang].errors.username);
         throw new Error(trad[this.lang].errors.username);
       }
-      if (this.formData.username.length < 4) {
+      if (this.formData?.username?.length < 4) {
         this.displayAccountErrorMessage(
           trad[this.lang].errors.usernameMinlength
         );
         throw new Error(trad[this.lang].errors.usernameMinlength);
       }
-      if (this.formData.username.length > 10) {
+      if (this.formData?.username?.length > 10) {
         this.displayAccountErrorMessage(
           trad[this.lang].errors.usernameMaxlength
         );
         throw new Error(trad[this.lang].errors.usernameMaxlength);
       }
-      if (!regex.test(this.formData.alias)) {
+      if (!regex.test(this.formData?.alias)) {
         this.displayAccountErrorMessage(trad[this.lang].errors.alias);
         throw new Error(trad[this.lang].errors.alias);
       }
-      if (this.formData.username.alias < 4) {
+      if (this.formData?.alias?.length < 4) {
         this.displayAccountErrorMessage(trad[this.lang].errors.aliasMinlength);
         throw new Error(trad[this.lang].errors.aliasMinlength);
       }
-      if (this.formData.username.alias > 10) {
+      if (this.formData?.alias?.length > 10) {
         this.displayAccountErrorMessage(trad[this.lang].errors.aliasMaxlength);
         throw new Error(trad[this.lang].errors.aliasMaxlength);
       }
@@ -386,7 +399,8 @@ export default class Account {
       ) {
         this.displayAccountErrorMessage(trad[this.lang].errors.phone);
         throw new Error(trad[this.lang].errors.phone);
-      }
+      }}
+
       const res = await API.put(`/user/${id}/`, this.formData);
       this.state.state.username = res.data.user.username;
       this.state.state.userAlias = res.data.user.alias;
@@ -397,6 +411,7 @@ export default class Account {
         error.response.status === 400 &&
         error.response.data
       ) {
+        
         const errorData = error.response.data;
         if (errorData.phone_number)
           this.displayAccountErrorMessage(
@@ -414,7 +429,7 @@ export default class Account {
         this.displayAccountErrorMessage(error.response.data.error);
       throw error;
     } finally {
-		this.formData = {};
+		  this.formData = {};
       setDisable(false, "form-button");
     }
   }

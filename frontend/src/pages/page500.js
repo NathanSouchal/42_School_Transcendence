@@ -59,7 +59,12 @@ export default class page500 {
   }
 
   destroy() {
+    this.lang = null;
     this.removeEventListeners();
+    if (this.isSubscribed) {
+      this.state.unsubscribe(this.handleStateChange);
+      this.isSubscribed = false;
+    }
   }
 
   async render(routeParams = {}) {
